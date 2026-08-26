@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from backend.app.services.solve_service import process_task
 
 
 app = FastAPI()
@@ -20,7 +21,4 @@ def health_check():
 
 @app.post("/api/v1/solve")
 def solve(request: SolveRequest):
-    return {
-        "status": "received",
-        "task": request.task,
-    }
+    return process_task(request.task)
