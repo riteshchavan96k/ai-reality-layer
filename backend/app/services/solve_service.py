@@ -1,5 +1,5 @@
+from backend.app.orchestrator.orchestrator import orchestrate_task
+
+
 def process_task(task: str) -> dict:
-    return {
-        "status": "processed",
-        "task": task,
-    }
+    return orchestrate_task(task)
