@@ -1,10 +1,12 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 
-app = FastAPI(
-    title="AI Reality Layer",
-    description="AI Reality Layer backend",
-    version="0.1.0",
-)
+
+app = FastAPI()
+
+
+class SolveRequest(BaseModel):
+    task: str
 
 
 @app.get("/health")
@@ -13,4 +15,12 @@ def health_check():
         "status": "healthy",
         "service": "ai-reality-layer",
         "version": "0.1.0",
+    }
+
+
+@app.post("/api/v1/solve")
+def solve(request: SolveRequest):
+    return {
+        "status": "received",
+        "task": request.task,
     }
