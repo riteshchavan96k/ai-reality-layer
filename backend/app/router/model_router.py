@@ -1,3 +1,6 @@
+from backend.app.router.model_selector import select_model
+
+
 def route_task(task_type: str) -> dict:
     if task_type == "programming":
         strategy = "programming"
@@ -8,7 +11,13 @@ def route_task(task_type: str) -> dict:
     else:
         strategy = "general"
 
+    candidates = ["mock-model"]
+
+    selection = select_model(strategy, candidates)
+
     return {
         "strategy": strategy,
-        "model": "mock-model",
+        "model": selection["selected_model"],
+        "candidates": selection["candidates"],
+        "scores": selection["scores"],
     }
