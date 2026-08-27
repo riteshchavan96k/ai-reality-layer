@@ -1,3 +1,4 @@
+from backend.app.models.catalog import get_available_models
 from backend.app.router.model_selector import select_model
 
 
@@ -11,7 +12,7 @@ def route_task(task_type: str) -> dict:
     else:
         strategy = "general"
 
-    candidates = ["mock-model"]
+    candidates = get_available_models()
 
     selection = select_model(strategy, candidates)
 

@@ -1,22 +1,20 @@
 from typing import Dict, List
 
-
-MODEL_PROFILES = {
-    "mock-model": {
-        "programming": 1.0,
-        "reasoning": 1.0,
-        "long_context": 1.0,
-        "general": 1.0,
-    }
-}
+from backend.app.models.catalog import MODEL_CATALOG
 
 
 def select_model(strategy: str, candidates: List[str]) -> dict:
     scores: Dict[str, float] = {}
 
     for model in candidates:
-        profile = MODEL_PROFILES.get(model, {})
-        score = profile.get(strategy, 0.0)
+        profile = MODEL_CATALOG.get(model, {})
+        capabilities = profile.get("capabilities", [])
+
+        if strategy in capabilities:
+            score = 1.0
+        else:
+            score = 0.0
+
         scores[model] = score
 
     if not scores:
