@@ -10,4 +10,5 @@ def route_task(task_type: str) -> dict:
 
     return {
         "strategy": strategy,
+        "model": "mock-model",
     }

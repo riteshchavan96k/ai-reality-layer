@@ -7,7 +7,7 @@ def orchestrate_task(task: str) -> dict:
     analysis = analyze_task(task)
     routing = route_task(analysis["task_type"])
 
-    model = get_model_adapter("mock-model")
+    model = get_model_adapter(routing["model"])
 
     if model is None:
         return {
