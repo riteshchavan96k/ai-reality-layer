@@ -5,7 +5,7 @@ from backend.app.models.registry import get_model_adapter
 
 def orchestrate_task(task: str) -> dict:
     analysis = analyze_task(task)
-    routing = route_task(analysis["task_type"])
+    routing = route_task(task, analysis["task_type"])
 
     model = get_model_adapter(routing["model"])
 
