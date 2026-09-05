@@ -1,3 +1,5 @@
+import os
+
 from backend.app.analyzer.task_analyzer import analyze_task
 from backend.app.router.model_router import route_task
 from backend.app.models.registry import get_model_adapter
@@ -8,6 +10,18 @@ from backend.app.execution.fallback_executor import execute_with_fallback
 from backend.app.execution.execution_trace import ExecutionTrace
 from backend.app.execution.execution_budget import ExecutionBudget
 from backend.app.execution.outcome_memory import DEFAULT_OUTCOME_MEMORY, OutcomeMemory
+from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMemory
+
+
+DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
+    "ARL_OUTCOME_MEMORY_PATH",
+    "",
+)
+
+if DEFAULT_PERSISTENT_MEMORY_PATH:
+    DEFAULT_CONFIGURED_MEMORY = PersistentOutcomeMemory(DEFAULT_PERSISTENT_MEMORY_PATH)
+else:
+    DEFAULT_CONFIGURED_MEMORY = DEFAULT_OUTCOME_MEMORY
 
 
 def orchestrate_task(
@@ -16,10 +30,10 @@ def orchestrate_task(
     approval_policy: HumanApprovalPolicy | None = None,
     retry_policy: RetryPolicy | None = None,
     execution_budget: ExecutionBudget | None = None,
-    outcome_memory: OutcomeMemory | None = None,
+    outcome_memory: OutcomeMemory | PersistentOutcomeMemory | None = None,
 ) -> dict:
     trace = ExecutionTrace()
-    memory = outcome_memory or DEFAULT_OUTCOME_MEMORY
+    memory = outcome_memory or DEFAULT_CONFIGURED_MEMORY
 
     analysis = analyze_task(task)
     trace.record(
