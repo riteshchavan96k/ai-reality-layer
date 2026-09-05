@@ -52,6 +52,72 @@ class OutcomeMemory:
 
         return [dict(record) for record in self._records[-limit:]]
 
+    def statistics(self) -> dict[str, Any]:
+        """Return aggregate outcome signals without exposing raw task text."""
+        total = len(self._records)
+        successful = sum(
+            1 for record in self._records if record["execution_status"] == "success"
+        )
+        failed = sum(
+            1 for record in self._records if record["execution_status"] == "failed"
+        )
+        scored = [
+            record["evaluation_score"]
+            for record in self._records
+            if isinstance(record["evaluation_score"], (int, float))
+        ]
+        attempts = [record["total_attempts"] for record in self._records]
+        fallback_count = sum(
+            1 for record in self._records if record["fallback_used"]
+        )
+
+        by_model: dict[str, dict[str, Any]] = {}
+        for record in self._records:
+            model = record["executed_model"]
+            if not model:
+                continue
+
+            model_stats = by_model.setdefault(
+                model,
+                {
+                    "executions": 0,
+                    "successful": 0,
+                    "failed": 0,
+                    "scores": [],
+                    "total_attempts": 0,
+                },
+            )
+            model_stats["executions"] += 1
+            model_stats["successful"] += record["execution_status"] == "success"
+            model_stats["failed"] += record["execution_status"] == "failed"
+            model_stats["total_attempts"] += record["total_attempts"]
+            if isinstance(record["evaluation_score"], (int, float)):
+                model_stats["scores"].append(record["evaluation_score"])
+
+        for model_stats in by_model.values():
+            executions = model_stats["executions"]
+            scores = model_stats.pop("scores")
+            model_stats["success_rate"] = (
+                model_stats["successful"] / executions if executions else 0.0
+            )
+            model_stats["average_score"] = (
+                sum(scores) / len(scores) if scores else None
+            )
+            model_stats["average_attempts"] = (
+                model_stats["total_attempts"] / executions if executions else 0.0
+            )
+
+        return {
+            "total_records": total,
+            "successful": successful,
+            "failed": failed,
+            "success_rate": successful / total if total else 0.0,
+            "average_score": sum(scored) / len(scored) if scored else None,
+            "average_attempts": sum(attempts) / len(attempts) if attempts else 0.0,
+            "fallback_rate": fallback_count / total if total else 0.0,
+            "by_model": by_model,
+        }
+
     @property
     def size(self) -> int:
         return len(self._records)
