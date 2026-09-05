@@ -16,6 +16,7 @@ from backend.app.reality.context_requirements import RealityContextRequirementDe
 from backend.app.reality.source_planner import RealitySourcePlanner
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
+from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
 
 
 DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
@@ -99,20 +100,23 @@ def orchestrate_task(
     reality_retrieval = (retrieval_engine or RealityRetrievalEngine()).retrieve(
         retrieval_contract
     )
+    normalized_evidence = RetrievalEvidenceNormalizer().normalize(reality_retrieval)
     analysis["reality_retrieval"] = {
         **retrieval_contract,
         "execution": reality_retrieval,
+        "evidence": normalized_evidence,
     }
 
     if (
         retrieval_contract["request"]["required"]
-        and reality_retrieval["status"] != "completed"
+        and normalized_evidence["status"] != "completed"
     ):
         trace.record(
             "execution",
             "blocked",
-            reason="required_retrieval_unavailable",
+            reason="required_retrieval_evidence_unavailable",
             retrieval_status=reality_retrieval["status"],
+            evidence_status=normalized_evidence["status"],
         )
         return {
             "status": "retrieval_unavailable",
@@ -120,6 +124,7 @@ def orchestrate_task(
             "routing": routing,
             "approval": approval,
             "retrieval": reality_retrieval,
+            "evidence": normalized_evidence,
             "trace": trace.snapshot(),
         }
 
