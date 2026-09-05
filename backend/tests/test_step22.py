@@ -14,13 +14,18 @@ class TestStep22(unittest.TestCase):
         result = orchestrate_task("Deploy this change to production")
         self.assertEqual(result["status"], "awaiting_human_approval")
         self.assertTrue(result["approval"]["required"])
+        self.assertEqual(result["approval"]["risk_level"], "high")
         self.assertIn("deploy", result["approval"]["matched_keywords"])
+        self.assertIn("production", result["approval"]["matched_keywords"])
         self.assertNotIn("result", result)
 
     def test_approved_risk_task_can_execute(self):
-        result = orchestrate_task("Deploy this change to production", human_approved=True)
+        result = orchestrate_task(
+            "Deploy this change to production", human_approved=True
+        )
         self.assertEqual(result["status"], "orchestrated")
         self.assertTrue(result["approval"]["required"])
+        self.assertEqual(result["approval"]["risk_level"], "high")
         self.assertIn("result", result)
 
     def test_always_policy_requires_approval(self):
@@ -28,12 +33,33 @@ class TestStep22(unittest.TestCase):
         result = orchestrate_task("Tell me about AI", approval_policy=policy)
         self.assertEqual(result["status"], "awaiting_human_approval")
         self.assertTrue(result["approval"]["required"])
+        self.assertEqual(result["approval"]["mode"], "always")
 
     def test_never_policy_disables_approval(self):
         policy = HumanApprovalPolicy(mode="never")
-        result = orchestrate_task("Deploy this change to production", approval_policy=policy)
+        result = orchestrate_task(
+            "Deploy this change to production", approval_policy=policy
+        )
         self.assertEqual(result["status"], "orchestrated")
         self.assertFalse(result["approval"]["required"])
+        self.assertEqual(result["approval"]["mode"], "never")
+
+    def test_low_confidence_requires_approval(self):
+        policy = HumanApprovalPolicy()
+        result = policy.evaluate(
+            "Unclear task", {"confidence": 0.4}, {"model": "mock-model"}
+        )
+        self.assertTrue(result["required"])
+        self.assertEqual(result["risk_level"], "ambiguous")
+        self.assertEqual(result["matched_keywords"], [])
+
+    def test_case_insensitive_risk_detection(self):
+        policy = HumanApprovalPolicy()
+        result = policy.evaluate(
+            "PUBLISH this change", {"confidence": 0.5}, {"model": "mock-model"}
+        )
+        self.assertTrue(result["required"])
+        self.assertIn("publish", result["matched_keywords"])
 
     def test_invalid_policy_mode_is_rejected(self):
         policy = HumanApprovalPolicy(mode="invalid")
