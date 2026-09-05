@@ -2,6 +2,7 @@ from backend.app.analyzer.task_analyzer import analyze_task
 from backend.app.router.model_router import route_task
 from backend.app.models.registry import get_model_adapter
 from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
+from backend.app.evaluation.response_evaluator import evaluate_response
 
 
 def orchestrate_task(
@@ -32,6 +33,7 @@ def orchestrate_task(
         }
 
     result = model.generate(task)
+    evaluation = evaluate_response(task, result, analysis, routing)
 
     return {
         "status": "orchestrated",
@@ -39,4 +41,5 @@ def orchestrate_task(
         "routing": routing,
         "approval": approval,
         "result": result,
+        "evaluation": evaluation,
     }
