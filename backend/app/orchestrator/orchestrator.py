@@ -28,9 +28,15 @@ def orchestrate_task(
         }
 
     execution_policy = retry_policy or RetryPolicy()
+    selected_model = routing["model"]
+    fallback_candidates = [
+        model for model in routing["candidates"] if model != selected_model
+    ]
+    candidate_order = [selected_model, *fallback_candidates] if selected_model else fallback_candidates
+
     execution = execute_with_fallback(
         task=task,
-        model_names=routing["candidates"],
+        model_names=candidate_order,
         adapter_resolver=get_model_adapter,
         retry_policy=execution_policy,
     )
