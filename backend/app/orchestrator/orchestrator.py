@@ -15,6 +15,7 @@ from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMem
 from backend.app.reality.context_requirements import RealityContextRequirementDetector
 from backend.app.reality.source_planner import RealitySourcePlanner
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
+from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 
 
 DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
@@ -35,6 +36,7 @@ def orchestrate_task(
     retry_policy: RetryPolicy | None = None,
     execution_budget: ExecutionBudget | None = None,
     outcome_memory: OutcomeMemory | PersistentOutcomeMemory | None = None,
+    retrieval_engine: RealityRetrievalEngine | None = None,
 ) -> dict:
     trace = ExecutionTrace()
     memory = outcome_memory or DEFAULT_CONFIGURED_MEMORY
@@ -91,6 +93,33 @@ def orchestrate_task(
             "analysis": analysis,
             "routing": routing,
             "approval": approval,
+            "trace": trace.snapshot(),
+        }
+
+    reality_retrieval = (retrieval_engine or RealityRetrievalEngine()).retrieve(
+        retrieval_contract
+    )
+    analysis["reality_retrieval"] = {
+        **retrieval_contract,
+        "execution": reality_retrieval,
+    }
+
+    if (
+        retrieval_contract["request"]["required"]
+        and reality_retrieval["status"] != "completed"
+    ):
+        trace.record(
+            "execution",
+            "blocked",
+            reason="required_retrieval_unavailable",
+            retrieval_status=reality_retrieval["status"],
+        )
+        return {
+            "status": "retrieval_unavailable",
+            "analysis": analysis,
+            "routing": routing,
+            "approval": approval,
+            "retrieval": reality_retrieval,
             "trace": trace.snapshot(),
         }
 
