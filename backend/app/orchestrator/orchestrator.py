@@ -14,6 +14,7 @@ from backend.app.execution.outcome_memory import DEFAULT_OUTCOME_MEMORY, Outcome
 from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMemory
 from backend.app.reality.context_requirements import RealityContextRequirementDetector
 from backend.app.reality.source_planner import RealitySourcePlanner
+from backend.app.reality.retrieval_contract import RealityRetrievalContract
 
 
 DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
@@ -40,10 +41,12 @@ def orchestrate_task(
 
     reality_context = RealityContextRequirementDetector().detect(task)
     reality_source_plan = RealitySourcePlanner().plan(reality_context)
+    retrieval_contract = RealityRetrievalContract().build(task, reality_source_plan)
     analysis = {
         **analyze_task(task),
         "reality_context": reality_context,
         "reality_source_plan": reality_source_plan,
+        "reality_retrieval": retrieval_contract,
     }
     trace.record(
         "analysis",
@@ -54,6 +57,7 @@ def orchestrate_task(
         needs_external_evidence=reality_context["needs_external_evidence"],
         source_type=reality_source_plan["source_type"],
         retrieval_required=reality_source_plan["requires_retrieval"],
+        retrieval_status=retrieval_contract["status"],
     )
 
     routing = route_task(
@@ -120,13 +124,7 @@ def orchestrate_task(
     )
 
     if execution["status"] == "failed":
-        outcome = memory.record(
-            task,
-            analysis,
-            routing,
-            execution,
-            None,
-        )
+        outcome = memory.record(task, analysis, routing, execution, None)
         trace.record("evaluation", "skipped", reason="execution_failed")
         return {
             "status": "execution_failed",
@@ -145,11 +143,7 @@ def orchestrate_task(
         analysis,
         {**routing, "model": execution["model"]},
     )
-    trace.record(
-        "evaluation",
-        evaluation["status"],
-        score=evaluation["score"],
-    )
+    trace.record("evaluation", evaluation["status"], score=evaluation["score"])
 
     recovery = recover_with_evaluation(
         task=task,
@@ -178,13 +172,7 @@ def orchestrate_task(
         final_score=recovery["best"]["evaluation"]["score"],
     )
 
-    outcome = memory.record(
-        task,
-        analysis,
-        routing,
-        execution,
-        evaluation,
-    )
+    outcome = memory.record(task, analysis, routing, execution, evaluation)
 
     return {
         "status": "orchestrated",
