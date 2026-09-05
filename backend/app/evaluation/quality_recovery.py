@@ -29,6 +29,7 @@ def recover_with_evaluation(
         return {
             "used": False,
             "reason": "initial_evaluation_passed",
+            "improved": False,
             "best": best,
             "recovery_attempts": 0,
             "candidates_tried": candidates_tried,
