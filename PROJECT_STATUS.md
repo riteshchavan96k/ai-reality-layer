@@ -10,18 +10,18 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 36 — Reality Source Planning — implementation and validation coverage complete.
+Step 37 — Reality Retrieval Contract — implementation and validation coverage complete.
 
-### Step 36 Scope
+### Step 37 Scope
 
-- Reality-context requirements are converted into a deterministic source plan.
-- Current-information tasks are assigned a live-web source requirement.
-- Explicit external-evidence tasks are assigned a web-or-official-source requirement.
-- Static tasks retain model knowledge as the default source type without requiring retrieval.
-- Temporal scope is preserved in the source plan.
-- The source plan is attached to task analysis for downstream retrieval components.
+- A structured retrieval request contract is created from the Step 36 source plan.
+- Retrieval requests preserve the original task as the retrieval query.
+- Source type and temporal scope are carried forward for downstream retrieval providers.
+- Required versus not-required retrieval is explicit.
+- The contract reports that retrieval has not yet been executed.
+- The retrieval contract is attached to task analysis for future retrieval implementations.
 - Existing execution, evaluation, recovery, budget, approval, trace, and outcome-memory behavior remains intact.
 
-### Step 36 Design Boundary
+### Step 37 Design Boundary
 
-This step plans what kind of source is required; it does not fetch external information, call the web, implement RAG, normalize evidence, verify factual correctness, or introduce ML training. Those capabilities can consume this source-plan contract in later steps.
+This step defines the interface between source planning and future retrieval execution. It does not fetch external information, call the web, implement RAG, normalize or verify evidence, claim factual correctness, or introduce ML training. Future retrieval providers can consume this contract without changing the orchestration architecture.
