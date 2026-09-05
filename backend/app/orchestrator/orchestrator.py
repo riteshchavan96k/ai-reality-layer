@@ -17,6 +17,7 @@ from backend.app.reality.source_planner import RealitySourcePlanner
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
+from backend.app.reality.evidence_quality import EvidenceQualityValidator
 
 
 DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
@@ -101,22 +102,26 @@ def orchestrate_task(
         retrieval_contract
     )
     normalized_evidence = RetrievalEvidenceNormalizer().normalize(reality_retrieval)
+    evidence_quality = EvidenceQualityValidator().validate(normalized_evidence)
     analysis["reality_retrieval"] = {
         **retrieval_contract,
         "execution": reality_retrieval,
         "evidence": normalized_evidence,
+        "quality": evidence_quality,
     }
 
     if (
         retrieval_contract["request"]["required"]
-        and normalized_evidence["status"] != "completed"
+        and evidence_quality["status"] != "usable"
     ):
         trace.record(
             "execution",
             "blocked",
-            reason="required_retrieval_evidence_unavailable",
+            reason="required_retrieval_evidence_quality_insufficient",
             retrieval_status=reality_retrieval["status"],
             evidence_status=normalized_evidence["status"],
+            quality_status=evidence_quality["status"],
+            quality_issues=evidence_quality["issues"],
         )
         return {
             "status": "retrieval_unavailable",
@@ -125,6 +130,7 @@ def orchestrate_task(
             "approval": approval,
             "retrieval": reality_retrieval,
             "evidence": normalized_evidence,
+            "evidence_quality": evidence_quality,
             "trace": trace.snapshot(),
         }
 
