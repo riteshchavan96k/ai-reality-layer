@@ -19,6 +19,7 @@ def orchestrate_task(
     outcome_memory: OutcomeMemory | None = None,
 ) -> dict:
     trace = ExecutionTrace()
+    memory = outcome_memory or DEFAULT_OUTCOME_MEMORY
 
     analysis = analyze_task(task)
     trace.record(
@@ -28,13 +29,19 @@ def orchestrate_task(
         confidence=analysis["confidence"],
     )
 
-    routing = route_task(task, analysis["task_type"])
+    routing = route_task(
+        task,
+        analysis["task_type"],
+        outcome_memory=memory,
+    )
     trace.record(
         "routing",
         "completed",
         strategy=routing["strategy"],
         model=routing["model"],
         candidate_count=len(routing["candidates"]),
+        optimization_status=routing["optimization"]["status"],
+        exploration=routing["optimization"]["exploration"],
     )
 
     policy = approval_policy or HumanApprovalPolicy()
@@ -56,7 +63,6 @@ def orchestrate_task(
             "trace": trace.snapshot(),
         }
 
-    memory = outcome_memory or DEFAULT_OUTCOME_MEMORY
     execution_policy = retry_policy or RetryPolicy()
     selected_model = routing["model"]
     fallback_candidates = [
