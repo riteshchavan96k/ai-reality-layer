@@ -1,6 +1,7 @@
 import unittest
 
 from backend.app.execution.outcome_memory import OutcomeMemory
+from backend.app.orchestrator.orchestrator import orchestrate_task
 
 
 class TestStep29(unittest.TestCase):
@@ -74,6 +75,27 @@ class TestStep29(unittest.TestCase):
         self.assertEqual(record["execution_status"], "failed")
         self.assertIsNone(record["evaluation_score"])
         self.assertTrue(record["fallback_used"])
+
+    def test_orchestrator_records_successful_outcome(self):
+        result = orchestrate_task(
+            "write python code",
+            human_approved=True,
+            outcome_memory=self.memory,
+        )
+
+        self.assertEqual(result["status"], "orchestrated")
+        self.assertEqual(self.memory.size, 1)
+        self.assertEqual(result["outcome"]["executed_model"], "mock-model")
+        self.assertEqual(result["outcome"]["evaluation_score"], 1.0)
+
+    def test_orchestrator_does_not_record_approval_block(self):
+        result = orchestrate_task(
+            "delete production data",
+            outcome_memory=self.memory,
+        )
+
+        self.assertEqual(result["status"], "awaiting_human_approval")
+        self.assertEqual(self.memory.size, 0)
 
     def test_invalid_configuration_and_limit(self):
         with self.assertRaises(ValueError):
