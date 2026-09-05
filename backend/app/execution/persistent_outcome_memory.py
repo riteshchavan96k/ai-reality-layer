@@ -1,8 +1,9 @@
 import os
 import sqlite3
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from hashlib import sha256
-from typing import Any
+from typing import Any, Iterator
 
 
 class PersistentOutcomeMemory:
@@ -17,13 +18,21 @@ class PersistentOutcomeMemory:
         os.makedirs(parent, exist_ok=True)
         self._initialize()
 
-    def _connect(self) -> sqlite3.Connection:
+    @contextmanager
+    def _connection(self) -> Iterator[sqlite3.Connection]:
         connection = sqlite3.connect(self.database_path)
         connection.row_factory = sqlite3.Row
-        return connection
+        try:
+            yield connection
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
 
     def _initialize(self) -> None:
-        with self._connect() as connection:
+        with self._connection() as connection:
             connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS execution_outcomes (
@@ -42,7 +51,6 @@ class PersistentOutcomeMemory:
                 )
                 """
             )
-            connection.commit()
 
     @staticmethod
     def _record_from_row(row: sqlite3.Row) -> dict[str, Any]:
@@ -61,7 +69,7 @@ class PersistentOutcomeMemory:
         task_fingerprint = sha256(task.encode("utf-8")).hexdigest()
         timestamp = datetime.now(timezone.utc).isoformat()
 
-        with self._connect() as connection:
+        with self._connection() as connection:
             cursor = connection.execute(
                 """
                 INSERT INTO execution_outcomes (
@@ -93,7 +101,6 @@ class PersistentOutcomeMemory:
                 ),
             )
             record_id = cursor.lastrowid
-            connection.commit()
 
         return {
             "record_id": record_id,
@@ -114,7 +121,7 @@ class PersistentOutcomeMemory:
         if limit < 1:
             raise ValueError("limit must be at least 1")
 
-        with self._connect() as connection:
+        with self._connection() as connection:
             rows = connection.execute(
                 "SELECT * FROM execution_outcomes ORDER BY record_id DESC LIMIT ?",
                 (limit,),
@@ -123,7 +130,7 @@ class PersistentOutcomeMemory:
         return [self._record_from_row(row) for row in reversed(rows)]
 
     def statistics(self) -> dict[str, Any]:
-        with self._connect() as connection:
+        with self._connection() as connection:
             rows = connection.execute(
                 "SELECT * FROM execution_outcomes ORDER BY record_id ASC"
             ).fetchall()
@@ -181,7 +188,7 @@ class PersistentOutcomeMemory:
         }
 
     def routing_signals(self, task_type: str) -> dict[str, dict[str, Any]]:
-        with self._connect() as connection:
+        with self._connection() as connection:
             rows = connection.execute(
                 "SELECT * FROM execution_outcomes WHERE task_type = ? ORDER BY record_id ASC",
                 (task_type,),
@@ -221,6 +228,8 @@ class PersistentOutcomeMemory:
 
     @property
     def size(self) -> int:
-        with self._connect() as connection:
-            row = connection.execute("SELECT COUNT(*) AS count FROM execution_outcomes").fetchone()
+        with self._connection() as connection:
+            row = connection.execute(
+                "SELECT COUNT(*) AS count FROM execution_outcomes"
+            ).fetchone()
         return int(row["count"])
