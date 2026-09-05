@@ -11,6 +11,7 @@ STOP_WORDS = {
     "at",
     "be",
     "by",
+    "explain",
     "for",
     "from",
     "how",
