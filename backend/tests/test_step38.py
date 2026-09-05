@@ -1,5 +1,6 @@
 import unittest
 
+from backend.app.orchestrator.orchestrator import orchestrate_task
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 
 
@@ -101,6 +102,29 @@ class TestStep38(unittest.TestCase):
     def test_missing_request_for_required_contract_is_rejected(self):
         with self.assertRaises(ValueError):
             RealityRetrievalEngine().retrieve({"status": "ready"})
+
+    def test_orchestrator_consumes_completed_retrieval(self):
+        result = orchestrate_task(
+            "latest AI news",
+            retrieval_engine=RealityRetrievalEngine(FakeRetrievalProvider()),
+        )
+
+        retrieval = result["analysis"]["reality_retrieval"]
+        self.assertEqual(result["status"], "orchestrated")
+        self.assertEqual(retrieval["execution"]["status"], "completed")
+        self.assertEqual(retrieval["execution"]["provider"], "fake-provider")
+        self.assertEqual(len(retrieval["execution"]["sources"]), 1)
+
+    def test_orchestrator_blocks_when_required_retrieval_unavailable(self):
+        result = orchestrate_task("latest AI news")
+
+        self.assertEqual(result["status"], "retrieval_unavailable")
+        self.assertEqual(
+            result["retrieval"]["status"],
+            "provider_unavailable",
+        )
+        self.assertEqual(result["trace"][-1]["stage"], "execution")
+        self.assertEqual(result["trace"][-1]["status"], "blocked")
 
 
 if __name__ == "__main__":
