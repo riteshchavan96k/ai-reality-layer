@@ -10,13 +10,15 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 25 — Execution Reliability and Retry Control — implementation and validation coverage complete.
+Step 26 — Fallback Model Execution — implementation and validation coverage complete.
 
-### Step 25 Scope
+### Step 26 Scope
 
-- Deterministic retry policy for transient model execution failures.
-- Configurable maximum execution attempts with validation.
-- Explicit execution metadata for successful orchestration.
-- Safe execution-failure state without continuing to evaluation.
-- Human approval remains a gate before model execution.
-- Automated tests for retry, failure, orchestration, and approval behavior.
+- Ordered fallback execution across available model candidates.
+- Selected model remains the primary execution target.
+- Failed primary models can fall back to the next candidate.
+- Each candidate uses the existing retry policy before fallback continues.
+- Execution metadata records the model used, attempts, and whether fallback occurred.
+- Evaluation runs against the model that actually produced the successful result.
+- Human approval remains a gate before any model execution.
+- Automated tests cover primary success, fallback success, missing models, total failure, and approval gating.
