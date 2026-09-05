@@ -10,20 +10,19 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 39 — Retrieval Evidence Normalization — implementation and validation coverage complete.
+Step 40 — Evidence Quality and Provenance Validation — implementation complete; local validation pending.
 
-### Step 39 Scope
+### Step 40 Scope
 
-- Retrieval results are normalized into a stable evidence structure.
-- Source provenance is preserved through normalized title and URI fields.
-- Source counts and content presence are explicit.
-- Provider failure and non-required retrieval states are preserved.
-- Completed retrieval with no usable evidence is marked `invalid_evidence`.
-- Invalid provider output shapes are rejected rather than silently accepted.
-- Normalized evidence is attached to task analysis before model execution.
-- Required retrieval cannot proceed to model execution when usable evidence is unavailable.
-- Existing approval, execution, evaluation, recovery, budget, trace, and outcome-memory behavior remains intact.
+- Normalized retrieval evidence is structurally validated before downstream model execution.
+- Evidence usability requires completed retrieval, usable content, at least one source, and complete provenance.
+- HTTP and HTTPS source URIs are validated when a URI is provided.
+- Title-only sources remain valid provenance when no URI is available.
+- Evidence quality issues are returned explicitly instead of being silently ignored.
+- Required retrieval is blocked when evidence quality is insufficient.
+- Non-required retrieval remains non-blocking.
+- Existing retrieval normalization, approval, execution, evaluation, recovery, budget, trace, and outcome-memory behavior remains intact.
 
-### Step 39 Design Boundary
+### Step 40 Design Boundary
 
-This step establishes a stable evidence representation between retrieval and downstream reasoning. It does not verify factual correctness, rank source quality, implement RAG, perform citation grounding, add production web providers, or introduce ML training. Those capabilities can consume the normalized evidence contract in later steps.
+This step establishes structural evidence-quality and provenance validation between retrieval and downstream reasoning. It does not verify factual correctness, rank source quality, implement RAG, add production web providers, perform citation-grounded generation, or introduce ML training. Those capabilities can consume the validated evidence contract in later steps.
