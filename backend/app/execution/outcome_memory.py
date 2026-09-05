@@ -118,6 +118,41 @@ class OutcomeMemory:
             "by_model": by_model,
         }
 
+    def routing_signals(self, task_type: str) -> dict[str, dict[str, Any]]:
+        """Return per-model historical signals for one task type."""
+        signals: dict[str, dict[str, Any]] = {}
+
+        for record in self._records:
+            if record["task_type"] != task_type or not record["executed_model"]:
+                continue
+
+            model = record["executed_model"]
+            model_stats = signals.setdefault(
+                model,
+                {
+                    "executions": 0,
+                    "successful": 0,
+                    "failed": 0,
+                    "scores": [],
+                    "total_attempts": 0,
+                },
+            )
+            model_stats["executions"] += 1
+            model_stats["successful"] += record["execution_status"] == "success"
+            model_stats["failed"] += record["execution_status"] == "failed"
+            model_stats["total_attempts"] += record["total_attempts"]
+            if isinstance(record["evaluation_score"], (int, float)):
+                model_stats["scores"].append(record["evaluation_score"])
+
+        for model_stats in signals.values():
+            executions = model_stats["executions"]
+            scores = model_stats.pop("scores")
+            model_stats["success_rate"] = model_stats["successful"] / executions
+            model_stats["average_score"] = sum(scores) / len(scores) if scores else None
+            model_stats["average_attempts"] = model_stats["total_attempts"] / executions
+
+        return signals
+
     @property
     def size(self) -> int:
         return len(self._records)
