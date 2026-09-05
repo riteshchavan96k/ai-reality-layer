@@ -6,6 +6,7 @@ from backend.app.evaluation.response_evaluator import evaluate_response
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.execution.fallback_executor import execute_with_fallback
 from backend.app.execution.execution_trace import ExecutionTrace
+from backend.app.execution.execution_budget import ExecutionBudget
 
 
 def orchestrate_task(
@@ -13,6 +14,7 @@ def orchestrate_task(
     human_approved: bool = False,
     approval_policy: HumanApprovalPolicy | None = None,
     retry_policy: RetryPolicy | None = None,
+    execution_budget: ExecutionBudget | None = None,
 ) -> dict:
     trace = ExecutionTrace()
 
@@ -58,12 +60,16 @@ def orchestrate_task(
         model for model in routing["candidates"] if model != selected_model
     ]
     candidate_order = [selected_model, *fallback_candidates] if selected_model else fallback_candidates
+    budget = execution_budget or ExecutionBudget(
+        max_attempts=execution_policy.max_attempts * max(len(candidate_order), 1)
+    )
 
     execution = execute_with_fallback(
         task=task,
         model_names=candidate_order,
         adapter_resolver=get_model_adapter,
         retry_policy=execution_policy,
+        execution_budget=budget,
     )
 
     trace.record(
@@ -71,6 +77,8 @@ def orchestrate_task(
         execution["status"],
         model=execution.get("model"),
         attempts=execution.get("attempts", 0),
+        total_attempts=execution.get("total_attempts", 0),
+        budget_limit=execution.get("budget_limit"),
         attempts_by_model=execution.get("attempts_by_model", {}),
         fallback_used=execution.get("fallback_used", False),
     )
@@ -108,6 +116,8 @@ def orchestrate_task(
             "status": execution["status"],
             "model": execution["model"],
             "attempts": execution["attempts"],
+            "total_attempts": execution["total_attempts"],
+            "budget_limit": execution["budget_limit"],
             "attempts_by_model": execution["attempts_by_model"],
             "fallback_used": execution["fallback_used"],
         },
