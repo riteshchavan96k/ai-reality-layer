@@ -8,6 +8,7 @@ app = FastAPI()
 
 class SolveRequest(BaseModel):
     task: str
+    human_approved: bool = False
 
 
 @app.get("/health")
@@ -21,4 +22,4 @@ def health_check():
 
 @app.post("/api/v1/solve")
 def solve(request: SolveRequest):
-    return process_task(request.task)
+    return process_task(request.task, human_approved=request.human_approved)

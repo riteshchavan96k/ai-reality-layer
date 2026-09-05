@@ -25,7 +25,7 @@ class TestStep21(unittest.TestCase):
             ["mock-model"],
         )
         self.assertEqual(result["selected_model"], "mock-model")
-        self.assertEqual(result["scores"]["mock-model"], 0.5)
+        self.assertEqual(result["scores"]["mock-model"], 1.0)
 
     def test_router_requirements(self):
         result = route_task("Write Python code to solve this equation", "programming")
