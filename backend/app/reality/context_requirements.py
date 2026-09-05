@@ -1,3 +1,4 @@
+import re
 from typing import Any
 
 
@@ -31,6 +32,11 @@ EXTERNAL_EVIDENCE_SIGNALS = (
 )
 
 
+def _contains_signal(text: str, signal: str) -> bool:
+    pattern = rf"(?<!\w){re.escape(signal)}(?!\w)"
+    return re.search(pattern, text) is not None
+
+
 class RealityContextRequirementDetector:
     """Deterministically identify when a task needs external or current-world context."""
 
@@ -38,10 +44,12 @@ class RealityContextRequirementDetector:
         normalized = task.lower()
 
         current_signals = [
-            signal for signal in CURRENT_SIGNALS if signal in normalized
+            signal for signal in CURRENT_SIGNALS if _contains_signal(normalized, signal)
         ]
         evidence_signals = [
-            signal for signal in EXTERNAL_EVIDENCE_SIGNALS if signal in normalized
+            signal
+            for signal in EXTERNAL_EVIDENCE_SIGNALS
+            if _contains_signal(normalized, signal)
         ]
 
         needs_current_info = bool(current_signals)
