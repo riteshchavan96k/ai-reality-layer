@@ -5,6 +5,7 @@ from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
 from backend.app.evaluation.response_evaluator import evaluate_response
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.execution.fallback_executor import execute_with_fallback
+from backend.app.execution.execution_trace import ExecutionTrace
 
 
 def orchestrate_task(
@@ -13,18 +14,42 @@ def orchestrate_task(
     approval_policy: HumanApprovalPolicy | None = None,
     retry_policy: RetryPolicy | None = None,
 ) -> dict:
+    trace = ExecutionTrace()
+
     analysis = analyze_task(task)
+    trace.record(
+        "analysis",
+        "completed",
+        task_type=analysis["task_type"],
+        confidence=analysis["confidence"],
+    )
+
     routing = route_task(task, analysis["task_type"])
+    trace.record(
+        "routing",
+        "completed",
+        strategy=routing["strategy"],
+        model=routing["model"],
+        candidate_count=len(routing["candidates"]),
+    )
 
     policy = approval_policy or HumanApprovalPolicy()
     approval = policy.evaluate(task, analysis, routing)
+    trace.record(
+        "approval",
+        "required" if approval["required"] else "not_required",
+        risk_level=approval["risk_level"],
+        mode=approval["mode"],
+    )
 
     if approval["required"] and not human_approved:
+        trace.record("execution", "blocked", reason="human_approval_required")
         return {
             "status": "awaiting_human_approval",
             "analysis": analysis,
             "routing": routing,
             "approval": approval,
+            "trace": trace.snapshot(),
         }
 
     execution_policy = retry_policy or RetryPolicy()
@@ -41,13 +66,24 @@ def orchestrate_task(
         retry_policy=execution_policy,
     )
 
+    trace.record(
+        "execution",
+        execution["status"],
+        model=execution.get("model"),
+        attempts=execution.get("attempts", 0),
+        attempts_by_model=execution.get("attempts_by_model", {}),
+        fallback_used=execution.get("fallback_used", False),
+    )
+
     if execution["status"] == "failed":
+        trace.record("evaluation", "skipped", reason="execution_failed")
         return {
             "status": "execution_failed",
             "analysis": analysis,
             "routing": routing,
             "approval": approval,
             "execution": execution,
+            "trace": trace.snapshot(),
         }
 
     result = execution["result"]
@@ -56,6 +92,11 @@ def orchestrate_task(
         result,
         analysis,
         {**routing, "model": execution["model"]},
+    )
+    trace.record(
+        "evaluation",
+        evaluation["status"],
+        score=evaluation["score"],
     )
 
     return {
@@ -72,4 +113,5 @@ def orchestrate_task(
         },
         "result": result,
         "evaluation": evaluation,
+        "trace": trace.snapshot(),
     }
