@@ -4,6 +4,7 @@ from backend.app.models.registry import get_model_adapter
 from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
 from backend.app.evaluation.response_evaluator import evaluate_response
 from backend.app.execution.retry_policy import RetryPolicy
+from backend.app.execution.fallback_executor import execute_with_fallback
 
 
 def orchestrate_task(
@@ -26,16 +27,13 @@ def orchestrate_task(
             "approval": approval,
         }
 
-    model = get_model_adapter(routing["model"])
-
-    if model is None:
-        return {
-            "status": "error",
-            "message": "Model not available",
-        }
-
     execution_policy = retry_policy or RetryPolicy()
-    execution = execution_policy.execute(lambda: model.generate(task))
+    execution = execute_with_fallback(
+        task=task,
+        model_names=routing["candidates"],
+        adapter_resolver=get_model_adapter,
+        retry_policy=execution_policy,
+    )
 
     if execution["status"] == "failed":
         return {
@@ -47,7 +45,12 @@ def orchestrate_task(
         }
 
     result = execution["result"]
-    evaluation = evaluate_response(task, result, analysis, routing)
+    evaluation = evaluate_response(
+        task,
+        result,
+        analysis,
+        {**routing, "model": execution["model"]},
+    )
 
     return {
         "status": "orchestrated",
@@ -56,7 +59,10 @@ def orchestrate_task(
         "approval": approval,
         "execution": {
             "status": execution["status"],
+            "model": execution["model"],
             "attempts": execution["attempts"],
+            "attempts_by_model": execution["attempts_by_model"],
+            "fallback_used": execution["fallback_used"],
         },
         "result": result,
         "evaluation": evaluation,
