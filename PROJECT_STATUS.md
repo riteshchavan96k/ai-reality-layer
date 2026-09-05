@@ -10,15 +10,14 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 29 — Execution Outcome Memory — implementation and validation coverage complete.
+Step 30 — Outcome Analytics and Routing Signals — implementation and validation coverage complete.
 
-### Step 29 Scope
+### Step 30 Scope
 
-- Structured execution outcomes are captured for successful and failed model executions.
-- Outcome records retain task type, routed model, executed model, evaluation score, attempt counts, budget information, and fallback usage.
-- Raw task text is not stored; a SHA-256 task fingerprint is recorded instead.
-- Outcome memory is bounded to prevent unbounded in-process growth.
-- Recent outcome snapshots are returned as copies to avoid accidental internal mutation.
-- Human-approval blocks do not create execution outcome records because no model execution occurred.
-- The memory is intentionally in-process and deterministic, providing a foundation for later persistent learning and routing optimization.
-- Automated tests cover record structure, bounded storage, snapshot isolation, failed outcomes, orchestration integration, and approval gating.
+- Outcome memory now exposes aggregate execution signals without storing raw task text.
+- Overall success rate, average evaluation score, average attempts, and fallback rate are available.
+- Per-model execution counts, success rates, average scores, and average attempts are available.
+- Failed executions remain part of the analytics so reliability is measurable, not hidden.
+- Empty-memory analytics return safe defaults.
+- The analytics layer is descriptive only; it does not automatically change routing decisions yet.
+- Automated tests cover empty statistics, aggregate signals, per-model routing signals, and raw-task-text isolation.
