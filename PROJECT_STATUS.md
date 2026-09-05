@@ -10,13 +10,13 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 24 — Production API / Platform Hardening — implementation and validation coverage complete.
+Step 25 — Execution Reliability and Retry Control — implementation and validation coverage complete.
 
-### Step 24 Scope
+### Step 25 Scope
 
-- Request validation with bounded task input.
-- Request IDs for traceability.
-- Standardized validation and internal-error responses.
-- Safe error messages that do not expose internal exception details.
-- API metadata and route-level production hardening.
-- Automated tests for the hardened API surface.
+- Deterministic retry policy for transient model execution failures.
+- Configurable maximum execution attempts with validation.
+- Explicit execution metadata for successful orchestration.
+- Safe execution-failure state without continuing to evaluation.
+- Human approval remains a gate before model execution.
+- Automated tests for retry, failure, orchestration, and approval behavior.
