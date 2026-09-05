@@ -10,20 +10,19 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 32 — Persistent Outcome Memory — implementation and validation coverage complete.
+Step 33 — Evaluation Intelligence — implementation and validation coverage complete.
 
-### Step 32 Scope
+### Step 33 Scope
 
-- Execution outcomes can now be stored in a persistent SQLite-backed memory store.
-- Persistent storage preserves the structured outcome interface used by routing optimization.
-- Raw task text is never persisted; only a SHA-256 task fingerprint is stored.
-- Persisted outcomes survive process restarts and remain available for historical routing signals.
-- Aggregate statistics and task-type-specific routing signals are available from persistent records.
-- The existing in-memory memory remains available for isolated tests and lightweight use.
-- Persistence is opt-in through the `ARL_OUTCOME_MEMORY_PATH` environment variable, preserving backward compatibility.
-- Local SQLite runtime state is excluded from version control.
-- Automated tests cover persistence across instances, privacy of stored task data, task-type isolation, statistics, recent-record ordering, and configuration validation.
+- Response evaluation now includes a reference-free task-response relevance signal.
+- Relevance is calculated deterministically from normalized task and response terms.
+- Structural integrity and relevance are combined into a single evaluation score.
+- Low relevance or incomplete execution evidence produces an explicit review state.
+- Evaluation exposes matched terms and coverage signals for observability and future routing optimization.
+- The evaluator does not claim factual or semantic correctness; it is a reference-free relevance foundation.
+- Existing orchestration, benchmarking, retry, fallback, budget, trace, and outcome-memory behavior remains compatible.
+- Automated tests cover strong overlap, low overlap, case normalization, empty responses, evaluator integration, and review behavior.
 
-### Step 32 Design Boundary
+### Step 33 Design Boundary
 
-SQLite is the first durable storage implementation for local development and the MVP foundation. A PostgreSQL-backed implementation can replace or complement it later when deployment scale and concurrency requirements justify it.
+This step deliberately avoids model-based judging, external reference answers, or ML training. Those can be added later when the system has suitable evaluation data and task-specific quality criteria.
