@@ -7,6 +7,7 @@ from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.execution.fallback_executor import execute_with_fallback
 from backend.app.execution.execution_trace import ExecutionTrace
 from backend.app.execution.execution_budget import ExecutionBudget
+from backend.app.execution.outcome_memory import DEFAULT_OUTCOME_MEMORY, OutcomeMemory
 
 
 def orchestrate_task(
@@ -15,6 +16,7 @@ def orchestrate_task(
     approval_policy: HumanApprovalPolicy | None = None,
     retry_policy: RetryPolicy | None = None,
     execution_budget: ExecutionBudget | None = None,
+    outcome_memory: OutcomeMemory | None = None,
 ) -> dict:
     trace = ExecutionTrace()
 
@@ -54,6 +56,7 @@ def orchestrate_task(
             "trace": trace.snapshot(),
         }
 
+    memory = outcome_memory or DEFAULT_OUTCOME_MEMORY
     execution_policy = retry_policy or RetryPolicy()
     selected_model = routing["model"]
     fallback_candidates = [
@@ -84,6 +87,13 @@ def orchestrate_task(
     )
 
     if execution["status"] == "failed":
+        outcome = memory.record(
+            task,
+            analysis,
+            routing,
+            execution,
+            None,
+        )
         trace.record("evaluation", "skipped", reason="execution_failed")
         return {
             "status": "execution_failed",
@@ -91,6 +101,7 @@ def orchestrate_task(
             "routing": routing,
             "approval": approval,
             "execution": execution,
+            "outcome": outcome,
             "trace": trace.snapshot(),
         }
 
@@ -105,6 +116,14 @@ def orchestrate_task(
         "evaluation",
         evaluation["status"],
         score=evaluation["score"],
+    )
+
+    outcome = memory.record(
+        task,
+        analysis,
+        routing,
+        execution,
+        evaluation,
     )
 
     return {
@@ -123,5 +142,6 @@ def orchestrate_task(
         },
         "result": result,
         "evaluation": evaluation,
+        "outcome": outcome,
         "trace": trace.snapshot(),
     }
