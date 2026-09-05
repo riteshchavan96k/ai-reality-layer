@@ -10,18 +10,19 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 37 — Reality Retrieval Contract — implementation and validation coverage complete.
+Step 38 — Reality Retrieval Engine — implementation and validation coverage complete.
 
-### Step 37 Scope
+### Step 38 Scope
 
-- A structured retrieval request contract is created from the Step 36 source plan.
-- Retrieval requests preserve the original task as the retrieval query.
-- Source type and temporal scope are carried forward for downstream retrieval providers.
-- Required versus not-required retrieval is explicit.
-- The contract reports that retrieval has not yet been executed.
-- The retrieval contract is attached to task analysis for future retrieval implementations.
+- A pluggable retrieval-provider interface executes the Step 37 retrieval contract.
+- Required retrieval requests are sent to the configured provider.
+- Static tasks explicitly skip external retrieval.
+- Provider output is normalized into a stable retrieval result shape.
+- An unconfigured provider reports `provider_unavailable` instead of fabricating external information.
+- Required retrieval is a prerequisite for model execution when the retrieval engine is invoked by orchestration.
+- The retrieval engine can be injected into orchestration for real providers and deterministic tests.
 - Existing execution, evaluation, recovery, budget, approval, trace, and outcome-memory behavior remains intact.
 
-### Step 37 Design Boundary
+### Step 38 Design Boundary
 
-This step defines the interface between source planning and future retrieval execution. It does not fetch external information, call the web, implement RAG, normalize or verify evidence, claim factual correctness, or introduce ML training. Future retrieval providers can consume this contract without changing the orchestration architecture.
+This step introduces retrieval execution through a provider abstraction, but the default runtime has no external provider configured and therefore never fabricates web or world information. It does not implement web search, a production external provider, RAG, evidence ranking, source verification, factual correctness, or ML training. Those capabilities can be added as providers and downstream grounding layers without changing the retrieval contract.
