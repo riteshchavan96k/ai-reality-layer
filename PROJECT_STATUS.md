@@ -10,19 +10,20 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 38 — Reality Retrieval Engine — implementation and validation coverage complete.
+Step 39 — Retrieval Evidence Normalization — implementation and validation coverage complete.
 
-### Step 38 Scope
+### Step 39 Scope
 
-- A pluggable retrieval-provider interface executes the Step 37 retrieval contract.
-- Required retrieval requests are sent to the configured provider.
-- Static tasks explicitly skip external retrieval.
-- Provider output is normalized into a stable retrieval result shape.
-- An unconfigured provider reports `provider_unavailable` instead of fabricating external information.
-- Required retrieval is a prerequisite for model execution when the retrieval engine is invoked by orchestration.
-- The retrieval engine can be injected into orchestration for real providers and deterministic tests.
-- Existing execution, evaluation, recovery, budget, approval, trace, and outcome-memory behavior remains intact.
+- Retrieval results are normalized into a stable evidence structure.
+- Source provenance is preserved through normalized title and URI fields.
+- Source counts and content presence are explicit.
+- Provider failure and non-required retrieval states are preserved.
+- Completed retrieval with no usable evidence is marked `invalid_evidence`.
+- Invalid provider output shapes are rejected rather than silently accepted.
+- Normalized evidence is attached to task analysis before model execution.
+- Required retrieval cannot proceed to model execution when usable evidence is unavailable.
+- Existing approval, execution, evaluation, recovery, budget, trace, and outcome-memory behavior remains intact.
 
-### Step 38 Design Boundary
+### Step 39 Design Boundary
 
-This step introduces retrieval execution through a provider abstraction, but the default runtime has no external provider configured and therefore never fabricates web or world information. It does not implement web search, a production external provider, RAG, evidence ranking, source verification, factual correctness, or ML training. Those capabilities can be added as providers and downstream grounding layers without changing the retrieval contract.
+This step establishes a stable evidence representation between retrieval and downstream reasoning. It does not verify factual correctness, rank source quality, implement RAG, perform citation grounding, add production web providers, or introduce ML training. Those capabilities can consume the normalized evidence contract in later steps.
