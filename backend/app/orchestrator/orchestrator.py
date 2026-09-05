@@ -13,6 +13,7 @@ from backend.app.execution.execution_budget import ExecutionBudget
 from backend.app.execution.outcome_memory import DEFAULT_OUTCOME_MEMORY, OutcomeMemory
 from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMemory
 from backend.app.reality.context_requirements import RealityContextRequirementDetector
+from backend.app.reality.source_planner import RealitySourcePlanner
 
 
 DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
@@ -38,9 +39,11 @@ def orchestrate_task(
     memory = outcome_memory or DEFAULT_CONFIGURED_MEMORY
 
     reality_context = RealityContextRequirementDetector().detect(task)
+    reality_source_plan = RealitySourcePlanner().plan(reality_context)
     analysis = {
         **analyze_task(task),
         "reality_context": reality_context,
+        "reality_source_plan": reality_source_plan,
     }
     trace.record(
         "analysis",
@@ -49,6 +52,8 @@ def orchestrate_task(
         confidence=analysis["confidence"],
         needs_current_info=reality_context["needs_current_info"],
         needs_external_evidence=reality_context["needs_external_evidence"],
+        source_type=reality_source_plan["source_type"],
+        retrieval_required=reality_source_plan["requires_retrieval"],
     )
 
     routing = route_task(
