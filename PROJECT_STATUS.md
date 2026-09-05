@@ -10,15 +10,15 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 26 — Fallback Model Execution — implementation and validation coverage complete.
+Step 27 — Execution Observability and Traceability — implementation and validation coverage complete.
 
-### Step 26 Scope
+### Step 27 Scope
 
-- Ordered fallback execution across available model candidates.
-- Selected model remains the primary execution target.
-- Failed primary models can fall back to the next candidate.
-- Each candidate uses the existing retry policy before fallback continues.
-- Execution metadata records the model used, attempts, and whether fallback occurred.
-- Evaluation runs against the model that actually produced the successful result.
-- Human approval remains a gate before any model execution.
-- Automated tests cover primary success, fallback success, missing models, total failure, and approval gating.
+- Lightweight execution traces capture the orchestration lifecycle.
+- Analysis, routing, approval, execution, and evaluation stages are observable.
+- Execution traces include timestamps and structured stage metadata.
+- Human-approval blocks are explicitly recorded without executing the model.
+- Execution failures are recorded and evaluation is marked as skipped.
+- Successful executions expose the model, attempts, fallback usage, and evaluation outcome in the trace.
+- Trace snapshots are returned as copies to avoid accidental mutation of internal state.
+- Automated tests cover trace creation, immutability, normal orchestration, approval gating, and execution metadata.
