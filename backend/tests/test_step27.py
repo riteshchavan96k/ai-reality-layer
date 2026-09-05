@@ -31,8 +31,18 @@ class TestStep27(unittest.TestCase):
 
         self.assertEqual(result["status"], "orchestrated")
         stages = [event["stage"] for event in result["trace"]]
-        self.assertEqual(stages, ["analysis", "routing", "approval", "execution", "evaluation"])
-        self.assertEqual(result["trace"][-1]["status"], "pass")
+        self.assertEqual(
+            stages,
+            [
+                "analysis",
+                "routing",
+                "approval",
+                "execution",
+                "evaluation",
+                "quality_recovery",
+            ],
+        )
+        self.assertEqual(result["trace"][-1]["status"], "not_improved")
 
     def test_human_approval_block_is_traced(self):
         result = orchestrate_task("Deploy this change to production")
