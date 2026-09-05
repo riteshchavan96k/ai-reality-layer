@@ -5,6 +5,7 @@ from backend.app.router.model_router import route_task
 from backend.app.models.registry import get_model_adapter
 from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
 from backend.app.evaluation.response_evaluator import evaluate_response
+from backend.app.evaluation.quality_recovery import recover_with_evaluation
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.execution.fallback_executor import execute_with_fallback
 from backend.app.execution.execution_trace import ExecutionTrace
@@ -138,6 +139,33 @@ def orchestrate_task(
         score=evaluation["score"],
     )
 
+    recovery = recover_with_evaluation(
+        task=task,
+        candidates=candidate_order,
+        adapter_resolver=get_model_adapter,
+        analysis=analysis,
+        routing=routing,
+        initial_execution=execution,
+        initial_evaluation=evaluation,
+        retry_policy=execution_policy,
+        execution_budget=budget,
+    )
+
+    if recovery["improved"]:
+        execution = recovery["best"]["execution"]
+        evaluation = recovery["best"]["evaluation"]
+        result = execution["result"]
+
+    trace.record(
+        "quality_recovery",
+        "improved" if recovery["improved"] else "not_improved",
+        used=recovery["used"],
+        recovery_attempts=recovery["recovery_attempts"],
+        candidates_tried=recovery["candidates_tried"],
+        final_model=recovery["best"]["model"],
+        final_score=recovery["best"]["evaluation"]["score"],
+    )
+
     outcome = memory.record(
         task,
         analysis,
@@ -162,6 +190,7 @@ def orchestrate_task(
         },
         "result": result,
         "evaluation": evaluation,
+        "quality_recovery": recovery,
         "outcome": outcome,
         "trace": trace.snapshot(),
     }
