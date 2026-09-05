@@ -12,6 +12,7 @@ from backend.app.execution.execution_trace import ExecutionTrace
 from backend.app.execution.execution_budget import ExecutionBudget
 from backend.app.execution.outcome_memory import DEFAULT_OUTCOME_MEMORY, OutcomeMemory
 from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMemory
+from backend.app.reality.context_requirements import RealityContextRequirementDetector
 
 
 DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
@@ -36,12 +37,18 @@ def orchestrate_task(
     trace = ExecutionTrace()
     memory = outcome_memory or DEFAULT_CONFIGURED_MEMORY
 
-    analysis = analyze_task(task)
+    reality_context = RealityContextRequirementDetector().detect(task)
+    analysis = {
+        **analyze_task(task),
+        "reality_context": reality_context,
+    }
     trace.record(
         "analysis",
         "completed",
         task_type=analysis["task_type"],
         confidence=analysis["confidence"],
+        needs_current_info=reality_context["needs_current_info"],
+        needs_external_evidence=reality_context["needs_external_evidence"],
     )
 
     routing = route_task(

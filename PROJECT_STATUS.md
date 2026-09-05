@@ -10,19 +10,18 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 34 — Evaluation-Guided Recovery — implementation and validation coverage complete.
+Step 35 — Reality Context Requirement Detection — implementation and validation coverage complete.
 
-### Step 34 Scope
+### Step 35 Scope
 
-- Model execution is evaluated immediately after a successful initial execution.
-- A response in review state can trigger deterministic recovery using alternative routed candidates.
-- Recovery reuses the existing retry policy and shared execution budget.
-- Each recovery candidate is evaluated with the same structural and reference-free relevance evaluator.
-- The highest-scoring response is retained; recovery stops early when a passing evaluation is found.
-- Recovery metadata exposes whether recovery was used, candidates tried, attempts consumed, improvement, final model, and final score.
-- Human approval still occurs before any execution or recovery attempt.
-- Failed recovery candidates do not replace the current best successful response.
+- Tasks are deterministically classified for whether current-world information is required.
+- Tasks can explicitly request external evidence through source, citation, official, and related signals.
+- Current-information requests automatically require external evidence.
+- Temporal scope is explicitly represented for current-information requests.
+- Reality-context requirements are attached to task analysis so downstream routing and execution layers can consume them.
+- Existing execution, evaluation, recovery, budget, approval, and trace behavior remains intact.
+- Signal matching is word-aware to avoid accidental substring matches.
 
-### Step 34 Design Boundary
+### Step 35 Design Boundary
 
-This step adds an evaluation-guided execution loop without claiming factual or semantic correctness. It does not introduce model-based judging, automatic task rewriting, response synthesis, or ML training. Those remain future extensions when stronger evaluation signals and suitable data are available.
+This step establishes the decision point for the Reality Layer: determining when external or current-world context is needed before reasoning or acting. It does not fetch the web, implement RAG, claim factual correctness, or introduce ML training. Those capabilities can build on this contract in later steps.
