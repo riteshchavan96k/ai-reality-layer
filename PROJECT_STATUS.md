@@ -10,19 +10,19 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 33 — Evaluation Intelligence — implementation and validation coverage complete.
+Step 34 — Evaluation-Guided Recovery — implementation and validation coverage complete.
 
-### Step 33 Scope
+### Step 34 Scope
 
-- Response evaluation now includes a reference-free task-response relevance signal.
-- Relevance is calculated deterministically from normalized task and response terms.
-- Structural integrity and relevance are combined into a single evaluation score.
-- Low relevance or incomplete execution evidence produces an explicit review state.
-- Evaluation exposes matched terms and coverage signals for observability and future routing optimization.
-- The evaluator does not claim factual or semantic correctness; it is a reference-free relevance foundation.
-- Existing orchestration, benchmarking, retry, fallback, budget, trace, and outcome-memory behavior remains compatible.
-- Automated tests cover strong overlap, low overlap, case normalization, empty responses, evaluator integration, and review behavior.
+- Model execution is evaluated immediately after a successful initial execution.
+- A response in review state can trigger deterministic recovery using alternative routed candidates.
+- Recovery reuses the existing retry policy and shared execution budget.
+- Each recovery candidate is evaluated with the same structural and reference-free relevance evaluator.
+- The highest-scoring response is retained; recovery stops early when a passing evaluation is found.
+- Recovery metadata exposes whether recovery was used, candidates tried, attempts consumed, improvement, final model, and final score.
+- Human approval still occurs before any execution or recovery attempt.
+- Failed recovery candidates do not replace the current best successful response.
 
-### Step 33 Design Boundary
+### Step 34 Design Boundary
 
-This step deliberately avoids model-based judging, external reference answers, or ML training. Those can be added later when the system has suitable evaluation data and task-specific quality criteria.
+This step adds an evaluation-guided execution loop without claiming factual or semantic correctness. It does not introduce model-based judging, automatic task rewriting, response synthesis, or ML training. Those remain future extensions when stronger evaluation signals and suitable data are available.
