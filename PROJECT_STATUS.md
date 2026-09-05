@@ -10,15 +10,14 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 27 — Execution Observability and Traceability — implementation and validation coverage complete.
+Step 28 — Execution Budgets and Guardrails — implementation and validation coverage complete.
 
-### Step 27 Scope
+### Step 28 Scope
 
-- Lightweight execution traces capture the orchestration lifecycle.
-- Analysis, routing, approval, execution, and evaluation stages are observable.
-- Execution traces include timestamps and structured stage metadata.
-- Human-approval blocks are explicitly recorded without executing the model.
-- Execution failures are recorded and evaluation is marked as skipped.
-- Successful executions expose the model, attempts, fallback usage, and evaluation outcome in the trace.
-- Trace snapshots are returned as copies to avoid accidental mutation of internal state.
-- Automated tests cover trace creation, immutability, normal orchestration, approval gating, and execution metadata.
+- Total model execution attempts are bounded by an explicit execution budget.
+- Retry attempts and fallback attempts share the same total budget.
+- Fallback execution stops when the remaining budget is exhausted.
+- Orchestration exposes total attempts and the configured budget limit.
+- Existing retry behavior remains configurable per model.
+- Human approval remains a gate before any execution budget is consumed.
+- Automated tests cover budget accounting, validation, over-consumption, exhaustion, and fallback with remaining budget.
