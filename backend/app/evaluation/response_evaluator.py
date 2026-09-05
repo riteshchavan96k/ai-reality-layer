@@ -1,5 +1,7 @@
 from typing import Any
 
+from backend.app.evaluation.relevance import evaluate_relevance
+
 
 def evaluate_response(
     task: str,
@@ -7,12 +9,7 @@ def evaluate_response(
     analysis: dict[str, Any],
     routing: dict[str, Any],
 ) -> dict[str, Any]:
-    """Evaluate the structural quality of one model execution.
-
-    This prototype intentionally evaluates observable execution signals rather
-    than claiming semantic correctness. A later evaluator can add model-based,
-    reference-based, or task-specific quality checks.
-    """
+    """Evaluate structural integrity plus reference-free task-response relevance."""
 
     text = result.get("text")
     checks = {
@@ -25,14 +22,31 @@ def evaluate_response(
 
     passed_checks = sum(checks.values())
     total_checks = len(checks)
-    score = passed_checks / total_checks if total_checks else 0.0
+    structural_score = passed_checks / total_checks if total_checks else 0.0
+
+    relevance = (
+        evaluate_relevance(task, text)
+        if isinstance(text, str)
+        else {
+            "score": 0.0,
+            "status": "review",
+            "task_terms": [],
+            "matched_terms": [],
+            "coverage": 0.0,
+            "limitation": "Response text is unavailable for relevance evaluation.",
+        }
+    )
+
+    score = (structural_score + relevance["score"]) / 2
 
     return {
         "score": score,
-        "status": "pass" if score == 1.0 else "review",
+        "status": "pass" if score >= 0.8 else "review",
         "checks": checks,
         "passed_checks": passed_checks,
         "total_checks": total_checks,
+        "structural_score": structural_score,
+        "relevance": relevance,
         "task": task,
-        "limitation": "Prototype structural evaluation; semantic correctness is not yet measured.",
+        "limitation": "Reference-free relevance is lexical and does not establish factual or semantic correctness.",
     }
