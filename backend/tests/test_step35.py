@@ -43,6 +43,14 @@ class TestStep35(unittest.TestCase):
         self.assertIn("latest", result["current_signals"])
         self.assertIn("weather", result["evidence_signals"])
 
+    def test_signals_match_words_not_substrings(self):
+        result = self.detector.detect("Explain how to deliver a programming solution")
+
+        self.assertFalse(result["needs_current_info"])
+        self.assertFalse(result["needs_external_evidence"])
+        self.assertEqual(result["current_signals"], [])
+        self.assertEqual(result["evidence_signals"], [])
+
     def test_orchestrator_exposes_reality_context(self):
         result = orchestrate_task("What is the latest AI news?")
 
