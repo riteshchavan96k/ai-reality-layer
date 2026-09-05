@@ -10,18 +10,18 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 35 — Reality Context Requirement Detection — implementation and validation coverage complete.
+Step 36 — Reality Source Planning — implementation and validation coverage complete.
 
-### Step 35 Scope
+### Step 36 Scope
 
-- Tasks are deterministically classified for whether current-world information is required.
-- Tasks can explicitly request external evidence through source, citation, official, and related signals.
-- Current-information requests automatically require external evidence.
-- Temporal scope is explicitly represented for current-information requests.
-- Reality-context requirements are attached to task analysis so downstream routing and execution layers can consume them.
-- Existing execution, evaluation, recovery, budget, approval, and trace behavior remains intact.
-- Signal matching is word-aware to avoid accidental substring matches.
+- Reality-context requirements are converted into a deterministic source plan.
+- Current-information tasks are assigned a live-web source requirement.
+- Explicit external-evidence tasks are assigned a web-or-official-source requirement.
+- Static tasks retain model knowledge as the default source type without requiring retrieval.
+- Temporal scope is preserved in the source plan.
+- The source plan is attached to task analysis for downstream retrieval components.
+- Existing execution, evaluation, recovery, budget, approval, trace, and outcome-memory behavior remains intact.
 
-### Step 35 Design Boundary
+### Step 36 Design Boundary
 
-This step establishes the decision point for the Reality Layer: determining when external or current-world context is needed before reasoning or acting. It does not fetch the web, implement RAG, claim factual correctness, or introduce ML training. Those capabilities can build on this contract in later steps.
+This step plans what kind of source is required; it does not fetch external information, call the web, implement RAG, normalize evidence, verify factual correctness, or introduce ML training. Those capabilities can consume this source-plan contract in later steps.
