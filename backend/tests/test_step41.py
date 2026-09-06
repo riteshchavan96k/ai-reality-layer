@@ -1,6 +1,20 @@
 import unittest
 
+from backend.app.orchestrator.orchestrator import orchestrate_task
 from backend.app.reality.grounding_context import EvidenceGroundingContextBuilder
+from backend.app.reality.retrieval_engine import RealityRetrievalEngine
+
+
+class FakeRetrievalProvider:
+    def retrieve(self, request: dict) -> dict:
+        return {
+            "status": "completed",
+            "provider": "fake-provider",
+            "sources": [
+                {"title": "Example Source", "uri": "https://example.com/source"}
+            ],
+            "content": "Retrieved reality context.",
+        }
 
 
 class TestStep41EvidenceGrounding(unittest.TestCase):
@@ -64,6 +78,27 @@ class TestStep41EvidenceGrounding(unittest.TestCase):
                 "task",
                 {"status": "usable", "content": 123, "sources": []},
             )
+
+    def test_orchestrator_injects_grounding_context_into_model_execution(self):
+        result = orchestrate_task(
+            "latest AI news",
+            retrieval_engine=RealityRetrievalEngine(FakeRetrievalProvider()),
+        )
+
+        grounding = result["analysis"]["reality_retrieval"]["grounding"]
+        self.assertEqual(grounding["status"], "ready")
+        self.assertEqual(grounding["source_count"], 1)
+        self.assertEqual(result["result"]["grounding"]["status"], "ready")
+        self.assertTrue(result["result"]["grounding"]["grounded"])
+
+    def test_required_retrieval_never_reaches_model_without_usable_grounding(self):
+        result = orchestrate_task("latest AI news")
+
+        self.assertEqual(result["status"], "retrieval_unavailable")
+        self.assertEqual(
+            result["analysis"]["reality_retrieval"]["grounding"]["status"],
+            "not_available",
+        )
 
 
 if __name__ == "__main__":
