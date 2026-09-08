@@ -18,6 +18,7 @@ from backend.app.reality.retrieval_contract import RealityRetrievalContract
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
 from backend.app.reality.evidence_quality import EvidenceQualityValidator
+from backend.app.reality.grounding_context import EvidenceGroundingContextBuilder
 
 
 DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
@@ -103,11 +104,16 @@ def orchestrate_task(
     )
     normalized_evidence = RetrievalEvidenceNormalizer().normalize(reality_retrieval)
     evidence_quality = EvidenceQualityValidator().validate(normalized_evidence)
+    grounding_context = EvidenceGroundingContextBuilder().build(
+        task,
+        normalized_evidence,
+    )
     analysis["reality_retrieval"] = {
         **retrieval_contract,
         "execution": reality_retrieval,
         "evidence": normalized_evidence,
         "quality": evidence_quality,
+        "grounding": grounding_context,
     }
 
     if (
@@ -150,6 +156,7 @@ def orchestrate_task(
         adapter_resolver=get_model_adapter,
         retry_policy=execution_policy,
         execution_budget=budget,
+        context=grounding_context,
     )
 
     trace.record(
@@ -161,6 +168,8 @@ def orchestrate_task(
         budget_limit=execution.get("budget_limit"),
         attempts_by_model=execution.get("attempts_by_model", {}),
         fallback_used=execution.get("fallback_used", False),
+        grounding_status=grounding_context["status"],
+        grounding_source_count=grounding_context["source_count"],
     )
 
     if execution["status"] == "failed":
@@ -195,6 +204,7 @@ def orchestrate_task(
         initial_evaluation=evaluation,
         retry_policy=execution_policy,
         execution_budget=budget,
+        context=grounding_context,
     )
 
     if recovery["improved"]:
