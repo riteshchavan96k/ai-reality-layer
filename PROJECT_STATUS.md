@@ -10,15 +10,17 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 50 — Provider Invocation Contract — implementation complete; local validation pending.
+Step 51 — Provider Invocation Execution Boundary — implementation complete; local validation pending.
 
-### Step 50 Scope
+### Step 51 Scope
 
-- Added a provider-neutral invocation request contract between execution gating and future concrete provider calls.
-- Invocation requests validate provider identity, model identity, task content, and optional execution context.
-- The contract produces a deterministic request envelope without performing execution or network calls.
-- Existing provider credential, readiness, execution, routing, retrieval, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
+- Added a provider invocation executor after the normalized invocation contract.
+- The executor resolves the model adapter only after the invocation request has been validated.
+- Available adapters receive the task and optional context through the existing model adapter boundary.
+- Missing adapters produce a deterministic blocked result instead of attempting execution.
+- Execution state is explicit through `execution_performed`.
+- Existing provider credential, readiness, execution gate, routing, retrieval, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
 
-### Step 50 Design Boundary
+### Step 51 Design Boundary
 
-This step establishes the normalized provider invocation boundary. It does not add API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
+This step establishes the concrete execution boundary for provider-neutral invocation requests. It does not add new external providers, API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
