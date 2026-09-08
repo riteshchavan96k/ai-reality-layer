@@ -2,6 +2,7 @@ from typing import Any, Callable
 
 from backend.app.execution.execution_budget import ExecutionBudget
 from backend.app.execution.retry_policy import RetryPolicy
+from backend.app.models.response_contract import ModelResponseNormalizer
 
 
 def execute_with_fallback(
@@ -18,6 +19,7 @@ def execute_with_fallback(
     budget = execution_budget or ExecutionBudget(
         max_attempts=retry_policy.max_attempts * max(len(model_names), 1)
     )
+    normalizer = ModelResponseNormalizer()
 
     for model_name in model_names:
         adapter = adapter_resolver(model_name)
@@ -34,7 +36,12 @@ def execute_with_fallback(
         model_policy = RetryPolicy(
             max_attempts=min(retry_policy.max_attempts, remaining)
         )
-        execution = model_policy.execute(lambda: adapter.generate(task, context=context))
+        execution = model_policy.execute(
+            lambda: normalizer.normalize(
+                adapter.generate(task, context=context),
+                model_name,
+            )
+        )
         budget.consume(execution["attempts"])
         attempts_by_model[model_name] = execution["attempts"]
 
