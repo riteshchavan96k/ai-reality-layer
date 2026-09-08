@@ -10,16 +10,17 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 47 — Provider Readiness Boundary — implementation complete; local validation pending.
+Step 48 — Provider Execution Gate — implementation complete; local validation pending.
 
-### Step 47 Scope
+### Step 48 Scope
 
-- Added a provider readiness checker between provider configuration and future production execution.
-- Readiness reports provider configuration, adapter availability, credential-reference configuration, and endpoint configuration without exposing credential values.
-- Unknown providers are reported as unconfigured instead of being treated as executable.
-- The internal provider remains ready without external credentials or an endpoint.
+- Added a provider execution gate between provider readiness and model adapter resolution.
+- Provider execution is allowed only when the provider readiness status is `ready`.
+- Unconfigured or unavailable providers are blocked before adapter creation.
+- The model registry now enforces this gate before resolving a model adapter.
+- The internal provider remains executable without external credentials or an endpoint.
 - Existing model capability, provider configuration, routing, execution, retrieval, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
 
-### Step 47 Design Boundary
+### Step 48 Design Boundary
 
-This step establishes provider readiness as a deterministic pre-execution boundary. It does not add API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
+This step establishes a deterministic provider execution gate. It does not add API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
