@@ -10,17 +10,16 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 45 — Provider Adapter Boundary — implementation complete; local validation pending.
+Step 46 — Provider Configuration Boundary — implementation complete; local validation pending.
 
-### Step 45 Scope
+### Step 46 Scope
 
-- A provider-level adapter contract now separates provider identity from model selection and model capability metadata.
-- Providers expose a stable identity and a factory boundary for constructing model adapters.
-- The current internal mock model is represented through the same provider boundary used by future providers.
-- Model adapter lookup now resolves the normalized model capability profile first, then delegates construction to its declared provider.
-- Unknown models and unknown providers fail cleanly at the registry boundary.
-- Existing response normalization, routing, approval, retrieval, evidence validation, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
+- A provider configuration contract now separates non-secret provider configuration from provider adapter implementation.
+- Provider configuration can declare a provider identity, an optional environment-variable name for credentials, and an optional endpoint without storing credential values.
+- The internal provider remains configuration-free because it does not require an external service.
+- Provider resolution now requires both a registered provider adapter and a matching provider configuration.
+- The model registry continues to resolve models through normalized capability metadata and the declared provider.
 
-### Step 45 Design Boundary
+### Step 46 Design Boundary
 
-This step establishes the provider integration interface without integrating any external production provider. It does not add API credentials, external network calls, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
+This step establishes the configuration boundary required before production provider integrations. It does not add API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
