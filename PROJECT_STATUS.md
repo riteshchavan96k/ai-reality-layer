@@ -10,18 +10,17 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 44 — Model Capability & Provider Contract — implementation complete; local validation pending.
+Step 45 — Provider Adapter Boundary — implementation complete; local validation pending.
 
-### Step 44 Scope
+### Step 45 Scope
 
-- Model catalog profiles now have an explicit provider identity.
-- A stable capability contract validates model name, provider, and capability metadata before routing uses the profile.
-- Duplicate capability declarations are normalized without changing their order.
-- Optional model metadata such as context window and grounding support can pass through the contract.
-- Model selection consumes normalized capability profiles rather than raw catalog dictionaries.
-- Invalid model capability metadata fails early instead of leaking malformed profiles into routing.
+- A provider-level adapter contract now separates provider identity from model selection and model capability metadata.
+- Providers expose a stable identity and a factory boundary for constructing model adapters.
+- The current internal mock model is represented through the same provider boundary used by future providers.
+- Model adapter lookup now resolves the normalized model capability profile first, then delegates construction to its declared provider.
+- Unknown models and unknown providers fail cleanly at the registry boundary.
 - Existing response normalization, routing, approval, retrieval, evidence validation, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
 
-### Step 44 Design Boundary
+### Step 45 Design Boundary
 
-This step establishes a provider-independent model capability metadata boundary for reliable discovery and routing. It does not add a production model provider, external API credentials, factual verification, semantic evaluation, citation generation, RAG, embeddings/vector search, or ML training.
+This step establishes the provider integration interface without integrating any external production provider. It does not add API credentials, external network calls, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
