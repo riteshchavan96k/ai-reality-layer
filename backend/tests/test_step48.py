@@ -28,3 +28,12 @@ def test_require_ready_returns_readiness_for_ready_provider():
 def test_require_ready_blocks_unconfigured_provider():
     with pytest.raises(RuntimeError, match="provider execution blocked: unconfigured"):
         ProviderExecutionGate().require_ready("unknown")
+
+
+def test_gate_is_deterministic_for_same_provider():
+    checker = ProviderExecutionGate()
+
+    first = checker.check("internal")
+    second = checker.check("internal")
+
+    assert first == second
