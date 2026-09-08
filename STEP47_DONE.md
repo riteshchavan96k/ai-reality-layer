@@ -1,1 +1,0 @@
-Step 47 provider readiness work is complete on the feature branch.
