@@ -1,5 +1,6 @@
 from typing import Any, Callable
 
+from backend.app.models.provider_execution_result import ProviderExecutionResultContract
 from backend.app.models.provider_invocation import ProviderInvocationContract
 from backend.app.models.registry import get_model_adapter
 
@@ -11,9 +12,11 @@ class ProviderInvocationExecutor:
         self,
         adapter_resolver: Callable[[str], Any] | None = None,
         invocation_contract: ProviderInvocationContract | None = None,
+        result_contract: ProviderExecutionResultContract | None = None,
     ):
         self._adapter_resolver = adapter_resolver or get_model_adapter
         self._invocation_contract = invocation_contract or ProviderInvocationContract()
+        self._result_contract = result_contract or ProviderExecutionResultContract()
 
     def execute(
         self,
@@ -32,17 +35,27 @@ class ProviderInvocationExecutor:
 
         adapter = self._adapter_resolver(model_name)
         if adapter is None:
-            return {
-                "status": "blocked",
-                "execution_performed": False,
-                "reason": "model_adapter_unavailable",
-                "request": request,
-            }
+            return self._result_contract.normalize(
+                {
+                    "status": "blocked",
+                    "execution_performed": False,
+                    "reason": "model_adapter_unavailable",
+                    "request": request,
+                },
+                model_name,
+            )
 
-        result = adapter.generate(task, context=context)
-        return {
-            "status": "completed",
-            "execution_performed": True,
-            "request": request,
-            "result": result,
-        }
+        try:
+            result = adapter.generate(task, context=context)
+        except Exception:
+            return self._result_contract.failure(model_name, request=request)
+
+        return self._result_contract.normalize(
+            {
+                "status": "completed",
+                "execution_performed": True,
+                "request": request,
+                "result": result,
+            },
+            model_name,
+        )
