@@ -10,17 +10,17 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 51 — Provider Invocation Execution Boundary — implementation complete; local validation pending.
+Step 52 — Provider Execution Result Contract — implementation complete; local validation pending.
 
-### Step 51 Scope
+### Step 52 Scope
 
-- Added a provider invocation executor after the normalized invocation contract.
-- The executor resolves the model adapter only after the invocation request has been validated.
-- Available adapters receive the task and optional context through the existing model adapter boundary.
-- Missing adapters produce a deterministic blocked result instead of attempting execution.
-- Execution state is explicit through `execution_performed`.
-- Existing provider credential, readiness, execution gate, routing, retrieval, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
+- Added a deterministic result boundary after provider invocation execution.
+- Successful adapter output is normalized through the existing `ModelResponseNormalizer` contract.
+- Provider exceptions are converted into a stable failure envelope without exposing raw exception details.
+- Adapter-unavailable results remain explicitly blocked and are not treated as successful execution.
+- Execution state remains explicit through `execution_performed`.
+- Existing provider credential, readiness, execution gate, invocation, routing, retrieval, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
 
-### Step 51 Design Boundary
+### Step 52 Design Boundary
 
-This step establishes the concrete execution boundary for provider-neutral invocation requests. It does not add new external providers, API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
+This step establishes a stable provider execution result contract. It does not add new external providers, API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
