@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from backend.app.models.base import BaseModelAdapter
+from backend.app.models.provider_config import get_provider_config
 
 
 class ModelProviderAdapter(ABC):
@@ -31,6 +32,11 @@ class MockModelProvider(ModelProviderAdapter):
     ) -> BaseModelAdapter:
         from backend.app.models.mock_model import MockModelAdapter
 
+        config = get_provider_config(self.provider_name)
+        if config is None:
+            raise ValueError("provider is not configured")
+        if profile.get("provider") != config.provider_name:
+            raise ValueError("model profile provider does not match provider")
         if model_name != "mock-model":
             raise ValueError("unsupported model for internal provider")
         return MockModelAdapter()
@@ -44,6 +50,8 @@ PROVIDER_REGISTRY: dict[str, type[ModelProviderAdapter]] = {
 def get_provider_adapter(provider_name: str) -> ModelProviderAdapter | None:
     provider_class = PROVIDER_REGISTRY.get(provider_name)
     if provider_class is None:
+        return None
+    if get_provider_config(provider_name) is None:
         return None
 
     provider = provider_class()
