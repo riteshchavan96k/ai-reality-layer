@@ -10,16 +10,17 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 46 — Provider Configuration Boundary — implementation complete; local validation pending.
+Step 47 — Provider Readiness Boundary — implementation complete; local validation pending.
 
-### Step 46 Scope
+### Step 47 Scope
 
-- A provider configuration contract now separates non-secret provider configuration from provider adapter implementation.
-- Provider configuration can declare a provider identity, an optional environment-variable name for credentials, and an optional endpoint without storing credential values.
-- The internal provider remains configuration-free because it does not require an external service.
-- Provider resolution now requires both a registered provider adapter and a matching provider configuration.
-- The model registry continues to resolve models through normalized capability metadata and the declared provider.
+- Added a deterministic provider readiness check between provider configuration and future production execution.
+- Readiness reports provider configuration and adapter availability without exposing credential values.
+- Credential and endpoint readiness are represented only as configuration metadata; no secret values are stored or returned.
+- Unknown providers are reported as unconfigured rather than executable.
+- The internal provider remains ready without external credentials or an endpoint.
+- Existing model capability, provider configuration, routing, execution, retrieval, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
 
-### Step 46 Design Boundary
+### Step 47 Design Boundary
 
-This step establishes the configuration boundary required before production provider integrations. It does not add API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
+This step establishes provider readiness as a pre-execution boundary. It does not add API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
