@@ -15,7 +15,6 @@ def recover_with_evaluation(
     initial_evaluation: dict[str, Any],
     retry_policy: RetryPolicy,
     execution_budget: ExecutionBudget,
-    context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Try alternative candidates when the initial response needs review and keep the best evaluation."""
     best = {
@@ -48,7 +47,7 @@ def recover_with_evaluation(
 
         remaining = execution_budget.remaining_attempts
         model_policy = RetryPolicy(max_attempts=min(retry_policy.max_attempts, remaining))
-        execution = model_policy.execute(lambda: adapter.generate(task, context=context))
+        execution = model_policy.execute(lambda: adapter.generate(task))
         execution_budget.consume(execution["attempts"])
         recovery_attempts += execution["attempts"]
         candidates_tried.append(model_name)
