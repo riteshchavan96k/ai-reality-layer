@@ -10,6 +10,7 @@ def execute_with_fallback(
     adapter_resolver: Callable[[str], Any],
     retry_policy: RetryPolicy,
     execution_budget: ExecutionBudget | None = None,
+    context: dict[str, Any] | None = None,
 ) -> dict:
     """Try candidate models in order while respecting a total attempt budget."""
     attempts_by_model: dict[str, int] = {}
@@ -33,7 +34,7 @@ def execute_with_fallback(
         model_policy = RetryPolicy(
             max_attempts=min(retry_policy.max_attempts, remaining)
         )
-        execution = model_policy.execute(lambda: adapter.generate(task))
+        execution = model_policy.execute(lambda: adapter.generate(task, context=context))
         budget.consume(execution["attempts"])
         attempts_by_model[model_name] = execution["attempts"]
 
