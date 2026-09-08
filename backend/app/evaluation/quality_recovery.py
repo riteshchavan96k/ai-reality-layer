@@ -3,6 +3,7 @@ from typing import Any, Callable
 from backend.app.evaluation.response_evaluator import evaluate_response
 from backend.app.execution.execution_budget import ExecutionBudget
 from backend.app.execution.retry_policy import RetryPolicy
+from backend.app.models.response_contract import ModelResponseNormalizer
 
 
 def recover_with_evaluation(
@@ -25,6 +26,7 @@ def recover_with_evaluation(
     }
     recovery_attempts = 0
     candidates_tried: list[str] = []
+    normalizer = ModelResponseNormalizer()
 
     if initial_evaluation["status"] == "pass":
         return {
@@ -48,7 +50,12 @@ def recover_with_evaluation(
 
         remaining = execution_budget.remaining_attempts
         model_policy = RetryPolicy(max_attempts=min(retry_policy.max_attempts, remaining))
-        execution = model_policy.execute(lambda: adapter.generate(task, context=context))
+        execution = model_policy.execute(
+            lambda: normalizer.normalize(
+                adapter.generate(task, context=context),
+                model_name,
+            )
+        )
         execution_budget.consume(execution["attempts"])
         recovery_attempts += execution["attempts"]
         candidates_tried.append(model_name)
