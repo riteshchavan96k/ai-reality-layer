@@ -10,17 +10,15 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 49 — Provider Credential Availability Boundary — implementation complete; local validation pending.
+Step 50 — Provider Invocation Contract — implementation complete; local validation pending.
 
-### Step 49 Scope
+### Step 50 Scope
 
-- Added a credential-availability boundary between provider configuration and execution.
-- Credential references are resolved only to availability metadata; credential values are never returned or stored.
-- Providers without credential requirements remain executable without credentials.
-- Providers with configured credential environment-variable references are classified as `available` or `missing` without exposing the secret.
-- The provider execution gate now blocks required-credential providers when the credential is unavailable.
-- Existing model capability, provider configuration, routing, execution, retrieval, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
+- Added a provider-neutral invocation request contract between execution gating and future concrete provider calls.
+- Invocation requests validate provider identity, model identity, task content, and optional execution context.
+- The contract produces a deterministic request envelope without performing execution or network calls.
+- Existing provider credential, readiness, execution, routing, retrieval, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
 
-### Step 49 Design Boundary
+### Step 50 Design Boundary
 
-This step establishes deterministic credential handling infrastructure. It does not add API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
+This step establishes the normalized provider invocation boundary. It does not add API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
