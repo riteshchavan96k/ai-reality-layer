@@ -10,20 +10,18 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 41 — Evidence Grounding Context and Model Injection — implementation complete; local validation pending.
+Step 42 — Grounded Result Integrity and Provenance Envelope — implementation complete; local validation pending.
 
-### Step 41 Scope
+### Step 42 Scope
 
-- Validated retrieval evidence is converted to a stable grounding context before model execution.
-- Grounding context preserves retrieved content and normalized source provenance.
-- Usable evidence becomes a `ready` grounding context; insufficient or unavailable evidence becomes `not_available`.
-- The model adapter contract accepts optional execution context without requiring every future provider to implement retrieval-specific behavior immediately.
-- The fallback executor and evaluation-guided recovery preserve the same grounding context across model attempts.
-- The mock model records grounding metadata so the execution boundary can be tested without a real external provider.
+- Successful model executions receive a provider-independent grounding result envelope derived from the validated grounding context.
+- The envelope exposes grounding status, grounded state, source count, and normalized source provenance without trusting model-generated grounding metadata.
+- Ready grounding requires a successful executed result and a source-count/provenance-consistent context.
+- Unavailable or insufficient grounding remains explicitly non-grounded rather than being presented as evidence-backed.
+- The orchestration response exposes the stable grounding envelope alongside the model result.
 - Required retrieval remains blocked before model execution when evidence quality is insufficient.
-- Non-required retrieval remains non-blocking and passes an explicit `not_available` grounding state.
 - Existing routing, approval, retry, fallback, evaluation, recovery, trace, and outcome-memory behavior remains intact.
 
-### Step 41 Design Boundary
+### Step 42 Design Boundary
 
-This step establishes the evidence-to-model grounding contract and context-injection boundary. It does not implement a production web provider, full RAG pipeline, embedding/vector search, source ranking, factual verification, citation generation, model training, or learned grounding. Those capabilities can consume the grounding context in later steps.
+This step establishes a provider-independent integrity envelope between grounded execution and the final orchestration result. It does not verify factual correctness, determine whether the model semantically used the evidence, rank source quality, implement a production web provider, add embeddings/vector search, generate citations, or introduce ML training. Those capabilities can consume the stable grounding envelope in later steps.

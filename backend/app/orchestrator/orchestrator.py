@@ -19,6 +19,7 @@ from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
 from backend.app.reality.evidence_quality import EvidenceQualityValidator
 from backend.app.reality.grounding_context import EvidenceGroundingContextBuilder
+from backend.app.reality.grounded_result import GroundedResultEnvelopeBuilder
 
 
 DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
@@ -137,6 +138,7 @@ def orchestrate_task(
             "retrieval": reality_retrieval,
             "evidence": normalized_evidence,
             "evidence_quality": evidence_quality,
+            "grounding": GroundedResultEnvelopeBuilder().build(grounding_context, None),
             "trace": trace.snapshot(),
         }
 
@@ -212,6 +214,11 @@ def orchestrate_task(
         evaluation = recovery["best"]["evaluation"]
         result = execution["result"]
 
+    grounding_result = GroundedResultEnvelopeBuilder().build(
+        grounding_context,
+        result,
+    )
+
     trace.record(
         "quality_recovery",
         "improved" if recovery["improved"] else "not_improved",
@@ -239,6 +246,7 @@ def orchestrate_task(
             "fallback_used": execution["fallback_used"],
         },
         "result": result,
+        "grounding": grounding_result,
         "evaluation": evaluation,
         "quality_recovery": recovery,
         "outcome": outcome,
