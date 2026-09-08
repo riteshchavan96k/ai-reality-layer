@@ -1,1 +1,0 @@
-Step 47 implementation marker.
