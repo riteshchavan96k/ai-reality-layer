@@ -1,6 +1,7 @@
 MODEL_CATALOG = {
     "mock-model": {
         "name": "Mock Model",
+        "provider": "internal",
         "capabilities": [
             "programming",
             "reasoning",
