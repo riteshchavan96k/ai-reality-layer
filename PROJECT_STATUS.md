@@ -10,17 +10,17 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 48 — Provider Execution Gate — implementation complete; local validation pending.
+Step 49 — Provider Credential Availability Boundary — implementation complete; local validation pending.
 
-### Step 48 Scope
+### Step 49 Scope
 
-- Added a provider execution gate between provider readiness and model adapter resolution.
-- Provider execution is allowed only when the provider readiness status is `ready`.
-- Unconfigured or unavailable providers are blocked before adapter creation.
-- The model registry now enforces this gate before resolving a model adapter.
-- The internal provider remains executable without external credentials or an endpoint.
+- Added a credential-availability boundary between provider configuration and execution.
+- Credential references are resolved only to availability metadata; credential values are never returned or stored.
+- Providers without credential requirements remain executable without credentials.
+- Providers with configured credential environment-variable references are classified as `available` or `missing` without exposing the secret.
+- The provider execution gate now blocks required-credential providers when the credential is unavailable.
 - Existing model capability, provider configuration, routing, execution, retrieval, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
 
-### Step 48 Design Boundary
+### Step 49 Design Boundary
 
-This step establishes a deterministic provider execution gate. It does not add API keys, secret storage, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
+This step establishes deterministic credential handling infrastructure. It does not add API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
