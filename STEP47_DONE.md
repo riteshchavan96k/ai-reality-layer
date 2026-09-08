@@ -1,1 +1,1 @@
-removed
+Step 47 provider readiness work was prepared on the feature branch only.
