@@ -10,18 +10,18 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 42 — Grounded Result Integrity and Provenance Envelope — implementation complete; local validation pending.
+Step 43 — Model Response Normalization Contract — implementation complete; local validation pending.
 
-### Step 42 Scope
+### Step 43 Scope
 
-- Successful model executions receive a provider-independent grounding result envelope derived from the validated grounding context.
-- The envelope exposes grounding status, grounded state, source count, and normalized source provenance without trusting model-generated grounding metadata.
-- Ready grounding requires a successful executed result and a source-count/provenance-consistent context.
-- Unavailable or insufficient grounding remains explicitly non-grounded rather than being presented as evidence-backed.
-- The orchestration response exposes the stable grounding envelope alongside the model result.
-- Required retrieval remains blocked before model execution when evidence quality is insufficient.
-- Existing routing, approval, retry, fallback, evaluation, recovery, trace, and outcome-memory behavior remains intact.
+- Model adapter output is normalized at the execution boundary into a stable provider-independent response contract.
+- Every successful model response must contain non-empty response text and provider metadata.
+- Model metadata is preserved when supplied and falls back to the selected model name when omitted.
+- Optional grounding metadata is preserved without allowing the normalizer to manufacture grounding claims.
+- Fallback execution and evaluation-guided recovery both normalize model responses before downstream evaluation.
+- Malformed provider responses become execution failures and therefore remain subject to the existing retry and fallback controls.
+- Existing routing, approval, retrieval, evidence validation, grounding, evaluation, recovery, trace, and outcome-memory behavior remains intact.
 
-### Step 42 Design Boundary
+### Step 43 Design Boundary
 
-This step establishes a provider-independent integrity envelope between grounded execution and the final orchestration result. It does not verify factual correctness, determine whether the model semantically used the evidence, rank source quality, implement a production web provider, add embeddings/vector search, generate citations, or introduce ML training. Those capabilities can consume the stable grounding envelope in later steps.
+This step establishes a stable model-output contract so future providers can plug into the execution system without leaking provider-specific response shapes downstream. It does not add a production model provider, factual verification, semantic evaluation, citation generation, RAG, embeddings/vector search, or ML training.
