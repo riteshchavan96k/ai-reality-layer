@@ -4,7 +4,7 @@ from backend.app.models.provider_readiness import ProviderReadinessChecker
 
 
 class ProviderExecutionGate:
-    """Enforce provider readiness before a model adapter is used for execution."""
+    """Enforce provider readiness before model adapter execution."""
 
     def __init__(self, readiness_checker: ProviderReadinessChecker | None = None):
         self._readiness_checker = readiness_checker or ProviderReadinessChecker()
