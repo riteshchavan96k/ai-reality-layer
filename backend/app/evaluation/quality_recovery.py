@@ -17,8 +17,15 @@ def recover_with_evaluation(
     retry_policy: RetryPolicy,
     execution_budget: ExecutionBudget,
     context: dict[str, Any] | None = None,
+    provider_name_resolver: Callable[[str], str | None] | None = None,
+    invocation_executor: Callable[[str, str, str, dict[str, Any] | None], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Try alternative candidates when the initial response needs review and keep the best evaluation."""
+    """Try alternative candidates when the initial response needs review and keep the best evaluation.
+
+    When an invocation executor is supplied, recovery uses the same provider-neutral
+    execution/result boundary as the primary execution path. The legacy adapter path
+    remains available for isolated callers and regression compatibility.
+    """
     best = {
         "model": initial_execution.get("model"),
         "execution": initial_execution,
@@ -43,6 +50,77 @@ def recover_with_evaluation(
             continue
         if execution_budget.remaining_attempts <= 0:
             break
+
+        if invocation_executor is not None:
+            if provider_name_resolver is None:
+                raise ValueError("provider_name_resolver is required with invocation_executor")
+
+            provider_name = provider_name_resolver(model_name)
+            if not provider_name:
+                continue
+
+            attempts = 0
+            execution_result = None
+            last_reason = None
+
+            while attempts < retry_policy.max_attempts and execution_budget.remaining_attempts > 0:
+                provider_result = invocation_executor(
+                    provider_name,
+                    model_name,
+                    task,
+                    context,
+                )
+
+                if provider_result["status"] == "blocked":
+                    break
+
+                attempts += 1
+                execution_budget.consume(1)
+
+                if provider_result["status"] == "completed":
+                    execution_result = {
+                        "status": "success",
+                        "model": model_name,
+                        "attempts": attempts,
+                        "total_attempts": execution_budget.used_attempts,
+                        "budget_limit": execution_budget.max_attempts,
+                        "result": provider_result["result"],
+                    }
+                    break
+
+                last_reason = provider_result.get(
+                    "reason",
+                    "provider_execution_failed",
+                )
+
+            recovery_attempts += attempts
+
+            if attempts == 0:
+                continue
+
+            candidates_tried.append(model_name)
+
+            if execution_result is None:
+                continue
+
+            evaluation = evaluate_response(
+                task,
+                execution_result["result"],
+                analysis,
+                {**routing, "model": model_name},
+            )
+
+            if evaluation["score"] > best["evaluation"]["score"]:
+                best = {
+                    "model": model_name,
+                    "execution": execution_result,
+                    "evaluation": evaluation,
+                }
+
+            if evaluation["status"] == "pass":
+                break
+
+            continue
 
         adapter = adapter_resolver(model_name)
         if adapter is None:

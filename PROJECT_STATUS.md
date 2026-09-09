@@ -10,7 +10,22 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 53 — Provider Execution Integration — implementation complete; local validation pending.
+Step 54 — Provider Execution Recovery Integration — implementation complete; local validation pending.
+
+### Step 54 Scope
+
+- Routes evaluation-driven quality recovery through the same provider-neutral `ProviderInvocationExecutor` boundary used by primary orchestration execution.
+- Resolves provider identity from the normalized model capability catalog before recovery invocation.
+- Preserves shared execution-budget accounting across primary execution and quality recovery.
+- Preserves retry behavior for provider execution failures during recovery.
+- Keeps blocked/non-executed provider results at zero recovery attempts and zero budget consumption.
+- Preserves grounded context injection during recovery execution.
+- Keeps the legacy adapter-based recovery path available for isolated callers and regression compatibility.
+- Adds regression coverage for provider-bound recovery, retry and shared budget behavior, blocked recovery, and unknown provider identity.
+
+### Step 54 Design Boundary
+
+This step unifies quality-recovery execution with the provider invocation/result boundary already used by primary execution. It does not add new external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
 
 ### Step 53 Scope
 
@@ -29,7 +44,7 @@ This step integrates the existing provider invocation and execution-result bound
 ### Step 52 Scope
 
 - Added a provider execution result contract after provider invocation execution.
-- Successful adapter output is normalized through the existing `ModelResponseNormalizer` instead of exposing provider-specific response shapes downstream.
+- Successful adapter output is normalized through the existing model response contract instead of exposing provider-specific response shapes downstream.
 - Provider execution exceptions are converted into a deterministic failure envelope without exposing raw exception messages or secret-like details.
 - Adapter-unavailable invocations remain explicitly blocked with `execution_performed` set to `False`.
 - Successful and failed provider attempts explicitly distinguish execution state through `execution_performed`.
