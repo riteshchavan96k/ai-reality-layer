@@ -39,44 +39,43 @@ def execute_with_fallback(
                 attempts_by_model[model_name] = 0
                 continue
 
-            remaining = budget.remaining_attempts
-            if remaining <= 0:
-                break
+            attempts = 0
+            last_error = None
 
-            model_policy = RetryPolicy(
-                max_attempts=min(retry_policy.max_attempts, remaining)
-            )
-
-            def invoke() -> dict[str, Any]:
+            while attempts < retry_policy.max_attempts and budget.remaining_attempts > 0:
                 result = invocation_executor(
                     provider_name,
                     model_name,
                     task,
                     context,
                 )
-                if result["status"] == "completed":
-                    return result["result"]
+
                 if result["status"] == "blocked":
-                    raise RuntimeError("provider_execution_blocked")
-                raise RuntimeError("provider_execution_failed")
+                    attempts_by_model[model_name] = attempts
+                    errors[model_name] = result.get("reason", "provider_execution_blocked")
+                    break
 
-            execution = model_policy.execute(invoke)
-            budget.consume(execution["attempts"])
-            attempts_by_model[model_name] = execution["attempts"]
+                attempts += 1
+                budget.consume(1)
 
-            if execution["status"] == "success":
-                return {
-                    "status": "success",
-                    "model": model_name,
-                    "attempts": execution["attempts"],
-                    "total_attempts": budget.used_attempts,
-                    "budget_limit": budget.max_attempts,
-                    "attempts_by_model": attempts_by_model,
-                    "fallback_used": bool(errors),
-                    "result": execution["result"],
-                }
+                if result["status"] == "completed":
+                    attempts_by_model[model_name] = attempts
+                    return {
+                        "status": "success",
+                        "model": model_name,
+                        "attempts": attempts,
+                        "total_attempts": budget.used_attempts,
+                        "budget_limit": budget.max_attempts,
+                        "attempts_by_model": attempts_by_model,
+                        "fallback_used": bool(errors),
+                        "result": result["result"],
+                    }
 
-            errors[model_name] = execution["error"]
+                last_error = result.get("reason", "provider_execution_failed")
+
+            attempts_by_model[model_name] = attempts
+            if last_error is not None:
+                errors[model_name] = last_error
             continue
 
         adapter = adapter_resolver(model_name)
