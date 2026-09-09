@@ -2,7 +2,8 @@ import os
 
 from backend.app.analyzer.task_analyzer import analyze_task
 from backend.app.router.model_router import route_task
-from backend.app.models.registry import get_model_adapter
+from backend.app.models.registry import get_model_adapter, get_model_provider_name
+from backend.app.models.provider_invocation_executor import ProviderInvocationExecutor
 from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
 from backend.app.evaluation.response_evaluator import evaluate_response
 from backend.app.evaluation.quality_recovery import recover_with_evaluation
@@ -152,6 +153,7 @@ def orchestrate_task(
         max_attempts=execution_policy.max_attempts * max(len(candidate_order), 1)
     )
 
+    provider_executor = ProviderInvocationExecutor()
     execution = execute_with_fallback(
         task=task,
         model_names=candidate_order,
@@ -159,6 +161,8 @@ def orchestrate_task(
         retry_policy=execution_policy,
         execution_budget=budget,
         context=grounding_context,
+        provider_name_resolver=get_model_provider_name,
+        invocation_executor=provider_executor.execute,
     )
 
     trace.record(

@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 52 — Provider Execution Result Contract — implementation complete; local validation pending.
+Step 53 — Provider Execution Integration — implementation complete; local validation pending.
+
+### Step 53 Scope
+
+- Routes the orchestration execution path through the provider-neutral `ProviderInvocationExecutor` created in Steps 51–52.
+- Resolves provider identity from the normalized model capability catalog before provider invocation.
+- Preserves the existing ordered fallback and shared execution-budget behavior.
+- Preserves retry behavior for provider execution failures while keeping blocked/non-executed results at zero execution attempts.
+- Keeps the existing adapter-based fallback path available for isolated callers and regression compatibility.
+- Preserves grounded context injection into provider invocation.
+- Adds regression coverage for provider-bound execution, failure retry behavior, unknown provider identity, and normal orchestration.
+
+### Step 53 Design Boundary
+
+This step integrates the existing provider invocation and execution-result boundaries into the orchestration execution path. It does not add new external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
 
 ### Step 52 Scope
 
