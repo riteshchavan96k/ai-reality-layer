@@ -211,6 +211,8 @@ def orchestrate_task(
         retry_policy=execution_policy,
         execution_budget=budget,
         context=grounding_context,
+        provider_name_resolver=get_model_provider_name,
+        invocation_executor=provider_executor.execute,
     )
 
     if recovery["improved"]:
