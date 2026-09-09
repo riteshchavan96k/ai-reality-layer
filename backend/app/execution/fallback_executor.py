@@ -12,8 +12,15 @@ def execute_with_fallback(
     retry_policy: RetryPolicy,
     execution_budget: ExecutionBudget | None = None,
     context: dict[str, Any] | None = None,
+    provider_name_resolver: Callable[[str], str] | None = None,
+    invocation_executor: Callable[[str, str, str, dict[str, Any] | None], dict[str, Any]] | None = None,
 ) -> dict:
-    """Try candidate models in order while respecting a total attempt budget."""
+    """Try candidate models in order while respecting a total attempt budget.
+
+    When an invocation executor is supplied, provider execution is routed through
+    the provider-neutral invocation/result boundary introduced in Steps 50–52.
+    The adapter path remains available for backward-compatible isolated callers.
+    """
     attempts_by_model: dict[str, int] = {}
     errors: dict[str, str] = {}
     budget = execution_budget or ExecutionBudget(
@@ -22,6 +29,56 @@ def execute_with_fallback(
     normalizer = ModelResponseNormalizer()
 
     for model_name in model_names:
+        if invocation_executor is not None:
+            if provider_name_resolver is None:
+                raise ValueError("provider_name_resolver is required with invocation_executor")
+
+            provider_name = provider_name_resolver(model_name)
+            if not provider_name:
+                errors[model_name] = "Provider unavailable"
+                attempts_by_model[model_name] = 0
+                continue
+
+            remaining = budget.remaining_attempts
+            if remaining <= 0:
+                break
+
+            model_policy = RetryPolicy(
+                max_attempts=min(retry_policy.max_attempts, remaining)
+            )
+
+            def invoke() -> dict[str, Any]:
+                result = invocation_executor(
+                    provider_name,
+                    model_name,
+                    task,
+                    context,
+                )
+                if result["status"] == "completed":
+                    return result["result"]
+                if result["status"] == "blocked":
+                    raise RuntimeError("provider_execution_blocked")
+                raise RuntimeError("provider_execution_failed")
+
+            execution = model_policy.execute(invoke)
+            budget.consume(execution["attempts"])
+            attempts_by_model[model_name] = execution["attempts"]
+
+            if execution["status"] == "success":
+                return {
+                    "status": "success",
+                    "model": model_name,
+                    "attempts": execution["attempts"],
+                    "total_attempts": budget.used_attempts,
+                    "budget_limit": budget.max_attempts,
+                    "attempts_by_model": attempts_by_model,
+                    "fallback_used": bool(errors),
+                    "result": execution["result"],
+                }
+
+            errors[model_name] = execution["error"]
+            continue
+
         adapter = adapter_resolver(model_name)
 
         if adapter is None:
