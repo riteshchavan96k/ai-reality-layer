@@ -73,6 +73,51 @@ class TestStep53(unittest.TestCase):
         self.assertEqual(calls, ["model-a", "model-a"])
         self.assertNotIn("provider detail", str(result))
 
+    def test_blocked_provider_attempt_consumes_no_execution_budget(self):
+        calls = []
+
+        def provider_executor(provider, model, task, context):
+            calls.append(model)
+            if model == "blocked-model":
+                return {
+                    "status": "blocked",
+                    "execution_performed": False,
+                    "provider": provider,
+                    "model": model,
+                    "reason": "model_adapter_unavailable",
+                    "request": {
+                        "provider_name": provider,
+                        "model_name": model,
+                        "task": task,
+                        "context": context,
+                    },
+                }
+            return {
+                "status": "completed",
+                "execution_performed": True,
+                "result": {
+                    "text": "fallback response",
+                    "model": model,
+                    "provider": provider,
+                },
+            }
+
+        result = execute_with_fallback(
+            task="hello",
+            model_names=["blocked-model", "working-model"],
+            adapter_resolver=lambda _: None,
+            retry_policy=RetryPolicy(max_attempts=2),
+            execution_budget=ExecutionBudget(max_attempts=1),
+            provider_name_resolver=lambda _: "provider-a",
+            invocation_executor=provider_executor,
+        )
+
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["model"], "working-model")
+        self.assertEqual(result["attempts_by_model"]["blocked-model"], 0)
+        self.assertEqual(result["attempts_by_model"]["working-model"], 1)
+        self.assertEqual(calls, ["blocked-model", "working-model"])
+
     def test_unknown_model_has_no_provider_identity(self):
         self.assertIsNone(get_model_provider_name("missing-model"))
 
