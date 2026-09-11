@@ -10,7 +10,24 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 62 — Retrieval Provider Registry Boundary — implementation complete; local validation pending.
+Step 63 — Retrieval Provider Selection Result Contract — implementation complete; local validation pending.
+
+### Step 63 Scope
+
+- Adds a stable `RetrievalProviderSelectionResult` contract for provider-resolution outcomes.
+- Separates provider selection results from raw provider objects.
+- Represents selected and unavailable provider-resolution states explicitly.
+- Carries the resolved source type, provider, reason, and execution-state semantics.
+- Updates `RetrievalProviderSelector` and `RegistryRetrievalProviderSelector` to return the stable selection result.
+- Updates `RealityRetrievalEngine` to execute only when provider selection succeeds.
+- Converts unavailable or malformed selection outcomes into stable non-executing retrieval results.
+- Preserves Step 60 provider execution and Step 55 retrieval result contracts.
+- Preserves `not_required` retrieval behavior without provider selection or execution.
+- Adds regression coverage for selected, unavailable, malformed, and successfully executed selection paths.
+
+### Step 63 Design Boundary
+
+This step establishes a stable contract between retrieval provider selection and provider execution so future selection policies can evolve without exposing raw provider objects as the selector's result protocol. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 62 Scope
 
@@ -69,7 +86,7 @@ This step establishes a provider-execution boundary so future retrieval implemen
 
 ### Step 59 Design Boundary
 
-This step reduces internal coupling between pipeline stages by establishing an explicit stage context contract. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
+This step reduces internal coupling between pipeline stages by establishing an explicit stage context contract. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
 
 ### Step 58 Scope
 
@@ -83,7 +100,7 @@ This step reduces internal coupling between pipeline stages by establishing an e
 
 ### Step 58 Design Boundary
 
-This step reduces internal state-coupling between orchestration stages and establishes a stable state contract for future pipeline evolution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
+This step reduces internal state-coupling between orchestration stages and establishes a stable state contract for future pipeline evolution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
 
 ### Step 57 Scope
 
@@ -97,7 +114,7 @@ This step reduces internal state-coupling between orchestration stages and estab
 
 ### Step 57 Design Boundary
 
-This step reduces procedural coupling in the orchestration entry point without changing the pipeline's functional behavior. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
+This step reduces procedural coupling in the orchestration entry point without changing the pipeline's functional behavior. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
 
 ### Step 56 Scope
 
@@ -111,4 +128,4 @@ This step reduces procedural coupling in the orchestration entry point without c
 
 ### Step 56 Design Boundary
 
-This step establishes dependency composition and injection needed before further orchestration decomposition. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, semantic evaluation, citation generation, latency optimization, or ML training.
+This step establishes dependency composition and injection needed before further orchestration decomposition. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, semantic evaluation, citation generation, latency optimization, or ML training.

@@ -29,9 +29,11 @@ class Step61RetrievalProviderSelectionBoundaryTests(unittest.TestCase):
         )
         selector = RegistryRetrievalProviderSelector(registry)
 
-        self.assertIsInstance(selector.select({"source_type": "live_web"}), ProviderA)
-        self.assertIsInstance(
-            selector.select({"source_type": "web_or_official_source"}), ProviderB
+        self.assertEqual(selector.select({"source_type": "live_web"}).status, "selected")
+        self.assertIsInstance(selector.select({"source_type": "live_web"}).provider, ProviderA)
+        self.assertEqual(
+            selector.select({"source_type": "web_or_official_source"}).provider.__class__,
+            ProviderB,
         )
 
     def test_selector_uses_default_for_unknown_source_type(self):
@@ -39,7 +41,9 @@ class Step61RetrievalProviderSelectionBoundaryTests(unittest.TestCase):
         registry = RetrievalProviderRegistry(default_provider=default)
         selector = RegistryRetrievalProviderSelector(registry)
 
-        self.assertIs(selector.select({"source_type": "unknown"}), default)
+        result = selector.select({"source_type": "unknown"})
+        self.assertEqual(result.status, "selected")
+        self.assertIs(result.provider, default)
 
     def test_engine_executes_selected_provider(self):
         registry = RetrievalProviderRegistry(

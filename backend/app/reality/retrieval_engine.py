@@ -1,6 +1,8 @@
 from typing import Any, Protocol
 
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
+from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
+from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
 from backend.app.reality.retrieval_provider_selector import (
     RegistryRetrievalProviderSelector,
     RetrievalProviderSelector,
@@ -44,8 +46,10 @@ class RealityRetrievalEngine:
         else:
             selected_provider = provider or UnconfiguredRetrievalProvider()
             self.provider_selector = RegistryRetrievalProviderSelector(
-                providers={},
-                default_provider=selected_provider,
+                registry=RetrievalProviderRegistry(
+                    providers={},
+                    default_provider=selected_provider,
+                ),
             )
 
     def retrieve(self, contract: dict[str, Any]) -> dict[str, Any]:
@@ -68,8 +72,30 @@ class RealityRetrievalEngine:
         if not isinstance(request, dict):
             raise ValueError("retrieval contract request must be a dictionary")
 
-        provider = self.provider_selector.select(request)
-        return self.provider_executor.execute(provider, request)
+        selection = self.provider_selector.select(request)
+        if not isinstance(selection, RetrievalProviderSelectionResult):
+            return _blocked_selection_result(
+                request,
+                "invalid_provider_selection_result",
+            )
+        if not selection.selection_executed:
+            return _blocked_selection_result(request, selection.reason)
+        return self.provider_executor.execute(selection.provider, request)
+
+
+def _blocked_selection_result(
+    request: dict[str, Any],
+    reason: str | None,
+) -> dict[str, Any]:
+    return {
+        "status": "blocked",
+        "provider": None,
+        "request": request,
+        "sources": [],
+        "content": None,
+        "retrieval_executed": False,
+        "reason": reason or "retrieval_provider_unavailable",
+    }
 
 
 __all__ = ["RealityRetrievalEngine", "RetrievalProvider", "UnconfiguredRetrievalProvider"]
