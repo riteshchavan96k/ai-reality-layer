@@ -4,6 +4,7 @@ from backend.app.reality.retrieval_provider import RetrievalProvider
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
+from backend.app.reality.retrieval_provider_response import RetrievalProviderResponse
 from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
 from backend.app.reality.retrieval_provider_selector import (
     RegistryRetrievalProviderSelector,
@@ -14,14 +15,11 @@ from backend.app.reality.retrieval_provider_selector import (
 class UnconfiguredRetrievalProvider:
     """Explicit provider used until a real external retrieval provider is configured."""
 
-    def retrieve(self, request: RetrievalProviderRequest) -> dict[str, Any]:
-        return {
-            "status": "provider_unavailable",
-            "provider": None,
-            "request": request.to_dict(),
-            "sources": [],
-            "content": None,
-        }
+    def retrieve(self, request: RetrievalProviderRequest) -> RetrievalProviderResponse:
+        return RetrievalProviderResponse(
+            status="provider_unavailable",
+            provider=None,
+        )
 
 
 class RealityRetrievalEngine:
