@@ -10,7 +10,23 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 61 — Retrieval Provider Selection Boundary — implementation complete; local validation pending.
+Step 62 — Retrieval Provider Registry Boundary — implementation complete; local validation pending.
+
+### Step 62 Scope
+
+- Adds a dedicated `RetrievalProviderRegistry` boundary for owning source-type-to-provider mappings.
+- Separates provider registration and lookup from the Step 61 provider-selection policy.
+- Supports deterministic registration, replacement, lookup, and explicit default-provider fallback.
+- Normalizes valid source-type keys and rejects invalid empty or non-string source types.
+- Updates `RegistryRetrievalProviderSelector` to delegate provider lookup to the dedicated registry.
+- Composes and shares the registry through `OrchestrationDependencies` and the retrieval selector/engine graph.
+- Updates Step 61 regression coverage to exercise the new registry-backed selector boundary.
+- Adds dedicated Step 62 regression coverage for registration, lookup, replacement, normalization, invalid input, and default-provider behavior.
+- Preserves retrieval execution, result-contract, not-required, and provider-selection semantics.
+
+### Step 62 Design Boundary
+
+This step establishes provider registry ownership as an independent retrieval concern so provider registration and lookup can evolve without coupling them to selection policy or provider execution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 61 Scope
 
@@ -95,4 +111,4 @@ This step reduces procedural coupling in the orchestration entry point without c
 
 ### Step 56 Design Boundary
 
-This step establishes dependency composition and injection needed before further orchestration decomposition. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
+This step establishes dependency composition and injection needed before further orchestration decomposition. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, semantic evaluation, citation generation, latency optimization, or ML training.

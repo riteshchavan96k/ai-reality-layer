@@ -10,6 +10,7 @@ from backend.app.reality.grounding_context import EvidenceGroundingContextBuilde
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine, UnconfiguredRetrievalProvider
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
+from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_selector import RegistryRetrievalProviderSelector
 from backend.app.reality.source_planner import RealitySourcePlanner
 
@@ -24,6 +25,7 @@ class OrchestrationDependencies:
     approval_policy: HumanApprovalPolicy
     retrieval_engine: RealityRetrievalEngine
     retrieval_provider_executor: RetrievalProviderExecutor
+    retrieval_provider_registry: RetrievalProviderRegistry
     retrieval_provider_selector: RegistryRetrievalProviderSelector
     evidence_normalizer: RetrievalEvidenceNormalizer
     evidence_quality_validator: EvidenceQualityValidator
@@ -35,9 +37,12 @@ class OrchestrationDependencies:
     def default(cls) -> "OrchestrationDependencies":
         """Build the production-default dependency graph for the prototype."""
         retrieval_provider_executor = RetrievalProviderExecutor()
-        retrieval_provider_selector = RegistryRetrievalProviderSelector(
+        retrieval_provider_registry = RetrievalProviderRegistry(
             providers={},
             default_provider=UnconfiguredRetrievalProvider(),
+        )
+        retrieval_provider_selector = RegistryRetrievalProviderSelector(
+            registry=retrieval_provider_registry,
         )
         return cls(
             context_detector=RealityContextRequirementDetector(),
@@ -49,6 +54,7 @@ class OrchestrationDependencies:
                 provider_selector=retrieval_provider_selector,
             ),
             retrieval_provider_executor=retrieval_provider_executor,
+            retrieval_provider_registry=retrieval_provider_registry,
             retrieval_provider_selector=retrieval_provider_selector,
             evidence_normalizer=RetrievalEvidenceNormalizer(),
             evidence_quality_validator=EvidenceQualityValidator(),

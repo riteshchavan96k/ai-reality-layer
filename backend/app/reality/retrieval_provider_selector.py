@@ -1,5 +1,7 @@
 from typing import Any, Mapping, Protocol
 
+from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
+
 
 class RetrievalProviderSelector(Protocol):
     """Select the retrieval provider that should handle a structured request."""
@@ -10,15 +12,14 @@ class RetrievalProviderSelector(Protocol):
 
 
 class RegistryRetrievalProviderSelector:
-    """Deterministically select a provider from an explicit source-type registry."""
+    """Select a provider through the dedicated retrieval provider registry."""
 
-    def __init__(self, providers: Mapping[str, Any], default_provider: Any) -> None:
-        self._providers = dict(providers)
-        self._default_provider = default_provider
+    def __init__(self, registry: RetrievalProviderRegistry) -> None:
+        self._registry = registry
 
     def select(self, request: Mapping[str, Any]) -> Any:
         source_type = request.get("source_type")
-        return self._providers.get(source_type, self._default_provider)
+        return self._registry.get(source_type)
 
 
 __all__ = ["RegistryRetrievalProviderSelector", "RetrievalProviderSelector"]
