@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 54 — Provider Execution Recovery Integration — implementation complete; local validation pending.
+Step 55 — Retrieval Result Contract — implementation complete; local validation pending.
+
+### Step 55 Scope
+
+- Adds a provider-neutral retrieval result contract for reality-information acquisition.
+- Gives completed, failed, and blocked retrieval outcomes explicit and deterministic semantics.
+- Preserves the original retrieval request across every result state.
+- Distinguishes retrieval that actually executed from retrieval that was blocked or not required.
+- Converts provider exceptions and malformed provider output into stable failure envelopes without exposing raw exception details.
+- Routes `RealityRetrievalEngine` provider output through the stable result boundary before evidence normalization and grounding.
+- Adds regression coverage for successful retrieval, provider-unavailable blocking, provider failure, malformed output, and not-required retrieval.
+
+### Step 55 Design Boundary
+
+This step establishes the retrieval execution/result boundary needed before real external reality-information providers are introduced. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
 
 ### Step 54 Scope
 
@@ -25,7 +39,7 @@ Step 54 — Provider Execution Recovery Integration — implementation complete;
 
 ### Step 54 Design Boundary
 
-This step unifies quality-recovery execution with the provider invocation/result boundary already used by primary execution. It does not add new external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
+This step unifies quality-recovery execution with the provider invocation/result boundary already used by primary orchestration. It does not add new external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
 
 ### Step 53 Scope
 
