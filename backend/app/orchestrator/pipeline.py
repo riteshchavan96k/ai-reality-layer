@@ -7,6 +7,7 @@ from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMem
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.models.registry import get_model_adapter, get_model_provider_name
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
+from backend.app.orchestrator.stage_contract import OrchestrationStageContext
 from backend.app.orchestrator.state import OrchestrationState
 
 
@@ -39,286 +40,216 @@ class OrchestrationPipeline:
         outcome_memory: OutcomeMemory | PersistentOutcomeMemory,
         retrieval_engine: Any | None,
     ) -> dict:
-        trace = ExecutionTrace()
-        state = OrchestrationState(task=task)
-        state.analysis, state.routing, state.approval = self._prepare_and_approve(
-            task, human_approved, approval_policy, outcome_memory, trace
+        context = OrchestrationStageContext(
+            state=OrchestrationState(task=task),
+            trace=ExecutionTrace(),
+            execution_budget=execution_budget,
         )
+        self._prepare_and_approve(context, human_approved, approval_policy, outcome_memory)
+        state = context.state
 
         if state.approval["required"] and not human_approved:
-            trace.record("execution", "blocked", reason="human_approval_required")
-            return {
-                "status": "awaiting_human_approval",
-                "analysis": state.analysis,
-                "routing": state.routing,
-                "approval": state.approval,
-                "trace": trace.snapshot(),
-            }
+            context.trace.record("execution", "blocked", reason="human_approval_required")
+            return self._approval_blocked_result(context)
 
-        (
-            state.retrieval,
-            state.evidence,
-            state.evidence_quality,
-            state.grounding,
-        ) = self._retrieve_and_ground(task, state.analysis, retrieval_engine)
+        self._retrieve_and_ground(context, retrieval_engine)
+        state = context.state
         retrieval_contract = state.retrieval_contract
-
         if (
             retrieval_contract["request"]["required"]
             and state.evidence_quality["status"] != "usable"
         ):
-            trace.record(
-                "execution",
-                "blocked",
-                reason="required_retrieval_evidence_quality_insufficient",
-                retrieval_status=state.retrieval["status"],
-                evidence_status=state.evidence["status"],
-                quality_status=state.evidence_quality["status"],
-                quality_issues=state.evidence_quality["issues"],
-            )
-            return {
-                "status": "retrieval_unavailable",
-                "analysis": state.analysis,
-                "routing": state.routing,
-                "approval": state.approval,
-                "retrieval": state.retrieval,
-                "evidence": state.evidence,
-                "evidence_quality": state.evidence_quality,
-                "grounding": self.dependencies.grounded_result_builder.build(
-                    state.grounding, None
-                ),
-                "trace": trace.snapshot(),
-            }
+            return self._retrieval_blocked_result(context)
 
-        state.execution, budget = self._execute(
-            task,
-            state.routing,
-            retry_policy,
-            execution_budget,
-            state.grounding,
-            trace,
-        )
-
+        self._execute(context, retry_policy)
+        state = context.state
         if state.execution["status"] == "failed":
             state.outcome = outcome_memory.record(
                 task, state.analysis, state.routing, state.execution, None
             )
-            trace.record("evaluation", "skipped", reason="execution_failed")
-            return {
-                "status": "execution_failed",
-                "analysis": state.analysis,
-                "routing": state.routing,
-                "approval": state.approval,
-                "execution": state.execution,
-                "outcome": state.outcome,
-                "trace": trace.snapshot(),
-            }
+            context.trace.record("evaluation", "skipped", reason="execution_failed")
+            return self._execution_failed_result(context)
 
-        state.execution, state.evaluation, state.recovery = self._evaluate_and_recover(
-            task,
-            state.analysis,
-            state.routing,
-            state.execution,
-            retry_policy,
-            budget,
-            state.grounding,
-            trace,
-        )
+        self._evaluate_and_recover(context, retry_policy)
+        state = context.state
         grounding_result = self.dependencies.grounded_result_builder.build(
             state.grounding, state.result
         )
         state.outcome = outcome_memory.record(
             task, state.analysis, state.routing, state.execution, state.evaluation
         )
-
-        return {
-            "status": "orchestrated",
-            "analysis": state.analysis,
-            "routing": state.routing,
-            "approval": state.approval,
-            "execution": {
-                "status": state.execution["status"],
-                "model": state.execution["model"],
-                "attempts": state.execution["attempts"],
-                "total_attempts": state.execution["total_attempts"],
-                "budget_limit": state.execution["budget_limit"],
-                "attempts_by_model": state.execution["attempts_by_model"],
-                "fallback_used": state.execution["fallback_used"],
-            },
-            "result": state.result,
-            "grounding": grounding_result,
-            "evaluation": state.evaluation,
-            "quality_recovery": state.recovery,
-            "outcome": state.outcome,
-            "trace": trace.snapshot(),
-        }
+        return self._success_result(context, grounding_result)
 
     def _prepare_and_approve(
         self,
-        task: str,
+        context: OrchestrationStageContext,
         human_approved: bool,
         approval_policy: Any | None,
         outcome_memory: OutcomeMemory | PersistentOutcomeMemory,
-        trace: ExecutionTrace,
-    ) -> tuple[dict, dict, dict]:
-        reality_context = self.dependencies.context_detector.detect(task)
+    ) -> None:
+        state = context.state
+        reality_context = self.dependencies.context_detector.detect(state.task)
         reality_source_plan = self.dependencies.source_planner.plan(reality_context)
-        retrieval_contract = self.dependencies.retrieval_contract.build(task, reality_source_plan)
-        analysis = {
-            **self.analyze(task),
+        retrieval_contract = self.dependencies.retrieval_contract.build(state.task, reality_source_plan)
+        state.analysis = {
+            **self.analyze(state.task),
             "reality_context": reality_context,
             "reality_source_plan": reality_source_plan,
             "reality_retrieval": retrieval_contract,
         }
-        trace.record(
-            "analysis",
-            "completed",
-            task_type=analysis["task_type"],
-            confidence=analysis["confidence"],
+        context.trace.record(
+            "analysis", "completed",
+            task_type=state.analysis["task_type"],
+            confidence=state.analysis["confidence"],
             needs_current_info=reality_context["needs_current_info"],
             needs_external_evidence=reality_context["needs_external_evidence"],
             source_type=reality_source_plan["source_type"],
             retrieval_required=reality_source_plan["requires_retrieval"],
             retrieval_status=retrieval_contract["status"],
         )
-
-        routing = self.route(task, analysis["task_type"], outcome_memory=outcome_memory)
-        trace.record(
-            "routing",
-            "completed",
-            strategy=routing["strategy"],
-            model=routing["model"],
-            candidate_count=len(routing["candidates"]),
-            optimization_status=routing["optimization"]["status"],
-            exploration=routing["optimization"]["exploration"],
+        state.routing = self.route(
+            state.task, state.analysis["task_type"], outcome_memory=outcome_memory
         )
-
+        context.trace.record(
+            "routing", "completed",
+            strategy=state.routing["strategy"], model=state.routing["model"],
+            candidate_count=len(state.routing["candidates"]),
+            optimization_status=state.routing["optimization"]["status"],
+            exploration=state.routing["optimization"]["exploration"],
+        )
         policy = approval_policy or self.dependencies.approval_policy
-        approval = policy.evaluate(task, analysis, routing)
-        trace.record(
+        state.approval = policy.evaluate(state.task, state.analysis, state.routing)
+        context.trace.record(
             "approval",
-            "required" if approval["required"] else "not_required",
-            risk_level=approval["risk_level"],
-            mode=approval["mode"],
+            "required" if state.approval["required"] else "not_required",
+            risk_level=state.approval["risk_level"], mode=state.approval["mode"],
         )
-        return analysis, routing, approval
 
     def _retrieve_and_ground(
-        self,
-        task: str,
-        analysis: dict,
-        retrieval_engine: Any | None,
-    ) -> tuple[dict, dict, dict, dict]:
+        self, context: OrchestrationStageContext, retrieval_engine: Any | None
+    ) -> None:
+        state = context.state
         retrieval_service = retrieval_engine or self.dependencies.retrieval_engine
-        retrieval_contract = analysis["reality_retrieval"]
-        reality_retrieval = retrieval_service.retrieve(retrieval_contract)
-        normalized_evidence = self.dependencies.evidence_normalizer.normalize(reality_retrieval)
-        evidence_quality = self.dependencies.evidence_quality_validator.validate(normalized_evidence)
-        grounding_context = self.dependencies.grounding_context_builder.build(
-            task, normalized_evidence
+        state.retrieval = retrieval_service.retrieve(state.retrieval_contract)
+        state.evidence = self.dependencies.evidence_normalizer.normalize(state.retrieval)
+        state.evidence_quality = self.dependencies.evidence_quality_validator.validate(state.evidence)
+        state.grounding = self.dependencies.grounding_context_builder.build(
+            state.task, state.evidence
         )
-        analysis["reality_retrieval"] = {
-            **retrieval_contract,
-            "execution": reality_retrieval,
-            "evidence": normalized_evidence,
-            "quality": evidence_quality,
-            "grounding": grounding_context,
+        state.analysis["reality_retrieval"] = {
+            **state.retrieval_contract,
+            "execution": state.retrieval,
+            "evidence": state.evidence,
+            "quality": state.evidence_quality,
+            "grounding": state.grounding,
         }
-        return reality_retrieval, normalized_evidence, evidence_quality, grounding_context
 
-    def _execute(
-        self,
-        task: str,
-        routing: dict,
-        retry_policy: RetryPolicy,
-        execution_budget: ExecutionBudget | None,
-        grounding_context: dict,
-        trace: ExecutionTrace,
-    ) -> tuple[dict, ExecutionBudget]:
-        selected_model = routing["model"]
-        fallback_candidates = [
-            model for model in routing["candidates"] if model != selected_model
-        ]
-        candidate_order = (
-            [selected_model, *fallback_candidates] if selected_model else fallback_candidates
-        )
-        budget = execution_budget or ExecutionBudget(
+    def _execute(self, context: OrchestrationStageContext, retry_policy: RetryPolicy) -> None:
+        state = context.state
+        selected_model = state.routing["model"]
+        fallback_candidates = [m for m in state.routing["candidates"] if m != selected_model]
+        candidate_order = [selected_model, *fallback_candidates] if selected_model else fallback_candidates
+        budget = context.execution_budget or ExecutionBudget(
             max_attempts=retry_policy.max_attempts * max(len(candidate_order), 1)
         )
-        execution = self.fallback(
-            task=task,
+        context.set_budget(budget)
+        state.execution = self.fallback(
+            task=state.task,
             model_names=candidate_order,
             adapter_resolver=get_model_adapter,
             retry_policy=retry_policy,
             execution_budget=budget,
-            context=grounding_context,
+            context=state.grounding,
             provider_name_resolver=get_model_provider_name,
             invocation_executor=self.dependencies.provider_executor.execute,
         )
-        trace.record(
-            "execution",
-            execution["status"],
-            model=execution.get("model"),
-            attempts=execution.get("attempts", 0),
-            total_attempts=execution.get("total_attempts", 0),
-            budget_limit=execution.get("budget_limit"),
-            attempts_by_model=execution.get("attempts_by_model", {}),
-            fallback_used=execution.get("fallback_used", False),
-            grounding_status=grounding_context["status"],
-            grounding_source_count=grounding_context["source_count"],
+        context.trace.record(
+            "execution", state.execution["status"],
+            model=state.execution.get("model"), attempts=state.execution.get("attempts", 0),
+            total_attempts=state.execution.get("total_attempts", 0),
+            budget_limit=state.execution.get("budget_limit"),
+            attempts_by_model=state.execution.get("attempts_by_model", {}),
+            fallback_used=state.execution.get("fallback_used", False),
+            grounding_status=state.grounding["status"],
+            grounding_source_count=state.grounding["source_count"],
         )
-        return execution, budget
 
-    def _evaluate_and_recover(
-        self,
-        task: str,
-        analysis: dict,
-        routing: dict,
-        execution: dict,
-        retry_policy: RetryPolicy,
-        execution_budget: ExecutionBudget,
-        grounding_context: dict,
-        trace: ExecutionTrace,
-    ) -> tuple[dict, dict, dict]:
-        evaluation = self.evaluate(
-            task,
-            execution["result"],
-            analysis,
-            {**routing, "model": execution["model"]},
+    def _evaluate_and_recover(self, context: OrchestrationStageContext, retry_policy: RetryPolicy) -> None:
+        state = context.state
+        budget = context.require_budget()
+        state.evaluation = self.evaluate(
+            state.task, state.result, state.analysis,
+            {**state.routing, "model": state.execution["model"]},
         )
-        trace.record("evaluation", evaluation["status"], score=evaluation["score"])
-
-        candidate_order = (
-            [routing["model"], *[model for model in routing["candidates"] if model != routing["model"]]]
-            if routing["model"]
-            else list(routing["candidates"])
+        context.trace.record("evaluation", state.evaluation["status"], score=state.evaluation["score"])
+        candidates = (
+            [state.routing["model"], *[m for m in state.routing["candidates"] if m != state.routing["model"]]]
+            if state.routing["model"] else list(state.routing["candidates"])
         )
-        recovery = self.recover(
-            task=task,
-            candidates=candidate_order,
+        state.recovery = self.recover(
+            task=state.task,
+            candidates=candidates,
             adapter_resolver=get_model_adapter,
-            analysis=analysis,
-            routing=routing,
-            initial_execution=execution,
-            initial_evaluation=evaluation,
+            analysis=state.analysis,
+            routing=state.routing,
+            initial_execution=state.execution,
+            initial_evaluation=state.evaluation,
             retry_policy=retry_policy,
-            execution_budget=execution_budget,
-            context=grounding_context,
+            execution_budget=budget,
+            context=state.grounding,
             provider_name_resolver=get_model_provider_name,
             invocation_executor=self.dependencies.provider_executor.execute,
         )
-
-        if recovery["improved"]:
-            execution = recovery["best"]["execution"]
-            evaluation = recovery["best"]["evaluation"]
-
-        trace.record(
+        if state.recovery["improved"]:
+            state.execution = state.recovery["best"]["execution"]
+            state.evaluation = state.recovery["best"]["evaluation"]
+        context.trace.record(
             "quality_recovery",
-            "improved" if recovery["improved"] else "not_improved",
-            used=recovery["used"],
-            recovery_attempts=recovery["recovery_attempts"],
-            candidates_tried=recovery["candidates_tried"],
-            final_model=recovery["best"]["model"],
-            final_score=recovery["best"]["evaluation"]["score"],
+            "improved" if state.recovery["improved"] else "not_improved",
+            used=state.recovery["used"],
+            recovery_attempts=state.recovery["recovery_attempts"],
+            candidates_tried=state.recovery["candidates_tried"],
+            final_model=state.recovery["best"]["model"],
+            final_score=state.recovery["best"]["evaluation"]["score"],
         )
-        return execution, evaluation, recovery
+
+    def _approval_blocked_result(self, context: OrchestrationStageContext) -> dict:
+        state = context.state
+        return {"status": "awaiting_human_approval", "analysis": state.analysis,
+                "routing": state.routing, "approval": state.approval,
+                "trace": context.trace.snapshot()}
+
+    def _retrieval_blocked_result(self, context: OrchestrationStageContext) -> dict:
+        state = context.state
+        context.trace.record(
+            "execution", "blocked",
+            reason="required_retrieval_evidence_quality_insufficient",
+            retrieval_status=state.retrieval["status"], evidence_status=state.evidence["status"],
+            quality_status=state.evidence_quality["status"], quality_issues=state.evidence_quality["issues"],
+        )
+        return {"status": "retrieval_unavailable", "analysis": state.analysis,
+                "routing": state.routing, "approval": state.approval,
+                "retrieval": state.retrieval, "evidence": state.evidence,
+                "evidence_quality": state.evidence_quality,
+                "grounding": self.dependencies.grounded_result_builder.build(state.grounding, None),
+                "trace": context.trace.snapshot()}
+
+    def _execution_failed_result(self, context: OrchestrationStageContext) -> dict:
+        state = context.state
+        return {"status": "execution_failed", "analysis": state.analysis,
+                "routing": state.routing, "approval": state.approval,
+                "execution": state.execution, "outcome": state.outcome,
+                "trace": context.trace.snapshot()}
+
+    def _success_result(self, context: OrchestrationStageContext, grounding_result: dict) -> dict:
+        state = context.state
+        return {"status": "orchestrated", "analysis": state.analysis,
+                "routing": state.routing, "approval": state.approval,
+                "execution": {"status": state.execution["status"], "model": state.execution["model"],
+                              "attempts": state.execution["attempts"], "total_attempts": state.execution["total_attempts"],
+                              "budget_limit": state.execution["budget_limit"],
+                              "attempts_by_model": state.execution["attempts_by_model"],
+                              "fallback_used": state.execution["fallback_used"]},
+                "result": state.result, "grounding": grounding_result,
+                "evaluation": state.evaluation, "quality_recovery": state.recovery,
+                "outcome": state.outcome, "trace": context.trace.snapshot()}
