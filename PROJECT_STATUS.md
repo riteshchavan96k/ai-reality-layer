@@ -10,7 +10,22 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 60 — Retrieval Provider Execution Boundary — implementation complete; local validation pending.
+Step 61 — Retrieval Provider Selection Boundary — implementation complete; local validation pending.
+
+### Step 61 Scope
+
+- Adds a provider-neutral `RetrievalProviderSelector` contract for choosing a retrieval provider from a structured retrieval request.
+- Adds deterministic registry-based provider selection keyed by retrieval `source_type` with an explicit default provider.
+- Updates `RealityRetrievalEngine` to select the provider before delegating execution to the Step 60 provider executor boundary.
+- Preserves explicit provider injection behavior by treating an injected provider as the default provider when no selector is supplied.
+- Composes and shares the default retrieval provider selector through `OrchestrationDependencies`.
+- Preserves Step 55 retrieval result semantics and Step 60 provider execution containment.
+- Preserves `not_required` retrieval behavior without invoking provider selection or execution.
+- Adds regression coverage for source-type selection, default selection, selected-provider execution, non-execution, and dependency composition.
+
+### Step 61 Design Boundary
+
+This step establishes provider selection as an independent retrieval concern so multiple retrieval implementations can later be introduced without coupling selection policy to retrieval execution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 60 Scope
 
