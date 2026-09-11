@@ -6,6 +6,7 @@ from backend.app.reality.retrieval_provider_response_normalizer import (
     RetrievalProviderResponseNormalizer,
 )
 from backend.app.reality.retrieval_result import RetrievalResultContract
+from backend.app.reality.retrieval_result_normalizer import RetrievalResultNormalizer
 
 
 class RetrievalProviderExecutor:
@@ -26,32 +27,14 @@ class RetrievalProviderExecutor:
             return RetrievalResultContract.failed(request_dict, provider_name)
 
         try:
-            result = RetrievalProviderResponseNormalizer.normalize(raw_result)
+            response = RetrievalProviderResponseNormalizer.normalize(raw_result)
+            return RetrievalResultNormalizer.normalize(
+                request_dict,
+                response,
+                fallback_provider=provider_name,
+            )
         except (TypeError, ValueError):
             return RetrievalResultContract.failed(request_dict, provider_name)
-
-        result_provider = result.provider or provider_name
-
-        if result.status in {"provider_unavailable", "blocked"}:
-            return RetrievalResultContract.blocked(
-                request_dict,
-                result_provider,
-                result.reason or "retrieval_provider_unavailable",
-            )
-
-        if result.status == "failed":
-            return RetrievalResultContract.failed(
-                request_dict,
-                result_provider,
-                result.reason or "retrieval_provider_failed",
-            )
-
-        return RetrievalResultContract.completed(
-            request_dict,
-            result_provider,
-            list(result.sources),
-            result.content,
-        )
 
 
 __all__ = ["RetrievalProviderExecutor"]
