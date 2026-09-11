@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 56 — Orchestration Composition Boundary — implementation complete; local validation pending.
+Step 57 — Orchestration Pipeline Decomposition — implementation complete; local validation pending.
+
+### Step 57 Scope
+
+- Adds an explicit `OrchestrationPipeline` boundary around the existing orchestration sequence.
+- Decomposes the large orchestration function into explicit preparation/approval, retrieval/grounding, execution, and evaluation/recovery stages.
+- Keeps the public `orchestrate_task` entry point stable while delegating pipeline execution to the new boundary.
+- Preserves dependency injection introduced in Step 56.
+- Preserves the shared execution budget across primary execution and quality recovery.
+- Preserves existing routing, retrieval, grounding, evaluation, recovery, trace, outcome-memory, fallback, and approval semantics.
+- Adds regression coverage for stage execution, shared budget propagation, and approval blocking before retrieval.
+
+### Step 57 Design Boundary
+
+This step reduces procedural coupling in the orchestration entry point without changing the pipeline's functional behavior. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
 
 ### Step 56 Scope
 
