@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 
 from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
-from backend.app.evaluation.quality_recovery import recover_with_evaluation
-from backend.app.execution.fallback_executor import execute_with_fallback
 from backend.app.models.provider_invocation_executor import ProviderInvocationExecutor
-from backend.app.models.registry import get_model_adapter, get_model_provider_name
 from backend.app.reality.context_requirements import RealityContextRequirementDetector
 from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
 from backend.app.reality.evidence_quality import EvidenceQualityValidator
