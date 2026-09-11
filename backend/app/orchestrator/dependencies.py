@@ -8,7 +8,7 @@ from backend.app.reality.evidence_quality import EvidenceQualityValidator
 from backend.app.reality.grounded_result import GroundedResultEnvelopeBuilder
 from backend.app.reality.grounding_context import EvidenceGroundingContextBuilder
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
-from backend.app.reality.retrieval_engine import RealityRetrievalEngine
+from backend.app.reality.retrieval_engine import RealityRetrievalEngine, UnconfiguredRetrievalProvider
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
 from backend.app.reality.retrieval_provider_selector import RegistryRetrievalProviderSelector
 from backend.app.reality.source_planner import RealitySourcePlanner
@@ -37,27 +37,17 @@ class OrchestrationDependencies:
         retrieval_provider_executor = RetrievalProviderExecutor()
         retrieval_provider_selector = RegistryRetrievalProviderSelector(
             providers={},
-            default_provider=None,
+            default_provider=UnconfiguredRetrievalProvider(),
         )
-        retrieval_engine = RealityRetrievalEngine(
-            provider_executor=retrieval_provider_executor,
-            provider_selector=retrieval_provider_selector,
-        )
-        if retrieval_provider_selector._default_provider is None:
-            retrieval_provider_selector = RegistryRetrievalProviderSelector(
-                providers={},
-                default_provider=retrieval_engine.provider_selector.select({}),
-            )
-            retrieval_engine = RealityRetrievalEngine(
-                provider_executor=retrieval_provider_executor,
-                provider_selector=retrieval_provider_selector,
-            )
         return cls(
             context_detector=RealityContextRequirementDetector(),
             source_planner=RealitySourcePlanner(),
             retrieval_contract=RealityRetrievalContract(),
             approval_policy=HumanApprovalPolicy(),
-            retrieval_engine=retrieval_engine,
+            retrieval_engine=RealityRetrievalEngine(
+                provider_executor=retrieval_provider_executor,
+                provider_selector=retrieval_provider_selector,
+            ),
             retrieval_provider_executor=retrieval_provider_executor,
             retrieval_provider_selector=retrieval_provider_selector,
             evidence_normalizer=RetrievalEvidenceNormalizer(),
