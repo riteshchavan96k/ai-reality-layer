@@ -1,6 +1,7 @@
 from typing import Any, Protocol
 
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
+from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
 from backend.app.reality.retrieval_provider_selector import (
     RegistryRetrievalProviderSelector,
     RetrievalProviderSelector,
@@ -44,8 +45,7 @@ class RealityRetrievalEngine:
         else:
             selected_provider = provider or UnconfiguredRetrievalProvider()
             self.provider_selector = RegistryRetrievalProviderSelector(
-                providers={},
-                default_provider=selected_provider,
+                registry=_build_default_registry(selected_provider),
             )
 
     def retrieve(self, contract: dict[str, Any]) -> dict[str, Any]:
@@ -68,8 +68,28 @@ class RealityRetrievalEngine:
         if not isinstance(request, dict):
             raise ValueError("retrieval contract request must be a dictionary")
 
-        provider = self.provider_selector.select(request)
-        return self.provider_executor.execute(provider, request)
+        selection = self.provider_selector.select(request)
+        if not isinstance(selection, RetrievalProviderSelectionResult):
+            return RetrievalProviderSelectionResult.unavailable(
+                request.get("source_type", "unknown")
+            ).__dict__
+        if not selection.selection_executed:
+            return {
+                "status": "blocked",
+                "provider": None,
+                "request": request,
+                "sources": [],
+                "content": None,
+                "retrieval_executed": False,
+                "reason": selection.reason,
+            }
+        return self.provider_executor.execute(selection.provider, request)
+
+
+def _build_default_registry(provider: RetrievalProvider):
+    from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
+
+    return RetrievalProviderRegistry(providers={}, default_provider=provider)
 
 
 __all__ = ["RealityRetrievalEngine", "RetrievalProvider", "UnconfiguredRetrievalProvider"]
