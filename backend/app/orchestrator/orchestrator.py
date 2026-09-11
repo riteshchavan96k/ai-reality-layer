@@ -21,6 +21,7 @@ from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
 from backend.app.reality.evidence_quality import EvidenceQualityValidator
 from backend.app.reality.grounding_context import EvidenceGroundingContextBuilder
 from backend.app.reality.grounded_result import GroundedResultEnvelopeBuilder
+from backend.app.orchestrator.dependencies import OrchestrationDependencies
 
 
 DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
@@ -42,13 +43,15 @@ def orchestrate_task(
     execution_budget: ExecutionBudget | None = None,
     outcome_memory: OutcomeMemory | PersistentOutcomeMemory | None = None,
     retrieval_engine: RealityRetrievalEngine | None = None,
+    dependencies: OrchestrationDependencies | None = None,
 ) -> dict:
     trace = ExecutionTrace()
     memory = outcome_memory or DEFAULT_CONFIGURED_MEMORY
+    services = dependencies or OrchestrationDependencies.default()
 
-    reality_context = RealityContextRequirementDetector().detect(task)
-    reality_source_plan = RealitySourcePlanner().plan(reality_context)
-    retrieval_contract = RealityRetrievalContract().build(task, reality_source_plan)
+    reality_context = services.context_detector.detect(task)
+    reality_source_plan = services.source_planner.plan(reality_context)
+    retrieval_contract = services.retrieval_contract.build(task, reality_source_plan)
     analysis = {
         **analyze_task(task),
         "reality_context": reality_context,
@@ -82,7 +85,7 @@ def orchestrate_task(
         exploration=routing["optimization"]["exploration"],
     )
 
-    policy = approval_policy or HumanApprovalPolicy()
+    policy = approval_policy or services.approval_policy
     approval = policy.evaluate(task, analysis, routing)
     trace.record(
         "approval",
@@ -101,12 +104,11 @@ def orchestrate_task(
             "trace": trace.snapshot(),
         }
 
-    reality_retrieval = (retrieval_engine or RealityRetrievalEngine()).retrieve(
-        retrieval_contract
-    )
-    normalized_evidence = RetrievalEvidenceNormalizer().normalize(reality_retrieval)
-    evidence_quality = EvidenceQualityValidator().validate(normalized_evidence)
-    grounding_context = EvidenceGroundingContextBuilder().build(
+    retrieval_service = retrieval_engine or services.retrieval_engine
+    reality_retrieval = retrieval_service.retrieve(retrieval_contract)
+    normalized_evidence = services.evidence_normalizer.normalize(reality_retrieval)
+    evidence_quality = services.evidence_quality_validator.validate(normalized_evidence)
+    grounding_context = services.grounding_context_builder.build(
         task,
         normalized_evidence,
     )
@@ -139,7 +141,7 @@ def orchestrate_task(
             "retrieval": reality_retrieval,
             "evidence": normalized_evidence,
             "evidence_quality": evidence_quality,
-            "grounding": GroundedResultEnvelopeBuilder().build(grounding_context, None),
+            "grounding": services.grounded_result_builder.build(grounding_context, None),
             "trace": trace.snapshot(),
         }
 
@@ -153,7 +155,7 @@ def orchestrate_task(
         max_attempts=execution_policy.max_attempts * max(len(candidate_order), 1)
     )
 
-    provider_executor = ProviderInvocationExecutor()
+    provider_executor = services.provider_executor
     execution = execute_with_fallback(
         task=task,
         model_names=candidate_order,
@@ -220,7 +222,7 @@ def orchestrate_task(
         evaluation = recovery["best"]["evaluation"]
         result = execution["result"]
 
-    grounding_result = GroundedResultEnvelopeBuilder().build(
+    grounding_result = services.grounded_result_builder.build(
         grounding_context,
         result,
     )
