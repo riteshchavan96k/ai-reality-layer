@@ -9,6 +9,7 @@ from backend.app.reality.grounded_result import GroundedResultEnvelopeBuilder
 from backend.app.reality.grounding_context import EvidenceGroundingContextBuilder
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
+from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
 from backend.app.reality.source_planner import RealitySourcePlanner
 
 
@@ -21,6 +22,7 @@ class OrchestrationDependencies:
     retrieval_contract: RealityRetrievalContract
     approval_policy: HumanApprovalPolicy
     retrieval_engine: RealityRetrievalEngine
+    retrieval_provider_executor: RetrievalProviderExecutor
     evidence_normalizer: RetrievalEvidenceNormalizer
     evidence_quality_validator: EvidenceQualityValidator
     grounding_context_builder: EvidenceGroundingContextBuilder
@@ -30,12 +32,16 @@ class OrchestrationDependencies:
     @classmethod
     def default(cls) -> "OrchestrationDependencies":
         """Build the production-default dependency graph for the prototype."""
+        retrieval_provider_executor = RetrievalProviderExecutor()
         return cls(
             context_detector=RealityContextRequirementDetector(),
             source_planner=RealitySourcePlanner(),
             retrieval_contract=RealityRetrievalContract(),
             approval_policy=HumanApprovalPolicy(),
-            retrieval_engine=RealityRetrievalEngine(),
+            retrieval_engine=RealityRetrievalEngine(
+                provider_executor=retrieval_provider_executor
+            ),
+            retrieval_provider_executor=retrieval_provider_executor,
             evidence_normalizer=RetrievalEvidenceNormalizer(),
             evidence_quality_validator=EvidenceQualityValidator(),
             grounding_context_builder=EvidenceGroundingContextBuilder(),
