@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 55 — Retrieval Result Contract — implementation complete; local validation pending.
+Step 56 — Orchestration Composition Boundary — implementation complete; local validation pending.
+
+### Step 56 Scope
+
+- Adds an explicit `OrchestrationDependencies` composition boundary for services used by the orchestration pipeline.
+- Centralizes construction of the default orchestration service graph in one dependency-composition object.
+- Allows `orchestrate_task` callers to inject service implementations without changing the existing pipeline behavior.
+- Removes direct construction of retrieval, evidence, grounding, approval, and provider-execution services from the orchestration function body.
+- Preserves the existing optional `approval_policy` and `retrieval_engine` injection points for backward compatibility.
+- Adds regression coverage for the default dependency graph and injected-service orchestration behavior.
+- Does not redesign the pipeline sequence or change existing execution, retrieval, grounding, evaluation, recovery, trace, or outcome-memory semantics.
+
+### Step 56 Design Boundary
+
+This step establishes dependency composition and injection needed before further orchestration decomposition. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
 
 ### Step 55 Scope
 
@@ -66,4 +80,4 @@ This step integrates the existing provider invocation and execution-result bound
 
 ### Step 52 Design Boundary
 
-This step establishes a stable result boundary between provider invocation and downstream AI Reality Layer processing. It does not add new external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
+This step establishes a stable result boundary between provider invocation and downstream AI Reality Layer processing. It does not add new external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, or ML training.
