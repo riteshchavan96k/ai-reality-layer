@@ -3,6 +3,7 @@ import unittest
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
+from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_selector import RegistryRetrievalProviderSelector
 
 
@@ -22,10 +23,11 @@ class ProviderB:
 
 class Step61RetrievalProviderSelectionBoundaryTests(unittest.TestCase):
     def test_selector_chooses_provider_by_source_type(self):
-        selector = RegistryRetrievalProviderSelector(
+        registry = RetrievalProviderRegistry(
             providers={"live_web": ProviderA(), "web_or_official_source": ProviderB()},
             default_provider=ProviderA(),
         )
+        selector = RegistryRetrievalProviderSelector(registry)
 
         self.assertIsInstance(selector.select({"source_type": "live_web"}), ProviderA)
         self.assertIsInstance(
@@ -34,15 +36,17 @@ class Step61RetrievalProviderSelectionBoundaryTests(unittest.TestCase):
 
     def test_selector_uses_default_for_unknown_source_type(self):
         default = ProviderA()
-        selector = RegistryRetrievalProviderSelector({}, default_provider=default)
+        registry = RetrievalProviderRegistry(default_provider=default)
+        selector = RegistryRetrievalProviderSelector(registry)
 
         self.assertIs(selector.select({"source_type": "unknown"}), default)
 
     def test_engine_executes_selected_provider(self):
-        selector = RegistryRetrievalProviderSelector(
+        registry = RetrievalProviderRegistry(
             providers={"live_web": ProviderB()},
             default_provider=ProviderA(),
         )
+        selector = RegistryRetrievalProviderSelector(registry)
         engine = RealityRetrievalEngine(
             provider_executor=RetrievalProviderExecutor(),
             provider_selector=selector,
