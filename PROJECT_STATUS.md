@@ -115,7 +115,7 @@ This step reduces internal coupling between pipeline stages by establishing an e
 
 ### Step 58 Design Boundary
 
-This step reduces internal state-coupling between orchestration stages and establishes a stable state contract for future pipeline evolution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
+This step reduces internal state-coupling between orchestration stages and establishes a stable state contract for future pipeline evolution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training.
 
 ### Step 57 Scope
 
@@ -129,7 +129,7 @@ This step reduces internal state-coupling between orchestration stages and estab
 
 ### Step 57 Design Boundary
 
-This step reduces procedural coupling in the orchestration entry point without changing the pipeline's functional behavior. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training.
+This step reduces procedural coupling in the orchestration entry point without changing the pipeline's functional behavior. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 56 Scope
 
