@@ -2,7 +2,9 @@ from typing import Any
 
 from backend.app.reality.retrieval_provider import RetrievalProvider
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
-from backend.app.reality.retrieval_provider_response import RetrievalProviderResponse
+from backend.app.reality.retrieval_provider_response_normalizer import (
+    RetrievalProviderResponseNormalizer,
+)
 from backend.app.reality.retrieval_result import RetrievalResultContract
 
 
@@ -24,11 +26,7 @@ class RetrievalProviderExecutor:
             return RetrievalResultContract.failed(request_dict, provider_name)
 
         try:
-            result = (
-                raw_result
-                if isinstance(raw_result, RetrievalProviderResponse)
-                else RetrievalProviderResponse.from_mapping(raw_result)
-            )
+            result = RetrievalProviderResponseNormalizer.normalize(raw_result)
         except (TypeError, ValueError):
             return RetrievalResultContract.failed(request_dict, provider_name)
 

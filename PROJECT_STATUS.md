@@ -10,7 +10,22 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 66 — Retrieval Provider Response Contract — implementation complete; local validation pending.
+Step 67 — Retrieval Provider Response Normalization — implementation complete; local validation pending.
+
+### Step 67 Scope
+
+- Adds a dedicated `RetrievalProviderResponseNormalizer` boundary for provider output normalization.
+- Accepts the typed `RetrievalProviderResponse` contract directly without unnecessary conversion.
+- Converts legacy mapping-based provider output through the Step 66 response contract.
+- Rejects unsupported provider-output shapes before retrieval-result construction.
+- Updates `RetrievalProviderExecutor` to depend on the normalizer rather than owning response-shape conversion logic.
+- Preserves completed, failed, blocked, and provider-unavailable result semantics.
+- Preserves compatibility with existing dictionary-returning structural providers.
+- Adds regression coverage for typed responses, legacy mappings, invalid output, and executor integration.
+
+### Step 67 Design Boundary
+
+This step separates provider-output normalization from provider execution so response-shape compatibility can evolve independently of execution policy. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 66 Scope
 
