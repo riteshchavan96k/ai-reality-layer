@@ -40,11 +40,7 @@ class OrchestrationPipeline:
     ) -> dict:
         trace = ExecutionTrace()
         analysis, routing, approval = self._prepare_and_approve(
-            task,
-            human_approved,
-            approval_policy,
-            outcome_memory,
-            trace,
+            task, human_approved, approval_policy, outcome_memory, trace
         )
 
         if approval["required"] and not human_approved:
@@ -58,7 +54,7 @@ class OrchestrationPipeline:
             }
 
         reality_retrieval, normalized_evidence, evidence_quality, grounding_context = (
-            self._retrieve_and_ground(task, analysis, trace, retrieval_engine)
+            self._retrieve_and_ground(task, analysis, retrieval_engine)
         )
         retrieval_contract = analysis["reality_retrieval"]
 
@@ -89,7 +85,9 @@ class OrchestrationPipeline:
                 "trace": trace.snapshot(),
             }
 
-        execution = self._execute(task, routing, retry_policy, execution_budget, grounding_context, trace)
+        execution, budget = self._execute(
+            task, routing, retry_policy, execution_budget, grounding_context, trace
+        )
 
         if execution["status"] == "failed":
             outcome = outcome_memory.record(task, analysis, routing, execution, None)
@@ -105,18 +103,11 @@ class OrchestrationPipeline:
             }
 
         execution, evaluation, recovery = self._evaluate_and_recover(
-            task,
-            analysis,
-            routing,
-            execution,
-            retry_policy,
-            grounding_context,
-            trace,
+            task, analysis, routing, execution, retry_policy, budget, grounding_context, trace
         )
         result = execution["result"]
         grounding_result = self.dependencies.grounded_result_builder.build(
-            grounding_context,
-            result,
+            grounding_context, result
         )
         outcome = outcome_memory.record(task, analysis, routing, execution, evaluation)
 
@@ -171,11 +162,7 @@ class OrchestrationPipeline:
             retrieval_status=retrieval_contract["status"],
         )
 
-        routing = self.route(
-            task,
-            analysis["task_type"],
-            outcome_memory=outcome_memory,
-        )
+        routing = self.route(task, analysis["task_type"], outcome_memory=outcome_memory)
         trace.record(
             "routing",
             "completed",
@@ -200,7 +187,6 @@ class OrchestrationPipeline:
         self,
         task: str,
         analysis: dict,
-        trace: ExecutionTrace,
         retrieval_engine: Any | None,
     ) -> tuple[dict, dict, dict, dict]:
         retrieval_service = retrieval_engine or self.dependencies.retrieval_engine
@@ -209,8 +195,7 @@ class OrchestrationPipeline:
         normalized_evidence = self.dependencies.evidence_normalizer.normalize(reality_retrieval)
         evidence_quality = self.dependencies.evidence_quality_validator.validate(normalized_evidence)
         grounding_context = self.dependencies.grounding_context_builder.build(
-            task,
-            normalized_evidence,
+            task, normalized_evidence
         )
         analysis["reality_retrieval"] = {
             **retrieval_contract,
@@ -229,12 +214,14 @@ class OrchestrationPipeline:
         execution_budget: ExecutionBudget | None,
         grounding_context: dict,
         trace: ExecutionTrace,
-    ) -> dict:
+    ) -> tuple[dict, ExecutionBudget]:
         selected_model = routing["model"]
         fallback_candidates = [
             model for model in routing["candidates"] if model != selected_model
         ]
-        candidate_order = [selected_model, *fallback_candidates] if selected_model else fallback_candidates
+        candidate_order = (
+            [selected_model, *fallback_candidates] if selected_model else fallback_candidates
+        )
         budget = execution_budget or ExecutionBudget(
             max_attempts=retry_policy.max_attempts * max(len(candidate_order), 1)
         )
@@ -260,7 +247,7 @@ class OrchestrationPipeline:
             grounding_status=grounding_context["status"],
             grounding_source_count=grounding_context["source_count"],
         )
-        return execution
+        return execution, budget
 
     def _evaluate_and_recover(
         self,
@@ -269,6 +256,7 @@ class OrchestrationPipeline:
         routing: dict,
         execution: dict,
         retry_policy: RetryPolicy,
+        execution_budget: ExecutionBudget,
         grounding_context: dict,
         trace: ExecutionTrace,
     ) -> tuple[dict, dict, dict]:
@@ -280,12 +268,10 @@ class OrchestrationPipeline:
         )
         trace.record("evaluation", evaluation["status"], score=evaluation["score"])
 
-        candidate_order = [
-            routing["model"],
-            *[model for model in routing["candidates"] if model != routing["model"]],
-        ]
-        execution_budget = ExecutionBudget(
-            max_attempts=retry_policy.max_attempts * max(len(candidate_order), 1)
+        candidate_order = (
+            [routing["model"], *[model for model in routing["candidates"] if model != routing["model"]]]
+            if routing["model"]
+            else list(routing["candidates"])
         )
         recovery = self.recover(
             task=task,
