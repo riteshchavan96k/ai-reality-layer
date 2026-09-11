@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 58 — Orchestration State Contract — implementation complete; local validation pending.
+Step 59 — Orchestration Stage Context Contract — implementation complete; local validation pending.
+
+### Step 59 Scope
+
+- Adds an explicit `OrchestrationStageContext` shared by all pipeline stages.
+- Makes pipeline state and execution trace available through one named stage context.
+- Carries the shared execution budget through the same context used by execution and quality recovery.
+- Changes internal stage helpers from positional state/result coordination to context-based mutation.
+- Preserves the public `OrchestrationPipeline.run` interface and existing result shapes.
+- Preserves routing, retrieval, grounding, execution, evaluation, recovery, fallback, approval, trace, and outcome-memory semantics.
+- Adds regression coverage for context state/budget ownership, shared stage mutation, and budget propagation into recovery.
+
+### Step 59 Design Boundary
+
+This step reduces internal coupling between pipeline stages by establishing an explicit stage context contract. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production provider SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
 
 ### Step 58 Scope
 
