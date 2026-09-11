@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 59 — Orchestration Stage Context Contract — implementation complete; local validation pending.
+Step 60 — Retrieval Provider Execution Boundary — implementation complete; local validation pending.
+
+### Step 60 Scope
+
+- Adds a provider-neutral `RetrievalProviderExecutor` boundary for retrieval provider execution.
+- Moves provider invocation, provider failure containment, blocked/unavailable handling, and malformed provider-output normalization behind the retrieval execution boundary.
+- Keeps `RealityRetrievalEngine` responsible for retrieval-contract handling and delegates provider execution to the injected executor.
+- Adds retrieval provider executor composition to `OrchestrationDependencies` and shares the composed executor with the default retrieval engine.
+- Preserves the stable `RetrievalResultContract` semantics introduced in Step 55.
+- Preserves `not_required` retrieval behavior without invoking a provider.
+- Adds regression coverage for successful execution, provider failures, malformed output, dependency injection, and non-executed retrieval.
+
+### Step 60 Design Boundary
+
+This step establishes a provider-execution boundary so future retrieval implementations can be introduced without coupling the retrieval engine to provider-specific execution behavior. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 59 Scope
 
