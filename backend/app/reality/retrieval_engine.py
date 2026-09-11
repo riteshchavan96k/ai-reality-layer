@@ -1,7 +1,10 @@
 from typing import Any, Protocol
 
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
-from backend.app.reality.retrieval_result import RetrievalResultContract
+from backend.app.reality.retrieval_provider_selector import (
+    RegistryRetrievalProviderSelector,
+    RetrievalProviderSelector,
+)
 
 
 class RetrievalProvider(Protocol):
@@ -26,15 +29,24 @@ class UnconfiguredRetrievalProvider:
 
 
 class RealityRetrievalEngine:
-    """Execute retrieval through a provider and return a stable result boundary."""
+    """Select and execute retrieval providers through stable provider-neutral boundaries."""
 
     def __init__(
         self,
         provider: RetrievalProvider | None = None,
         provider_executor: RetrievalProviderExecutor | None = None,
+        provider_selector: RetrievalProviderSelector | None = None,
     ) -> None:
-        self.provider = provider or UnconfiguredRetrievalProvider()
         self.provider_executor = provider_executor or RetrievalProviderExecutor()
+
+        if provider_selector is not None:
+            self.provider_selector = provider_selector
+        else:
+            selected_provider = provider or UnconfiguredRetrievalProvider()
+            self.provider_selector = RegistryRetrievalProviderSelector(
+                providers={},
+                default_provider=selected_provider,
+            )
 
     def retrieve(self, contract: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(contract, dict):
@@ -56,7 +68,8 @@ class RealityRetrievalEngine:
         if not isinstance(request, dict):
             raise ValueError("retrieval contract request must be a dictionary")
 
-        return self.provider_executor.execute(self.provider, request)
+        provider = self.provider_selector.select(request)
+        return self.provider_executor.execute(provider, request)
 
 
 __all__ = ["RealityRetrievalEngine", "RetrievalProvider", "UnconfiguredRetrievalProvider"]
