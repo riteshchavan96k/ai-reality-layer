@@ -1,5 +1,6 @@
-from typing import Any, Protocol
+from typing import Any
 
+from backend.app.reality.retrieval_provider import RetrievalProvider
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
@@ -7,14 +8,6 @@ from backend.app.reality.retrieval_provider_selector import (
     RegistryRetrievalProviderSelector,
     RetrievalProviderSelector,
 )
-
-
-class RetrievalProvider(Protocol):
-    """Provider interface for future external reality-information retrieval."""
-
-    def retrieve(self, request: dict[str, Any]) -> dict[str, Any]:
-        """Retrieve information for a structured retrieval request."""
-        ...
 
 
 class UnconfiguredRetrievalProvider:

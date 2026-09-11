@@ -1,5 +1,6 @@
 from typing import Any, Mapping, Protocol
 
+from backend.app.reality.retrieval_provider import RetrievalProvider
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
 

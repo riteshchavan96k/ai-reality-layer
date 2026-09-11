@@ -1,12 +1,17 @@
 from typing import Any
 
+from backend.app.reality.retrieval_provider import RetrievalProvider
 from backend.app.reality.retrieval_result import RetrievalResultContract
 
 
 class RetrievalProviderExecutor:
     """Execute a retrieval provider through a stable provider-neutral boundary."""
 
-    def execute(self, provider: Any, request: dict[str, Any]) -> dict[str, Any]:
+    def execute(
+        self,
+        provider: RetrievalProvider,
+        request: dict[str, Any],
+    ) -> dict[str, Any]:
         """Execute a provider and normalize provider outcomes into the retrieval contract."""
         provider_name = getattr(provider, "name", None)
 

@@ -10,7 +10,22 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 63 — Retrieval Provider Selection Result Contract — implementation complete; local validation pending.
+Step 64 — Retrieval Provider Contract — implementation complete; local validation pending.
+
+### Step 64 Scope
+
+- Adds a shared `RetrievalProvider` protocol for all retrieval provider implementations.
+- Moves the provider interface out of `RealityRetrievalEngine` into a dedicated retrieval-provider contract module.
+- Makes the retrieval provider contract runtime-checkable so implementations can be structurally verified when needed.
+- Updates retrieval provider selection results, registry ownership, provider execution, and retrieval engine injection to use the shared provider contract.
+- Preserves existing structural provider implementations without requiring inheritance from a concrete base class.
+- Preserves Step 63 selection-result semantics and Step 60 provider-execution behavior.
+- Preserves the existing `RealityRetrievalEngine(provider=...)` compatibility path.
+- Adds regression coverage for valid and invalid provider shapes and end-to-end compatibility through registry, selection result, executor, and engine boundaries.
+
+### Step 64 Design Boundary
+
+This step establishes the canonical interface that every retrieval provider must satisfy before registration, selection, or execution. It reduces type and architectural coupling between retrieval components while keeping providers implementation-agnostic. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 63 Scope
 
@@ -100,7 +115,7 @@ This step reduces internal coupling between pipeline stages by establishing an e
 
 ### Step 58 Design Boundary
 
-This step reduces internal state-coupling between orchestration stages and establishes a stable state contract for future pipeline evolution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
+This step reduces internal state-coupling between orchestration stages and establishes a stable state contract for future pipeline evolution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training.
 
 ### Step 57 Scope
 
@@ -114,7 +129,7 @@ This step reduces internal state-coupling between orchestration stages and estab
 
 ### Step 57 Design Boundary
 
-This step reduces procedural coupling in the orchestration entry point without changing the pipeline's functional behavior. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
+This step reduces procedural coupling in the orchestration entry point without changing the pipeline's functional behavior. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 56 Scope
 
