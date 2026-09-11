@@ -3,6 +3,7 @@ from typing import Any
 from backend.app.reality.retrieval_provider import RetrievalProvider
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
+from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
 from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
 from backend.app.reality.retrieval_provider_selector import (
     RegistryRetrievalProviderSelector,
@@ -13,11 +14,11 @@ from backend.app.reality.retrieval_provider_selector import (
 class UnconfiguredRetrievalProvider:
     """Explicit provider used until a real external retrieval provider is configured."""
 
-    def retrieve(self, request: dict[str, Any]) -> dict[str, Any]:
+    def retrieve(self, request: RetrievalProviderRequest) -> dict[str, Any]:
         return {
             "status": "provider_unavailable",
             "provider": None,
-            "request": dict(request),
+            "request": request.to_dict(),
             "sources": [],
             "content": None,
         }
@@ -65,15 +66,16 @@ class RealityRetrievalEngine:
         if not isinstance(request, dict):
             raise ValueError("retrieval contract request must be a dictionary")
 
-        selection = self.provider_selector.select(request)
+        provider_request = RetrievalProviderRequest.from_mapping(request)
+        selection = self.provider_selector.select(provider_request.to_dict())
         if not isinstance(selection, RetrievalProviderSelectionResult):
             return _blocked_selection_result(
-                request,
+                provider_request.to_dict(),
                 "invalid_provider_selection_result",
             )
         if not selection.selection_executed:
-            return _blocked_selection_result(request, selection.reason)
-        return self.provider_executor.execute(selection.provider, request)
+            return _blocked_selection_result(provider_request.to_dict(), selection.reason)
+        return self.provider_executor.execute(selection.provider, provider_request)
 
 
 def _blocked_selection_result(

@@ -10,7 +10,22 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 64 — Retrieval Provider Contract — implementation complete; local validation pending.
+Step 65 — Retrieval Provider Request Contract — implementation complete; local validation pending.
+
+### Step 65 Scope
+
+- Adds a dedicated immutable `RetrievalProviderRequest` contract for provider-facing retrieval requests.
+- Validates query, source type, temporal scope, and required-state fields before provider execution.
+- Supports conversion from existing retrieval-contract mappings and serialization back to stable dictionaries.
+- Updates `RetrievalProvider` to accept the typed provider request contract.
+- Updates `RetrievalProviderExecutor` to pass validated provider requests while preserving the existing retrieval result envelope.
+- Updates `RealityRetrievalEngine` to convert the existing retrieval-contract request dictionary into the typed provider request before provider selection and execution.
+- Preserves the public retrieval contract shape and existing `RealityRetrievalEngine(provider=...)` construction path.
+- Updates Step 64 regression coverage for the typed request boundary and adds dedicated Step 65 regression coverage.
+
+### Step 65 Design Boundary
+
+This step establishes a typed boundary between retrieval orchestration and provider implementations so providers cannot receive an unvalidated arbitrary request shape. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 64 Scope
 
