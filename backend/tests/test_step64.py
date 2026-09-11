@@ -4,6 +4,7 @@ from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 from backend.app.reality.retrieval_provider import RetrievalProvider
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
+from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
 from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
 
 
@@ -49,7 +50,7 @@ class Step64RetrievalProviderContractTests(unittest.TestCase):
     def test_executor_accepts_contract_provider_without_changing_result(self):
         result = RetrievalProviderExecutor().execute(
             Provider(),
-            {"query": "x", "source_type": "live_web"},
+            RetrievalProviderRequest(query="x", source_type="live_web"),
         )
 
         self.assertEqual(result["status"], "completed")
