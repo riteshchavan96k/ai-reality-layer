@@ -10,7 +10,20 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 71 — Retrieval Provider Capability Evaluation Contract — implementation complete; local validation pending.
+Step 72 — Retrieval Provider Capability Evaluation Result Contract — implementation complete; local validation pending.
+
+### Step 72 Scope
+
+- Adds immutable `RetrievalProviderCapabilityEvaluationResult` with explicit supported/unsupported states.
+- Carries source type, temporal scope, support state, reason, and evaluation execution state.
+- Provides deterministic serialization through `to_dict()`.
+- Updates `RetrievalProviderCapabilityEvaluator` to return the result contract instead of a bare boolean.
+- Updates `RegistryRetrievalProviderSelector` to consume the explicit evaluation result while preserving capability-mismatch semantics.
+- Adds dedicated regression coverage for supported/unsupported results, serialization, and immutability.
+
+### Step 72 Design Boundary
+
+This step formalizes capability-evaluation outcomes only. It does not add external providers, credentials, network access, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 71 Scope
 
@@ -20,228 +33,112 @@ Step 71 — Retrieval Provider Capability Evaluation Contract — implementation
 - Preserves typed `RetrievalProviderRequest` validation before capability evaluation.
 - Preserves stable `retrieval_provider_capability_mismatch` selection semantics.
 - Preserves legacy provider registration and selection when no capability descriptor is present.
-- Adds dedicated Step 71 regression coverage for compatible requests, source/temporal mismatches, and invalid inputs.
+- Adds regression coverage for compatible requests, source/temporal mismatches, and invalid inputs.
 
 ### Step 71 Design Boundary
 
-This step isolates capability-fit evaluation only. It does not execute providers, add external retrieval services, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+This step isolates capability-fit evaluation only. It does not execute providers, add external retrieval services, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citations, ML training, or LLM integration.
 
 ### Step 70 Scope
 
-- Adds an immutable `RetrievalProviderDescriptor` that keeps provider identity, implementation, and declared capabilities together for selection metadata.
-- Extends `RetrievalProviderRegistry` with descriptor registration and descriptor lookup while preserving legacy provider registration.
-- Updates `RegistryRetrievalProviderSelector` to use declared capabilities when a descriptor is registered.
-- Converts the selection mapping into the typed `RetrievalProviderRequest` before capability matching.
-- Blocks capability-incompatible requests with stable reason `retrieval_provider_capability_mismatch` without executing the provider.
-- Preserves legacy provider selection when a provider has no capability descriptor.
-- Adds dedicated Step 70 regression coverage for descriptor metadata, registry composition, compatible selection, capability mismatch, legacy compatibility, and validation.
-
-### Step 70 Design Boundary
-
-This step connects provider capability metadata to provider selection. It does not add provider execution behavior or external retrieval services. It does not add API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds immutable `RetrievalProviderDescriptor` metadata combining provider identity, implementation, and declared capabilities.
+- Extends `RetrievalProviderRegistry` with descriptor registration and lookup while preserving legacy registration.
+- Updates provider selection to use declared capabilities.
+- Converts selection mappings into typed `RetrievalProviderRequest` before capability matching.
+- Blocks capability-incompatible requests with stable mismatch semantics without executing providers.
+- Preserves legacy providers without descriptors.
+- Adds Step 70 regression coverage and documentation.
 
 ### Step 69 Scope
 
-- Adds an immutable `RetrievalProviderCapabilities` contract for declaring provider-supported source types and temporal scopes.
-- Normalizes capability values into deterministic lowercase identifiers and removes duplicates.
-- Validates that capability declarations are nonempty and well-formed.
-- Adds request compatibility checking against the typed `RetrievalProviderRequest` contract.
-- Adds stable dictionary serialization for capability metadata.
-- Keeps capability description separate from provider execution and selection policy so future selection can consume capability information without coupling it to provider implementation details.
-- Adds dedicated Step 69 regression coverage for normalization, matching, rejection, validation, invalid request types, and serialization.
-
-### Step 69 Design Boundary
-
-This step establishes a provider capability contract so retrieval selection can later reason about provider fit using declared source and temporal support. It does not yet change the provider-selection algorithm or add external retrieval providers. It does not add API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds immutable `RetrievalProviderCapabilities` for supported source types and temporal scopes.
+- Normalizes capability identifiers and removes duplicates.
+- Validates capability declarations.
+- Adds typed request compatibility checking and serialization.
+- Keeps capability description independent from provider execution and selection policy.
+- Adds Step 69 regression coverage and documentation.
 
 ### Step 68 Scope
 
-- Adds a dedicated `RetrievalResultNormalizer` boundary for converting canonical provider responses into stable retrieval-result envelopes.
-- Moves completed, failed, blocked, and provider-unavailable result mapping out of `RetrievalProviderExecutor`.
-- Preserves provider identity with an explicit fallback when the provider response omits it.
-- Preserves request data, source data, content, reason, and retrieval-executed semantics.
-- Rejects non-contract responses at the result-normalization boundary.
-- Keeps `RetrievalProviderExecutor` focused on provider invocation, response normalization, and failure containment.
-- Adds regression coverage for completed, failed, blocked, unavailable, invalid, and end-to-end executor paths.
-
-### Step 68 Design Boundary
-
-This step separates retrieval-result construction from provider execution so the stable retrieval envelope can evolve independently of provider invocation policy. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds dedicated `RetrievalResultNormalizer` for stable retrieval-result construction.
+- Separates completed/failed/blocked/unavailable mapping from provider execution.
+- Preserves provider identity fallback, request/source/content/reason, and execution semantics.
+- Adds regression coverage and documentation.
 
 ### Step 67 Scope
 
-- Adds a dedicated `RetrievalProviderResponseNormalizer` boundary for provider output normalization.
-- Accepts the typed `RetrievalProviderResponse` contract directly without unnecessary conversion.
-- Converts legacy mapping-based provider output through the Step 66 response contract.
-- Rejects unsupported provider-output shapes before retrieval-result construction.
-- Updates `RetrievalProviderExecutor` to depend on the normalizer rather than owning response-shape conversion logic.
-- Preserves completed, failed, blocked, and provider-unavailable result semantics.
-- Preserves compatibility with existing dictionary-returning structural providers.
-- Adds regression coverage for typed responses, legacy mappings, invalid output, and executor integration.
-
-### Step 67 Design Boundary
-
-This step separates provider-output normalization from provider execution so response-shape compatibility can evolve independently of execution policy. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds dedicated `RetrievalProviderResponseNormalizer`.
+- Supports typed responses and legacy mappings.
+- Rejects unsupported provider-output shapes.
+- Keeps provider execution separate from response normalization.
+- Preserves retrieval result semantics and adds regression coverage.
 
 ### Step 66 Scope
 
-- Adds an immutable `RetrievalProviderResponse` contract for provider output.
-- Validates supported response status, source shape, content type, provider identity, and optional reason.
-- Supports conversion from existing provider mappings and serialization back to stable dictionaries.
-- Updates `RetrievalProvider` to declare the typed response contract.
-- Updates `RetrievalProviderExecutor` to normalize typed responses before building the existing retrieval result contract.
-- Preserves compatibility with existing dictionary-returning structural providers.
-- Updates the unconfigured retrieval provider to return the typed response.
-- Adds regression coverage for typed responses, legacy mapping compatibility, invalid responses, and stable failed/blocked semantics.
-
-### Step 66 Design Boundary
-
-This step establishes a typed boundary between retrieval provider implementations and provider execution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds immutable `RetrievalProviderResponse` contract.
+- Validates response status, sources, content, provider identity, and reason.
+- Updates the provider protocol and executor while preserving legacy mappings.
+- Adds regression coverage and documentation.
 
 ### Step 65 Scope
 
-- Adds a dedicated immutable `RetrievalProviderRequest` contract for provider-facing retrieval requests.
-- Validates query, source type, temporal scope, and required-state fields before provider execution.
-- Supports conversion from existing retrieval-contract mappings and serialization back to stable dictionaries.
-- Updates `RetrievalProvider` to accept the typed provider request contract.
-- Updates `RetrievalProviderExecutor` to pass validated provider requests while preserving the existing retrieval result envelope.
-- Updates `RealityRetrievalEngine` to convert the existing retrieval-contract request dictionary into the typed provider request before provider selection and execution.
-- Preserves the public retrieval contract shape and existing `RealityRetrievalEngine(provider=...)` construction path.
-- Updates Step 64 regression coverage for the typed request boundary and adds dedicated Step 65 regression coverage.
-
-### Step 65 Design Boundary
-
-This step establishes a typed boundary between retrieval orchestration and provider implementations so providers cannot receive an unvalidated arbitrary request shape. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds immutable `RetrievalProviderRequest` contract.
+- Validates query, source type, temporal scope, and required state.
+- Updates provider execution to use typed requests while preserving public retrieval contracts.
+- Adds regression coverage and documentation.
 
 ### Step 64 Scope
 
-- Adds a shared `RetrievalProvider` protocol for all retrieval provider implementations.
-- Moves the provider interface out of `RealityRetrievalEngine` into a dedicated retrieval-provider contract module.
-- Makes the retrieval provider contract runtime-checkable so implementations can be structurally verified when needed.
-- Updates retrieval provider selection results, registry ownership, provider execution, and retrieval engine injection to use the shared provider contract.
-- Preserves existing structural provider implementations without requiring inheritance from a concrete base class.
-- Preserves Step 63 selection-result semantics and Step 60 provider-execution behavior.
-- Preserves the existing `RealityRetrievalEngine(provider=...)` compatibility path.
-- Adds regression coverage for valid and invalid provider shapes and end-to-end compatibility through registry, selection result, executor, and engine boundaries.
-
-### Step 64 Design Boundary
-
-This step establishes the canonical interface that every retrieval provider must satisfy before registration, selection, or execution. It reduces type and architectural coupling between retrieval components while keeping providers implementation-agnostic. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Establishes the canonical runtime-checkable `RetrievalProvider` protocol.
+- Updates registry, selection, execution, and engine boundaries to use it.
+- Preserves structural provider compatibility and existing injection behavior.
+- Adds regression coverage.
 
 ### Step 63 Scope
 
-- Adds a stable `RetrievalProviderSelectionResult` contract for provider-resolution outcomes.
-- Separates provider selection results from raw provider objects.
-- Represents selected and unavailable provider-resolution states explicitly.
-- Carries the resolved source type, provider, reason, and execution-state semantics.
-- Updates `RetrievalProviderSelector` and `RegistryRetrievalProviderSelector` to return the stable selection result.
-- Updates `RealityRetrievalEngine` to execute only when provider selection succeeds.
-- Converts unavailable or malformed selection outcomes into stable non-executing retrieval results.
-- Preserves Step 60 provider execution and Step 55 retrieval result contracts.
-- Preserves `not_required` retrieval behavior without provider selection or execution.
-- Adds regression coverage for selected, unavailable, malformed, and successfully executed selection paths.
-
-### Step 63 Design Boundary
-
-This step establishes a stable contract between retrieval provider selection and provider execution so future selection policies can evolve without exposing raw provider objects as the selector's result protocol. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds stable `RetrievalProviderSelectionResult` for selected/unavailable outcomes.
+- Separates selection results from raw provider objects.
+- Makes retrieval execution occur only after successful provider selection.
+- Preserves Step 55/60 semantics and not-required behavior.
 
 ### Step 62 Scope
 
-- Adds a dedicated `RetrievalProviderRegistry` boundary for owning source-type-to-provider mappings.
-- Separates provider registration and lookup from the Step 61 provider-selection policy.
-- Supports deterministic registration, replacement, lookup, and explicit default-provider fallback.
-- Normalizes valid source-type keys and rejects invalid empty or non-string source types.
-- Updates `RegistryRetrievalProviderSelector` to delegate provider lookup to the dedicated registry.
-- Composes and shares the registry through `OrchestrationDependencies` and the retrieval selector/engine graph.
-- Updates Step 61 regression coverage to exercise the new registry-backed selector boundary.
-- Adds dedicated Step 62 regression coverage for registration, lookup, replacement, normalization, invalid input, and default-provider behavior.
-- Preserves retrieval execution, result-contract, not-required, and provider-selection semantics.
-
-### Step 62 Design Boundary
-
-This step establishes provider registry ownership as an independent retrieval concern so provider registration and lookup can evolve without coupling them to selection policy or provider execution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds dedicated `RetrievalProviderRegistry` ownership for source-type/provider mappings.
+- Separates registration/lookup from selection policy.
+- Supports deterministic registration, replacement, lookup, normalization, and default fallback.
 
 ### Step 61 Scope
 
-- Adds a provider-neutral `RetrievalProviderSelector` contract for choosing a retrieval provider from a structured retrieval request.
-- Adds deterministic registry-based provider selection keyed by retrieval `source_type` with an explicit default provider.
-- Updates `RealityRetrievalEngine` to select the provider before delegating execution to the Step 60 provider executor boundary.
-- Preserves explicit provider injection behavior by treating an injected provider as the default provider when no selector is supplied.
-- Composes and shares the default retrieval provider selector through `OrchestrationDependencies`.
-- Preserves Step 55 retrieval result semantics and Step 60 provider execution containment.
-- Preserves `not_required` retrieval behavior without invoking provider selection or execution.
-- Adds regression coverage for source-type selection, default selection, selected-provider execution, non-execution, and dependency composition.
-
-### Step 61 Design Boundary
-
-This step establishes provider selection as an independent retrieval concern so multiple retrieval implementations can later be introduced without coupling selection policy to retrieval execution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds provider-neutral retrieval provider selection.
+- Uses deterministic source-type selection and explicit default provider.
+- Preserves provider injection, execution, result contracts, and not-required behavior.
 
 ### Step 60 Scope
 
-- Adds a provider-neutral `RetrievalProviderExecutor` boundary for retrieval provider execution.
-- Moves provider invocation, provider failure containment, blocked/unavailable handling, and malformed provider-output normalization behind the retrieval execution boundary.
-- Keeps `RealityRetrievalEngine` responsible for retrieval-contract handling and delegates provider execution to the injected executor.
-- Adds retrieval provider executor composition to `OrchestrationDependencies` and shares the composed executor with the default retrieval engine.
-- Preserves the stable `RetrievalResultContract` semantics introduced in Step 55.
-- Preserves `not_required` retrieval behavior without invoking a provider.
-- Adds regression coverage for successful execution, provider failures, malformed output, dependency injection, and non-executed retrieval.
-
-### Step 60 Design Boundary
-
-This step establishes a provider-execution boundary so future retrieval implementations can be introduced without coupling the retrieval engine to provider-specific execution behavior. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds provider-neutral retrieval provider execution boundary.
+- Contains provider invocation failures and malformed output.
+- Preserves stable retrieval result semantics and not-required behavior.
 
 ### Step 59 Scope
 
-- Adds an explicit `OrchestrationStageContext` shared by all pipeline stages.
-- Makes pipeline state and execution trace available through one named stage context.
-- Carries the shared execution budget through the same context used by execution and quality recovery.
-- Changes internal stage helpers from positional state/result coordination to context-based mutation.
-- Preserves the public `OrchestrationPipeline.run` interface and existing result shapes.
-- Preserves routing, retrieval, grounding, execution, evaluation, recovery, fallback, approval, trace, and outcome-memory semantics.
-- Adds regression coverage for context state/budget ownership, shared stage mutation, and budget propagation into recovery.
-
-### Step 59 Design Boundary
-
-This step reduces internal coupling between pipeline stages by establishing an explicit stage context contract. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, or ML training.
+- Adds shared `OrchestrationStageContext` for state, trace, and execution budget.
+- Preserves public pipeline behavior and shared budget through recovery.
 
 ### Step 58 Scope
 
-- Adds an explicit `OrchestrationState` contract for state carried across pipeline stages.
-- Replaces positional stage-state coordination in `OrchestrationPipeline.run` with named state fields.
-- Centralizes task, analysis, routing, approval, retrieval, evidence, grounding, execution, evaluation, recovery, and outcome state.
-- Provides named accessors for the retrieval contract and final execution result.
-- Preserves the existing public orchestration result shape and functional pipeline behavior.
-- Preserves Step 56 dependency injection and Step 57 stage boundaries.
-- Adds regression coverage for state defaults, named state access, and pipeline result compatibility.
-
-### Step 58 Design Boundary
-
-This step reduces internal state-coupling between orchestration stages and establishes a stable state contract for future pipeline evolution. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training.
+- Adds explicit `OrchestrationState` for named state across pipeline stages.
+- Preserves public orchestration results and existing behavior.
 
 ### Step 57 Scope
 
-- Adds an explicit `OrchestrationPipeline` boundary around the existing orchestration sequence.
-- Decomposes the large orchestration function into explicit preparation/approval, retrieval/grounding, execution, and evaluation/recovery stages.
-- Keeps the public `orchestrate_task` entry point stable while delegating pipeline execution to the new boundary.
-- Preserves dependency injection introduced in Step 56.
-- Preserves the shared execution budget across primary execution and quality recovery.
-- Preserves existing routing, retrieval, grounding, evaluation, recovery, trace, outcome-memory, fallback, and approval semantics.
-- Adds regression coverage for stage execution, shared budget propagation, and approval blocking before retrieval.
-
-### Step 57 Design Boundary
-
-This step reduces procedural coupling in the orchestration entry point without changing the pipeline's functional behavior. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
+- Adds `OrchestrationPipeline` and explicit preparation, retrieval/grounding, execution, and evaluation/recovery stages.
+- Preserves the public `orchestrate_task` entry point and existing semantics.
 
 ### Step 56 Scope
 
-- Adds an explicit `OrchestrationDependencies` composition boundary for services used by the orchestration pipeline.
-- Centralizes construction of the default orchestration service graph in one dependency-composition object.
-- Allows `orchestrate_task` callers to inject service implementations without changing the existing pipeline behavior.
-- Removes direct construction of retrieval, evidence, grounding, approval, and provider-execution services from the orchestration function body.
-- Preserves the existing optional `approval_policy` and `retrieval_engine` injection points for backward compatibility.
-- Adds regression coverage for the default dependency graph and injected-service orchestration behavior.
-- Does not redesign the pipeline sequence or change existing execution, retrieval, grounding, evaluation, recovery, trace, or outcome-memory semantics.
+- Adds `OrchestrationDependencies` as the composition and dependency-injection boundary.
+- Centralizes default service construction and preserves backward-compatible injection points.
 
-### Step 56 Design Boundary
+## Validation Truth
 
-This step establishes dependency composition and injection needed before further orchestration decomposition. It does not add external providers, API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, semantic evaluation, citation generation, latency optimization, or ML training.
+Steps 54–72 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
