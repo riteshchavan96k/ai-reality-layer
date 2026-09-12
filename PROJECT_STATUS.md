@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 70 — Retrieval Provider Capability Selection Boundary — implementation complete; local validation pending.
+Step 71 — Retrieval Provider Capability Evaluation Contract — implementation complete; local validation pending.
+
+### Step 71 Scope
+
+- Adds a dedicated `RetrievalProviderCapabilityEvaluator` for provider/request capability-fit evaluation.
+- Separates capability evaluation from registry lookup and provider-selection orchestration.
+- Updates `RegistryRetrievalProviderSelector` to delegate capability matching to the evaluator.
+- Preserves typed `RetrievalProviderRequest` validation before capability evaluation.
+- Preserves stable `retrieval_provider_capability_mismatch` selection semantics.
+- Preserves legacy provider registration and selection when no capability descriptor is present.
+- Adds dedicated Step 71 regression coverage for compatible requests, source/temporal mismatches, and invalid inputs.
+
+### Step 71 Design Boundary
+
+This step isolates capability-fit evaluation only. It does not execute providers, add external retrieval services, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 70 Scope
 
