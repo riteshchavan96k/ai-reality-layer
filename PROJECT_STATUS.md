@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 73 — Retrieval Provider Availability Contract — implementation complete; local validation pending.
+Step 74 — Retrieval Provider Availability Evaluation — implementation complete; local validation pending.
+
+### Step 74 Scope
+
+- Adds dedicated `RetrievalProviderAvailabilityEvaluator` for availability-policy evaluation.
+- Separates availability evaluation from registry lookup and provider-selection orchestration.
+- Accepts only the typed `RetrievalProviderAvailability` contract and rejects invalid inputs deterministically.
+- Updates `RegistryRetrievalProviderSelector` to delegate availability decisions before capability evaluation.
+- Preserves stable unavailable selection semantics and existing capability-mismatch behavior.
+- Keeps the evaluator injectable so future availability policy can evolve independently.
+- Adds dedicated regression coverage for available, unavailable, blocked, invalid input, evaluator delegation, and selection short-circuit behavior.
+
+### Step 74 Design Boundary
+
+This step evaluates already-declared provider availability only. It does not add health checks, network access, credentials, external providers, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 73 Scope
 
@@ -157,4 +171,4 @@ This step isolates capability-fit evaluation only. It does not execute providers
 
 ## Validation Truth
 
-Steps 54–73 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
+Steps 54–74 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.

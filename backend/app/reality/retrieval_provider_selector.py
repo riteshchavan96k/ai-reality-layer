@@ -1,6 +1,7 @@
 from typing import Any, Mapping, Protocol
 
 from backend.app.reality.retrieval_provider import RetrievalProvider
+from backend.app.reality.retrieval_provider_availability_evaluator import RetrievalProviderAvailabilityEvaluator
 from backend.app.reality.retrieval_provider_capability_evaluator import RetrievalProviderCapabilityEvaluator
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
@@ -18,9 +19,15 @@ class RetrievalProviderSelector(Protocol):
 class RegistryRetrievalProviderSelector:
     """Select a provider through availability, registry lookup, and capabilities."""
 
-    def __init__(self, registry: RetrievalProviderRegistry, capability_evaluator: RetrievalProviderCapabilityEvaluator | None = None) -> None:
+    def __init__(
+        self,
+        registry: RetrievalProviderRegistry,
+        capability_evaluator: RetrievalProviderCapabilityEvaluator | None = None,
+        availability_evaluator: RetrievalProviderAvailabilityEvaluator | None = None,
+    ) -> None:
         self._registry = registry
         self._capability_evaluator = capability_evaluator or RetrievalProviderCapabilityEvaluator()
+        self._availability_evaluator = availability_evaluator or RetrievalProviderAvailabilityEvaluator()
 
     def select(self, request: Mapping[str, Any]) -> RetrievalProviderSelectionResult:
         source_type = request.get("source_type")
@@ -29,7 +36,7 @@ class RegistryRetrievalProviderSelector:
             return RetrievalProviderSelectionResult.unavailable(source_type)
 
         availability = self._registry.get_availability(source_type)
-        if not availability.is_available:
+        if not self._availability_evaluator.evaluate(availability):
             return RetrievalProviderSelectionResult.unavailable(
                 source_type,
                 reason=availability.reason or "retrieval_provider_unavailable",
