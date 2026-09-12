@@ -2,6 +2,7 @@ from typing import Any, Mapping, Protocol
 
 from backend.app.reality.retrieval_provider import RetrievalProvider
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
+from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
 from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
 
 
@@ -26,11 +27,13 @@ class RegistryRetrievalProviderSelector:
             return RetrievalProviderSelectionResult.unavailable(source_type)
 
         descriptor = self._registry.get_descriptor(source_type)
-        if descriptor is not None and not descriptor.supports(request):
-            return RetrievalProviderSelectionResult.unavailable(
-                source_type,
-                reason="retrieval_provider_capability_mismatch",
-            )
+        if descriptor is not None:
+            typed_request = RetrievalProviderRequest.from_mapping(request)
+            if not descriptor.supports(typed_request):
+                return RetrievalProviderSelectionResult.unavailable(
+                    source_type,
+                    reason="retrieval_provider_capability_mismatch",
+                )
 
         return RetrievalProviderSelectionResult.selected(source_type, provider)
 
