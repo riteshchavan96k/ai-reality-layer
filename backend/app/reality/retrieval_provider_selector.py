@@ -1,6 +1,7 @@
 from typing import Any, Mapping, Protocol
 
 from backend.app.reality.retrieval_provider import RetrievalProvider
+from backend.app.reality.retrieval_provider_capability_evaluator import RetrievalProviderCapabilityEvaluator
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
 from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
@@ -17,8 +18,13 @@ class RetrievalProviderSelector(Protocol):
 class RegistryRetrievalProviderSelector:
     """Select a provider through registry lookup and declared capabilities."""
 
-    def __init__(self, registry: RetrievalProviderRegistry) -> None:
+    def __init__(
+        self,
+        registry: RetrievalProviderRegistry,
+        capability_evaluator: RetrievalProviderCapabilityEvaluator | None = None,
+    ) -> None:
         self._registry = registry
+        self._capability_evaluator = capability_evaluator or RetrievalProviderCapabilityEvaluator()
 
     def select(self, request: Mapping[str, Any]) -> RetrievalProviderSelectionResult:
         source_type = request.get("source_type")
@@ -29,7 +35,7 @@ class RegistryRetrievalProviderSelector:
         descriptor = self._registry.get_descriptor(source_type)
         if descriptor is not None:
             typed_request = RetrievalProviderRequest.from_mapping(request)
-            if not descriptor.supports(typed_request):
+            if not self._capability_evaluator.evaluate(descriptor.capabilities, typed_request):
                 return RetrievalProviderSelectionResult.unavailable(
                     source_type,
                     reason="retrieval_provider_capability_mismatch",
