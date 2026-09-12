@@ -36,10 +36,11 @@ class RegistryRetrievalProviderSelector:
             return RetrievalProviderSelectionResult.unavailable(source_type)
 
         availability = self._registry.get_availability(source_type)
-        if not self._availability_evaluator.evaluate(availability):
+        availability_evaluation = self._availability_evaluator.evaluate(availability)
+        if not availability_evaluation.supported:
             return RetrievalProviderSelectionResult.unavailable(
                 source_type,
-                reason=availability.reason or "retrieval_provider_unavailable",
+                reason=availability_evaluation.reason or "retrieval_provider_unavailable",
             )
 
         descriptor = self._registry.get_descriptor(source_type)
