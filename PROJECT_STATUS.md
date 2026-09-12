@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 69 — Retrieval Provider Capability Contract — implementation complete; local validation pending.
+Step 70 — Retrieval Provider Capability Selection Boundary — implementation complete; local validation pending.
+
+### Step 70 Scope
+
+- Adds an immutable `RetrievalProviderDescriptor` that keeps provider identity, implementation, and declared capabilities together for selection metadata.
+- Extends `RetrievalProviderRegistry` with descriptor registration and descriptor lookup while preserving legacy provider registration.
+- Updates `RegistryRetrievalProviderSelector` to use declared capabilities when a descriptor is registered.
+- Converts the selection mapping into the typed `RetrievalProviderRequest` before capability matching.
+- Blocks capability-incompatible requests with stable reason `retrieval_provider_capability_mismatch` without executing the provider.
+- Preserves legacy provider selection when a provider has no capability descriptor.
+- Adds dedicated Step 70 regression coverage for descriptor metadata, registry composition, compatible selection, capability mismatch, legacy compatibility, and validation.
+
+### Step 70 Design Boundary
+
+This step connects provider capability metadata to provider selection. It does not add provider execution behavior or external retrieval services. It does not add API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 69 Scope
 
