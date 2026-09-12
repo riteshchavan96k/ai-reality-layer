@@ -1,4 +1,4 @@
-# Step 77 — Retrieval Provider Health Contract
+# Step 76 — Retrieval Provider Health Contract
 
 ## Objective
 
@@ -20,4 +20,4 @@ This step establishes the provider-health data contract only. It does not perfor
 
 ## Validation Truth
 
-Dedicated Step 77 regression coverage is included. Local execution remains pending unless an actual test run reports success.
+Dedicated Step 76 regression coverage is included. Local execution remains pending unless an actual test run reports success.

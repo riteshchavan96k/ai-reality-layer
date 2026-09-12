@@ -1,9 +1,9 @@
 import unittest
 
-from backend.app.reality.retrieval_provider_health import RetrievalProviderHealth
+from backend.app.reality.retrieval_provider_health_contract import RetrievalProviderHealth
 
 
-class Step77RetrievalProviderHealthTests(unittest.TestCase):
+class Step76RetrievalProviderHealthTests(unittest.TestCase):
     def test_healthy_state(self):
         health = RetrievalProviderHealth.healthy("live_web")
         self.assertEqual(health.provider, "live_web")
