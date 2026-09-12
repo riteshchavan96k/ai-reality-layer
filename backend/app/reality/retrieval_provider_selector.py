@@ -14,7 +14,7 @@ class RetrievalProviderSelector(Protocol):
 
 
 class RegistryRetrievalProviderSelector:
-    """Select a provider through the dedicated retrieval provider registry."""
+    """Select a provider through registry lookup and declared capabilities."""
 
     def __init__(self, registry: RetrievalProviderRegistry) -> None:
         self._registry = registry
@@ -23,9 +23,15 @@ class RegistryRetrievalProviderSelector:
         source_type = request.get("source_type")
         provider = self._registry.get(source_type)
         if provider is None:
+            return RetrievalProviderSelectionResult.unavailable(source_type)
+
+        descriptor = self._registry.get_descriptor(source_type)
+        if descriptor is not None and not descriptor.supports(request):
             return RetrievalProviderSelectionResult.unavailable(
                 source_type,
+                reason="retrieval_provider_capability_mismatch",
             )
+
         return RetrievalProviderSelectionResult.selected(source_type, provider)
 
 
