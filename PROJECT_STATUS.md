@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 68 — Retrieval Result Normalization — implementation complete; local validation pending.
+Step 69 — Retrieval Provider Capability Contract — implementation complete; local validation pending.
+
+### Step 69 Scope
+
+- Adds an immutable `RetrievalProviderCapabilities` contract for declaring provider-supported source types and temporal scopes.
+- Normalizes capability values into deterministic lowercase identifiers and removes duplicates.
+- Validates that capability declarations are nonempty and well-formed.
+- Adds request compatibility checking against the typed `RetrievalProviderRequest` contract.
+- Adds stable dictionary serialization for capability metadata.
+- Keeps capability description separate from provider execution and selection policy so future selection can consume capability information without coupling it to provider implementation details.
+- Adds dedicated Step 69 regression coverage for normalization, matching, rejection, validation, invalid request types, and serialization.
+
+### Step 69 Design Boundary
+
+This step establishes a provider capability contract so retrieval selection can later reason about provider fit using declared source and temporal support. It does not yet change the provider-selection algorithm or add external retrieval providers. It does not add API keys, secret storage, credential persistence, external network calls, production retrieval SDKs, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, latency optimization, ML training, or LLM integration.
 
 ### Step 68 Scope
 
