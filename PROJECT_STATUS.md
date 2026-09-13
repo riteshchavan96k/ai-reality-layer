@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 84 — Retrieval Provider Selection Result Consumption — implementation complete; local validation pending.
+Step 85 — Retrieval Result Consumption — implementation complete; local validation pending.
+
+### Step 85 Scope
+
+- Adds immutable `RetrievalResultConsumption` as the stable decision contract between retrieval execution and evidence processing.
+- Adds `RetrievalResultConsumer` to classify completed, failed, blocked, not-required, malformed, empty, and unsupported retrieval outputs.
+- Integrates the consumer into `OrchestrationDependencies`.
+- Updates `OrchestrationPipeline._retrieve_and_ground` so rejected retrieval results are not passed to evidence normalization.
+- Preserves the consumption decision in the orchestration analysis/reality-retrieval record.
+- Keeps semantic evidence quality scoring separate from retrieval-result consumption.
+- Adds dedicated Step 85 regression coverage and documentation.
+
+### Step 85 Design Boundary
+
+This step establishes the boundary `retrieval result → consumption decision → evidence normalization`. It does not add external providers, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 84 Scope
 
@@ -53,7 +67,7 @@ This step establishes selection-result normalization only. It does not add exter
 
 ### Step 82 Design Boundary
 
-This step establishes decision normalization only. It does not add external providers, network access, credentials, active health probes, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+This step establishes decision normalization only. It does not add external providers, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 81 Scope
 
@@ -321,4 +335,4 @@ This step isolates capability-fit evaluation only. It does not execute providers
 
 ## Validation Truth
 
-Steps 54–84 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
+Steps 54–85 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.

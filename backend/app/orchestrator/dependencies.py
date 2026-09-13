@@ -12,6 +12,7 @@ from backend.app.reality.retrieval_engine import RealityRetrievalEngine, Unconfi
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_selector import RegistryRetrievalProviderSelector
+from backend.app.reality.retrieval_result_consumer import RetrievalResultConsumer
 from backend.app.reality.source_planner import RealitySourcePlanner
 
 
@@ -27,6 +28,7 @@ class OrchestrationDependencies:
     retrieval_provider_executor: RetrievalProviderExecutor
     retrieval_provider_registry: RetrievalProviderRegistry
     retrieval_provider_selector: RegistryRetrievalProviderSelector
+    retrieval_result_consumer: RetrievalResultConsumer
     evidence_normalizer: RetrievalEvidenceNormalizer
     evidence_quality_validator: EvidenceQualityValidator
     grounding_context_builder: EvidenceGroundingContextBuilder
@@ -56,6 +58,7 @@ class OrchestrationDependencies:
             retrieval_provider_executor=retrieval_provider_executor,
             retrieval_provider_registry=retrieval_provider_registry,
             retrieval_provider_selector=retrieval_provider_selector,
+            retrieval_result_consumer=RetrievalResultConsumer(),
             evidence_normalizer=RetrievalEvidenceNormalizer(),
             evidence_quality_validator=EvidenceQualityValidator(),
             grounding_context_builder=EvidenceGroundingContextBuilder(),
