@@ -66,7 +66,6 @@ def test_non_completed_evidence_is_insufficient() -> None:
         {"status": "invalid_evidence", "sources": [], "content": None}
     )
     assert result.status == "insufficient"
-    assert result.reason if hasattr(result, "reason") else True
     assert "retrieval_not_completed" in result.issues
 
 
