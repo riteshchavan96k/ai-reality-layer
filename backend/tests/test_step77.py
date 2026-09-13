@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import Mock
 
 from backend.app.reality.retrieval_provider_health_contract import RetrievalProviderHealth
+from backend.app.reality.retrieval_provider_health_evaluation import RetrievalProviderHealthEvaluationResult
 from backend.app.reality.retrieval_provider_health_evaluator import RetrievalProviderHealthEvaluator
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_selector import RegistryRetrievalProviderSelector
@@ -17,15 +18,21 @@ class StubProvider:
 class Step77RetrievalProviderHealthEvaluationTests(unittest.TestCase):
     def test_healthy_provider_is_accepted(self):
         health = RetrievalProviderHealth.healthy("live_web")
-        self.assertTrue(RetrievalProviderHealthEvaluator.evaluate(health))
+        result = RetrievalProviderHealthEvaluator.evaluate(health)
+        self.assertIsInstance(result, RetrievalProviderHealthEvaluationResult)
+        self.assertTrue(result.supported)
 
     def test_unhealthy_provider_is_rejected(self):
         health = RetrievalProviderHealth.unhealthy("live_web", "timeout")
-        self.assertFalse(RetrievalProviderHealthEvaluator.evaluate(health))
+        result = RetrievalProviderHealthEvaluator.evaluate(health)
+        self.assertFalse(result.supported)
+        self.assertEqual(result.reason, "timeout")
 
     def test_unknown_provider_is_rejected(self):
         health = RetrievalProviderHealth.unknown("live_web")
-        self.assertFalse(RetrievalProviderHealthEvaluator.evaluate(health))
+        result = RetrievalProviderHealthEvaluator.evaluate(health)
+        self.assertFalse(result.supported)
+        self.assertEqual(result.reason, "retrieval_provider_health_unknown")
 
     def test_invalid_health_is_rejected(self):
         with self.assertRaises(ValueError):
@@ -58,7 +65,9 @@ class Step77RetrievalProviderHealthEvaluationTests(unittest.TestCase):
         registry.register("live_web", StubProvider())
         registry.register_health("live_web", RetrievalProviderHealth.unhealthy("live_web", "maintenance"))
         health_evaluator = Mock()
-        health_evaluator.evaluate.return_value = False
+        health_evaluator.evaluate.return_value = RetrievalProviderHealthEvaluationResult.unhealthy(
+            RetrievalProviderHealth.unhealthy("live_web", "maintenance")
+        )
         selector = RegistryRetrievalProviderSelector(registry, health_evaluator=health_evaluator)
 
         result = selector.select({"source_type": "live_web", "query": "current status"})
@@ -71,7 +80,9 @@ class Step77RetrievalProviderHealthEvaluationTests(unittest.TestCase):
         registry = RetrievalProviderRegistry()
         registry.register("live_web", StubProvider())
         health_evaluator = Mock()
-        health_evaluator.evaluate.return_value = True
+        health_evaluator.evaluate.return_value = RetrievalProviderHealthEvaluationResult.healthy(
+            RetrievalProviderHealth.healthy("live_web")
+        )
         selector = RegistryRetrievalProviderSelector(registry, health_evaluator=health_evaluator)
 
         result = selector.select({"source_type": "live_web", "query": "current status"})
