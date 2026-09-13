@@ -75,14 +75,16 @@ class RegistryRetrievalProviderSelector:
                     reason=capability_evaluation.reason or "retrieval_provider_capability_mismatch",
                 )
 
-        if not self._selection_policy.allows(
+        policy_result = self._selection_policy.evaluate(
+            source_type,
             availability_evaluation,
             health_evaluation,
             capability_evaluation,
-        ):
+        )
+        if not policy_result.allowed:
             return RetrievalProviderSelectionResult.unavailable(
                 source_type,
-                reason="retrieval_provider_selection_policy_rejected",
+                reason=policy_result.reason or "retrieval_provider_selection_policy_rejected",
             )
 
         return RetrievalProviderSelectionResult.selected(source_type, provider)
