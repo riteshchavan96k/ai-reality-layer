@@ -10,7 +10,20 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 80 — Retrieval Provider Selection Policy Result Contract — implementation complete; local validation pending.
+Step 81 — Retrieval Provider Selection Decision Contract — implementation complete; local validation pending.
+
+### Step 81 Scope
+
+- Adds immutable `RetrievalProviderSelectionDecision` for the final provider-selection outcome.
+- Represents explicit selected and rejected decisions.
+- Preserves source type, selected provider when applicable, rejection reason, and the policy result.
+- Validates consistency between decision status and provider presence.
+- Provides deterministic serialization through `to_dict()`.
+- Adds dedicated regression coverage and documentation.
+
+### Step 81 Design Boundary
+
+This step formalizes the final provider-selection decision record. It does not add external providers, active health probes, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 80 Scope
 
@@ -265,4 +278,4 @@ This step isolates capability-fit evaluation only. It does not execute providers
 
 ## Validation Truth
 
-Steps 54–80 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
+Steps 54–81 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
