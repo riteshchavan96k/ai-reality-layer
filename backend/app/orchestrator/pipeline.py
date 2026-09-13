@@ -34,6 +34,10 @@ class OrchestrationPipeline:
         retrieval_contract = state.retrieval_contract
         if retrieval_contract["request"]["required"] and state.evidence_quality["status"] != "usable":
             return self._retrieval_blocked_result(context)
+        grounding_consumption = self.dependencies.grounding_context_consumer.consume(state.grounding)
+        state.analysis["reality_grounding_consumption"] = grounding_consumption.to_dict()
+        if not grounding_consumption.usable:
+            return self._grounding_blocked_result(context)
         self._execute(context, retry_policy)
         state = context.state
         if state.execution["status"] == "failed":
@@ -114,6 +118,12 @@ class OrchestrationPipeline:
         state = context.state
         context.trace.record("execution", "blocked", reason="required_retrieval_evidence_quality_insufficient", retrieval_status=state.retrieval["status"], evidence_status=state.evidence["status"], quality_status=state.evidence_quality["status"], quality_issues=state.evidence_quality["issues"])
         return {"status": "retrieval_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": self.dependencies.grounded_result_builder.build(state.grounding, None), "trace": context.trace.snapshot()}
+
+    def _grounding_blocked_result(self, context: OrchestrationStageContext) -> dict:
+        state = context.state
+        reason = state.analysis["reality_grounding_consumption"].get("reason") or "grounding_context_rejected"
+        context.trace.record("execution", "blocked", reason=reason, grounding_status=state.grounding["status"], grounding_source_count=state.grounding["source_count"])
+        return {"status": "grounding_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "trace": context.trace.snapshot()}
 
     def _execution_failed_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
