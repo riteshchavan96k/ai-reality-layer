@@ -10,7 +10,24 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 76 — Retrieval Provider Health Contract — implementation complete; local validation pending.
+Step 77 — Retrieval Provider Health Evaluation — implementation complete; local validation pending.
+
+### Step 77 Scope
+
+- Adds dedicated `RetrievalProviderHealthEvaluator` for provider-health evaluation.
+- Separates health evaluation from the `RetrievalProviderHealth` state contract.
+- Evaluates healthy providers as eligible and unhealthy or unknown providers as ineligible.
+- Rejects invalid health inputs deterministically.
+- Extends `RetrievalProviderRegistry` with explicit health registration and lookup.
+- Preserves backward compatibility by treating providers without explicit health metadata as healthy.
+- Clears stale health metadata when a source-type provider or descriptor is replaced.
+- Updates `RegistryRetrievalProviderSelector` to gate selection on health after availability and before capability evaluation.
+- Keeps the health evaluator injectable for future policy evolution.
+- Adds dedicated Step 77 regression coverage and documentation.
+
+### Step 77 Design Boundary
+
+This step evaluates already-declared provider health only. It does not perform active health probes, network access, credentials, external-provider calls, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 76 Scope
 
@@ -201,4 +218,4 @@ This step isolates capability-fit evaluation only. It does not execute providers
 
 ## Validation Truth
 
-Steps 54–76 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
+Steps 54–77 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
