@@ -10,7 +10,24 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 78 — Retrieval Provider Health Evaluation Result Contract — implementation complete; local validation pending.
+Step 79 — Retrieval Provider Selection Policy Contract — implementation complete; local validation pending.
+
+### Step 79 Scope
+
+- Adds `RetrievalProviderSelectionPolicy` as a dedicated policy contract for the combined provider-selection decision.
+- Adds `DefaultRetrievalProviderSelectionPolicy` with deterministic fail-closed gate semantics.
+- Requires availability and health evaluation results to be supported.
+- Requires capability evaluation to be supported when capability metadata exists.
+- Preserves backward compatibility for providers without capability descriptors.
+- Updates `RegistryRetrievalProviderSelector` to inject and consult the selection policy after existing gate-specific checks.
+- Preserves existing availability, health, and capability rejection semantics.
+- Uses stable `retrieval_provider_selection_policy_rejected` when the injected final policy rejects an otherwise eligible provider.
+- Adds regression coverage for policy contract conformance, supported/unsupported gates, invalid inputs, backward compatibility, and selector integration.
+- Adds dedicated Step 79 documentation.
+
+### Step 79 Design Boundary
+
+This step separates combined provider-selection policy from individual availability, health, and capability evaluation mechanisms. It does not add external providers, active health probes, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 78 Scope
 
@@ -233,4 +250,4 @@ This step isolates capability-fit evaluation only. It does not execute providers
 
 ## Validation Truth
 
-Steps 54–78 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
+Steps 54–79 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.

@@ -3,10 +3,15 @@ from typing import Any, Mapping, Protocol
 from backend.app.reality.retrieval_provider import RetrievalProvider
 from backend.app.reality.retrieval_provider_availability_evaluator import RetrievalProviderAvailabilityEvaluator
 from backend.app.reality.retrieval_provider_capability_evaluator import RetrievalProviderCapabilityEvaluator
+from backend.app.reality.retrieval_provider_capability_evaluation import RetrievalProviderCapabilityEvaluationResult
 from backend.app.reality.retrieval_provider_health_evaluator import RetrievalProviderHealthEvaluator
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
 from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
+from backend.app.reality.retrieval_provider_selection_policy import (
+    DefaultRetrievalProviderSelectionPolicy,
+    RetrievalProviderSelectionPolicy,
+)
 
 
 class RetrievalProviderSelector(Protocol):
@@ -26,11 +31,13 @@ class RegistryRetrievalProviderSelector:
         capability_evaluator: RetrievalProviderCapabilityEvaluator | None = None,
         availability_evaluator: RetrievalProviderAvailabilityEvaluator | None = None,
         health_evaluator: RetrievalProviderHealthEvaluator | None = None,
+        selection_policy: RetrievalProviderSelectionPolicy | None = None,
     ) -> None:
         self._registry = registry
         self._capability_evaluator = capability_evaluator or RetrievalProviderCapabilityEvaluator()
         self._availability_evaluator = availability_evaluator or RetrievalProviderAvailabilityEvaluator()
         self._health_evaluator = health_evaluator or RetrievalProviderHealthEvaluator()
+        self._selection_policy = selection_policy or DefaultRetrievalProviderSelectionPolicy()
 
     def select(self, request: Mapping[str, Any]) -> RetrievalProviderSelectionResult:
         source_type = request.get("source_type")
@@ -47,21 +54,37 @@ class RegistryRetrievalProviderSelector:
             )
 
         health = self._registry.get_health(source_type)
-        if not self._health_evaluator.evaluate(health):
+        health_evaluation = self._health_evaluator.evaluate(health)
+        if not health_evaluation.supported:
             return RetrievalProviderSelectionResult.unavailable(
                 source_type,
-                reason=health.reason or "retrieval_provider_unhealthy",
+                reason=health_evaluation.reason or "retrieval_provider_unhealthy",
             )
 
+        capability_evaluation: RetrievalProviderCapabilityEvaluationResult | None = None
         descriptor = self._registry.get_descriptor(source_type)
         if descriptor is not None:
             typed_request = RetrievalProviderRequest.from_mapping(request)
-            evaluation = self._capability_evaluator.evaluate(descriptor.capabilities, typed_request)
-            if not evaluation.supported:
+            capability_evaluation = self._capability_evaluator.evaluate(
+                descriptor.capabilities,
+                typed_request,
+            )
+            if not capability_evaluation.supported:
                 return RetrievalProviderSelectionResult.unavailable(
                     source_type,
-                    reason=evaluation.reason or "retrieval_provider_capability_mismatch",
+                    reason=capability_evaluation.reason or "retrieval_provider_capability_mismatch",
                 )
+
+        if not self._selection_policy.allows(
+            availability_evaluation,
+            health_evaluation,
+            capability_evaluation,
+        ):
+            return RetrievalProviderSelectionResult.unavailable(
+                source_type,
+                reason="retrieval_provider_selection_policy_rejected",
+            )
+
         return RetrievalProviderSelectionResult.selected(source_type, provider)
 
 
