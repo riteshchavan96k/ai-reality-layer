@@ -10,18 +10,34 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 78 — Retrieval Provider Health Evaluation Result Contract — implementation complete; local validation pending.
+Step 79 — Retrieval Provider Selection Policy Contract — implementation complete; local validation pending.
+
+### Step 79 Scope
+
+- Adds `RetrievalProviderSelectionPolicy` as a dedicated policy contract for the combined provider-selection decision.
+- Adds `DefaultRetrievalProviderSelectionPolicy` with deterministic fail-closed gate semantics.
+- Requires availability and health evaluation results to be supported.
+- Requires capability evaluation to be supported when capability metadata exists.
+- Preserves backward compatibility for providers without capability descriptors.
+- Updates `RegistryRetrievalProviderSelector` to inject and consult the selection policy after existing gate-specific checks.
+- Preserves existing availability, health, and capability rejection semantics.
+- Uses stable `retrieval_provider_selection_policy_rejected` when the injected final policy rejects an otherwise eligible provider.
+- Adds regression coverage for policy contract conformance, supported/unsupported gates, invalid inputs, backward compatibility, and selector integration.
+- Adds dedicated Step 79 documentation.
+
+### Step 79 Design Boundary
+
+This step separates combined provider-selection policy from individual availability, health, and capability evaluation mechanisms. It does not add external providers, active health probes, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 78 Scope
 
 - Adds immutable `RetrievalProviderHealthEvaluationResult` with explicit healthy, unhealthy, and unknown outcomes.
 - Carries provider identity, health status, support state, reason, health-check state, and evaluation execution state.
 - Enforces consistency between health status and `supported`.
-- Provides deterministic `to_dict()` serialization.
-- Updates `RetrievalProviderHealthEvaluator` to return the explicit result contract instead of a bare boolean.
-- Updates `RegistryRetrievalProviderSelector` to consume `health_evaluation.supported` while preserving existing selection semantics.
-- Updates Step 77 regression coverage for the new evaluator return contract.
-- Adds dedicated Step 78 regression coverage and documentation.
+- Provides deterministic serialization.
+- Updates `RetrievalProviderHealthEvaluator` to return the explicit result contract.
+- Updates `RegistryRetrievalProviderSelector` to consume health evaluation results.
+- Adds dedicated regression coverage and documentation.
 
 ### Step 78 Design Boundary
 
@@ -32,172 +48,113 @@ This step formalizes health-evaluation outcomes only. It does not perform active
 - Adds dedicated `RetrievalProviderHealthEvaluator` for provider-health evaluation.
 - Separates health evaluation from the `RetrievalProviderHealth` state contract.
 - Evaluates healthy providers as eligible and unhealthy or unknown providers as ineligible.
-- Rejects invalid health inputs deterministically.
 - Extends `RetrievalProviderRegistry` with explicit health registration and lookup.
 - Preserves backward compatibility by treating providers without explicit health metadata as healthy.
-- Clears stale health metadata when a source-type provider or descriptor is replaced.
 - Updates `RegistryRetrievalProviderSelector` to gate selection on health after availability and before capability evaluation.
-- Keeps the health evaluator injectable for future policy evolution.
-- Adds dedicated Step 77 regression coverage and documentation.
-
-### Step 77 Design Boundary
-
-This step evaluates already-declared provider health only. It does not perform active health probes, network access, credentials, external-provider calls, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+- Adds regression coverage and documentation.
 
 ### Step 76 Scope
 
 - Adds immutable `RetrievalProviderHealth` identified by provider name.
-- Models `healthy`, `unhealthy`, and `unknown` states.
+- Models healthy, unhealthy, and unknown states.
 - Preserves stable reasons and explicit health-check state.
-- Exposes `is_healthy` for deterministic policy consumption.
-- Provides deterministic `to_dict()` serialization.
-- Validates provider identity, state, reason, and health-check metadata.
+- Provides deterministic serialization and validation.
 - Keeps health state independent from availability and provider execution.
-- Adds dedicated regression coverage for health states, reasons, serialization, immutability, and invalid input.
-
-### Step 76 Design Boundary
-
-This step establishes the provider-health data contract only. It does not perform health checks, network access, credentials, external-provider calls, availability mutation, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+- Adds dedicated regression coverage and documentation.
 
 ### Step 75 Scope
 
 - Adds immutable `RetrievalProviderAvailabilityEvaluationResult` with explicit available, unavailable, and blocked outcomes.
 - Carries availability reason and availability-check state into a stable evaluation result.
-- Exposes explicit `supported` and evaluation execution semantics.
-- Provides deterministic `to_dict()` serialization.
-- Updates `RetrievalProviderAvailabilityEvaluator` to return the result contract instead of a bare boolean.
-- Updates `RegistryRetrievalProviderSelector` to consume the explicit availability evaluation result before capability evaluation.
-- Updates Step 74 regression coverage for the new evaluator return contract.
-- Adds dedicated Step 75 regression coverage for stable states, reasons, serialization, immutability, and invalid combinations.
-
-### Step 75 Design Boundary
-
-This step formalizes availability-evaluation outcomes only. It does not add provider health checks, network access, credentials, external providers, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+- Updates the availability evaluator and selector to consume the explicit result.
+- Adds dedicated regression coverage and documentation.
 
 ### Step 74 Scope
 
-- Adds dedicated `RetrievalProviderAvailabilityEvaluator` for availability-policy evaluation.
-- Separates availability evaluation from registry lookup and provider-selection orchestration.
-- Accepts only the typed `RetrievalProviderAvailability` contract and rejects invalid inputs deterministically.
-- Updates `RegistryRetrievalProviderSelector` to delegate availability decisions before capability evaluation.
-- Preserves stable unavailable selection semantics and existing capability-mismatch behavior.
-- Keeps the evaluator injectable so future availability policy can evolve independently.
-- Adds dedicated regression coverage for available, unavailable, blocked, invalid input, evaluator delegation, and selection short-circuit behavior.
-
-### Step 74 Design Boundary
-
-This step evaluates already-declared provider availability only. It does not add health checks, network access, credentials, external providers, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+- Adds dedicated `RetrievalProviderAvailabilityEvaluator`.
+- Separates availability evaluation from registry lookup and selection orchestration.
+- Updates the selector to delegate availability decisions before capability evaluation.
+- Preserves stable unavailable selection semantics.
+- Adds regression coverage and documentation.
 
 ### Step 73 Scope
 
 - Adds immutable `RetrievalProviderAvailability` with available, unavailable, and blocked states.
-- Preserves stable reasons and explicit availability-check state.
-- Extends `RetrievalProviderRegistry` with explicit availability registration and lookup.
+- Extends the registry with explicit availability registration and lookup.
 - Preserves backward compatibility by treating providers without explicit availability metadata as available.
-- Clears stale availability metadata when a source-type provider or descriptor is replaced.
-- Updates `RegistryRetrievalProviderSelector` to gate selection on availability before capability evaluation.
-- Ensures unavailable or blocked providers are not selected or executed.
-- Preserves existing capability-mismatch semantics after availability succeeds.
-- Adds dedicated Step 73 regression coverage and documentation.
-
-### Step 73 Design Boundary
-
-This step models provider availability only. It does not add health checks, network access, credentials, external providers, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+- Updates selection to gate on availability.
+- Adds regression coverage and documentation.
 
 ### Step 72 Scope
 
 - Adds immutable `RetrievalProviderCapabilityEvaluationResult` with explicit supported/unsupported states.
 - Carries source type, temporal scope, support state, reason, and evaluation execution state.
-- Provides deterministic serialization through `to_dict()`.
-- Updates `RetrievalProviderCapabilityEvaluator` to return the result contract instead of a bare boolean.
-- Updates `RegistryRetrievalProviderSelector` to consume the explicit evaluation result while preserving capability-mismatch semantics.
-- Adds dedicated regression coverage for supported/unsupported results, serialization, and immutability.
-
-### Step 72 Design Boundary
-
-This step formalizes capability-evaluation outcomes only. It does not add external providers, credentials, network access, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+- Updates capability evaluation and selection to consume the explicit result.
+- Adds regression coverage and documentation.
 
 ### Step 71 Scope
 
-- Adds a dedicated `RetrievalProviderCapabilityEvaluator` for provider/request capability-fit evaluation.
-- Separates capability evaluation from registry lookup and provider-selection orchestration.
-- Updates `RegistryRetrievalProviderSelector` to delegate capability matching to the evaluator.
-- Preserves typed `RetrievalProviderRequest` validation before capability evaluation.
-- Preserves stable `retrieval_provider_capability_mismatch` selection semantics.
-- Preserves legacy provider registration and selection when no capability descriptor is present.
-- Adds regression coverage for compatible requests, source/temporal mismatches, and invalid inputs.
-
-### Step 71 Design Boundary
-
-This step isolates capability-fit evaluation only. It does not execute providers, add external retrieval services, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citations, ML training, or LLM integration.
+- Adds a dedicated `RetrievalProviderCapabilityEvaluator`.
+- Separates capability-fit evaluation from registry lookup and provider selection.
+- Preserves typed request validation, capability mismatch semantics, and legacy providers without descriptors.
+- Adds regression coverage and documentation.
 
 ### Step 70 Scope
 
-- Adds immutable `RetrievalProviderDescriptor` metadata combining provider identity, implementation, and declared capabilities.
-- Extends `RetrievalProviderRegistry` with descriptor registration and lookup while preserving legacy registration.
+- Adds immutable `RetrievalProviderDescriptor` combining provider identity, implementation, and declared capabilities.
+- Extends the registry with descriptor registration and lookup.
 - Updates provider selection to use declared capabilities.
-- Converts selection mappings into typed `RetrievalProviderRequest` before capability matching.
-- Blocks capability-incompatible requests with stable mismatch semantics without executing providers.
+- Blocks capability-incompatible requests without executing providers.
 - Preserves legacy providers without descriptors.
-- Adds Step 70 regression coverage and documentation.
 
 ### Step 69 Scope
 
 - Adds immutable `RetrievalProviderCapabilities` for supported source types and temporal scopes.
 - Normalizes capability identifiers and removes duplicates.
-- Validates capability declarations.
-- Adds typed request compatibility checking and serialization.
+- Validates capability declarations and request compatibility.
 - Keeps capability description independent from provider execution and selection policy.
-- Adds Step 69 regression coverage and documentation.
 
 ### Step 68 Scope
 
 - Adds dedicated `RetrievalResultNormalizer` for stable retrieval-result construction.
-- Separates completed/failed/blocked/unavailable mapping from provider execution.
-- Preserves provider identity fallback, request/source/content/reason, and execution semantics.
-- Adds regression coverage and documentation.
+- Separates completed, failed, blocked, and unavailable mapping from provider execution.
+- Preserves provider identity, request/source/content/reason, and execution semantics.
 
 ### Step 67 Scope
 
 - Adds dedicated `RetrievalProviderResponseNormalizer`.
 - Supports typed responses and legacy mappings.
-- Rejects unsupported provider-output shapes.
-- Keeps provider execution separate from response normalization.
-- Preserves retrieval result semantics and adds regression coverage.
+- Rejects unsupported provider-output shapes while preserving retrieval-result semantics.
 
 ### Step 66 Scope
 
 - Adds immutable `RetrievalProviderResponse` contract.
 - Validates response status, sources, content, provider identity, and reason.
 - Updates the provider protocol and executor while preserving legacy mappings.
-- Adds regression coverage and documentation.
 
 ### Step 65 Scope
 
 - Adds immutable `RetrievalProviderRequest` contract.
 - Validates query, source type, temporal scope, and required state.
 - Updates provider execution to use typed requests while preserving public retrieval contracts.
-- Adds regression coverage and documentation.
 
 ### Step 64 Scope
 
 - Establishes the canonical runtime-checkable `RetrievalProvider` protocol.
 - Updates registry, selection, execution, and engine boundaries to use it.
-- Preserves structural provider compatibility and existing injection behavior.
-- Adds regression coverage.
+- Preserves structural provider compatibility and injection behavior.
 
 ### Step 63 Scope
 
 - Adds stable `RetrievalProviderSelectionResult` for selected/unavailable outcomes.
 - Separates selection results from raw provider objects.
 - Makes retrieval execution occur only after successful provider selection.
-- Preserves Step 55/60 semantics and not-required behavior.
 
 ### Step 62 Scope
 
 - Adds dedicated `RetrievalProviderRegistry` ownership for source-type/provider mappings.
-- Separates registration/lookup from selection policy.
-- Supports deterministic registration, replacement, lookup, normalization, and default fallback.
+- Separates registration and lookup from selection policy.
+- Supports deterministic registration, replacement, normalization, lookup, and default fallback.
 
 ### Step 61 Scope
 
@@ -233,4 +190,4 @@ This step isolates capability-fit evaluation only. It does not execute providers
 
 ## Validation Truth
 
-Steps 54–78 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
+Steps 54–79 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
