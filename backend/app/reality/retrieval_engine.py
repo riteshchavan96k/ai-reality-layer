@@ -6,6 +6,9 @@ from backend.app.reality.retrieval_provider_registry import RetrievalProviderReg
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
 from backend.app.reality.retrieval_provider_response import RetrievalProviderResponse
 from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
+from backend.app.reality.retrieval_provider_selection_result_normalizer import (
+    RetrievalProviderSelectionResultNormalizer,
+)
 from backend.app.reality.retrieval_provider_selector import (
     RegistryRetrievalProviderSelector,
     RetrievalProviderSelector,
@@ -65,12 +68,15 @@ class RealityRetrievalEngine:
             raise ValueError("retrieval contract request must be a dictionary")
 
         provider_request = RetrievalProviderRequest.from_mapping(request)
-        selection = self.provider_selector.select(provider_request.to_dict())
-        if not isinstance(selection, RetrievalProviderSelectionResult):
+        raw_selection = self.provider_selector.select(provider_request.to_dict())
+        try:
+            selection = RetrievalProviderSelectionResultNormalizer.normalize(raw_selection)
+        except (KeyError, TypeError, ValueError):
             return _blocked_selection_result(
                 provider_request.to_dict(),
                 "invalid_provider_selection_result",
             )
+
         if not selection.selection_executed:
             return _blocked_selection_result(provider_request.to_dict(), selection.reason)
         return self.provider_executor.execute(selection.provider, provider_request)
