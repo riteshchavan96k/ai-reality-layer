@@ -1,14 +1,24 @@
 import unittest
+from unittest.mock import Mock
 
 from backend.app.reality.retrieval_provider_availability_evaluation import RetrievalProviderAvailabilityEvaluationResult
 from backend.app.reality.retrieval_provider_capability_evaluation import RetrievalProviderCapabilityEvaluationResult
 from backend.app.reality.retrieval_provider_health_contract import RetrievalProviderHealth
 from backend.app.reality.retrieval_provider_health_evaluation import RetrievalProviderHealthEvaluationResult
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
+from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_selection_policy import (
     DefaultRetrievalProviderSelectionPolicy,
     RetrievalProviderSelectionPolicy,
 )
+from backend.app.reality.retrieval_provider_selector import RegistryRetrievalProviderSelector
+
+
+class StubProvider:
+    provider_name = "live_web"
+
+    def retrieve(self, request):
+        return {"status": "completed", "sources": [], "content": "ok", "provider": self.provider_name}
 
 
 class Step79RetrievalProviderSelectionPolicyTests(unittest.TestCase):
@@ -80,6 +90,33 @@ class Step79RetrievalProviderSelectionPolicyTests(unittest.TestCase):
             self.policy.allows(availability, "healthy", None)
         with self.assertRaises(ValueError):
             self.policy.allows(availability, health, "supported")
+
+    def test_selector_delegates_final_selection_decision_to_policy(self):
+        registry = RetrievalProviderRegistry()
+        registry.register("live_web", StubProvider())
+        policy = Mock()
+        policy.allows.return_value = False
+        selector = RegistryRetrievalProviderSelector(registry, selection_policy=policy)
+
+        result = selector.select({"source_type": "live_web", "query": "current status"})
+
+        self.assertEqual(result.status, "unavailable")
+        self.assertEqual(result.reason, "retrieval_provider_selection_policy_rejected")
+        policy.allows.assert_called_once()
+
+    def test_selector_preserves_selection_when_policy_allows(self):
+        registry = RetrievalProviderRegistry()
+        provider = StubProvider()
+        registry.register("live_web", provider)
+        policy = Mock()
+        policy.allows.return_value = True
+        selector = RegistryRetrievalProviderSelector(registry, selection_policy=policy)
+
+        result = selector.select({"source_type": "live_web", "query": "current status"})
+
+        self.assertEqual(result.status, "selected")
+        self.assertIs(result.provider, provider)
+        policy.allows.assert_called_once()
 
 
 if __name__ == "__main__":
