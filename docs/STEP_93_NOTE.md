@@ -1,1 +1,0 @@
-Step 93 establishes the normalization boundary between the grounding context contract and downstream execution. Typed contexts pass through unchanged; compatible mappings are converted to the canonical immutable contract; invalid shapes fail closed. Local test execution remains pending.
