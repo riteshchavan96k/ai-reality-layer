@@ -131,7 +131,10 @@ class OrchestrationPipeline:
         state = context.state
         retrieval_service = retrieval_engine or self.dependencies.retrieval_engine
         state.retrieval = retrieval_service.retrieve(state.retrieval_contract)
-        consumption = self.dependencies.retrieval_result_consumer.consume(state.retrieval)
+        raw_consumption = self.dependencies.retrieval_result_consumer.consume(state.retrieval)
+        consumption = self.dependencies.retrieval_result_consumption_normalizer.normalize(
+            raw_consumption
+        )
         state.analysis["reality_retrieval_consumption"] = consumption.to_dict()
         if consumption.usable:
             state.evidence = self.dependencies.evidence_normalizer.normalize(state.retrieval)
