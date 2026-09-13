@@ -4,7 +4,6 @@ from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
 from backend.app.models.provider_invocation_executor import ProviderInvocationExecutor
 from backend.app.reality.context_requirements import RealityContextRequirementDetector
 from backend.app.reality.evidence_normalization_consumer import EvidenceNormalizationConsumer
-from backend.app.reality.evidence_normalization_consumption import EvidenceNormalizationConsumption
 from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
 from backend.app.reality.evidence_quality import EvidenceQualityValidator
 from backend.app.reality.grounded_result import GroundedResultEnvelopeBuilder
@@ -35,7 +34,6 @@ class OrchestrationDependencies:
     retrieval_result_consumption_normalizer: RetrievalResultConsumptionNormalizer
     evidence_normalizer: RetrievalEvidenceNormalizer
     evidence_normalization_consumer: EvidenceNormalizationConsumer
-    evidence_normalization_consumption: EvidenceNormalizationConsumption
     evidence_quality_validator: EvidenceQualityValidator
     grounding_context_builder: EvidenceGroundingContextBuilder
     grounded_result_builder: GroundedResultEnvelopeBuilder
@@ -68,7 +66,6 @@ class OrchestrationDependencies:
             retrieval_result_consumption_normalizer=RetrievalResultConsumptionNormalizer(),
             evidence_normalizer=RetrievalEvidenceNormalizer(),
             evidence_normalization_consumer=EvidenceNormalizationConsumer(),
-            evidence_normalization_consumption=EvidenceNormalizationConsumption,
             evidence_quality_validator=EvidenceQualityValidator(),
             grounding_context_builder=EvidenceGroundingContextBuilder(),
             grounded_result_builder=GroundedResultEnvelopeBuilder(),
