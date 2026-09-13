@@ -114,7 +114,7 @@ class RegistryRetrievalProviderSelector:
                 policy_result,
             )
         )
-        if not decision.provider:
+        if decision.status == "rejected":
             return RetrievalProviderSelectionResult.unavailable(
                 source_type,
                 decision.reason or "retrieval_provider_selection_policy_rejected",
