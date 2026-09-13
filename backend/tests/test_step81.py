@@ -1,5 +1,6 @@
 import unittest
 
+from backend.app.reality.retrieval_provider_selection import RetrievalProviderSelectionResult
 from backend.app.reality.retrieval_provider_selection_decision import RetrievalProviderSelectionDecision
 from backend.app.reality.retrieval_provider_selection_policy_result import RetrievalProviderSelectionPolicyResult
 
@@ -56,6 +57,13 @@ class TestRetrievalProviderSelectionDecision(unittest.TestCase):
     def test_rejected_cannot_contain_provider(self):
         with self.assertRaises(ValueError):
             RetrievalProviderSelectionDecision("rejected", "web", provider=object())
+
+    def test_selection_result_carries_decision(self):
+        provider = object()
+        decision = RetrievalProviderSelectionDecision.selected("web", provider, self.policy_result)
+        result = RetrievalProviderSelectionResult.selected("web", provider, decision)
+        self.assertIs(result.decision, decision)
+        self.assertEqual(result.status, "selected")
 
 
 if __name__ == "__main__":
