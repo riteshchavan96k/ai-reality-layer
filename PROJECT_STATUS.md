@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 86 — Retrieval Result Consumption Normalization — implementation complete; local validation pending.
+Step 87 — Evidence Normalization Contract — implementation complete; local validation pending.
+
+### Step 87 Scope
+
+- Adds immutable `EvidenceNormalizationResult` as the canonical contract for normalized retrieval evidence.
+- Captures normalized evidence status, provenance-preserving sources, content, source count, content presence, and normalization execution state.
+- Validates consistency between source count, source collection, and content-presence state.
+- Adds `RetrievalEvidenceNormalizer.normalize_result()` as the typed normalization boundary.
+- Preserves the existing `normalize()` dictionary API for backward compatibility.
+- Updates `OrchestrationPipeline` to consume the typed evidence normalization result before downstream evidence-quality validation and grounding.
+- Adds dedicated Step 87 regression coverage and documentation.
+
+### Step 87 Design Boundary
+
+This step establishes the boundary `retrieval result → evidence normalization result contract → evidence quality validation`. It does not add external providers, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 86 Scope
 
@@ -349,4 +363,4 @@ This step isolates capability-fit evaluation only. It does not execute providers
 
 ## Validation Truth
 
-Steps 54–86 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
+Steps 54–87 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
