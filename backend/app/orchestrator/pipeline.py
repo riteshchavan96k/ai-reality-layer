@@ -131,7 +131,22 @@ class OrchestrationPipeline:
         state = context.state
         retrieval_service = retrieval_engine or self.dependencies.retrieval_engine
         state.retrieval = retrieval_service.retrieve(state.retrieval_contract)
-        state.evidence = self.dependencies.evidence_normalizer.normalize(state.retrieval)
+        raw_consumption = self.dependencies.retrieval_result_consumer.consume(state.retrieval)
+        consumption = self.dependencies.retrieval_result_consumption_normalizer.normalize(
+            raw_consumption
+        )
+        state.analysis["reality_retrieval_consumption"] = consumption.to_dict()
+        if consumption.usable:
+            state.evidence = self.dependencies.evidence_normalizer.normalize(state.retrieval)
+        else:
+            state.evidence = {
+                "status": "invalid_evidence",
+                "sources": [],
+                "content": None,
+                "source_count": 0,
+                "has_content": False,
+                "reason": consumption.reason,
+            }
         state.evidence_quality = self.dependencies.evidence_quality_validator.validate(state.evidence)
         state.grounding = self.dependencies.grounding_context_builder.build(
             state.task, state.evidence
@@ -139,6 +154,7 @@ class OrchestrationPipeline:
         state.analysis["reality_retrieval"] = {
             **state.retrieval_contract,
             "execution": state.retrieval,
+            "consumption": consumption.to_dict(),
             "evidence": state.evidence,
             "quality": state.evidence_quality,
             "grounding": state.grounding,
