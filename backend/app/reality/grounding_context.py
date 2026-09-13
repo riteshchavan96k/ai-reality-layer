@@ -1,10 +1,12 @@
 from typing import Any
 
+from backend.app.reality.grounding_context_contract import GroundingContext
+
 
 class EvidenceGroundingContextBuilder:
     """Build a stable, provenance-preserving context for downstream model execution."""
 
-    def build(self, task: str, evidence: dict[str, Any]) -> dict[str, Any]:
+    def build_result(self, task: str, evidence: dict[str, Any]) -> GroundingContext:
         if not isinstance(task, str) or not task.strip():
             raise ValueError("task must be a non-empty string")
         if not isinstance(evidence, dict):
@@ -20,13 +22,7 @@ class EvidenceGroundingContextBuilder:
             raise ValueError("evidence content must be a string or None")
 
         if status != "usable":
-            return {
-                "status": "not_available",
-                "task": task,
-                "content": None,
-                "sources": [],
-                "source_count": 0,
-            }
+            return GroundingContext.not_available_result(task)
 
         normalized_sources: list[dict[str, Any]] = []
         for source in sources:
@@ -39,10 +35,12 @@ class EvidenceGroundingContextBuilder:
                 }
             )
 
-        return {
-            "status": "ready",
-            "task": task,
-            "content": content,
-            "sources": normalized_sources,
-            "source_count": len(normalized_sources),
-        }
+        return GroundingContext.ready_result(
+            task=task,
+            content=content,
+            sources=normalized_sources,
+        )
+
+    def build(self, task: str, evidence: dict[str, Any]) -> dict[str, Any]:
+        """Preserve the legacy dictionary API while using the canonical contract."""
+        return self.build_result(task, evidence).to_dict()
