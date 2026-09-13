@@ -10,7 +10,21 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 81 — Retrieval Provider Selection Decision Contract — implementation complete; local validation pending.
+Step 82 — Retrieval Provider Selection Decision Normalization — implementation complete; local validation pending.
+
+### Step 82 Scope
+
+- Adds `RetrievalProviderSelectionDecisionNormalizer` as the canonical decision normalization boundary.
+- Accepts typed decisions without rebuilding them.
+- Converts compatible legacy mappings into the canonical decision contract.
+- Normalizes embedded policy-result mappings into `RetrievalProviderSelectionPolicyResult`.
+- Updates `RetrievalProviderSelectionResult` to normalize and validate attached decisions.
+- Enforces consistency between result status and decision status.
+- Adds dedicated Step 82 regression coverage and documentation.
+
+### Step 82 Design Boundary
+
+This step establishes decision normalization only. It does not add external providers, network access, credentials, active health probes, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 81 Scope
 
@@ -278,4 +292,4 @@ This step isolates capability-fit evaluation only. It does not execute providers
 
 ## Validation Truth
 
-Steps 54–81 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
+Steps 54–82 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
