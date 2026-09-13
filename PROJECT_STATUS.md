@@ -93,6 +93,10 @@ This step formalizes the final provider-selection decision record. It does not a
 - Updates Step 79 regression coverage and adds dedicated Step 80 regression coverage.
 - Adds dedicated Step 80 documentation.
 
+### Step 80 Design Boundary
+
+This step formalizes the outcome of combined provider-selection policy evaluation. It does not add external providers, active health probes, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+
 ### Step 79 Scope
 
 - Adds `RetrievalProviderSelectionPolicy` as a dedicated policy contract for the combined provider-selection decision.
@@ -106,6 +110,10 @@ This step formalizes the final provider-selection decision record. It does not a
 - Adds regression coverage for policy contract conformance, supported/unsupported gates, invalid inputs, backward compatibility, and selector integration.
 - Adds dedicated Step 79 documentation.
 
+### Step 79 Design Boundary
+
+This step separates combined provider-selection policy from individual availability, health, and capability evaluation mechanisms. It does not add external providers, active health probes, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+
 ### Step 78 Scope
 
 - Adds immutable `RetrievalProviderHealthEvaluationResult` with explicit healthy, unhealthy, and unknown outcomes.
@@ -116,6 +124,10 @@ This step formalizes the final provider-selection decision record. It does not a
 - Updates `RegistryRetrievalProviderSelector` to consume `health_evaluation.supported` while preserving existing selection semantics.
 - Updates Step 77 regression coverage for the new evaluator return contract.
 - Adds dedicated Step 78 regression coverage and documentation.
+
+### Step 78 Design Boundary
+
+This step formalizes health-evaluation outcomes only. It does not perform active health probes, network access, credentials, external-provider calls, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 77 Scope
 
@@ -130,6 +142,10 @@ This step formalizes the final provider-selection decision record. It does not a
 - Keeps the health evaluator injectable for future policy evolution.
 - Adds dedicated Step 77 regression coverage and documentation.
 
+### Step 77 Design Boundary
+
+This step evaluates already-declared provider health only. It does not perform active health probes, network access, credentials, external-provider calls, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+
 ### Step 76 Scope
 
 - Adds immutable `RetrievalProviderHealth` identified by provider name.
@@ -140,6 +156,10 @@ This step formalizes the final provider-selection decision record. It does not a
 - Validates provider identity, state, reason, and health-check metadata.
 - Keeps health state independent from availability and provider execution.
 - Adds dedicated regression coverage for health states, reasons, serialization, immutability, and invalid input.
+
+### Step 76 Design Boundary
+
+This step establishes the provider-health data contract only. It does not perform health checks, network access, credentials, external-provider calls, availability mutation, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 75 Scope
 
@@ -152,6 +172,10 @@ This step formalizes the final provider-selection decision record. It does not a
 - Updates Step 74 regression coverage for the new evaluator return contract.
 - Adds dedicated Step 75 regression coverage for stable states, reasons, serialization, immutability, and invalid combinations.
 
+### Step 75 Design Boundary
+
+This step formalizes availability-evaluation outcomes only. It does not add provider health checks, network access, credentials, external providers, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+
 ### Step 74 Scope
 
 - Adds dedicated `RetrievalProviderAvailabilityEvaluator` for availability-policy evaluation.
@@ -161,6 +185,10 @@ This step formalizes the final provider-selection decision record. It does not a
 - Preserves stable unavailable selection semantics and existing capability-mismatch behavior.
 - Keeps the evaluator injectable so future availability policy can evolve independently.
 - Adds dedicated regression coverage for available, unavailable, blocked, invalid input, evaluator delegation, and selection short-circuit behavior.
+
+### Step 74 Design Boundary
+
+This step evaluates already-declared provider availability only. It does not add health checks, network access, credentials, external providers, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 73 Scope
 
@@ -174,6 +202,10 @@ This step formalizes the final provider-selection decision record. It does not a
 - Preserves existing capability-mismatch semantics after availability succeeds.
 - Adds dedicated Step 73 regression coverage and documentation.
 
+### Step 73 Design Boundary
+
+This step models provider availability only. It does not add health checks, network access, credentials, external providers, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+
 ### Step 72 Scope
 
 - Adds immutable `RetrievalProviderCapabilityEvaluationResult` with explicit supported/unsupported states.
@@ -182,6 +214,10 @@ This step formalizes the final provider-selection decision record. It does not a
 - Updates `RetrievalProviderCapabilityEvaluator` to return the result contract instead of a bare boolean.
 - Updates `RegistryRetrievalProviderSelector` to consume the explicit evaluation result while preserving capability-mismatch semantics.
 - Adds dedicated regression coverage for supported/unsupported results, serialization, and immutability.
+
+### Step 72 Design Boundary
+
+This step formalizes capability-evaluation outcomes only. It does not add external providers, credentials, network access, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 71 Scope
 
@@ -192,6 +228,10 @@ This step formalizes the final provider-selection decision record. It does not a
 - Preserves stable `retrieval_provider_capability_mismatch` selection semantics.
 - Preserves legacy provider registration and selection when no capability descriptor is present.
 - Adds regression coverage for compatible requests, source/temporal mismatches, and invalid inputs.
+
+### Step 71 Design Boundary
+
+This step isolates capability-fit evaluation only. It does not execute providers, add external retrieval services, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citations, ML training, or LLM integration.
 
 ### Step 70 Scope
 
