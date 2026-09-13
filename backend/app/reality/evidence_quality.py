@@ -1,11 +1,14 @@
 from typing import Any
 from urllib.parse import urlparse
 
+from backend.app.reality.evidence_quality_validation import EvidenceQualityValidationResult
+
 
 class EvidenceQualityValidator:
     """Validate structural quality and provenance of normalized retrieval evidence."""
 
-    def validate(self, evidence: dict[str, Any]) -> dict[str, Any]:
+    def validate_result(self, evidence: dict[str, Any]) -> EvidenceQualityValidationResult:
+        """Return the canonical typed evidence-quality validation result."""
         if not isinstance(evidence, dict):
             raise ValueError("evidence must be a dictionary")
 
@@ -42,25 +45,15 @@ class EvidenceQualityValidator:
         source_count = len(sources)
 
         if status == "not_required":
-            return {
-                "status": "not_required",
-                "usable": False,
-                "source_count": source_count,
-                "has_content": has_content,
-                "provenance_complete": provenance_complete,
-                "issues": issues,
-            }
+            return EvidenceQualityValidationResult.not_required_result(
+                source_count, has_content, provenance_complete
+            )
 
         if status != "completed":
             issues.append("retrieval_not_completed")
-            return {
-                "status": "insufficient",
-                "usable": False,
-                "source_count": source_count,
-                "has_content": has_content,
-                "provenance_complete": provenance_complete,
-                "issues": issues,
-            }
+            return EvidenceQualityValidationResult.insufficient_result(
+                source_count, has_content, provenance_complete, issues
+            )
 
         if source_count == 0:
             issues.append("no_sources")
@@ -70,11 +63,18 @@ class EvidenceQualityValidator:
             issues.append("incomplete_provenance")
 
         usable = bool(source_count and has_content and provenance_complete and not issues)
-        return {
-            "status": "usable" if usable else "insufficient",
-            "usable": usable,
-            "source_count": source_count,
-            "has_content": has_content,
-            "provenance_complete": provenance_complete,
-            "issues": issues,
-        }
+        if usable:
+            return EvidenceQualityValidationResult.usable_result(
+                source_count, has_content, provenance_complete
+            )
+
+        return EvidenceQualityValidationResult.insufficient_result(
+            source_count, has_content, provenance_complete, issues
+        )
+
+    def validate(self, evidence: dict[str, Any]) -> dict[str, Any]:
+        """Preserve the legacy dictionary API while using the typed contract."""
+        return self.validate_result(evidence).to_dict()
+
+
+__all__ = ["EvidenceQualityValidator"]
