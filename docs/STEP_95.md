@@ -11,6 +11,7 @@ Make the grounding-context consumption decision an explicit canonical typed resu
 - Preserved deterministic `to_dict()` serialization for orchestration state.
 - Enforced consistency between status and `usable` state.
 - Enforced valid grounding statuses.
+- Updated Step 94 regression coverage to assert the canonical result type.
 - Added dedicated Step 95 regression tests.
 
 ## Architectural Boundary
