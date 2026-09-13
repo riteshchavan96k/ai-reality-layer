@@ -6,6 +6,7 @@ from backend.app.reality.context_requirements import RealityContextRequirementDe
 from backend.app.reality.evidence_normalization_consumer import EvidenceNormalizationConsumer
 from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
 from backend.app.reality.evidence_quality import EvidenceQualityValidator
+from backend.app.reality.evidence_quality_validation_normalizer import EvidenceQualityValidationResultNormalizer
 from backend.app.reality.grounded_result import GroundedResultEnvelopeBuilder
 from backend.app.reality.grounding_context import EvidenceGroundingContextBuilder
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
@@ -35,6 +36,7 @@ class OrchestrationDependencies:
     evidence_normalizer: RetrievalEvidenceNormalizer
     evidence_normalization_consumer: EvidenceNormalizationConsumer
     evidence_quality_validator: EvidenceQualityValidator
+    evidence_quality_validation_result_normalizer: EvidenceQualityValidationResultNormalizer
     grounding_context_builder: EvidenceGroundingContextBuilder
     grounded_result_builder: GroundedResultEnvelopeBuilder
     provider_executor: ProviderInvocationExecutor
@@ -67,6 +69,7 @@ class OrchestrationDependencies:
             evidence_normalizer=RetrievalEvidenceNormalizer(),
             evidence_normalization_consumer=EvidenceNormalizationConsumer(),
             evidence_quality_validator=EvidenceQualityValidator(),
+            evidence_quality_validation_result_normalizer=EvidenceQualityValidationResultNormalizer(),
             grounding_context_builder=EvidenceGroundingContextBuilder(),
             grounded_result_builder=GroundedResultEnvelopeBuilder(),
             provider_executor=ProviderInvocationExecutor(),
