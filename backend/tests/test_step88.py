@@ -1,6 +1,8 @@
 import pytest
 
-from backend.app.reality.evidence_normalization_consumption import EvidenceNormalizationConsumption
+from backend.app.reality.evidence_normalization_consumption_result import (
+    EvidenceNormalizationConsumptionResult,
+)
 from backend.app.reality.evidence_normalization_consumer import EvidenceNormalizationConsumer
 
 
@@ -8,6 +10,7 @@ def test_completed_normalized_evidence_is_usable() -> None:
     result = EvidenceNormalizationConsumer().consume(
         {"status": "completed", "sources": [{"title": "Example"}], "content": "evidence"}
     )
+    assert isinstance(result, EvidenceNormalizationConsumptionResult)
     assert result.status == "usable"
     assert result.usable is True
     assert result.evidence_status == "completed"
@@ -71,21 +74,21 @@ def test_invalid_input_is_rejected() -> None:
         EvidenceNormalizationConsumer().consume([])
 
 
-def test_consumption_contract_is_immutable_and_serializable() -> None:
-    result = EvidenceNormalizationConsumption.usable_result("completed")
+def test_result_is_immutable_and_serializable() -> None:
+    result = EvidenceNormalizationConsumptionResult.usable_result("completed")
     assert result.to_dict() == {
         "status": "usable",
         "evidence_status": "completed",
         "usable": True,
         "reason": None,
-        "consumption_executed": True,
+        "consumption_evaluated": True,
     }
     with pytest.raises((AttributeError, TypeError)):
         result.usable = False  # type: ignore[misc]
 
 
-def test_consumption_contract_rejects_inconsistent_state() -> None:
+def test_result_rejects_inconsistent_state() -> None:
     with pytest.raises(ValueError, match="usable status requires"):
-        EvidenceNormalizationConsumption(
+        EvidenceNormalizationConsumptionResult(
             status="usable", evidence_status="completed", usable=False
         )
