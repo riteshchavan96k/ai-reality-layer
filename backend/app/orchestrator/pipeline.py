@@ -137,7 +137,8 @@ class OrchestrationPipeline:
         )
         state.analysis["reality_retrieval_consumption"] = consumption.to_dict()
         if consumption.usable:
-            state.evidence = self.dependencies.evidence_normalizer.normalize(state.retrieval)
+            evidence_result = self.dependencies.evidence_normalizer.normalize_result(state.retrieval)
+            state.evidence = evidence_result.to_dict()
         else:
             state.evidence = {
                 "status": "invalid_evidence",

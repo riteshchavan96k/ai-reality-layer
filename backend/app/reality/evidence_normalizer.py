@@ -1,10 +1,14 @@
 from typing import Any
+from urllib.parse import urlparse
+
+from backend.app.reality.evidence_normalization import EvidenceNormalizationResult
 
 
 class RetrievalEvidenceNormalizer:
     """Normalize retrieval output into a stable, provenance-preserving evidence shape."""
 
-    def normalize(self, retrieval: dict[str, Any]) -> dict[str, Any]:
+    def normalize_result(self, retrieval: dict[str, Any]) -> EvidenceNormalizationResult:
+        """Return the canonical evidence normalization result contract."""
         if not isinstance(retrieval, dict):
             raise ValueError("retrieval result must be a dictionary")
 
@@ -35,19 +39,18 @@ class RetrievalEvidenceNormalizer:
         if content is not None and not isinstance(content, str):
             raise ValueError("retrieval content must be a string or None")
 
+        normalized_status = status or "unknown"
         if status == "completed" and not normalized_sources and not content:
-            return {
-                "status": "invalid_evidence",
-                "sources": [],
-                "content": None,
-                "source_count": 0,
-                "has_content": False,
-            }
+            normalized_status = "invalid_evidence"
 
-        return {
-            "status": status or "unknown",
-            "sources": normalized_sources,
-            "content": content,
-            "source_count": len(normalized_sources),
-            "has_content": bool(content and content.strip()),
-        }
+        return EvidenceNormalizationResult(
+            status=normalized_status,
+            sources=normalized_sources,
+            content=content if normalized_status != "invalid_evidence" else None,
+            source_count=len(normalized_sources),
+            has_content=bool(content and content.strip()) if normalized_status != "invalid_evidence" else False,
+        )
+
+    def normalize(self, retrieval: dict[str, Any]) -> dict[str, Any]:
+        """Preserve the legacy dictionary API while using the canonical result contract."""
+        return self.normalize_result(retrieval).to_dict()
