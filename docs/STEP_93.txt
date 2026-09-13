@@ -1,1 +1,0 @@
-Step 93 — Grounding Context Normalization. Canonical normalization boundary before execution. Typed contract pass-through; mapping normalization; invalid shape rejection. Local tests pending.
