@@ -162,7 +162,8 @@ class OrchestrationPipeline:
                 "has_content": False,
                 "reason": consumption.reason,
             }
-        state.evidence_quality = self.dependencies.evidence_quality_validator.validate(state.evidence)
+        evidence_quality_result = self.dependencies.evidence_quality_validator.validate_result(state.evidence)
+        state.evidence_quality = evidence_quality_result.to_dict()
         state.grounding = self.dependencies.grounding_context_builder.build(
             state.task, state.evidence
         )
