@@ -17,7 +17,7 @@ class FakeProvider:
         return RetrievalProviderResponse(
             status="completed",
             provider=self.name,
-            sources=[{"title": "Example", "url": "https://example.com"}],
+            sources=({"title": "Example", "url": "https://example.com"},),
             content="retrieved content",
         )
 
