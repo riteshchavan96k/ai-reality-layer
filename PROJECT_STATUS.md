@@ -10,7 +10,22 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 77 — Retrieval Provider Health Evaluation — implementation complete; local validation pending.
+Step 78 — Retrieval Provider Health Evaluation Result Contract — implementation complete; local validation pending.
+
+### Step 78 Scope
+
+- Adds immutable `RetrievalProviderHealthEvaluationResult` with explicit healthy, unhealthy, and unknown outcomes.
+- Carries provider identity, health status, support state, reason, health-check state, and evaluation execution state.
+- Enforces consistency between health status and `supported`.
+- Provides deterministic `to_dict()` serialization.
+- Updates `RetrievalProviderHealthEvaluator` to return the explicit result contract instead of a bare boolean.
+- Updates `RegistryRetrievalProviderSelector` to consume `health_evaluation.supported` while preserving existing selection semantics.
+- Updates Step 77 regression coverage for the new evaluator return contract.
+- Adds dedicated Step 78 regression coverage and documentation.
+
+### Step 78 Design Boundary
+
+This step formalizes health-evaluation outcomes only. It does not perform active health probes, network access, credentials, external-provider calls, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 77 Scope
 
@@ -218,4 +233,4 @@ This step isolates capability-fit evaluation only. It does not execute providers
 
 ## Validation Truth
 
-Steps 54–77 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
+Steps 54–78 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
