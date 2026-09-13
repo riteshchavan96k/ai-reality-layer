@@ -10,7 +10,22 @@ AI Reality Layer is an experimental infrastructure project exploring how AI syst
 
 ## Current Stage
 
-Step 83 — Retrieval Provider Selection Result Normalization — implementation complete; local validation pending.
+Step 84 — Retrieval Provider Selection Result Consumption — implementation complete; local validation pending.
+
+### Step 84 Scope
+
+- Makes `RealityRetrievalEngine` consume the canonical `RetrievalProviderSelectionResultNormalizer` boundary before provider execution.
+- Preserves typed selection results without rebuilding them.
+- Converts compatible legacy selected/unavailable mappings before execution decisions are made.
+- Normalizes nested selection decisions through the existing Step 82 boundary.
+- Fails closed with `invalid_provider_selection_result` for invalid or unsupported selector outputs.
+- Preserves the rule that provider execution occurs only after a normalized selected result.
+- Preserves the existing `not_required` retrieval path.
+- Adds dedicated Step 84 regression coverage and documentation.
+
+### Step 84 Design Boundary
+
+This step establishes the consumption boundary between provider selection and retrieval execution. It does not add external providers, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 83 Scope
 
@@ -306,4 +321,4 @@ This step isolates capability-fit evaluation only. It does not execute providers
 
 ## Validation Truth
 
-Steps 54–83 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
+Steps 54–84 have dedicated regression coverage where documented, but local execution has not been performed in this session. No automated test pass is claimed unless an actual test run reports it.
