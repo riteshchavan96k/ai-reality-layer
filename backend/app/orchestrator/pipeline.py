@@ -9,6 +9,7 @@ from backend.app.models.registry import get_model_adapter, get_model_provider_na
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.orchestrator.stage_contract import OrchestrationStageContext
 from backend.app.orchestrator.state import OrchestrationState
+from backend.app.reality.grounding_execution_context import GroundingExecutionContext
 
 
 class OrchestrationPipeline:
@@ -43,6 +44,19 @@ class OrchestrationPipeline:
         context.trace.record("grounding_gate", grounding_gate.status, allowed=grounding_gate.allowed, reason=grounding_gate.reason, grounding_status=grounding_gate.grounding_status)
         if not grounding_gate.allowed:
             return self._grounding_blocked_result(context)
+        execution_context = GroundingExecutionContext.from_grounding(
+            state.grounding,
+            execution_allowed=grounding_gate.allowed,
+        )
+        state.execution_context = execution_context.to_dict()
+        state.analysis["reality_grounding_execution_context"] = state.execution_context
+        context.trace.record(
+            "grounding_execution_context",
+            "prepared",
+            grounding_status=execution_context.grounding_status,
+            source_count=execution_context.source_count,
+            execution_allowed=execution_context.execution_allowed,
+        )
         self._execute(context, retry_policy)
         state = context.state
         if state.execution["status"] == "failed":
@@ -100,8 +114,8 @@ class OrchestrationPipeline:
         candidate_order = [selected_model, *fallback_candidates] if selected_model else fallback_candidates
         budget = context.execution_budget or ExecutionBudget(max_attempts=retry_policy.max_attempts * max(len(candidate_order), 1))
         context.set_budget(budget)
-        state.execution = self.fallback(task=state.task, model_names=candidate_order, adapter_resolver=get_model_adapter, retry_policy=retry_policy, execution_budget=budget, context=state.grounding, provider_name_resolver=get_model_provider_name, invocation_executor=self.dependencies.provider_executor.execute)
-        context.trace.record("execution", state.execution["status"], model=state.execution.get("model"), attempts=state.execution.get("attempts", 0), total_attempts=state.execution.get("total_attempts", 0), budget_limit=state.execution.get("budget_limit"), attempts_by_model=state.execution.get("attempts_by_model", {}), fallback_used=state.execution.get("fallback_used", False), grounding_status=state.grounding["status"], grounding_source_count=state.grounding["source_count"])
+        state.execution = self.fallback(task=state.task, model_names=candidate_order, adapter_resolver=get_model_adapter, retry_policy=retry_policy, execution_budget=budget, context=state.execution_context, provider_name_resolver=get_model_provider_name, invocation_executor=self.dependencies.provider_executor.execute)
+        context.trace.record("execution", state.execution["status"], model=state.execution.get("model"), attempts=state.execution.get("attempts", 0), total_attempts=state.execution.get("total_attempts", 0), budget_limit=state.execution.get("budget_limit"), attempts_by_model=state.execution.get("attempts_by_model", {}), fallback_used=state.execution.get("fallback_used", False), grounding_status=state.execution_context["grounding_status"], grounding_source_count=state.execution_context["source_count"])
 
     def _evaluate_and_recover(self, context: OrchestrationStageContext, retry_policy: RetryPolicy) -> None:
         state = context.state
@@ -109,7 +123,7 @@ class OrchestrationPipeline:
         state.evaluation = self.evaluate(state.task, state.result, state.analysis, {**state.routing, "model": state.execution["model"]})
         context.trace.record("evaluation", state.evaluation["status"], score=state.evaluation["score"])
         candidates = ([state.routing["model"], *[m for m in state.routing["candidates"] if m != state.routing["model"]]] if state.routing["model"] else list(state.routing["candidates"]))
-        state.recovery = self.recover(task=state.task, candidates=candidates, adapter_resolver=get_model_adapter, analysis=state.analysis, routing=state.routing, initial_execution=state.execution, initial_evaluation=state.evaluation, retry_policy=retry_policy, execution_budget=budget, context=state.grounding, provider_name_resolver=get_model_provider_name, invocation_executor=self.dependencies.provider_executor.execute)
+        state.recovery = self.recover(task=state.task, candidates=candidates, adapter_resolver=get_model_adapter, analysis=state.analysis, routing=state.routing, initial_execution=state.execution, initial_evaluation=state.evaluation, retry_policy=retry_policy, execution_budget=budget, context=state.execution_context, provider_name_resolver=get_model_provider_name, invocation_executor=self.dependencies.provider_executor.execute)
         if state.recovery["improved"]:
             state.execution = state.recovery["best"]["execution"]
             state.evaluation = state.recovery["best"]["evaluation"]

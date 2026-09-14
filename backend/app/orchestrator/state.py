@@ -14,6 +14,7 @@ class OrchestrationState:
     evidence: dict = field(default_factory=dict)
     evidence_quality: dict = field(default_factory=dict)
     grounding: dict = field(default_factory=dict)
+    execution_context: dict = field(default_factory=dict)
     execution: dict = field(default_factory=dict)
     evaluation: dict = field(default_factory=dict)
     recovery: dict = field(default_factory=dict)
