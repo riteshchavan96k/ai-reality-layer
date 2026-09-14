@@ -37,7 +37,10 @@ class OrchestrationPipeline:
         raw_grounding_consumption = self.dependencies.grounding_context_consumer.consume(state.grounding)
         grounding_consumption = self.dependencies.grounding_context_consumption_normalizer.normalize(raw_grounding_consumption)
         state.analysis["reality_grounding_consumption"] = grounding_consumption.to_dict()
-        if not grounding_consumption.usable:
+        grounding_gate = self.dependencies.grounding_execution_gate.evaluate(grounding_consumption)
+        state.analysis["reality_grounding_execution_gate"] = grounding_gate.to_dict()
+        context.trace.record("grounding_gate", grounding_gate.status, allowed=grounding_gate.allowed, reason=grounding_gate.reason, grounding_status=grounding_gate.grounding_status)
+        if not grounding_gate.allowed:
             return self._grounding_blocked_result(context)
         self._execute(context, retry_policy)
         state = context.state
@@ -122,7 +125,7 @@ class OrchestrationPipeline:
 
     def _grounding_blocked_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
-        reason = state.analysis["reality_grounding_consumption"].get("reason") or "grounding_context_rejected"
+        reason = state.analysis["reality_grounding_execution_gate"].get("reason") or state.analysis["reality_grounding_consumption"].get("reason") or "grounding_context_rejected"
         context.trace.record("execution", "blocked", reason=reason, grounding_status=state.grounding["status"], grounding_source_count=state.grounding["source_count"])
         return {"status": "grounding_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "trace": context.trace.snapshot()}
 
