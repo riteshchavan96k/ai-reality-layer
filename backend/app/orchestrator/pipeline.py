@@ -34,7 +34,8 @@ class OrchestrationPipeline:
         retrieval_contract = state.retrieval_contract
         if retrieval_contract["request"]["required"] and state.evidence_quality["status"] != "usable":
             return self._retrieval_blocked_result(context)
-        grounding_consumption = self.dependencies.grounding_context_consumer.consume(state.grounding)
+        raw_grounding_consumption = self.dependencies.grounding_context_consumer.consume(state.grounding)
+        grounding_consumption = self.dependencies.grounding_context_consumption_normalizer.normalize(raw_grounding_consumption)
         state.analysis["reality_grounding_consumption"] = grounding_consumption.to_dict()
         if not grounding_consumption.usable:
             return self._grounding_blocked_result(context)
