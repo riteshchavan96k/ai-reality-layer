@@ -44,18 +44,20 @@ class OrchestrationPipeline:
         context.trace.record("grounding_gate", grounding_gate.status, allowed=grounding_gate.allowed, reason=grounding_gate.reason, grounding_status=grounding_gate.grounding_status)
         if not grounding_gate.allowed:
             return self._grounding_blocked_result(context)
-        execution_context = GroundingExecutionContext.from_grounding(
+        raw_execution_context = GroundingExecutionContext.from_grounding(
             state.grounding,
             execution_allowed=grounding_gate.allowed,
         )
+        execution_context = self.dependencies.grounding_execution_context_normalizer.normalize(raw_execution_context)
         state.execution_context = execution_context.to_dict()
         state.analysis["reality_grounding_execution_context"] = state.execution_context
         context.trace.record(
             "grounding_execution_context",
-            "prepared",
+            "normalized",
             grounding_status=execution_context.grounding_status,
             source_count=execution_context.source_count,
             execution_allowed=execution_context.execution_allowed,
+            context_prepared=execution_context.context_prepared,
         )
         self._execute(context, retry_policy)
         state = context.state
