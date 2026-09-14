@@ -37,7 +37,8 @@ class OrchestrationPipeline:
         raw_grounding_consumption = self.dependencies.grounding_context_consumer.consume(state.grounding)
         grounding_consumption = self.dependencies.grounding_context_consumption_normalizer.normalize(raw_grounding_consumption)
         state.analysis["reality_grounding_consumption"] = grounding_consumption.to_dict()
-        grounding_gate = self.dependencies.grounding_execution_gate.evaluate(grounding_consumption)
+        raw_grounding_gate = self.dependencies.grounding_execution_gate.evaluate(grounding_consumption)
+        grounding_gate = self.dependencies.grounding_execution_gate_normalizer.normalize(raw_grounding_gate)
         state.analysis["reality_grounding_execution_gate"] = grounding_gate.to_dict()
         context.trace.record("grounding_gate", grounding_gate.status, allowed=grounding_gate.allowed, reason=grounding_gate.reason, grounding_status=grounding_gate.grounding_status)
         if not grounding_gate.allowed:
