@@ -59,7 +59,8 @@ class OrchestrationPipeline:
             execution_allowed=execution_context.execution_allowed,
             context_prepared=execution_context.context_prepared,
         )
-        execution_consumption = self.dependencies.grounding_execution_context_consumer.consume(execution_context)
+        raw_execution_consumption = self.dependencies.grounding_execution_context_consumer.consume(execution_context)
+        execution_consumption = self.dependencies.grounding_execution_context_consumption_normalizer.normalize(raw_execution_consumption)
         state.analysis["reality_grounding_execution_context_consumption"] = execution_consumption.to_dict()
         context.trace.record(
             "grounding_execution_context_consumption",
