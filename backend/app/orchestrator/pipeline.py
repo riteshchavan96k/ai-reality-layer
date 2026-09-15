@@ -69,7 +69,16 @@ class OrchestrationPipeline:
             reason=execution_consumption.reason,
             grounding_status=execution_consumption.grounding_status,
         )
-        if not execution_consumption.usable:
+        execution_decision = self.dependencies.grounding_execution_context_consumption_decision_evaluator.evaluate(execution_consumption)
+        state.analysis["reality_grounding_execution_context_consumption_decision"] = execution_decision.to_dict()
+        context.trace.record(
+            "grounding_execution_context_consumption_decision",
+            execution_decision.status,
+            allowed=execution_decision.allowed,
+            reason=execution_decision.reason,
+            grounding_status=execution_decision.grounding_status,
+        )
+        if not execution_decision.allowed:
             return self._execution_context_blocked_result(context)
         self._execute(context, retry_policy)
         state = context.state
@@ -160,7 +169,7 @@ class OrchestrationPipeline:
 
     def _execution_context_blocked_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
-        reason = state.analysis["reality_grounding_execution_context_consumption"].get("reason") or "execution_context_rejected"
+        reason = state.analysis["reality_grounding_execution_context_consumption_decision"].get("reason") or state.analysis["reality_grounding_execution_context_consumption"].get("reason") or "execution_context_rejected"
         context.trace.record("execution", "blocked", reason=reason, grounding_status=state.execution_context.get("grounding_status"), grounding_source_count=state.execution_context.get("source_count", 0))
         return {"status": "execution_context_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "execution_context": state.execution_context, "trace": context.trace.snapshot()}
 
