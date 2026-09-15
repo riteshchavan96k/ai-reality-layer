@@ -1,34 +1,22 @@
 from backend.app.reality.grounding_execution_authorization import GroundingExecutionAuthorization
-from backend.app.reality.grounding_execution_authorization_evaluator import (
-    GroundingExecutionAuthorizationEvaluator,
-)
-from backend.app.reality.grounding_execution_authorization_result import (
-    GroundingExecutionAuthorizationResult,
-)
-from backend.app.reality.grounding_execution_context_consumption_decision_result import (
-    GroundingExecutionContextConsumptionDecisionResult,
-)
+from backend.app.reality.grounding_execution_authorization_evaluator import GroundingExecutionAuthorizationEvaluator
+from backend.app.reality.grounding_execution_authorization_result import GroundingExecutionAuthorizationResult
+from backend.app.reality.grounding_execution_context_consumption_decision_result import GroundingExecutionContextConsumptionDecisionResult
 
 
 def test_evaluator_returns_canonical_authorization_result_for_allowed_decision() -> None:
-    decision = GroundingExecutionContextConsumptionDecisionResult(
-        status="authorized",
-        grounding_status="ready",
-        allowed=True,
-    )
+    decision = GroundingExecutionContextConsumptionDecisionResult("allowed", "ready", True)
     result = GroundingExecutionAuthorizationEvaluator.evaluate(decision)
     assert isinstance(result, GroundingExecutionAuthorizationResult)
-    assert result.status == "authorized"
-    assert result.authorized is True
-    assert result.reason is None
+    assert result.to_dict() == {
+        "status": "authorized", "grounding_status": "ready", "authorized": True,
+        "reason": None, "authorization_executed": True,
+    }
 
 
 def test_evaluator_returns_denied_result_and_preserves_reason() -> None:
     decision = GroundingExecutionContextConsumptionDecisionResult(
-        status="blocked",
-        grounding_status="ready",
-        allowed=False,
-        reason="execution_context_not_prepared",
+        "blocked", "ready", False, "execution_context_not_prepared"
     )
     result = GroundingExecutionAuthorizationEvaluator.evaluate(decision)
     assert result.status == "denied"
@@ -37,24 +25,17 @@ def test_evaluator_returns_denied_result_and_preserves_reason() -> None:
 
 
 def test_authorization_result_preserves_not_available_grounding_state() -> None:
-    decision = GroundingExecutionContextConsumptionDecisionResult(
-        status="authorized",
-        grounding_status="not_available",
-        allowed=True,
+    result = GroundingExecutionAuthorizationEvaluator.evaluate(
+        GroundingExecutionContextConsumptionDecisionResult("allowed", "not_available", True)
     )
-    result = GroundingExecutionAuthorizationEvaluator.evaluate(decision)
     assert result.grounding_status == "not_available"
     assert result.authorized is True
 
 
 def test_authorization_result_preserves_execution_state() -> None:
-    decision = GroundingExecutionContextConsumptionDecisionResult(
-        status="authorized",
-        grounding_status="ready",
-        allowed=True,
-        decision_executed=False,
+    result = GroundingExecutionAuthorizationEvaluator.evaluate(
+        GroundingExecutionContextConsumptionDecisionResult("allowed", "ready", True, decision_executed=False)
     )
-    result = GroundingExecutionAuthorizationEvaluator.evaluate(decision)
     assert result.authorization_executed is False
 
 
@@ -69,12 +50,7 @@ def test_invalid_evaluator_input_is_rejected() -> None:
 
 def test_authorized_result_cannot_have_reason() -> None:
     try:
-        GroundingExecutionAuthorizationResult(
-            status="authorized",
-            grounding_status="ready",
-            authorized=True,
-            reason="unexpected",
-        )
+        GroundingExecutionAuthorizationResult("authorized", "ready", True, "unexpected")
     except ValueError as exc:
         assert "reason" in str(exc)
     else:
@@ -83,11 +59,7 @@ def test_authorized_result_cannot_have_reason() -> None:
 
 def test_denied_result_requires_reason() -> None:
     try:
-        GroundingExecutionAuthorizationResult(
-            status="denied",
-            grounding_status="ready",
-            authorized=False,
-        )
+        GroundingExecutionAuthorizationResult("denied", "ready", False)
     except ValueError as exc:
         assert "reason" in str(exc)
     else:
@@ -95,20 +67,14 @@ def test_denied_result_requires_reason() -> None:
 
 
 def test_authorization_contract_can_be_converted_to_result() -> None:
-    authorization = GroundingExecutionAuthorization.denied_result(
-        "ready", "execution_authorization_denied"
-    )
+    authorization = GroundingExecutionAuthorization.denied_result("ready", "execution_authorization_denied")
     result = GroundingExecutionAuthorizationResult.from_authorization(authorization)
     assert result.to_dict() == authorization.to_dict()
 
 
 def test_invalid_grounding_status_is_rejected() -> None:
     try:
-        GroundingExecutionAuthorizationResult(
-            status="authorized",
-            grounding_status="invalid",
-            authorized=True,
-        )
+        GroundingExecutionAuthorizationResult("authorized", "invalid", True)
     except ValueError as exc:
         assert "grounding_status" in str(exc)
     else:
@@ -118,9 +84,6 @@ def test_invalid_grounding_status_is_rejected() -> None:
 def test_serialization_is_deterministic() -> None:
     result = GroundingExecutionAuthorizationResult.authorized_result("ready")
     assert result.to_dict() == {
-        "status": "authorized",
-        "grounding_status": "ready",
-        "authorized": True,
-        "reason": None,
-        "authorization_executed": True,
+        "status": "authorized", "grounding_status": "ready", "authorized": True,
+        "reason": None, "authorization_executed": True,
     }
