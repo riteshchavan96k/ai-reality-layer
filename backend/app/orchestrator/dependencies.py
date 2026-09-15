@@ -17,6 +17,7 @@ from backend.app.reality.grounding_execution_gate_normalizer import GroundingExe
 from backend.app.reality.grounding_execution_context_normalizer import GroundingExecutionContextNormalizer
 from backend.app.reality.grounding_execution_context_consumption import GroundingExecutionContextConsumer
 from backend.app.reality.grounding_execution_context_consumption_normalizer import GroundingExecutionContextConsumptionResultNormalizer
+from backend.app.reality.grounding_execution_context_consumption_decision import GroundingExecutionContextConsumptionDecision
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine, UnconfiguredRetrievalProvider
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
@@ -54,6 +55,7 @@ class OrchestrationDependencies:
     grounding_execution_context_normalizer: GroundingExecutionContextNormalizer
     grounding_execution_context_consumer: GroundingExecutionContextConsumer
     grounding_execution_context_consumption_normalizer: GroundingExecutionContextConsumptionResultNormalizer
+    grounding_execution_context_consumption_decision: GroundingExecutionContextConsumptionDecision
     grounded_result_builder: GroundedResultEnvelopeBuilder
     provider_executor: ProviderInvocationExecutor
 
@@ -95,6 +97,7 @@ class OrchestrationDependencies:
             grounding_execution_context_normalizer=GroundingExecutionContextNormalizer(),
             grounding_execution_context_consumer=GroundingExecutionContextConsumer(),
             grounding_execution_context_consumption_normalizer=GroundingExecutionContextConsumptionResultNormalizer(),
+            grounding_execution_context_consumption_decision=GroundingExecutionContextConsumptionDecision,
             grounded_result_builder=GroundedResultEnvelopeBuilder(),
             provider_executor=ProviderInvocationExecutor(),
         )
