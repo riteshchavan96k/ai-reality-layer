@@ -12,13 +12,14 @@ from backend.app.reality.grounding_context import EvidenceGroundingContextBuilde
 from backend.app.reality.grounding_context_consumer import GroundingContextConsumer
 from backend.app.reality.grounding_context_normalizer import GroundingContextNormalizer
 from backend.app.reality.grounding_context_consumption_normalizer import GroundingContextConsumptionResultNormalizer
-from backend.app.reality.grounding_execution_gate import GroundingExecutionGate
-from backend.app.reality.grounding_execution_gate_normalizer import GroundingExecutionGateResultNormalizer
+from backend.app.reality.grounding_execution_authorization_consumer import GroundingExecutionAuthorizationConsumer
+from backend.app.reality.grounding_execution_authorization_evaluator import GroundingExecutionAuthorizationEvaluator
 from backend.app.reality.grounding_execution_context_normalizer import GroundingExecutionContextNormalizer
 from backend.app.reality.grounding_execution_context_consumption import GroundingExecutionContextConsumer
-from backend.app.reality.grounding_execution_context_consumption_normalizer import GroundingExecutionContextConsumptionResultNormalizer
 from backend.app.reality.grounding_execution_context_consumption_decision_evaluator import GroundingExecutionContextConsumptionDecisionEvaluator
-from backend.app.reality.grounding_execution_authorization_evaluator import GroundingExecutionAuthorizationEvaluator
+from backend.app.reality.grounding_execution_context_consumption_normalizer import GroundingExecutionContextConsumptionResultNormalizer
+from backend.app.reality.grounding_execution_gate import GroundingExecutionGate
+from backend.app.reality.grounding_execution_gate_normalizer import GroundingExecutionGateResultNormalizer
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine, UnconfiguredRetrievalProvider
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
@@ -58,6 +59,7 @@ class OrchestrationDependencies:
     grounding_execution_context_consumption_normalizer: GroundingExecutionContextConsumptionResultNormalizer
     grounding_execution_context_consumption_decision_evaluator: GroundingExecutionContextConsumptionDecisionEvaluator
     grounding_execution_authorization_evaluator: GroundingExecutionAuthorizationEvaluator
+    grounding_execution_authorization_consumer: GroundingExecutionAuthorizationConsumer
     grounded_result_builder: GroundedResultEnvelopeBuilder
     provider_executor: ProviderInvocationExecutor
 
@@ -101,6 +103,7 @@ class OrchestrationDependencies:
             grounding_execution_context_consumption_normalizer=GroundingExecutionContextConsumptionResultNormalizer(),
             grounding_execution_context_consumption_decision_evaluator=GroundingExecutionContextConsumptionDecisionEvaluator(),
             grounding_execution_authorization_evaluator=GroundingExecutionAuthorizationEvaluator(),
+            grounding_execution_authorization_consumer=GroundingExecutionAuthorizationConsumer(),
             grounded_result_builder=GroundedResultEnvelopeBuilder(),
             provider_executor=ProviderInvocationExecutor(),
         )
