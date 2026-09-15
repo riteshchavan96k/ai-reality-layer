@@ -4,20 +4,24 @@ from backend.app.reality.grounding_execution_context_consumption_decision import
 from backend.app.reality.grounding_execution_context_consumption_decision_result import (
     GroundingExecutionContextConsumptionDecisionResult,
 )
+from backend.app.reality.grounding_execution_context_consumption_decision_result_normalizer import (
+    GroundingExecutionContextConsumptionDecisionResultNormalizer,
+)
 from backend.app.reality.grounding_execution_context_consumption_result import (
     GroundingExecutionContextConsumptionResult,
 )
 
 
 class GroundingExecutionContextConsumptionDecisionEvaluator:
-    """Derive the canonical decision result from execution-context consumption."""
+    """Derive and normalize the canonical decision result."""
 
     @staticmethod
     def evaluate(
         consumption: GroundingExecutionContextConsumptionResult,
     ) -> GroundingExecutionContextConsumptionDecisionResult:
         decision = GroundingExecutionContextConsumptionDecision.from_consumption(consumption)
-        return GroundingExecutionContextConsumptionDecisionResult.from_decision(decision)
+        raw_result = GroundingExecutionContextConsumptionDecisionResult.from_decision(decision)
+        return GroundingExecutionContextConsumptionDecisionResultNormalizer.normalize(raw_result)
 
 
 __all__ = ["GroundingExecutionContextConsumptionDecisionEvaluator"]
