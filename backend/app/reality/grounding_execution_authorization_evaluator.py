@@ -1,5 +1,8 @@
 from backend.app.reality.grounding_execution_authorization import GroundingExecutionAuthorization
 from backend.app.reality.grounding_execution_authorization_result import GroundingExecutionAuthorizationResult
+from backend.app.reality.grounding_execution_authorization_result_normalizer import (
+    GroundingExecutionAuthorizationResultNormalizer,
+)
 from backend.app.reality.grounding_execution_context_consumption_decision_result import (
     GroundingExecutionContextConsumptionDecisionResult,
 )
@@ -20,7 +23,8 @@ class GroundingExecutionAuthorizationEvaluator:
                 "decision_result must be a GroundingExecutionContextConsumptionDecisionResult"
             )
         authorization = GroundingExecutionAuthorization.from_decision_result(decision_result)
-        return GroundingExecutionAuthorizationResult.from_authorization(authorization)
+        raw_result = GroundingExecutionAuthorizationResult.from_authorization(authorization)
+        return GroundingExecutionAuthorizationResultNormalizer.normalize(raw_result)
 
 
 __all__ = ["GroundingExecutionAuthorizationEvaluator"]
