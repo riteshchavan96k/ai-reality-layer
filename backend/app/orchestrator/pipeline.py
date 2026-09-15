@@ -59,6 +59,17 @@ class OrchestrationPipeline:
             execution_allowed=execution_context.execution_allowed,
             context_prepared=execution_context.context_prepared,
         )
+        execution_consumption = self.dependencies.grounding_execution_context_consumer.consume(execution_context)
+        state.analysis["reality_grounding_execution_context_consumption"] = execution_consumption.to_dict()
+        context.trace.record(
+            "grounding_execution_context_consumption",
+            execution_consumption.status,
+            usable=execution_consumption.usable,
+            reason=execution_consumption.reason,
+            grounding_status=execution_consumption.grounding_status,
+        )
+        if not execution_consumption.usable:
+            return self._execution_context_blocked_result(context)
         self._execute(context, retry_policy)
         state = context.state
         if state.execution["status"] == "failed":
@@ -145,6 +156,12 @@ class OrchestrationPipeline:
         reason = state.analysis["reality_grounding_execution_gate"].get("reason") or state.analysis["reality_grounding_consumption"].get("reason") or "grounding_context_rejected"
         context.trace.record("execution", "blocked", reason=reason, grounding_status=state.grounding["status"], grounding_source_count=state.grounding["source_count"])
         return {"status": "grounding_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "trace": context.trace.snapshot()}
+
+    def _execution_context_blocked_result(self, context: OrchestrationStageContext) -> dict:
+        state = context.state
+        reason = state.analysis["reality_grounding_execution_context_consumption"].get("reason") or "execution_context_rejected"
+        context.trace.record("execution", "blocked", reason=reason, grounding_status=state.execution_context.get("grounding_status"), grounding_source_count=state.execution_context.get("source_count", 0))
+        return {"status": "execution_context_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "execution_context": state.execution_context, "trace": context.trace.snapshot()}
 
     def _execution_failed_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
