@@ -84,6 +84,18 @@ def test_authorization_execution_state_is_preserved():
     assert authorization.authorization_executed is False
 
 
+def test_decision_execution_state_flows_into_authorization():
+    decision = GroundingExecutionContextConsumptionDecisionResult(
+        status="blocked",
+        grounding_status="ready",
+        allowed=False,
+        reason="blocked",
+        decision_executed=False,
+    )
+    authorization = GroundingExecutionAuthorizationEvaluator.evaluate(decision)
+    assert authorization.authorization_executed is False
+
+
 def test_serialization_is_deterministic():
     authorization = GroundingExecutionAuthorization.denied_result(
         "ready", "execution_context_not_prepared"
