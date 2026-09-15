@@ -1,1 +1,0 @@
-Step 109 scope is represented by the evaluator normalization boundary and the dedicated normalizer tests/documentation.
