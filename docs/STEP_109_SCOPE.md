@@ -1,1 +1,0 @@
-Step 109 final scope: normalize the canonical GroundingExecutionAuthorizationResult at the authorization evaluator boundary. Typed results pass through unchanged; mappings are validated by the canonical result contract. No unrelated infrastructure is introduced.
