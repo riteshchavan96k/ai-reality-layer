@@ -78,7 +78,16 @@ class OrchestrationPipeline:
             reason=execution_decision.reason,
             grounding_status=execution_decision.grounding_status,
         )
-        if not execution_decision.allowed:
+        execution_authorization = self.dependencies.grounding_execution_authorization_evaluator.evaluate(execution_decision)
+        state.analysis["reality_grounding_execution_authorization"] = execution_authorization.to_dict()
+        context.trace.record(
+            "grounding_execution_authorization",
+            execution_authorization.status,
+            authorized=execution_authorization.authorized,
+            reason=execution_authorization.reason,
+            grounding_status=execution_authorization.grounding_status,
+        )
+        if not execution_authorization.authorized:
             return self._execution_context_blocked_result(context)
         self._execute(context, retry_policy)
         state = context.state
@@ -169,14 +178,14 @@ class OrchestrationPipeline:
 
     def _execution_context_blocked_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
-        reason = state.analysis["reality_grounding_execution_context_consumption_decision"].get("reason") or state.analysis["reality_grounding_execution_context_consumption"].get("reason") or "execution_context_rejected"
-        context.trace.record("execution", "blocked", reason=reason, grounding_status=state.execution_context.get("grounding_status"), grounding_source_count=state.execution_context.get("source_count", 0))
-        return {"status": "execution_context_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "execution_context": state.execution_context, "trace": context.trace.snapshot()}
+        reason = state.analysis["reality_grounding_execution_context_consumption_decision"].get("reason") or "execution_context_consumption_rejected"
+        context.trace.record("execution", "blocked", reason=reason, grounding_status=state.execution_context["grounding_status"], grounding_source_count=state.execution_context["source_count"])
+        return {"status": "grounding_execution_context_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "execution_context": state.execution_context, "trace": context.trace.snapshot()}
 
     def _execution_failed_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
-        return {"status": "execution_failed", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "execution": state.execution, "outcome": state.outcome, "trace": context.trace.snapshot()}
+        return {"status": "execution_failed", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "execution_context": state.execution_context, "execution": state.execution, "trace": context.trace.snapshot()}
 
     def _success_result(self, context: OrchestrationStageContext, grounding_result: dict) -> dict:
         state = context.state
-        return {"status": "orchestrated", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "execution": {"status": state.execution["status"], "model": state.execution["model"], "attempts": state.execution["attempts"], "total_attempts": state.execution["total_attempts"], "budget_limit": state.execution["budget_limit"], "attempts_by_model": state.execution["attempts_by_model"], "fallback_used": state.execution["fallback_used"]}, "result": state.result, "grounding": grounding_result, "evaluation": state.evaluation, "quality_recovery": state.recovery, "outcome": state.outcome, "trace": context.trace.snapshot()}
+        return {"status": "completed", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "execution_context": state.execution_context, "execution": state.execution, "evaluation": state.evaluation, "recovery": state.recovery, "outcome": state.outcome, "result": grounding_result, "trace": context.trace.snapshot()}
