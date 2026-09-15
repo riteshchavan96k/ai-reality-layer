@@ -3,6 +3,9 @@ from backend.app.reality.grounding_execution_context_consumption_result import (
     GroundingExecutionContextConsumptionResult,
 )
 
+# Backward-compatible name retained for existing callers and Step 101 tests.
+GroundingExecutionContextConsumption = GroundingExecutionContextConsumptionResult
+
 
 class GroundingExecutionContextConsumer:
     """Validate the execution-facing context immediately before execution."""
@@ -30,4 +33,4 @@ class GroundingExecutionContextConsumer:
         raise ValueError("unsupported grounding execution context status")
 
 
-__all__ = ["GroundingExecutionContextConsumer"]
+__all__ = ["GroundingExecutionContextConsumption", "GroundingExecutionContextConsumptionResult", "GroundingExecutionContextConsumer"]
