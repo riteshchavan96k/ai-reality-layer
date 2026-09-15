@@ -51,10 +51,18 @@ class GroundingExecutionAuthorization:
                 "decision_result must be a GroundingExecutionContextConsumptionDecisionResult"
             )
         if decision_result.allowed:
-            return cls.authorized_result(decision_result.grounding_status)
-        return cls.denied_result(
-            decision_result.grounding_status,
-            decision_result.reason or "execution_authorization_denied",
+            return cls(
+                status="authorized",
+                grounding_status=decision_result.grounding_status,
+                authorized=True,
+                authorization_executed=decision_result.decision_executed,
+            )
+        return cls(
+            status="denied",
+            grounding_status=decision_result.grounding_status,
+            authorized=False,
+            reason=decision_result.reason or "execution_authorization_denied",
+            authorization_executed=decision_result.decision_executed,
         )
 
     def to_dict(self) -> dict[str, Any]:
