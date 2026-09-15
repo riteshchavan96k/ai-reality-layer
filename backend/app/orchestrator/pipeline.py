@@ -87,7 +87,16 @@ class OrchestrationPipeline:
             reason=execution_authorization.reason,
             grounding_status=execution_authorization.grounding_status,
         )
-        if not execution_authorization.authorized:
+        authorization_consumption = self.dependencies.grounding_execution_authorization_consumer.consume(execution_authorization)
+        state.analysis["reality_grounding_execution_authorization_consumption"] = authorization_consumption.to_dict()
+        context.trace.record(
+            "grounding_execution_authorization_consumption",
+            authorization_consumption.status,
+            usable=authorization_consumption.usable,
+            reason=authorization_consumption.reason,
+            authorization_status=authorization_consumption.authorization_status,
+        )
+        if not authorization_consumption.usable:
             return self._execution_context_blocked_result(context)
         self._execute(context, retry_policy)
         state = context.state
@@ -154,7 +163,7 @@ class OrchestrationPipeline:
         budget = context.require_budget()
         state.evaluation = self.evaluate(state.task, state.result, state.analysis, {**state.routing, "model": state.execution["model"]})
         context.trace.record("evaluation", state.evaluation["status"], score=state.evaluation["score"])
-        candidates = ([state.routing["model"], *[m for m in state.routing["candidates"] if m != state.routing["model"]]] if state.routing["model"] else list(state.routing["candidates"]))
+        candidates = ([state.routing["model"], *[m for m in state.routing["candidates"] if m != state.routing["model"]]] if state.routing["model"] else list(state.routing["candidates"]]))
         state.recovery = self.recover(task=state.task, candidates=candidates, adapter_resolver=get_model_adapter, analysis=state.analysis, routing=state.routing, initial_execution=state.execution, initial_evaluation=state.evaluation, retry_policy=retry_policy, execution_budget=budget, context=state.execution_context, provider_name_resolver=get_model_provider_name, invocation_executor=self.dependencies.provider_executor.execute)
         if state.recovery["improved"]:
             state.execution = state.recovery["best"]["execution"]
