@@ -1,1 +1,0 @@
-Scope audit complete; no additional implementation files are required.
