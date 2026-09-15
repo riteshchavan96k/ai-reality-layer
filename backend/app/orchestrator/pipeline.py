@@ -78,7 +78,16 @@ class OrchestrationPipeline:
             reason=execution_decision.reason,
             grounding_status=execution_decision.grounding_status,
         )
-        if not execution_decision.allowed:
+        execution_authorization = self.dependencies.grounding_execution_authorization_evaluator.evaluate(execution_decision)
+        state.analysis["reality_grounding_execution_authorization"] = execution_authorization.to_dict()
+        context.trace.record(
+            "grounding_execution_authorization",
+            execution_authorization.status,
+            authorized=execution_authorization.authorized,
+            reason=execution_authorization.reason,
+            grounding_status=execution_authorization.grounding_status,
+        )
+        if not execution_authorization.authorized:
             return self._execution_context_blocked_result(context)
         self._execute(context, retry_policy)
         state = context.state
