@@ -13,6 +13,7 @@ from backend.app.reality.grounding_context_consumer import GroundingContextConsu
 from backend.app.reality.grounding_context_normalizer import GroundingContextNormalizer
 from backend.app.reality.grounding_context_consumption_normalizer import GroundingContextConsumptionResultNormalizer
 from backend.app.reality.grounding_execution_authorization_consumer import GroundingExecutionAuthorizationConsumer
+from backend.app.reality.grounding_execution_authorization_consumption_result_normalizer import GroundingExecutionAuthorizationConsumptionResultNormalizer
 from backend.app.reality.grounding_execution_authorization_evaluator import GroundingExecutionAuthorizationEvaluator
 from backend.app.reality.grounding_execution_context_normalizer import GroundingExecutionContextNormalizer
 from backend.app.reality.grounding_execution_context_consumption import GroundingExecutionContextConsumer
@@ -60,6 +61,7 @@ class OrchestrationDependencies:
     grounding_execution_context_consumption_decision_evaluator: GroundingExecutionContextConsumptionDecisionEvaluator
     grounding_execution_authorization_evaluator: GroundingExecutionAuthorizationEvaluator
     grounding_execution_authorization_consumer: GroundingExecutionAuthorizationConsumer
+    grounding_execution_authorization_consumption_result_normalizer: GroundingExecutionAuthorizationConsumptionResultNormalizer
     grounded_result_builder: GroundedResultEnvelopeBuilder
     provider_executor: ProviderInvocationExecutor
 
@@ -104,6 +106,7 @@ class OrchestrationDependencies:
             grounding_execution_context_consumption_decision_evaluator=GroundingExecutionContextConsumptionDecisionEvaluator(),
             grounding_execution_authorization_evaluator=GroundingExecutionAuthorizationEvaluator(),
             grounding_execution_authorization_consumer=GroundingExecutionAuthorizationConsumer(),
+            grounding_execution_authorization_consumption_result_normalizer=GroundingExecutionAuthorizationConsumptionResultNormalizer(),
             grounded_result_builder=GroundedResultEnvelopeBuilder(),
             provider_executor=ProviderInvocationExecutor(),
         )
