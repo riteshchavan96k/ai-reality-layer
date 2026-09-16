@@ -87,7 +87,8 @@ class OrchestrationPipeline:
             reason=execution_authorization.reason,
             grounding_status=execution_authorization.grounding_status,
         )
-        authorization_consumption = self.dependencies.grounding_execution_authorization_consumer.consume(execution_authorization)
+        raw_authorization_consumption = self.dependencies.grounding_execution_authorization_consumer.consume(execution_authorization)
+        authorization_consumption = self.dependencies.grounding_execution_authorization_consumption_result_normalizer.normalize(raw_authorization_consumption)
         state.analysis["reality_grounding_execution_authorization_consumption"] = authorization_consumption.to_dict()
         context.trace.record(
             "grounding_execution_authorization_consumption",
