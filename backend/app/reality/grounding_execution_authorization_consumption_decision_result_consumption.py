@@ -4,11 +4,14 @@ from typing import Any
 from backend.app.reality.grounding_execution_authorization_consumption_decision_result import (
     GroundingExecutionAuthorizationConsumptionDecisionResult,
 )
+from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result import (
+    GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult,
+)
 
 
 @dataclass(frozen=True)
 class GroundingExecutionAuthorizationConsumptionDecisionResultConsumption:
-    """Canonical consumption state for the final authorization decision result."""
+    """Compatibility consumption state for the final authorization decision result."""
 
     status: str
     authorization_status: str
@@ -112,18 +115,27 @@ class GroundingExecutionAuthorizationConsumptionDecisionResultConsumption:
 
 
 class GroundingExecutionAuthorizationConsumptionDecisionResultConsumer:
-    """Consume the final authorization decision result before model execution."""
+    """Consume the final authorization decision result and return its canonical result."""
 
     @staticmethod
     def consume(
         result: GroundingExecutionAuthorizationConsumptionDecisionResult,
-    ) -> GroundingExecutionAuthorizationConsumptionDecisionResultConsumption:
-        return GroundingExecutionAuthorizationConsumptionDecisionResultConsumption.from_decision_result(
+    ) -> GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult:
+        consumed = GroundingExecutionAuthorizationConsumptionDecisionResultConsumption.from_decision_result(
             result
+        )
+        return GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult(
+            status=consumed.status,
+            authorization_status=consumed.authorization_status,
+            allowed=consumed.allowed,
+            reason=consumed.reason,
+            decision_executed=consumed.decision_executed,
+            consumption_executed=consumed.consumption_executed,
         )
 
 
 __all__ = [
     "GroundingExecutionAuthorizationConsumptionDecisionResultConsumption",
+    "GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult",
     "GroundingExecutionAuthorizationConsumptionDecisionResultConsumer",
 ]
