@@ -14,6 +14,7 @@ from backend.app.reality.grounding_context_normalizer import GroundingContextNor
 from backend.app.reality.grounding_context_consumption_normalizer import GroundingContextConsumptionResultNormalizer
 from backend.app.reality.grounding_execution_authorization_consumer import GroundingExecutionAuthorizationConsumer
 from backend.app.reality.grounding_execution_authorization_consumption_decision_evaluator import GroundingExecutionAuthorizationConsumptionDecisionEvaluator
+from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption import GroundingExecutionAuthorizationConsumptionDecisionResultConsumer
 from backend.app.reality.grounding_execution_authorization_consumption_decision_result_normalizer import GroundingExecutionAuthorizationConsumptionDecisionResultNormalizer
 from backend.app.reality.grounding_execution_authorization_consumption_result_normalizer import GroundingExecutionAuthorizationConsumptionResultNormalizer
 from backend.app.reality.grounding_execution_authorization_evaluator import GroundingExecutionAuthorizationEvaluator
@@ -66,6 +67,7 @@ class OrchestrationDependencies:
     grounding_execution_authorization_consumption_result_normalizer: GroundingExecutionAuthorizationConsumptionResultNormalizer
     grounding_execution_authorization_consumption_decision_evaluator: GroundingExecutionAuthorizationConsumptionDecisionEvaluator
     grounding_execution_authorization_consumption_decision_result_normalizer: GroundingExecutionAuthorizationConsumptionDecisionResultNormalizer
+    grounding_execution_authorization_consumption_decision_result_consumer: GroundingExecutionAuthorizationConsumptionDecisionResultConsumer
     grounded_result_builder: GroundedResultEnvelopeBuilder
     provider_executor: ProviderInvocationExecutor
 
@@ -113,6 +115,7 @@ class OrchestrationDependencies:
             grounding_execution_authorization_consumption_result_normalizer=GroundingExecutionAuthorizationConsumptionResultNormalizer(),
             grounding_execution_authorization_consumption_decision_evaluator=GroundingExecutionAuthorizationConsumptionDecisionEvaluator(),
             grounding_execution_authorization_consumption_decision_result_normalizer=GroundingExecutionAuthorizationConsumptionDecisionResultNormalizer(),
+            grounding_execution_authorization_consumption_decision_result_consumer=GroundingExecutionAuthorizationConsumptionDecisionResultConsumer(),
             grounded_result_builder=GroundedResultEnvelopeBuilder(),
             provider_executor=ProviderInvocationExecutor(),
         )
