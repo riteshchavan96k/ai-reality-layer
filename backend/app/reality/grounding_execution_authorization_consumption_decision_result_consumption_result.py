@@ -1,10 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
 
-from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption import (
-    GroundingExecutionAuthorizationConsumptionDecisionResultConsumption,
-)
-
 
 @dataclass(frozen=True)
 class GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult:
@@ -75,27 +71,6 @@ class GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult:
             reason,
             decision_executed,
             consumption_executed,
-        )
-
-    @classmethod
-    def from_consumption(
-        cls,
-        consumption: GroundingExecutionAuthorizationConsumptionDecisionResultConsumption,
-    ) -> "GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult":
-        if not isinstance(
-            consumption,
-            GroundingExecutionAuthorizationConsumptionDecisionResultConsumption,
-        ):
-            raise ValueError(
-                "consumption must be a GroundingExecutionAuthorizationConsumptionDecisionResultConsumption"
-            )
-        return cls(
-            status=consumption.status,
-            authorization_status=consumption.authorization_status,
-            allowed=consumption.allowed,
-            reason=consumption.reason,
-            decision_executed=consumption.decision_executed,
-            consumption_executed=consumption.consumption_executed,
         )
 
     def to_dict(self) -> dict[str, Any]:
