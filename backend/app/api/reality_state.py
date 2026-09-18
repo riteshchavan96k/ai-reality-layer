@@ -1,10 +1,12 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class RealityStateRequest(BaseModel):
     """HTTP request contract for Reality State construction."""
+
+    model_config = ConfigDict(extra="forbid")
 
     task: str = Field(min_length=1, max_length=10_000)
 
