@@ -1,3 +1,16 @@
+# Current Status — Step 129
+
+## Step 129 — Source Freshness Evaluation Boundary
+
+**Status:** Implementation complete on branch `step-129-freshness-evaluation-boundary`; PR/merge pending.
+
+Step 129 adds an explicit source-freshness evaluation boundary after source observation metadata. It introduces immutable freshness assessment/result contracts, an injectable-clock evaluator, an explicit optional freshness window on retrieval requests, pipeline/dependency integration, regression coverage, and dedicated documentation.
+
+**Semantic boundary:** Missing freshness windows produce `unknown`, not `fresh`. The implementation measures observation recency only; it does not infer publication/update freshness or factual truth.
+
+**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
+
+
 # Current Status — Step 128
 
 ## Step 128 — Source Observation Metadata Boundary
