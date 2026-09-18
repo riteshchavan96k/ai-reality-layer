@@ -1,3 +1,15 @@
+# Current Status — Step 145
+
+## Step 145 — Retrieval Provider Reason Contract Hardening
+
+**Status:** Complete on the implementation branch; merge pending.
+
+Step 145 hardens the canonical retrieval-provider response contract so an explicitly supplied reason must be a nonempty string and is canonicalized by trimming surrounding whitespace. Missing reason remains `None), preserving the existing downstream default-reason behavior.
+
+**Design boundary:** Retrieval-provider response reason validation/canonicalization only. No new network behavior or semantic truth verification.
+
+**Validation truth:** Dedicated Step 145 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 144
 
 ## Step 144 — Retrieval Provider Identity Contract Hardening
