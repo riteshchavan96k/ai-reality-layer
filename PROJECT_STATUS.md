@@ -2,13 +2,13 @@
 
 ## Step 128 — Source Observation Metadata Boundary
 
-**Status:** Implementation complete on branch `step-128-source-observation-metadata`; PR pending.
+**Status:** Complete and merged into `main` via PR #134.
 
 Step 128 records when each identified evidence source was observed by the retrieval pipeline. It adds immutable source-observation contracts, timezone-aware ISO-8601 timestamps, an injectable clock, fail-closed propagation, and pipeline/dependency integration.
 
 Dedicated Step 128 regression coverage and docs/STEP_128.md are included.
 
-**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed; local pytest execution remains required.
+**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
 
 
 # AI Reality Layer
