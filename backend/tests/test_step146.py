@@ -66,20 +66,25 @@ class Step146RetrievalResultContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             RetrievalResultContract.blocked(self.request, None, "   ")
 
-    def test_non_completed_payload_is_rejected(self):
+    def test_invalid_request_and_payload_types_are_rejected(self):
         with self.assertRaises(ValueError):
-            RetrievalResultContract.failed(
-                self.request,
-                None,
-                "failed",
-            )["sources"].append({"uri": "https://example.test/source"})
+            RetrievalResultContract.completed("invalid", None, [], None)
 
         with self.assertRaises(ValueError):
-            RetrievalResultContract.blocked(
+            RetrievalResultContract.completed(
                 self.request,
                 None,
-                "blocked",
-            )["content"] = "unexpected"
+                [{"uri": "https://example.test/source"}, "invalid"],
+                "retrieved",
+            )
+
+        with self.assertRaises(ValueError):
+            RetrievalResultContract.completed(
+                self.request,
+                None,
+                [],
+                123,
+            )
 
     def test_result_normalizer_preserves_response_fallback_semantics(self):
         response = RetrievalProviderResponse(
