@@ -27,6 +27,24 @@ else:
     DEFAULT_CONFIGURED_MEMORY = DEFAULT_OUTCOME_MEMORY
 
 
+def build_reality_state(
+    task: str,
+    retrieval_engine: RealityRetrievalEngine | None = None,
+    dependencies: OrchestrationDependencies | None = None,
+) -> dict:
+    """Build the canonical Reality State without executing a model."""
+    services = dependencies or OrchestrationDependencies.default()
+    pipeline = OrchestrationPipeline(
+        dependencies=services,
+        analyze=analyze_task,
+        route=route_task,
+        evaluate=evaluate_response,
+        recover=recover_with_evaluation,
+        fallback=execute_with_fallback,
+    )
+    return pipeline.build_reality_state(task=task, retrieval_engine=retrieval_engine)
+
+
 def orchestrate_task(
     task: str,
     human_approved: bool = False,
@@ -59,4 +77,4 @@ def orchestrate_task(
     )
 
 
-__all__ = ["orchestrate_task"]
+__all__ = ["build_reality_state", "orchestrate_task"]
