@@ -2,7 +2,7 @@
 
 ## Step 126 — Claim-to-Evidence Linking Boundary
 
-**Status:** Implementation complete on branch `step-126-claim-evidence-linking`; awaiting PR review and merge.
+**Status:** Complete and merged into `main` via PR #130.
 
 Step 126 establishes an explicit provenance relationship between extracted candidate claims and evidence source URIs already present in the evidence payload. It adds immutable claim/evidence link contracts, deterministic source-reference intersection, duplicate pair removal, and pipeline/dependency integration.
 
