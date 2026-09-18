@@ -1,6 +1,7 @@
 from typing import Any
 
 from backend.app.reality.retrieval_provider import RetrievalProvider
+from backend.app.reality.retrieval_result import RetrievalResultContract
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
@@ -55,14 +56,9 @@ class RealityRetrievalEngine:
         request = contract.get("request")
 
         if status == "not_required":
-            return {
-                "status": "not_required",
-                "provider": None,
-                "request": request,
-                "sources": [],
-                "content": None,
-                "retrieval_executed": False,
-            }
+            if not isinstance(request, dict):
+                raise ValueError("retrieval contract request must be a dictionary")
+            return RetrievalResultContract.not_required(request)
 
         if not isinstance(request, dict):
             raise ValueError("retrieval contract request must be a dictionary")
