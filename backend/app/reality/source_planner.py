@@ -30,6 +30,6 @@ class RealitySourcePlanner:
             "source_type": source_type,
             "priority": priority,
             "temporal_scope": temporal_scope,
-            "requires_retrieval": needs_external_evidence,
+            "requires_retrieval": needs_current_info or needs_external_evidence,
             "status": "planned",
         }

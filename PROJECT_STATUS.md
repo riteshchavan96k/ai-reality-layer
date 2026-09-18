@@ -1,3 +1,13 @@
+# Current Status — Step 137
+
+## Step 137 — Current Information Retrieval Integration
+
+**Status:** Implementation complete; branch validation pending merge.
+
+Step 137 fixes a real orchestration gap: current-information tasks selected `live_web` but were not marked as requiring retrieval unless external evidence was also requested. `requires_retrieval` now becomes true for either current information or external evidence, allowing current-information tasks to reach the existing retrieval/provider boundary.
+
+**Validation truth:** Dedicated Step 137 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 136
 
 ## Step 136 — Retrieval Provider Request Context Hardening
