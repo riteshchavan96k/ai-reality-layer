@@ -205,10 +205,12 @@ class OrchestrationPipeline:
         state.evidence_quality = quality_result.to_dict()
         claim_result = self.dependencies.claim_extractor.extract_result(state.evidence)
         state.analysis["reality_claim_extraction"] = claim_result.to_dict()
+        claim_evidence_linking = self.dependencies.claim_evidence_linker.link_result(claim_result, state.evidence)
+        state.analysis["reality_claim_evidence_linking"] = claim_evidence_linking.to_dict()
         raw_grounding_result = self.dependencies.grounding_context_builder.build_result(state.task, state.evidence)
         grounding_result = self.dependencies.grounding_context_normalizer.normalize(raw_grounding_result)
         state.grounding = grounding_result.to_dict()
-        state.analysis["reality_retrieval"] = {**state.retrieval_contract, "execution": state.retrieval, "consumption": consumption.to_dict(), "evidence": state.evidence, "quality": state.evidence_quality, "claims": claim_result.to_dict(), "grounding": state.grounding}
+        state.analysis["reality_retrieval"] = {**state.retrieval_contract, "execution": state.retrieval, "consumption": consumption.to_dict(), "evidence": state.evidence, "quality": state.evidence_quality, "claims": claim_result.to_dict(), "claim_evidence_linking": claim_evidence_linking.to_dict(), "grounding": state.grounding}
 
     def _execute(self, context: OrchestrationStageContext, retry_policy: RetryPolicy) -> None:
         state = context.state
