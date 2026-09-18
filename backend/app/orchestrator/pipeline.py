@@ -211,10 +211,24 @@ class OrchestrationPipeline:
         state.analysis["reality_source_provenance"] = source_provenance.to_dict()
         source_observation = self.dependencies.source_observation_builder.build_result(source_provenance)
         state.analysis["reality_source_observation"] = source_observation.to_dict()
+        freshness_window = state.retrieval_contract["request"].get("freshness_max_age_seconds")
+        source_freshness = self.dependencies.source_freshness_evaluator.evaluate_result(
+            source_observation,
+            max_age_seconds=freshness_window,
+        )
+        state.analysis["reality_source_freshness"] = source_freshness.to_dict()
+        context.trace.record(
+            "source_freshness",
+            source_freshness.status,
+            fresh_count=source_freshness.fresh_count,
+            stale_count=source_freshness.stale_count,
+            unknown_count=source_freshness.unknown_count,
+            reason=source_freshness.reason,
+        )
         raw_grounding_result = self.dependencies.grounding_context_builder.build_result(state.task, state.evidence)
         grounding_result = self.dependencies.grounding_context_normalizer.normalize(raw_grounding_result)
         state.grounding = grounding_result.to_dict()
-        state.analysis["reality_retrieval"] = {**state.retrieval_contract, "execution": state.retrieval, "consumption": consumption.to_dict(), "evidence": state.evidence, "quality": state.evidence_quality, "claims": claim_result.to_dict(), "claim_evidence_linking": claim_evidence_linking.to_dict(), "source_provenance": source_provenance.to_dict(), "source_observation": source_observation.to_dict(), "grounding": state.grounding}
+        state.analysis["reality_retrieval"] = {**state.retrieval_contract, "execution": state.retrieval, "consumption": consumption.to_dict(), "evidence": state.evidence, "quality": state.evidence_quality, "claims": claim_result.to_dict(), "claim_evidence_linking": claim_evidence_linking.to_dict(), "source_provenance": source_provenance.to_dict(), "source_observation": source_observation.to_dict(), "freshness": source_freshness.to_dict(), "grounding": state.grounding}
 
     def _execute(self, context: OrchestrationStageContext, retry_policy: RetryPolicy) -> None:
         state = context.state
