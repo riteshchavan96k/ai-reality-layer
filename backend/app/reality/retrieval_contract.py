@@ -21,13 +21,15 @@ class RetrievalRequest:
             raise ValueError("freshness_max_age_seconds must be a positive number or None")
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result = {
             "query": self.query,
             "source_type": self.source_type,
             "temporal_scope": self.temporal_scope,
             "required": self.required,
-            "freshness_max_age_seconds": self.freshness_max_age_seconds,
         }
+        if self.freshness_max_age_seconds is not None:
+            result["freshness_max_age_seconds"] = self.freshness_max_age_seconds
+        return result
 
 
 class RealityRetrievalContract:
