@@ -21,8 +21,10 @@ class RetrievalProviderResponse:
             raise ValueError("each source must be a dictionary")
         if self.content is not None and not isinstance(self.content, str):
             raise ValueError("content must be a string or None")
-        if self.provider is not None and not isinstance(self.provider, str):
-            raise ValueError("provider must be a string or None")
+        if self.provider is not None:
+            if not isinstance(self.provider, str) or not self.provider.strip():
+                raise ValueError("provider must be a nonempty string when provided")
+            object.__setattr__(self, "provider", self.provider.strip())
         if self.reason is not None and not isinstance(self.reason, str):
             raise ValueError("reason must be a string or None")
         if self.status != "completed" and self.sources:
