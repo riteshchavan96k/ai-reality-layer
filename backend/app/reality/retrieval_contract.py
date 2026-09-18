@@ -10,12 +10,15 @@ class RetrievalRequest:
     source_type: str
     temporal_scope: str = "unspecified"
     required: bool = True
+    freshness_max_age_seconds: float | None = None
 
     def __post_init__(self) -> None:
         if not self.query.strip():
             raise ValueError("query must not be empty")
         if not self.source_type.strip():
             raise ValueError("source_type must not be empty")
+        if self.freshness_max_age_seconds is not None and (not isinstance(self.freshness_max_age_seconds, (int, float)) or isinstance(self.freshness_max_age_seconds, bool) or self.freshness_max_age_seconds <= 0):
+            raise ValueError("freshness_max_age_seconds must be a positive number or None")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -23,6 +26,7 @@ class RetrievalRequest:
             "source_type": self.source_type,
             "temporal_scope": self.temporal_scope,
             "required": self.required,
+            "freshness_max_age_seconds": self.freshness_max_age_seconds,
         }
 
 
@@ -39,6 +43,7 @@ class RealityRetrievalContract:
             source_type=source_plan.get("source_type", "model_knowledge"),
             temporal_scope=source_plan.get("temporal_scope", "unspecified"),
             required=requires_retrieval,
+            freshness_max_age_seconds=source_plan.get("freshness_max_age_seconds"),
         )
 
         return {
