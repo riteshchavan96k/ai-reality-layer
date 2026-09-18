@@ -38,3 +38,17 @@ def health_check():
 @app.post("/api/v1/solve")
 def solve(request: SolveRequest):
     return process_task(request.task, human_approved=request.human_approved)
+
+
+@app.post("/api/v1/reality-state")
+def reality_state(request: SolveRequest):
+    """Return the canonical evidence-backed Reality State without a model execution request."""
+    result = process_task(request.task, human_approved=request.human_approved)
+    reality_state = result.get("analysis", {}).get("reality_state")
+    if reality_state is None:
+        return {
+            "status": "unavailable",
+            "task": request.task,
+            "reason": "reality_state_not_available",
+        }
+    return reality_state
