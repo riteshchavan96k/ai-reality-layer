@@ -82,15 +82,11 @@ def _blocked_selection_result(
     request: dict[str, Any],
     reason: str | None,
 ) -> dict[str, Any]:
-    return {
-        "status": "blocked",
-        "provider": None,
-        "request": request,
-        "sources": [],
-        "content": None,
-        "retrieval_executed": False,
-        "reason": reason or "retrieval_provider_unavailable",
-    }
+    return RetrievalResultContract.blocked(
+        request,
+        provider=None,
+        reason=reason or "retrieval_provider_unavailable",
+    )
 
 
 __all__ = ["RealityRetrievalEngine", "RetrievalProvider", "UnconfiguredRetrievalProvider"]
