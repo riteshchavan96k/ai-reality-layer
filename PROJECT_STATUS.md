@@ -2,7 +2,7 @@
 
 ## Step 146 — Retrieval Result Contract Hardening
 
-**Status:** Implementation complete; merge pending.
+**Status:** Complete and merged into `main` via PR #169.
 
 Step 146 hardens the provider-neutral retrieval-result boundary so status, payload, provider identity, reason, and execution semantics are validated together before downstream evidence normalization.
 
