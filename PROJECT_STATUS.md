@@ -2,7 +2,7 @@
 
 ## Step 140 — Provider Capability Enforcement at Execution Boundary
 
-**Status:** Implementation complete; branch validation pending merge.
+**Status:** Complete and merged into `main` via PR #158.
 
 Step 140 hardens the provider-selection boundary with execution-level regression coverage proving that capability-incompatible retrieval requests are blocked before provider invocation, while compatible requests still execute normally.
 
