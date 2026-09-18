@@ -96,3 +96,13 @@ def test_immutable_consumption_contract():
     )
     with pytest.raises(Exception):
         result.allowed = False
+
+
+def test_default_orchestration_dependencies_wire_the_consumer():
+    from backend.app.orchestrator.dependencies import OrchestrationDependencies
+
+    dependencies = OrchestrationDependencies.default()
+    assert isinstance(
+        dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumer,
+        GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumer,
+    )
