@@ -36,6 +36,7 @@ from backend.app.reality.grounding_execution_gate import GroundingExecutionGate
 from backend.app.reality.grounding_execution_gate_normalizer import GroundingExecutionGateResultNormalizer
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine, UnconfiguredRetrievalProvider
+from backend.app.reality.http_retrieval_provider import HttpRetrievalProvider
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
 from backend.app.reality.retrieval_provider_selector import RegistryRetrievalProviderSelector
@@ -105,6 +106,11 @@ class OrchestrationDependencies:
             providers={},
             default_provider=UnconfiguredRetrievalProvider(),
         )
+        configured_endpoint = os.getenv("ARL_HTTP_RETRIEVAL_ENDPOINT_TEMPLATE", "").strip()
+        if configured_endpoint:
+            configured_provider = HttpRetrievalProvider(configured_endpoint)
+            retrieval_provider_registry.register("live_web", configured_provider)
+            retrieval_provider_registry.register("web_or_official_source", configured_provider)
         retrieval_provider_selector = RegistryRetrievalProviderSelector(
             registry=retrieval_provider_registry,
         )
