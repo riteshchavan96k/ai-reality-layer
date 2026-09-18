@@ -1,3 +1,16 @@
+# Current Status — Step 130
+
+## Step 130 — Claim Conflict Detection Boundary
+
+**Status:** Implementation complete on branch `step-130-claim-conflict-boundary`; PR/merge pending.
+
+Step 130 adds immutable candidate-conflict contracts, a deterministic explicit-negation detector, dependency/pipeline integration, regression coverage, and documentation. Detection is observational and does not block execution.
+
+**Semantic boundary:** A detected item is a candidate conflict, not proof of falsehood. Only explicit negation pairs are recognized; semantic contradiction is deliberately not inferred.
+
+**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
+
+
 # Current Status — Step 129
 
 ## Step 129 — Source Freshness Evaluation Boundary
