@@ -4,6 +4,9 @@ from typing import Any
 from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result import (
     GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResult,
 )
+from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumption_result import (
+    GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResult,
+)
 
 
 @dataclass(frozen=True)
@@ -117,9 +120,12 @@ class GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultD
     @staticmethod
     def consume(
         result: GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResult,
-    ) -> "GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption":
-        return GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption.from_decision_result(
+    ) -> GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResult:
+        consumption = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption.from_decision_result(
             result
+        )
+        return GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResult.from_consumption(
+            consumption
         )
 
 
