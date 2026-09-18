@@ -2,7 +2,7 @@
 
 ## Step 137 — Current Information Retrieval Integration
 
-**Status:** Implementation complete; branch validation pending merge.
+**Status:** Complete and merged into `main` via PR #152.
 
 Step 137 fixes a real orchestration gap: current-information tasks selected `live_web` but were not marked as requiring retrieval unless external evidence was also requested. `requires_retrieval` now becomes true for either current information or external evidence, allowing current-information tasks to reach the existing retrieval/provider boundary.
 
