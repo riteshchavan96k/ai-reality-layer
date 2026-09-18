@@ -2,7 +2,7 @@
 
 ## Step 130 — Claim Conflict Detection Boundary
 
-**Status:** Implementation complete on branch `step-130-claim-conflict-boundary`; PR/merge pending.
+**Status:** Complete and merged into `main` via PR #138.
 
 Step 130 adds immutable candidate-conflict contracts, a deterministic explicit-negation detector, dependency/pipeline integration, regression coverage, and documentation. Detection is observational and does not block execution.
 
