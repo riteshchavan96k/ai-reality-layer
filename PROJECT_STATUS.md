@@ -2,7 +2,7 @@
 
 ## Step 129 — Source Freshness Evaluation Boundary
 
-**Status:** Implementation complete on branch `step-129-freshness-evaluation-boundary`; PR/merge pending.
+**Status:** Complete and merged into `main` via PR #136.
 
 Step 129 adds an explicit source-freshness evaluation boundary after source observation metadata. It introduces immutable freshness assessment/result contracts, an injectable-clock evaluator, an explicit optional freshness window on retrieval requests, pipeline/dependency integration, regression coverage, and dedicated documentation.
 
