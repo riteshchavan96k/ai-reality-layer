@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from typing import Any, Callable
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 from urllib.request import Request, urlopen
 
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
@@ -54,7 +54,22 @@ class HttpRetrievalProvider:
             return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="invalid_content")
         if not isinstance(sources, list) or any(not isinstance(source, dict) for source in sources):
             return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="invalid_sources")
-        normalized_sources = tuple(dict(source) for source in sources)
+        normalized_sources_list: list[dict[str, Any]] = []
+        for source in sources:
+            uri = source.get("uri")
+            title = source.get("title")
+            if uri is not None:
+                if not isinstance(uri, str) or not uri.strip():
+                    return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="invalid_source_uri")
+                parsed = urlparse(uri)
+                if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+                    return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="invalid_source_uri")
+            if title is not None and not isinstance(title, str):
+                return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="invalid_source_title")
+            if uri is None and title is None:
+                return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="source_missing_provenance")
+            normalized_sources_list.append(dict(source))
+        normalized_sources = tuple(normalized_sources_list)
         if not normalized_sources and content:
             normalized_sources = ({"uri": request_url, "title": None},)
         return RetrievalProviderResponse(status="completed", sources=normalized_sources, content=content, provider=self.provider_name)
