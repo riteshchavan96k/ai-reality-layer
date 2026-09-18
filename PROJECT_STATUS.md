@@ -2,7 +2,7 @@
 
 ## Step 131 — Reality Confidence Signal Boundary
 
-**Status:** Implementation complete on branch `step-131-confidence-signal-boundary`; PR/merge pending.
+**Status:** Complete and merged into `main` via PR #140.
 
 Step 131 aggregates existing evidence-quality, claim-linking, freshness, and conflict signals into a deterministic confidence-signal profile. It is explicitly not a calibrated probability or truth judgment.
 
