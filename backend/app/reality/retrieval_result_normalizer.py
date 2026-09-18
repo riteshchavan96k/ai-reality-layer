@@ -32,12 +32,15 @@ class RetrievalResultNormalizer:
                 response.reason or "retrieval_provider_failed",
             )
 
-        return RetrievalResultContract.completed(
-            request,
-            provider,
-            list(response.sources),
-            response.content,
-        )
+        if response.status == "completed":
+            return RetrievalResultContract.completed(
+                request,
+                provider,
+                list(response.sources),
+                response.content,
+            )
+
+        raise ValueError("unsupported retrieval provider response status")
 
 
 __all__ = ["RetrievalResultNormalizer"]
