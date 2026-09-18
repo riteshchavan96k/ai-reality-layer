@@ -6,6 +6,9 @@ from backend.app.reality.grounding_execution_authorization_consumption_decision_
 from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision import (
     GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecision,
 )
+from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result import (
+    GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResult,
+)
 from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_evaluator import (
     GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionEvaluator,
 )
@@ -13,19 +16,19 @@ from backend.app.reality.grounding_execution_authorization_consumption_decision_
 
 def test_usable_consumption_result_allows_execution():
     result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult.usable_result()
-    decision = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionEvaluator.evaluate(result)
-    assert decision == GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecision.allowed_result("authorized")
+    decision_result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionEvaluator.evaluate(result)
+    assert decision_result == GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResult.allowed_result("authorized")
 
 
 def test_rejected_consumption_result_blocks_execution_and_preserves_reason():
     result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult.rejected_result(
         "denied", "authorization_decision_rejected"
     )
-    decision = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionEvaluator.evaluate(result)
-    assert decision.status == "blocked"
-    assert decision.allowed is False
-    assert decision.authorization_status == "denied"
-    assert decision.reason == "authorization_decision_rejected"
+    decision_result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionEvaluator.evaluate(result)
+    assert decision_result.status == "blocked"
+    assert decision_result.allowed is False
+    assert decision_result.authorization_status == "denied"
+    assert decision_result.reason == "authorization_decision_rejected"
 
 
 def test_evaluator_rejects_wrong_input_type():
@@ -77,7 +80,8 @@ def test_authorization_status_must_match_allowed_state():
 
 def test_decision_serialization_is_deterministic():
     decision = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecision.allowed_result()
-    assert decision.to_dict() == {
+    decision_result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResult.from_decision(decision)
+    assert decision_result.to_dict() == {
         "status": "allowed",
         "authorization_status": "authorized",
         "allowed": True,
