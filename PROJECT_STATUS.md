@@ -1,3 +1,14 @@
+# Current Status — Step 132
+
+## Step 132 — Reality State Assembly Boundary
+
+**Status:** Implementation complete on branch `step-132-reality-state-assembly`; PR/merge pending.
+
+Step 132 assembles the evidence, claims, claim/evidence links, provenance, observation, freshness, conflict, and confidence signals into an immutable canonical Reality State snapshot. It is a structured state representation, not a truth certificate or calibrated probability.
+
+**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
+
+
 # Current Status — Step 131
 
 ## Step 131 — Reality Confidence Signal Boundary
