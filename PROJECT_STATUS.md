@@ -1,18 +1,17 @@
-# Current Status — Step 124
+# Current Status — Step 125
 
-## Step 124 — Grounding Execution Authorization Consumption Decision Result Consumption Result Normalization
+## Step 125 — Evidence Claim Extraction Boundary
 
-**Status:** Completed and merged into `main`.
+**Status:** Implementation complete on the Step 125 branch; awaiting pull-request review and merge.
 
-Step 124 establishes the normalization boundary immediately after the Step 123 canonical authorization-consumption result contract. The new normalizer accepts canonical typed results unchanged, converts compatible mappings into the canonical result contract, preserves authorization/allowed/reason/execution state, and fails closed through canonical validation for invalid states.
+Step 125 establishes the first explicit claim-extraction boundary after evidence normalization and quality validation. It adds immutable claim and extraction-result contracts, a deterministic sentence-based candidate extractor, source-URI preservation, duplicate candidate removal, and pipeline/dependency integration.
 
-The orchestration dependency graph injects the Step 124 normalizer, and the pipeline normalizes the Step 122 consumer output before analysis, tracing, and the existing execution authorization gate.
-
-Dedicated Step 124 regression tests and `docs/STEP_124.md` are included.
+Dedicated Step 125 regression coverage and docs/STEP_125.md are included.
 
 **Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
 
 ---
+
 
 # AI Reality Layer
 
