@@ -124,7 +124,19 @@ class OrchestrationPipeline:
             decision_executed=authorization_decision_consumption.decision_executed,
             consumption_executed=authorization_decision_consumption.consumption_executed,
         )
-        if not authorization_decision_consumption.allowed:
+        authorization_decision_consumption_decision = self.dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_evaluator.evaluate(
+            authorization_decision_consumption
+        )
+        state.analysis["reality_grounding_execution_authorization_consumption_decision_result_consumption_result_decision"] = authorization_decision_consumption_decision.to_dict()
+        context.trace.record(
+            "grounding_execution_authorization_consumption_decision_result_consumption_result_decision",
+            authorization_decision_consumption_decision.status,
+            allowed=authorization_decision_consumption_decision.allowed,
+            reason=authorization_decision_consumption_decision.reason,
+            authorization_status=authorization_decision_consumption_decision.authorization_status,
+            decision_executed=authorization_decision_consumption_decision.decision_executed,
+        )
+        if not authorization_decision_consumption_decision.allowed:
             return self._execution_context_blocked_result(context)
         self._execute(context, retry_policy)
         state = context.state
