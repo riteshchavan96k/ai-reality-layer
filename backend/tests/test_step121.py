@@ -113,3 +113,13 @@ def test_serialization_remains_deterministic():
         "reason": None,
         "decision_executed": True,
     }
+
+
+def test_default_orchestration_dependencies_wire_the_normalizer():
+    from backend.app.orchestrator.dependencies import OrchestrationDependencies
+
+    dependencies = OrchestrationDependencies.default()
+    assert isinstance(
+        dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_normalizer,
+        GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultNormalizer,
+    )
