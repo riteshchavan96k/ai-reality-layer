@@ -2,7 +2,7 @@
 
 ## Step 143 — Retrieval Provider Identity Preservation
 
-**Status:** Implemented on branch `step-143-provider-identity-preservation`; PR pending.
+**Status:** Complete and merged into `main` via PR #164.
 
 Step 143 closes an execution-boundary provenance gap: the retrieval provider executor now preserves a provider's declared identity through execution failures and malformed-output failures when that identity is available. It prefers the canonical `provider_name`, falls back to the legacy `name`, and never fabricates an identity.
 
