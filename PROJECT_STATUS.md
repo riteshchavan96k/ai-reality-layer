@@ -2,7 +2,7 @@
 
 ## Step 138 — External Retrieval Source Provenance Validation
 
-**Status:** Implementation complete; branch validation pending merge.
+**Status:** Complete and merged into `main` via PR #154.
 
 Step 138 hardens the Step 135 external retrieval trust boundary by validating source provenance before external JSON becomes a canonical provider response. HTTP(S) URIs are validated, optional titles must be strings, sources must contain URI or title provenance, and malformed payloads fail closed.
 
