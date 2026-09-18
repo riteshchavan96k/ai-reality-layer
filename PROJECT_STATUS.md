@@ -1,3 +1,19 @@
+# Current Status — Step 124
+
+## Step 124 — Grounding Execution Authorization Consumption Decision Result Consumption Result Normalization
+
+**Status:** Implemented on the Step 124 branch; PR #126 prepared for merge.
+
+Step 124 establishes the normalization boundary immediately after the Step 123 canonical authorization-consumption result contract. The new normalizer accepts canonical typed results unchanged, converts compatible mappings into the canonical result contract, preserves authorization/allowed/reason/execution state, and fails closed through canonical validation for invalid states.
+
+The orchestration dependency graph now injects the Step 124 normalizer, and the pipeline normalizes the Step 122 consumer output before analysis, tracing, and the existing execution authorization gate.
+
+Dedicated Step 124 regression tests and `docs/STEP_124.md` were added.
+
+**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
+
+---
+
 # AI Reality Layer
 
 ## Project Status
