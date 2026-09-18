@@ -106,4 +106,3 @@ def test_default_orchestration_dependencies_wire_the_consumer():
         dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumer,
         GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumer,
     )
-
