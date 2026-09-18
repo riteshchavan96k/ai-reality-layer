@@ -124,8 +124,11 @@ class OrchestrationPipeline:
             decision_executed=authorization_decision_consumption.decision_executed,
             consumption_executed=authorization_decision_consumption.consumption_executed,
         )
-        authorization_decision_consumption_decision_result = self.dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_evaluator.evaluate(
+        raw_authorization_decision_consumption_decision_result = self.dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_evaluator.evaluate(
             authorization_decision_consumption
+        )
+        authorization_decision_consumption_decision_result = self.dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_normalizer.normalize(
+            raw_authorization_decision_consumption_decision_result
         )
         state.analysis["reality_grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result"] = authorization_decision_consumption_decision_result.to_dict()
         context.trace.record(
