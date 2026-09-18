@@ -2,7 +2,7 @@
 
 ## Step 142 — Retrieval Provider Response Payload Consistency
 
-**Status:** Implemented on branch `step-142-provider-response-payload-consistency`; PR pending.
+**Status:** Complete and merged into `main` via PR #162.
 
 Step 142 closes a response-contract gap left after Step 141: non-completed retrieval-provider responses can no longer carry successful-retrieval payload data. The canonical response contract rejects sources/content on failed, blocked, or provider-unavailable responses, and the external HTTP adapter fails closed with `invalid_non_completed_payload` when an upstream non-completed payload contains such data.
 
