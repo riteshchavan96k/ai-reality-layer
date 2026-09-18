@@ -209,10 +209,12 @@ class OrchestrationPipeline:
         state.analysis["reality_claim_evidence_linking"] = claim_evidence_linking.to_dict()
         source_provenance = self.dependencies.source_provenance_builder.build_result(state.evidence)
         state.analysis["reality_source_provenance"] = source_provenance.to_dict()
+        source_observation = self.dependencies.source_observation_builder.build_result(source_provenance)
+        state.analysis["reality_source_observation"] = source_observation.to_dict()
         raw_grounding_result = self.dependencies.grounding_context_builder.build_result(state.task, state.evidence)
         grounding_result = self.dependencies.grounding_context_normalizer.normalize(raw_grounding_result)
         state.grounding = grounding_result.to_dict()
-        state.analysis["reality_retrieval"] = {**state.retrieval_contract, "execution": state.retrieval, "consumption": consumption.to_dict(), "evidence": state.evidence, "quality": state.evidence_quality, "claims": claim_result.to_dict(), "claim_evidence_linking": claim_evidence_linking.to_dict(), "source_provenance": source_provenance.to_dict(), "grounding": state.grounding}
+        state.analysis["reality_retrieval"] = {**state.retrieval_contract, "execution": state.retrieval, "consumption": consumption.to_dict(), "evidence": state.evidence, "quality": state.evidence_quality, "claims": claim_result.to_dict(), "claim_evidence_linking": claim_evidence_linking.to_dict(), "source_provenance": source_provenance.to_dict(), "source_observation": source_observation.to_dict(), "grounding": state.grounding}
 
     def _execute(self, context: OrchestrationStageContext, retry_policy: RetryPolicy) -> None:
         state = context.state
