@@ -7,6 +7,9 @@ from backend.app.reality.grounding_execution_authorization_consumption_decision_
     GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumer,
     GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption,
 )
+from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumption_result import (
+    GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResult,
+)
 
 
 def test_allowed_result_is_usable():
@@ -106,3 +109,44 @@ def test_default_orchestration_dependencies_wire_the_consumer():
         dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumer,
         GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumer,
     )
+
+
+def test_consumer_returns_canonical_step123_result_contract():
+    result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumer.consume(
+        GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResult.allowed_result()
+    )
+    assert isinstance(
+        result,
+        GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResult,
+    )
+
+
+def test_canonical_step123_result_preserves_blocked_reason_and_execution_flags():
+    consumption = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResult.from_consumption(
+        GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption(
+            "rejected",
+            "denied",
+            False,
+            "authorization_decision_rejected",
+            decision_executed=True,
+            consumption_executed=True,
+        )
+    )
+    assert consumption.to_dict() == {
+        "status": "rejected",
+        "authorization_status": "denied",
+        "allowed": False,
+        "reason": "authorization_decision_rejected",
+        "decision_executed": True,
+        "consumption_executed": True,
+    }
+
+
+def test_step123_result_requires_completed_consumption():
+    with pytest.raises(ValueError, match="consumption_executed=True"):
+        GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResult(
+            "usable",
+            "authorized",
+            True,
+            consumption_executed=False,
+        )
