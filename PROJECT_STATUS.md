@@ -1,3 +1,15 @@
+# Current Status — Step 135
+
+## Step 135 — External Retrieval Provider Adapter
+
+**Status:** Implementation complete on `step-135-external-retrieval-provider-adapter`; PR merge pending.
+
+Step 135 adds an opt-in HTTPS retrieval provider adapter behind the existing provider-neutral retrieval architecture. It validates typed provider requests, URL-encodes queries, bounds timeout and response size, normalizes JSON responses into the existing provider response contract, and fails closed on external or malformed responses. The default dependency graph remains unconfigured unless `ARL_HTTP_RETRIEVAL_ENDPOINT_TEMPLATE` is explicitly supplied.
+
+**Design boundary:** This is the first external-information acquisition adapter. It does not hardcode a vendor, endpoint, credentials, or secret and does not add semantic truth verification, LLM, RAG, embeddings/vector search, ML/DL, or model execution.
+
+**Validation truth:** GitHub status checks are not configured. Local pytest execution has not been performed in this session, so no test-pass claim is made.
+
 # Current Status — Step 134
 
 ## Step 134 — Reality State API Contract Hardening
