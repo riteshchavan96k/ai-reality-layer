@@ -185,7 +185,20 @@ class OrchestrationPipeline:
         self._retrieve_and_ground(context, retrieval_engine)
         reality_state = state.analysis.get("reality_state")
         if reality_state is None:
-            return {"status": "unavailable", "task": task, "reason": "reality_state_not_available"}
+            return {
+                "status": "unavailable",
+                "task": task,
+                "evidence": {},
+                "claims": {},
+                "claim_evidence_linking": {},
+                "source_provenance": {},
+                "source_observation": {},
+                "freshness": {},
+                "conflicts": {},
+                "confidence_signals": {},
+                "assembly_method": "deterministic_signal_snapshot",
+                "reason": "reality_state_not_available",
+            }
         return reality_state
 
     def _prepare_and_approve(self, context: OrchestrationStageContext, human_approved: bool, approval_policy: Any | None, outcome_memory: OutcomeMemory | PersistentOutcomeMemory) -> None:

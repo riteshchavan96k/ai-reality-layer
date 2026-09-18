@@ -7,6 +7,7 @@ from backend.app.api.errors import (
     validation_exception_handler,
 )
 from backend.app.api.request_id import RequestIdMiddleware
+from backend.app.api.reality_state import RealityStateRequest, RealityStateResponse
 from backend.app.services.solve_service import process_task
 from backend.app.orchestrator.orchestrator import build_reality_state
 
@@ -41,8 +42,8 @@ def solve(request: SolveRequest):
     return process_task(request.task, human_approved=request.human_approved)
 
 
-@app.post("/api/v1/reality-state")
-def reality_state(request: SolveRequest):
+@app.post("/api/v1/reality-state", response_model=RealityStateResponse)
+def reality_state(request: RealityStateRequest):
     """Return the canonical evidence-backed Reality State without a model execution request."""
     reality_state = build_reality_state(request.task)
     if reality_state is None:

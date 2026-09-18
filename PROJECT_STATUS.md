@@ -1,3 +1,15 @@
+# Current Status — Step 134
+
+## Step 134 — Reality State API Contract Hardening
+
+**Status:** Implementation complete on `step-134-reality-state-api-contract`; PR merge pending.
+
+Step 134 adds dedicated HTTP request/response contracts for `POST /api/v1/reality-state`. The request accepts only `task` and rejects unsupported solve-only fields; the response explicitly models the canonical Reality State shape; the FastAPI route declares the response model; and the unavailable fallback conforms to that response shape.
+
+**Design boundary:** API-contract hardening only. No new retrieval provider, network access, credentials, LLM, RAG, embeddings/vector database, semantic truth judge, ML/DL model, or model execution.
+
+**Validation truth:** GitHub status checks are not configured. Local pytest execution has not been performed in this session, so no test-pass claim is made.
+
 # Current Status — Step 133
 
 ## Step 133 — Reality State API Surface
