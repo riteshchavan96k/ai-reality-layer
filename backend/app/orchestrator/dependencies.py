@@ -39,6 +39,7 @@ from backend.app.reality.retrieval_provider_selector import RegistryRetrievalPro
 from backend.app.reality.retrieval_result_consumer import RetrievalResultConsumer
 from backend.app.reality.retrieval_result_consumption_normalizer import RetrievalResultConsumptionNormalizer
 from backend.app.reality.source_planner import RealitySourcePlanner
+from backend.app.reality.source_observation_builder import SourceObservationBuilder
 from backend.app.reality.source_provenance_builder import SourceProvenanceBuilder
 
 
@@ -50,6 +51,7 @@ class OrchestrationDependencies:
     claim_extractor: EvidenceClaimExtractor
     claim_evidence_linker: ClaimEvidenceLinker
     source_provenance_builder: SourceProvenanceBuilder
+    source_observation_builder: SourceObservationBuilder
     source_planner: RealitySourcePlanner
     retrieval_contract: RealityRetrievalContract
     approval_policy: HumanApprovalPolicy
