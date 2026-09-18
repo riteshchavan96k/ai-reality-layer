@@ -25,6 +25,10 @@ class RetrievalProviderResponse:
             raise ValueError("provider must be a string or None")
         if self.reason is not None and not isinstance(self.reason, str):
             raise ValueError("reason must be a string or None")
+        if self.status != "completed" and self.sources:
+            raise ValueError("non-completed responses must not contain sources")
+        if self.status != "completed" and self.content is not None:
+            raise ValueError("non-completed responses must not contain content")
 
     @classmethod
     def from_mapping(cls, response: Mapping[str, Any]) -> "RetrievalProviderResponse":
