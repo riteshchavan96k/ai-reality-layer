@@ -2,7 +2,7 @@
 
 ## Step 141 — External Retrieval Response Status Integrity
 
-**Status:** Implementation complete; branch validation pending merge.
+**Status:** Complete and merged into `main` via PR #160.
 
 Step 141 hardens the configured external HTTP retrieval adapter so explicit upstream provider statuses are preserved rather than being converted into `completed`. Unsupported statuses and malformed reasons fail closed.
 
