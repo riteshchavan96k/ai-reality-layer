@@ -1,6 +1,16 @@
-# Current Status — Step 148
+# Current Status — Step 149
 
-## Step 148 — Not-Required Retrieval Result Contract
+## Step 149 — Canonical Blocked Retrieval Result
+
+**Status:** Implementation complete; merge pending.
+
+Step 149 removes the remaining ad-hoc blocked-result construction from the retrieval engine by routing provider-selection rejection outcomes through RetrievalResultContract.blocked().
+
+**Safety invariant:** provider selection not executable → canonical blocked retrieval result → retrieval_executed=False.
+
+**Validation truth:** Dedicated Step 149 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
+# Step 148 — Not-Required Retrieval Result Contract
 
 **Status:** Implementation complete; merge pending.
 
