@@ -52,6 +52,18 @@ class RetrievalResultContract:
             retrieval_executed=False,
         )
 
+    @staticmethod
+    def not_required(request: dict[str, Any]) -> dict[str, Any]:
+        """Build the canonical result used when retrieval is not required."""
+        return _build_result(
+            status="not_required",
+            request=request,
+            provider=None,
+            sources=[],
+            content=None,
+            retrieval_executed=False,
+        )
+
 
 def _build_result(
     *,
@@ -64,8 +76,8 @@ def _build_result(
     reason: str | None = None,
 ) -> dict[str, Any]:
     """Validate and build the canonical provider-neutral retrieval result."""
-    if status not in {"completed", "failed", "blocked"}:
-        raise ValueError("status must be completed, failed, or blocked")
+    if status not in {"completed", "failed", "blocked", "not_required"}:
+        raise ValueError("status must be completed, failed, blocked, or not_required")
 
     if not isinstance(request, dict):
         raise ValueError("request must be a dictionary")
@@ -83,18 +95,27 @@ def _build_result(
     if content is not None and not isinstance(content, str):
         raise ValueError("content must be a string or None")
 
-    if status != "completed":
+    if status in {"failed", "blocked"}:
         if sources:
             raise ValueError("non-completed results must not contain sources")
         if content is not None:
             raise ValueError("non-completed results must not contain content")
         if reason is None or not isinstance(reason, str) or not reason.strip():
-            raise ValueError("non-completed results require a nonempty reason")
+            raise ValueError("failed or blocked results require a nonempty reason")
         reason = reason.strip()
+    elif status == "not_required":
+        if provider is not None:
+            raise ValueError("not_required results must not contain a provider")
+        if sources:
+            raise ValueError("not_required results must not contain sources")
+        if content is not None:
+            raise ValueError("not_required results must not contain content")
+        if reason is not None:
+            raise ValueError("not_required results must not contain a reason")
     elif reason is not None:
         raise ValueError("completed results must not contain a reason")
 
-    expected_execution = status != "blocked"
+    expected_execution = status in {"completed", "failed"}
     if retrieval_executed is not expected_execution:
         raise ValueError("retrieval_executed is inconsistent with result status")
 

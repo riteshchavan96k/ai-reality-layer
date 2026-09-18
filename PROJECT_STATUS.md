@@ -1,8 +1,20 @@
-# Current Status — Step 147
+# Current Status — Step 148
+
+## Step 148 — Not-Required Retrieval Result Contract
+
+**Status:** Implementation complete; merge pending.
+
+Step 148 closes a retrieval-result consistency gap by defining `not_required` in the canonical provider-neutral retrieval-result contract and making `RealityRetrievalEngine` use that contract instead of constructing an ad-hoc dictionary.
+
+**Safety invariant:** `not_required → provider=None, empty payload, retrieval_executed=False`.
+
+**Design boundary:** Retrieval-result contract consistency for the no-retrieval path only. No new network behavior or semantic truth verification.
+
+**Validation truth:** Dedicated Step 148 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
 
 ## Step 147 — Retrieval Result Status Exhaustiveness
 
-**Status:** Implementation complete; merge pending.
+**Status:** Complete and merged into `main` via PR #171.
 
 Step 147 hardens retrieval-result normalization so every supported provider-response status has an explicit mapping and unsupported statuses fail closed instead of falling through to `completed`.
 
@@ -10,7 +22,7 @@ Step 147 hardens retrieval-result normalization so every supported provider-resp
 
 **Validation truth:** Dedicated Step 147 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
 
-## Step 146 — Retrieval Result Contract Hardening
+# Step 146 — Retrieval Result Contract Hardening
 
 **Status:** Complete and merged into `main` via PR #169.
 
