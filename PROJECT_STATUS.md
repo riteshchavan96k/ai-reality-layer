@@ -2,13 +2,13 @@
 
 ## Step 127 — Source Provenance Identity Boundary
 
-**Status:** Implementation complete on branch `step-127-source-provenance-identity`; PR pending.
+**Status:** Complete and merged into `main` via PR #132.
 
-Step 127 establishes stable deterministic identities for usable evidence sources while preserving the exact source URI used by claim-to-evidence linking. It adds immutable source-provenance contracts, SHA-256 URI identity, exact-reference deduplication, and pipeline/dependency integration.
+Step 127 establishes stable deterministic identities for usable evidence sources while preserving the exact source URI used by claim-to-evidence linking. It adds immutable source-provenance contracts, deterministic SHA-256 URI identity, exact-reference deduplication, and pipeline/dependency integration.
 
 Dedicated Step 127 regression coverage and docs/STEP_127.md are included.
 
-**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed; local pytest execution remains required.
+**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
 
 
 # AI Reality Layer
