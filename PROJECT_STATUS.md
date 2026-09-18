@@ -1,4 +1,14 @@
-# Current Status — Step 146
+# Current Status — Step 147
+
+## Step 147 — Retrieval Result Status Exhaustiveness
+
+**Status:** Implementation complete; merge pending.
+
+Step 147 hardens retrieval-result normalization so every supported provider-response status has an explicit mapping and unsupported statuses fail closed instead of falling through to `completed`.
+
+**Design boundary:** Retrieval-result status normalization only. No new network behavior or semantic truth verification.
+
+**Validation truth:** Dedicated Step 147 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
 
 ## Step 146 — Retrieval Result Contract Hardening
 
