@@ -18,7 +18,7 @@ class RetrievalProviderExecutor:
         request: RetrievalProviderRequest,
     ) -> dict[str, Any]:
         """Execute a provider with typed request/response contracts."""
-        provider_name = getattr(provider, "name", None)
+        provider_name = _provider_identity(provider)
         request_dict = request.to_dict()
 
         try:
@@ -38,3 +38,12 @@ class RetrievalProviderExecutor:
 
 
 __all__ = ["RetrievalProviderExecutor"]
+
+
+def _provider_identity(provider: RetrievalProvider) -> str | None:
+    """Return a stable provider identity from the provider implementation."""
+    for attribute in ("provider_name", "name"):
+        value = getattr(provider, attribute, None)
+        if isinstance(value, str) and value.strip():
+            return value
+    return None
