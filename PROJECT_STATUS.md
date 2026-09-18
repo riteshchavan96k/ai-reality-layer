@@ -2,9 +2,9 @@
 
 ## Step 144 — Retrieval Provider Identity Contract Hardening
 
-**Status:** Complete on the implementation branch; merge pending.
+**Status:** Complete and merged into `main` via PR #166.
 
-Step 144 hardens the canonical retrieval-provider response contract so an explicitly supplied provider identity must be a nonempty string and is canonicalized by trimming surrounding whitespace. Missing identity remains `None), preserving Step 143's execution-boundary fallback behavior.
+Step 144 hardens the canonical retrieval-provider response contract so an explicitly supplied provider identity must be a nonempty string and is canonicalized by trimming surrounding whitespace. Missing identity remains `None`, preserving Step 143's execution-boundary fallback behavior.
 
 **Design boundary:** Retrieval-provider response identity validation/canonicalization only. No new network behavior or semantic truth verification.
 
