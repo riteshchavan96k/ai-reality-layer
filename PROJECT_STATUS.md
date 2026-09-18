@@ -1,3 +1,15 @@
+# Current Status — Step 141
+
+## Step 141 — External Retrieval Response Status Integrity
+
+**Status:** Implementation complete; branch validation pending merge.
+
+Step 141 hardens the configured external HTTP retrieval adapter so explicit upstream provider statuses are preserved rather than being converted into `completed`. Unsupported statuses and malformed reasons fail closed.
+
+**Design boundary:** External provider response-contract integrity only. No new network behavior or semantic truth verification.
+
+**Validation truth:** Dedicated Step 141 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 140
 
 ## Step 140 — Provider Capability Enforcement at Execution Boundary
