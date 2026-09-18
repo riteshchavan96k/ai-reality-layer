@@ -17,12 +17,16 @@ class RealityConfidenceSignalAggregator:
         if fs not in {"usable","empty","unavailable"}: raise ValueError("freshness status is invalid")
         signals=[]
         signals.append("no_extracted_claims" if coverage is None else ("claims_have_evidence_links" if coverage==1 else "partial_claim_evidence_coverage"))
+        linking_unavailable = linking.get("status") == "unavailable"
+        if linking_unavailable: signals.append("claim_evidence_linking_unavailable")
         if fs=="usable":
             stale=freshness.get("stale_count",0); unknown=freshness.get("unknown_count",0)
             signals.append("stale_sources_present" if stale else ("freshness_uncertain" if unknown else "sources_within_declared_observation_window"))
         else: signals.append("freshness_unavailable")
+        conflicts_unavailable = conflicts.get("status") == "unavailable"
         if conflicts_count: signals.append("candidate_conflicts_present")
-        uncertain=bool(conflicts_count or (coverage is not None and coverage<1) or fs!="usable" or freshness.get("stale_count",0)>0)
+        if conflicts_unavailable: signals.append("conflict_detection_unavailable")
+        uncertain=bool(coverage is None or linking_unavailable or conflicts_unavailable or conflicts_count or (coverage is not None and coverage<1) or fs!="usable" or freshness.get("stale_count",0)>0)
         return RealityConfidenceSignalResult("uncertain" if uncertain else "supported",True,coverage,fs,conflicts_count,tuple(signals))
     def aggregate(self,evidence_quality,linking,freshness,conflicts): return self.aggregate_result(evidence_quality,linking,freshness,conflicts).to_dict()
 
