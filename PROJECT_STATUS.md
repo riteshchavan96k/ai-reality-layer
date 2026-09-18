@@ -1,3 +1,15 @@
+# Current Status — Step 138
+
+## Step 138 — External Retrieval Source Provenance Validation
+
+**Status:** Implementation complete; branch validation pending merge.
+
+Step 138 hardens the Step 135 external retrieval trust boundary by validating source provenance before external JSON becomes a canonical provider response. HTTP(S) URIs are validated, optional titles must be strings, sources must contain URI or title provenance, and malformed payloads fail closed.
+
+**Design boundary:** External payload structural/provenance validation only. It does not establish source truth, authority, freshness, or relevance and does not add new network behavior.
+
+**Validation truth:** Dedicated Step 138 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 137
 
 ## Step 137 — Current Information Retrieval Integration
