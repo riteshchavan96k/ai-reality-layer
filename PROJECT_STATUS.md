@@ -1,18 +1,14 @@
-# Current Status — Step 125
+# Current Status — Step 126
 
-## Step 125 — Evidence Claim Extraction Boundary
+## Step 126 — Claim-to-Evidence Linking Boundary
 
-**Status:** Complete and merged into `main` via PR #128.
+**Status:** Implementation complete on branch `step-126-claim-evidence-linking`; awaiting PR review and merge.
 
-Step 125 establishes the first explicit claim-extraction boundary after evidence normalization and quality validation. It adds immutable claim and extraction-result contracts, a deterministic sentence-based candidate extractor, source-URI preservation, duplicate candidate removal, and pipeline/dependency integration.
+Step 126 establishes an explicit provenance relationship between extracted candidate claims and evidence source URIs already present in the evidence payload. It adds immutable claim/evidence link contracts, deterministic source-reference intersection, duplicate pair removal, and pipeline/dependency integration.
 
-Dedicated Step 125 regression coverage and docs/STEP_125.md are included.
+Dedicated Step 126 regression coverage and docs/STEP_126.md are included.
 
 **Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
-
----
-
-
 # AI Reality Layer
 
 ## Project Status
