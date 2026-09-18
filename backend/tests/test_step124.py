@@ -46,17 +46,16 @@ def test_rejected_mapping_normalizes_and_preserves_reason():
 
 
 def test_mapping_preserves_explicit_execution_flags():
-    normalized = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResultNormalizer.normalize(
-        {
-            "status": "usable",
-            "authorization_status": "authorized",
-            "allowed": True,
-            "decision_executed": True,
-            "consumption_executed": False,
-        }
-    )
     with pytest.raises(ValueError, match="consumption_executed=True"):
-        normalized
+        GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResultNormalizer.normalize(
+            {
+                "status": "usable",
+                "authorization_status": "authorized",
+                "allowed": True,
+                "decision_executed": True,
+                "consumption_executed": False,
+            }
+        )
 
 
 def test_mapping_rejects_invalid_contract_state():
