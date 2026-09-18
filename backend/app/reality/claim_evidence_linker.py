@@ -28,6 +28,12 @@ class ClaimEvidenceLinker:
         known_refs = set(source_refs)
         claim_count = len(claim_result.claims)
 
+        if evidence.get("status") != "usable":
+            return ClaimEvidenceLinkingResult.unavailable_result(
+                evidence.get("reason") or "evidence_not_usable",
+                claim_count=claim_count,
+                source_count=len(sources),
+            )
         if claim_result.status == "unavailable":
             return ClaimEvidenceLinkingResult.unavailable_result(claim_result.reason or "claim_extraction_unavailable", claim_count=claim_count, source_count=len(sources))
         if claim_result.status == "empty":
