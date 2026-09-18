@@ -56,3 +56,25 @@ def test_result_contract_counts_and_immutability():
         item.source_id = "changed"
     with pytest.raises(ValueError, match="fresh or stale assessment requires"):
         SourceFreshnessAssessment("id-1", "fresh", "2026-09-18T12:00:00Z")
+
+
+def test_retrieval_request_preserves_explicit_freshness_window():
+    from backend.app.reality.retrieval_contract import RealityRetrievalContract
+
+    result = RealityRetrievalContract().build(
+        "latest information",
+        {
+            "requires_retrieval": True,
+            "source_type": "live_web",
+            "temporal_scope": "current",
+            "freshness_max_age_seconds": 900,
+        },
+    )
+    assert result["request"]["freshness_max_age_seconds"] == 900
+
+
+def test_default_dependencies_wire_freshness_evaluator():
+    from backend.app.orchestrator.dependencies import OrchestrationDependencies
+    from backend.app.reality.source_freshness_evaluator import SourceFreshnessEvaluator
+
+    assert isinstance(OrchestrationDependencies.default().source_freshness_evaluator, SourceFreshnessEvaluator)
