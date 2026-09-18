@@ -1,3 +1,15 @@
+# Current Status — Step 143
+
+## Step 143 — Retrieval Provider Identity Preservation
+
+**Status:** Implemented on branch `step-143-provider-identity-preservation`; PR pending.
+
+Step 143 closes an execution-boundary provenance gap: the retrieval provider executor now preserves a provider's declared identity through execution failures and malformed-output failures when that identity is available. It prefers the canonical `provider_name`, falls back to the legacy `name`, and never fabricates an identity.
+
+**Design boundary:** Provider identity/provenance preservation at the execution boundary only. No new network behavior or semantic truth verification.
+
+**Validation truth:** Dedicated Step 143 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 142
 
 ## Step 142 — Retrieval Provider Response Payload Consistency
