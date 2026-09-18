@@ -2,7 +2,7 @@
 
 ## Step 133 — Reality State API Surface
 
-**Status:** Implementation complete on branch `step-133-reality-state-api-surface`; PR/merge pending.
+**Status:** Complete and merged into `main` via PR #144.
 
 Step 133 exposes the canonical Step 132 Reality State through `POST /api/v1/reality-state` using a dedicated execution-free orchestration path. The endpoint performs retrieval/evidence processing and Reality State assembly but does not execute a model, evaluate a generated response, or run recovery.
 
