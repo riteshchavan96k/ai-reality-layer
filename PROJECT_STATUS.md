@@ -1,3 +1,15 @@
+# Current Status — Step 140
+
+## Step 140 — Provider Capability Enforcement at Execution Boundary
+
+**Status:** Implementation complete; branch validation pending merge.
+
+Step 140 hardens the provider-selection boundary with execution-level regression coverage proving that capability-incompatible retrieval requests are blocked before provider invocation, while compatible requests still execute normally.
+
+**Design boundary:** Regression hardening of the existing provider capability gate only. No new provider or network behavior.
+
+**Validation truth:** Dedicated Step 140 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 139
 
 ## Step 139 — External Retrieval Provider Capability Declaration
