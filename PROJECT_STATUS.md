@@ -1,3 +1,14 @@
+# Current Status — Step 131
+
+## Step 131 — Reality Confidence Signal Boundary
+
+**Status:** Implementation complete on branch `step-131-confidence-signal-boundary`; PR/merge pending.
+
+Step 131 aggregates existing evidence-quality, claim-linking, freshness, and conflict signals into a deterministic confidence-signal profile. It is explicitly not a calibrated probability or truth judgment.
+
+**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
+
+
 # Current Status — Step 130
 
 ## Step 130 — Claim Conflict Detection Boundary

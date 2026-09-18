@@ -6,6 +6,7 @@ from backend.app.reality.context_requirements import RealityContextRequirementDe
 from backend.app.reality.claim_evidence_linker import ClaimEvidenceLinker
 from backend.app.reality.claim_extractor import EvidenceClaimExtractor
 from backend.app.reality.claim_conflict_detector import ClaimConflictDetector
+from backend.app.reality.confidence_signal_aggregator import RealityConfidenceSignalAggregator
 from backend.app.reality.evidence_normalization_consumer import EvidenceNormalizationConsumer
 from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
 from backend.app.reality.evidence_quality import EvidenceQualityValidator
@@ -52,6 +53,7 @@ class OrchestrationDependencies:
     context_detector: RealityContextRequirementDetector
     claim_extractor: EvidenceClaimExtractor
     claim_conflict_detector: ClaimConflictDetector
+    confidence_signal_aggregator: RealityConfidenceSignalAggregator
     claim_evidence_linker: ClaimEvidenceLinker
     source_provenance_builder: SourceProvenanceBuilder
     source_observation_builder: SourceObservationBuilder
@@ -108,6 +110,7 @@ class OrchestrationDependencies:
             context_detector=RealityContextRequirementDetector(),
             claim_extractor=EvidenceClaimExtractor(),
             claim_conflict_detector=ClaimConflictDetector(),
+            confidence_signal_aggregator=RealityConfidenceSignalAggregator(),
             claim_evidence_linker=ClaimEvidenceLinker(),
             source_planner=RealitySourcePlanner(),
             retrieval_contract=RealityRetrievalContract(),
