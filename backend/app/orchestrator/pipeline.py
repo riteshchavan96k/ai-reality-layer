@@ -225,6 +225,20 @@ class OrchestrationPipeline:
             max_age_seconds=freshness_window,
         )
         state.analysis["reality_source_freshness"] = source_freshness.to_dict()
+        confidence_signals = self.dependencies.confidence_signal_aggregator.aggregate_result(
+            state.evidence_quality,
+            claim_evidence_linking.to_dict(),
+            source_freshness.to_dict(),
+            claim_conflicts.to_dict(),
+        )
+        state.analysis["reality_confidence_signals"] = confidence_signals.to_dict()
+        context.trace.record(
+            "confidence_signals",
+            confidence_signals.status,
+            claim_coverage=confidence_signals.claim_coverage,
+            conflict_count=confidence_signals.conflict_count,
+            reason=confidence_signals.reason,
+        )
         context.trace.record(
             "source_freshness",
             source_freshness.status,
@@ -236,7 +250,7 @@ class OrchestrationPipeline:
         raw_grounding_result = self.dependencies.grounding_context_builder.build_result(state.task, state.evidence)
         grounding_result = self.dependencies.grounding_context_normalizer.normalize(raw_grounding_result)
         state.grounding = grounding_result.to_dict()
-        state.analysis["reality_retrieval"] = {**state.retrieval_contract, "execution": state.retrieval, "consumption": consumption.to_dict(), "evidence": state.evidence, "quality": state.evidence_quality, "claims": claim_result.to_dict(), "claim_evidence_linking": claim_evidence_linking.to_dict(), "claim_conflicts": claim_conflicts.to_dict(), "source_provenance": source_provenance.to_dict(), "source_observation": source_observation.to_dict(), "freshness": source_freshness.to_dict(), "grounding": state.grounding}
+        state.analysis["reality_retrieval"] = {**state.retrieval_contract, "execution": state.retrieval, "consumption": consumption.to_dict(), "evidence": state.evidence, "quality": state.evidence_quality, "claims": claim_result.to_dict(), "claim_evidence_linking": claim_evidence_linking.to_dict(), "claim_conflicts": claim_conflicts.to_dict(), "source_provenance": source_provenance.to_dict(), "source_observation": source_observation.to_dict(), "freshness": source_freshness.to_dict(), "confidence_signals": confidence_signals.to_dict(), "grounding": state.grounding}
 
     def _execute(self, context: OrchestrationStageContext, retry_policy: RetryPolicy) -> None:
         state = context.state
