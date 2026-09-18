@@ -48,6 +48,12 @@ class HttpRetrievalProvider:
             return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="http_retrieval_failed")
 
     def _normalize_payload(self, payload: dict[str, Any], request_url: str) -> RetrievalProviderResponse:
+        status = payload.get("status", "completed")
+        if status not in {"completed", "failed", "blocked", "provider_unavailable"}:
+            return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="invalid_provider_status")
+        reason = payload.get("reason")
+        if reason is not None and (not isinstance(reason, str) or not reason.strip()):
+            return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="invalid_provider_reason")
         content = payload.get("content")
         sources = payload.get("sources", [])
         if content is not None and not isinstance(content, str):
@@ -70,9 +76,11 @@ class HttpRetrievalProvider:
                 return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="source_missing_provenance")
             normalized_sources_list.append(dict(source))
         normalized_sources = tuple(normalized_sources_list)
+        if status != "completed":
+            return RetrievalProviderResponse(status=status, sources=normalized_sources, content=content, provider=self.provider_name, reason=reason)
         if not normalized_sources and content:
             normalized_sources = ({"uri": request_url, "title": None},)
-        return RetrievalProviderResponse(status="completed", sources=normalized_sources, content=content, provider=self.provider_name)
+        return RetrievalProviderResponse(status="completed", sources=normalized_sources, content=content, provider=self.provider_name, reason=reason)
 
 
 __all__ = ["HttpRetrievalProvider"]
