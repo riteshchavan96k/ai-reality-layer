@@ -40,6 +40,8 @@ from backend.app.reality.retrieval_engine import RealityRetrievalEngine, Unconfi
 from backend.app.reality.http_retrieval_provider import HttpRetrievalProvider
 from backend.app.reality.retrieval_provider_executor import RetrievalProviderExecutor
 from backend.app.reality.retrieval_provider_registry import RetrievalProviderRegistry
+from backend.app.reality.retrieval_provider_capabilities import RetrievalProviderCapabilities
+from backend.app.reality.retrieval_provider_descriptor import RetrievalProviderDescriptor
 from backend.app.reality.retrieval_provider_selector import RegistryRetrievalProviderSelector
 from backend.app.reality.retrieval_result_consumer import RetrievalResultConsumer
 from backend.app.reality.retrieval_result_consumption_normalizer import RetrievalResultConsumptionNormalizer
@@ -110,8 +112,26 @@ class OrchestrationDependencies:
         configured_endpoint = os.getenv("ARL_HTTP_RETRIEVAL_ENDPOINT_TEMPLATE", "").strip()
         if configured_endpoint:
             configured_provider = HttpRetrievalProvider(configured_endpoint)
-            retrieval_provider_registry.register("live_web", configured_provider)
-            retrieval_provider_registry.register("web_or_official_source", configured_provider)
+            capabilities = RetrievalProviderCapabilities(
+                source_types=("live_web", "web_or_official_source"),
+                temporal_scopes=("current", "unspecified"),
+            )
+            retrieval_provider_registry.register_descriptor(
+                "live_web",
+                RetrievalProviderDescriptor(
+                    name=configured_provider.provider_name,
+                    capabilities=capabilities,
+                    provider=configured_provider,
+                ),
+            )
+            retrieval_provider_registry.register_descriptor(
+                "web_or_official_source",
+                RetrievalProviderDescriptor(
+                    name=configured_provider.provider_name,
+                    capabilities=capabilities,
+                    provider=configured_provider,
+                ),
+            )
         retrieval_provider_selector = RegistryRetrievalProviderSelector(
             registry=retrieval_provider_registry,
         )
