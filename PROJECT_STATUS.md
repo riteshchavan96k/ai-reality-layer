@@ -1,3 +1,15 @@
+# Current Status — Step 136
+
+## Step 136 — Retrieval Provider Request Context Hardening
+
+**Status:** Implementation complete; branch validation pending merge.
+
+Step 136 closes a contract gap introduced by Step 129: the canonical retrieval request's optional freshness requirement is now preserved by the provider-facing RetrievalProviderRequest through validation, mapping, and serialization. The step also fixes the missing os import required by Step 135's opt-in external-provider configuration path.
+
+**Design boundary:** Request-context preservation and dependency configuration correctness only. No new vendor, credentials, hardcoded endpoint, network test, LLM, RAG, embeddings/vector search, semantic truth verification, ML/DL, or model execution.
+
+**Validation truth:** Dedicated Step 136 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 135
 
 ## Step 135 — External Retrieval Provider Adapter
