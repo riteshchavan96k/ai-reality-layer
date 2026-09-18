@@ -2,6 +2,7 @@ import json
 import pytest
 
 from backend.app.reality.http_retrieval_provider import HttpRetrievalProvider
+from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
 
 
@@ -84,3 +85,16 @@ def test_http_provider_rejects_wrong_request_type():
     provider = HttpRetrievalProvider("https://example.test/search?q={query}")
     with pytest.raises(ValueError):
         provider.retrieve({"query": "x"})
+
+
+def test_default_dependencies_keep_external_provider_opt_in(monkeypatch):
+    monkeypatch.delenv("ARL_HTTP_RETRIEVAL_ENDPOINT_TEMPLATE", raising=False)
+    dependencies = OrchestrationDependencies.default()
+    assert dependencies.retrieval_provider_registry.get("live_web").__class__.__name__ == "UnconfiguredRetrievalProvider"
+
+
+def test_default_dependencies_register_configured_http_provider(monkeypatch):
+    monkeypatch.setenv("ARL_HTTP_RETRIEVAL_ENDPOINT_TEMPLATE", "https://example.test/search?q={query}")
+    dependencies = OrchestrationDependencies.default()
+    provider = dependencies.retrieval_provider_registry.get("live_web")
+    assert isinstance(provider, HttpRetrievalProvider)
