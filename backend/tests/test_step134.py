@@ -32,6 +32,11 @@ def test_reality_state_route_uses_dedicated_http_contracts():
     assert route.body_field.type_ is RealityStateRequest
 
 
+def test_reality_state_request_rejects_solve_only_fields():
+    with pytest.raises(Exception):
+        RealityStateRequest(task="task", human_approved=True)
+
+
 def test_reality_state_request_validation_is_bounded():
     with pytest.raises(Exception):
         RealityStateRequest(task="")
