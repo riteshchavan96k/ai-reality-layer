@@ -8,7 +8,7 @@ from backend.app.reality.claim_extraction import ClaimExtractionResult, Evidence
 class ClaimConflictDetector:
     """Detect only explicit deterministic negation pairs; never infer semantic disagreement."""
 
-    _NEGATION = re.compile(r"^(not|no|never)\\s+(.*)$", re.IGNORECASE)
+    _NEGATION = re.compile(r"^(not|no|never)\s+(.*)$", re.IGNORECASE)
 
     def detect_result(self, claim_result: ClaimExtractionResult | dict[str, Any]) -> ClaimConflictResult:
         if isinstance(claim_result, dict):
