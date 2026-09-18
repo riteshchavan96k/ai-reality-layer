@@ -37,6 +37,16 @@ def test_linker_deduplicates_repeated_claim_source_pairs():
     assert len(result.links) == 1
 
 
+def test_unusable_evidence_stays_unavailable_even_with_claims():
+    result = ClaimEvidenceLinker().link_result(
+        usable_claim_result(EvidenceClaim("A statement.", ("https://example.com/a",))),
+        {"status": "invalid_evidence", "sources": [{"title": "A", "uri": "https://example.com/a"}], "content": None, "reason": "invalid_evidence"},
+    )
+    assert result.status == "unavailable"
+    assert result.links == ()
+    assert result.reason == "invalid_evidence"
+
+
 def test_unavailable_claim_extraction_stays_unavailable():
     claim_result = ClaimExtractionResult.unavailable_result("evidence_not_usable")
     result = ClaimEvidenceLinker().link_result(claim_result, {"status": "invalid_evidence", "sources": [], "content": None, "reason": "evidence_not_usable"})
