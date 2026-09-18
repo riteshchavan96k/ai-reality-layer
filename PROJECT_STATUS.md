@@ -2,7 +2,7 @@
 
 ## Step 135 — External Retrieval Provider Adapter
 
-**Status:** Implementation complete on `step-135-external-retrieval-provider-adapter`; PR merge pending.
+**Status:** Complete and merged into `main` via PR #148.
 
 Step 135 adds an opt-in HTTPS retrieval provider adapter behind the existing provider-neutral retrieval architecture. It validates typed provider requests, URL-encodes queries, bounds timeout and response size, normalizes JSON responses into the existing provider response contract, and fails closed on external or malformed responses. The default dependency graph remains unconfigured unless `ARL_HTTP_RETRIEVAL_ENDPOINT_TEMPLATE` is explicitly supplied.
 
