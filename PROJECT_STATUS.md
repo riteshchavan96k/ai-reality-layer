@@ -1,3 +1,15 @@
+# Current Status — Step 139
+
+## Step 139 — External Retrieval Provider Capability Declaration
+
+**Status:** Implementation complete; branch validation pending merge.
+
+Step 139 connects the configured external HTTP retrieval adapter to the existing provider descriptor/capability boundary. The adapter now declares support for live_web and web_or_official_source and for current/unspecified temporal scopes, allowing the existing capability evaluator to govern selection.
+
+**Design boundary:** Provider capability declaration and selection integration only. No new network behavior or semantic truth verification.
+
+**Validation truth:** Dedicated Step 139 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 138
 
 ## Step 138 — External Retrieval Source Provenance Validation
