@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
 from backend.app.models.provider_invocation_executor import ProviderInvocationExecutor
 from backend.app.reality.context_requirements import RealityContextRequirementDetector
+from backend.app.reality.claim_extractor import EvidenceClaimExtractor
 from backend.app.reality.evidence_normalization_consumer import EvidenceNormalizationConsumer
 from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
 from backend.app.reality.evidence_quality import EvidenceQualityValidator
@@ -44,6 +45,7 @@ class OrchestrationDependencies:
     """Composition boundary for services used by the orchestration pipeline."""
 
     context_detector: RealityContextRequirementDetector
+    claim_extractor: EvidenceClaimExtractor
     source_planner: RealitySourcePlanner
     retrieval_contract: RealityRetrievalContract
     approval_policy: HumanApprovalPolicy
@@ -94,6 +96,7 @@ class OrchestrationDependencies:
         )
         return cls(
             context_detector=RealityContextRequirementDetector(),
+            claim_extractor=EvidenceClaimExtractor(),
             source_planner=RealitySourcePlanner(),
             retrieval_contract=RealityRetrievalContract(),
             approval_policy=HumanApprovalPolicy(),
