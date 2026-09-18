@@ -2,7 +2,7 @@
 
 ## Step 136 — Retrieval Provider Request Context Hardening
 
-**Status:** Implementation complete; branch validation pending merge.
+**Status:** Complete and merged into `main` via PR #150.
 
 Step 136 closes a contract gap introduced by Step 129: the canonical retrieval request's optional freshness requirement is now preserved by the provider-facing RetrievalProviderRequest through validation, mapping, and serialization. The step also fixes the missing os import required by Step 135's opt-in external-provider configuration path.
 
