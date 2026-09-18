@@ -27,7 +27,7 @@ Step 126 adds:
 
 A link means that the claim's existing source reference matches a source URI actually present in the evidence payload. It does not mean the source has independently verified the claim, that the source contains the exact claim text, or that the claim is true.
 
-The implementation deliberately does not create links from source titles, source order, URL similarity, semantic guesses, or unsupported inference.
+The implementation deliberately does not create links from source titles, source order, URL similarity, semantic guesses, or unsupported inference. Unusable evidence also fails closed and produces an unavailable linking result.
 
 ## Pipeline integration
 
