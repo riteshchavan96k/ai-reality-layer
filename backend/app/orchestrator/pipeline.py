@@ -124,19 +124,19 @@ class OrchestrationPipeline:
             decision_executed=authorization_decision_consumption.decision_executed,
             consumption_executed=authorization_decision_consumption.consumption_executed,
         )
-        authorization_decision_consumption_decision = self.dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_evaluator.evaluate(
+        authorization_decision_consumption_decision_result = self.dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_evaluator.evaluate(
             authorization_decision_consumption
         )
-        state.analysis["reality_grounding_execution_authorization_consumption_decision_result_consumption_result_decision"] = authorization_decision_consumption_decision.to_dict()
+        state.analysis["reality_grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result"] = authorization_decision_consumption_decision_result.to_dict()
         context.trace.record(
-            "grounding_execution_authorization_consumption_decision_result_consumption_result_decision",
-            authorization_decision_consumption_decision.status,
-            allowed=authorization_decision_consumption_decision.allowed,
-            reason=authorization_decision_consumption_decision.reason,
-            authorization_status=authorization_decision_consumption_decision.authorization_status,
-            decision_executed=authorization_decision_consumption_decision.decision_executed,
+            "grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result",
+            authorization_decision_consumption_decision_result.status,
+            allowed=authorization_decision_consumption_decision_result.allowed,
+            reason=authorization_decision_consumption_decision_result.reason,
+            authorization_status=authorization_decision_consumption_decision_result.authorization_status,
+            decision_executed=authorization_decision_consumption_decision_result.decision_executed,
         )
-        if not authorization_decision_consumption_decision.allowed:
+        if not authorization_decision_consumption_decision_result.allowed:
             return self._execution_context_blocked_result(context)
         self._execute(context, retry_policy)
         state = context.state
@@ -227,7 +227,7 @@ class OrchestrationPipeline:
 
     def _execution_context_blocked_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
-        reason = state.analysis["reality_grounding_execution_context_consumption_decision"].get("reason") or state.analysis["reality_grounding_execution_context_consumption"].get("reason") or "execution_context_rejected"
+        reason = state.analysis["reality_grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result"].get("reason") or state.analysis["reality_grounding_execution_context_consumption_decision"].get("reason") or state.analysis["reality_grounding_execution_context_consumption"].get("reason") or "execution_context_rejected"
         context.trace.record("execution", "blocked", reason=reason, grounding_status=state.execution_context.get("grounding_status"), grounding_source_count=state.execution_context.get("source_count", 0))
         return {"status": "execution_context_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "execution_context": state.execution_context, "trace": context.trace.snapshot()}
 

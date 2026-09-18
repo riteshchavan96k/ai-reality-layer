@@ -4,17 +4,23 @@ from backend.app.reality.grounding_execution_authorization_consumption_decision_
 from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision import (
     GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecision,
 )
+from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result import (
+    GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResult,
+)
 
 
 class GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionEvaluator:
-    """Derive the final execution decision from the canonical consumed result."""
+    """Derive the canonical result from the final authorization-consumption execution decision."""
 
     @staticmethod
     def evaluate(
         consumption_result: GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult,
-    ) -> GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecision:
-        return GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecision.from_consumption_result(
+    ) -> GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResult:
+        decision = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecision.from_consumption_result(
             consumption_result
+        )
+        return GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResult.from_decision(
+            decision
         )
 
 
