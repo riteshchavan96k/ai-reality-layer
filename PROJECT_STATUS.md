@@ -1,14 +1,16 @@
-# Current Status — Step 126
+# Current Status — Step 127
 
-## Step 126 — Claim-to-Evidence Linking Boundary
+## Step 127 — Source Provenance Identity Boundary
 
-**Status:** Complete and merged into `main` via PR #130.
+**Status:** Implementation complete on branch `step-127-source-provenance-identity`; PR pending.
 
-Step 126 establishes an explicit provenance relationship between extracted candidate claims and evidence source URIs already present in the evidence payload. It adds immutable claim/evidence link contracts, deterministic source-reference intersection, duplicate pair removal, and pipeline/dependency integration.
+Step 127 establishes stable deterministic identities for usable evidence sources while preserving the exact source URI used by claim-to-evidence linking. It adds immutable source-provenance contracts, SHA-256 URI identity, exact-reference deduplication, and pipeline/dependency integration.
 
-Dedicated Step 126 regression coverage and docs/STEP_126.md are included.
+Dedicated Step 127 regression coverage and docs/STEP_127.md are included.
 
-**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
+**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed; local pytest execution remains required.
+
+
 # AI Reality Layer
 
 ## Project Status
