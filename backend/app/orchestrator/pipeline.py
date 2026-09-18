@@ -7,6 +7,7 @@ from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMem
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.models.registry import get_model_adapter, get_model_provider_name
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
+from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumption_result_normalizer import GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResultNormalizer
 from backend.app.orchestrator.stage_contract import OrchestrationStageContext
 from backend.app.orchestrator.state import OrchestrationState
 from backend.app.reality.grounding_execution_context import GroundingExecutionContext
@@ -139,8 +140,11 @@ class OrchestrationPipeline:
             authorization_status=authorization_decision_consumption_decision_result.authorization_status,
             decision_executed=authorization_decision_consumption_decision_result.decision_executed,
         )
-        authorization_decision_consumption_decision_result_consumption = self.dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumer.consume(
+        raw_authorization_decision_consumption_decision_result_consumption = self.dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumer.consume(
             authorization_decision_consumption_decision_result
+        )
+        authorization_decision_consumption_decision_result_consumption = self.dependencies.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumption_result_normalizer.normalize(
+            raw_authorization_decision_consumption_decision_result_consumption
         )
         state.analysis["reality_grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumption"] = authorization_decision_consumption_decision_result_consumption.to_dict()
         context.trace.record(
