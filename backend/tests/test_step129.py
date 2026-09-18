@@ -78,3 +78,8 @@ def test_default_dependencies_wire_freshness_evaluator():
     from backend.app.reality.source_freshness_evaluator import SourceFreshnessEvaluator
 
     assert isinstance(OrchestrationDependencies.default().source_freshness_evaluator, SourceFreshnessEvaluator)
+
+
+def test_malformed_observation_mapping_is_rejected():
+    with pytest.raises(ValueError, match="observations must be a list"):
+        SourceFreshnessEvaluator(clock=clock).evaluate_result({"status": "usable", "observations": "invalid"})
