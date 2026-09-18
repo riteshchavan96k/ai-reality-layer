@@ -1,3 +1,14 @@
+# Current Status — Step 133
+
+## Step 133 — Reality State API Surface
+
+**Status:** Implementation complete on branch `step-133-reality-state-api-surface`; PR/merge pending.
+
+Step 133 exposes the canonical Step 132 Reality State through `POST /api/v1/reality-state` using a dedicated execution-free orchestration path. The endpoint performs retrieval/evidence processing and Reality State assembly but does not execute a model, evaluate a generated response, or run recovery.
+
+**Validation truth:** GitHub status checks are not configured. No CI or local pytest pass is claimed in this session; local pytest execution remains required.
+
+
 # Current Status — Step 132
 
 ## Step 132 — Reality State Assembly Boundary

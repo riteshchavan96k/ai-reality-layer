@@ -8,6 +8,7 @@ from backend.app.api.errors import (
 )
 from backend.app.api.request_id import RequestIdMiddleware
 from backend.app.services.solve_service import process_task
+from backend.app.orchestrator.orchestrator import build_reality_state
 
 
 app = FastAPI(
@@ -38,3 +39,16 @@ def health_check():
 @app.post("/api/v1/solve")
 def solve(request: SolveRequest):
     return process_task(request.task, human_approved=request.human_approved)
+
+
+@app.post("/api/v1/reality-state")
+def reality_state(request: SolveRequest):
+    """Return the canonical evidence-backed Reality State without a model execution request."""
+    reality_state = build_reality_state(request.task)
+    if reality_state is None:
+        return {
+            "status": "unavailable",
+            "task": request.task,
+            "reason": "reality_state_not_available",
+        }
+    return reality_state

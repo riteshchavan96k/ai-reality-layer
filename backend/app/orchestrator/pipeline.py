@@ -170,6 +170,24 @@ class OrchestrationPipeline:
         state.outcome = outcome_memory.record(task, state.analysis, state.routing, state.execution, state.evaluation)
         return self._success_result(context, grounding_result)
 
+    def build_reality_state(self, task: str, retrieval_engine: Any | None = None) -> dict:
+        """Build and return the canonical Reality State without model execution."""
+        context = OrchestrationStageContext(state=OrchestrationState(task=task), trace=ExecutionTrace(), execution_budget=None)
+        state = context.state
+        reality_context = self.dependencies.context_detector.detect(task)
+        reality_source_plan = self.dependencies.source_planner.plan(reality_context)
+        state.retrieval_contract = self.dependencies.retrieval_contract.build(task, reality_source_plan)
+        state.analysis = {
+            "reality_context": reality_context,
+            "reality_source_plan": reality_source_plan,
+            "reality_retrieval": state.retrieval_contract,
+        }
+        self._retrieve_and_ground(context, retrieval_engine)
+        reality_state = state.analysis.get("reality_state")
+        if reality_state is None:
+            return {"status": "unavailable", "task": task, "reason": "reality_state_not_available"}
+        return reality_state
+
     def _prepare_and_approve(self, context: OrchestrationStageContext, human_approved: bool, approval_policy: Any | None, outcome_memory: OutcomeMemory | PersistentOutcomeMemory) -> None:
         state = context.state
         reality_context = self.dependencies.context_detector.detect(state.task)
