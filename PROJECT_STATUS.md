@@ -2,7 +2,7 @@
 
 ## Step 125 — Evidence Claim Extraction Boundary
 
-**Status:** Implementation complete on the Step 125 branch; awaiting pull-request review and merge.
+**Status:** Complete and merged into `main` via PR #128.
 
 Step 125 establishes the first explicit claim-extraction boundary after evidence normalization and quality validation. It adds immutable claim and extraction-result contracts, a deterministic sentence-based candidate extractor, source-URI preservation, duplicate candidate removal, and pipeline/dependency integration.
 
