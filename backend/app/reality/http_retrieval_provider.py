@@ -77,7 +77,17 @@ class HttpRetrievalProvider:
             normalized_sources_list.append(dict(source))
         normalized_sources = tuple(normalized_sources_list)
         if status != "completed":
-            return RetrievalProviderResponse(status=status, sources=normalized_sources, content=content, provider=self.provider_name, reason=reason)
+            if normalized_sources or content is not None:
+                return RetrievalProviderResponse(
+                    status="failed",
+                    provider=self.provider_name,
+                    reason="invalid_non_completed_payload",
+                )
+            return RetrievalProviderResponse(
+                status=status,
+                provider=self.provider_name,
+                reason=reason,
+            )
         if not normalized_sources and content:
             normalized_sources = ({"uri": request_url, "title": None},)
         return RetrievalProviderResponse(status="completed", sources=normalized_sources, content=content, provider=self.provider_name, reason=reason)
