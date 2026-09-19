@@ -36,6 +36,32 @@ class RetrievalResultConsumption:
     def rejected_result(cls, retrieval_status: str, reason: str) -> "RetrievalResultConsumption":
         return cls(status="rejected", retrieval_status=retrieval_status, usable=False, reason=reason)
 
+    @classmethod
+    def validate(cls, result: object) -> "RetrievalResultConsumption":
+        """Validate an existing consumption decision at the downstream boundary."""
+        if isinstance(result, cls):
+            return result
+
+        if not isinstance(result, dict):
+            raise ValueError("retrieval result consumption must be a dictionary")
+
+        required = {
+            "status",
+            "retrieval_status",
+            "usable",
+            "consumption_executed",
+        }
+        if not required.issubset(result):
+            raise ValueError("retrieval result consumption is missing required fields")
+
+        return cls(
+            status=result["status"],
+            retrieval_status=result["retrieval_status"],
+            usable=result["usable"],
+            reason=result.get("reason"),
+            consumption_executed=result["consumption_executed"],
+        )
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "status": self.status,
