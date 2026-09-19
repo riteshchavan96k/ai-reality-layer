@@ -1,5 +1,7 @@
 from typing import Any
 
+from backend.app.reality.retrieval_result import RetrievalResultContract
+from backend.app.reality.retrieval_result import RetrievalResultContract
 from backend.app.reality.retrieval_result_consumption import RetrievalResultConsumption
 
 
@@ -7,9 +9,7 @@ class RetrievalResultConsumer:
     """Classify retrieval results before downstream evidence normalization."""
 
     def consume(self, retrieval: dict[str, Any]) -> RetrievalResultConsumption:
-        if not isinstance(retrieval, dict):
-            raise ValueError("retrieval result must be a dictionary")
-
+        retrieval = RetrievalResultContract.validate(retrieval)
         status = retrieval.get("status")
         if status == "completed":
             sources = retrieval.get("sources", [])

@@ -1,6 +1,16 @@
-# Current Status — Step 149
+# Current Status — Step 150
 
-## Step 149 — Canonical Blocked Retrieval Result
+## Step 150 — Retrieval Result Validation at Consumption Boundary
+
+**Status:** Implementation complete; merge pending.
+
+Step 150 adds canonical retrieval-result validation at the consumption boundary so malformed or internally inconsistent retrieval envelopes cannot be classified before passing the existing retrieval-result contract invariants.
+
+**Safety invariant:** retrieval result → canonical validation → consumption decision.
+
+**Validation truth:** Dedicated Step 150 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
+# Step 149 — Canonical Blocked Retrieval Result
 
 **Status:** Implementation complete; merge pending.
 
