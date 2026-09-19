@@ -1,6 +1,7 @@
 from typing import Any
 
 from backend.app.reality.retrieval_result import RetrievalResultContract
+from backend.app.reality.retrieval_result import RetrievalResultContract
 from backend.app.reality.retrieval_result_consumption import RetrievalResultConsumption
 
 
