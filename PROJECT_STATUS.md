@@ -1,3 +1,15 @@
+# Current Status — Step 151
+
+## Step 151 — Retrieval Result Consumption Contract Validation
+
+**Status:** Implementation complete; merge pending.
+
+Step 151 adds a canonical validation entry point for RetrievalResultConsumption and routes mapping normalization through that contract. This closes the immediate downstream validation gap after Step 150.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation.
+
+**Validation truth:** Dedicated Step 151 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 150
 
 ## Step 150 — Retrieval Result Validation at Consumption Boundary
