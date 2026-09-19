@@ -1,5 +1,4 @@
 from collections.abc import Mapping
-from typing import Any
 
 from backend.app.reality.retrieval_result_consumption import RetrievalResultConsumption
 
@@ -13,14 +12,7 @@ class RetrievalResultConsumptionNormalizer:
             return raw_consumption
 
         if isinstance(raw_consumption, Mapping):
-            values: dict[str, Any] = dict(raw_consumption)
-            return RetrievalResultConsumption(
-                status=values["status"],
-                retrieval_status=values["retrieval_status"],
-                usable=values["usable"],
-                reason=values.get("reason"),
-                consumption_executed=values.get("consumption_executed", True),
-            )
+            return RetrievalResultConsumption.validate(dict(raw_consumption))
 
         raise ValueError(
             "retrieval result consumption must be a consumption contract or mapping"
