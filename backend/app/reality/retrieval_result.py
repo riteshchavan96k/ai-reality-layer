@@ -75,28 +75,6 @@ class RetrievalResultContract:
             reason=result.get("reason"),
         )
     @staticmethod
-    def validate(result: object) -> dict[str, Any]:
-        """Validate an existing retrieval-result envelope without changing it."""
-        if not isinstance(result, dict):
-            raise ValueError("retrieval result must be a dictionary")
-
-        required = {
-            "status", "provider", "request", "sources",
-            "content", "retrieval_executed",
-        }
-        if not required.issubset(result):
-            raise ValueError("retrieval result is missing required fields")
-
-        return _build_result(
-            status=result["status"],
-            request=result["request"],
-            provider=result["provider"],
-            sources=result["sources"],
-            content=result["content"],
-            retrieval_executed=result["retrieval_executed"],
-            reason=result.get("reason"),
-        )
-    @staticmethod
     def not_required(request: dict[str, Any]) -> dict[str, Any]:
         """Build the canonical result used when retrieval is not required."""
         return _build_result(
