@@ -223,7 +223,14 @@ class OrchestrationPipeline:
         state.analysis["reality_retrieval_consumption"] = consumption.to_dict()
         if consumption.usable:
             evidence_result = self.dependencies.evidence_normalizer.normalize_result(state.retrieval)
-            evidence_consumption = self.dependencies.evidence_normalization_consumer.consume(evidence_result.to_dict())
+            raw_evidence_consumption = self.dependencies.evidence_normalization_consumer.consume(
+                evidence_result.to_dict()
+            )
+            evidence_consumption = (
+                self.dependencies.evidence_normalization_consumption_normalizer.normalize(
+                    raw_evidence_consumption
+                )
+            )
             state.analysis["reality_evidence_normalization_consumption"] = evidence_consumption.to_dict()
             if evidence_consumption.usable:
                 state.evidence = evidence_result.to_dict()
