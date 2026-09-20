@@ -1,3 +1,15 @@
+# Current Status — Step 152
+
+## Step 152 — Evidence Normalization Contract Validation
+
+**Status:** Implementation complete; merge pending.
+
+Step 152 adds a canonical validation entry point for `EvidenceNormalizationResult` and routes mapping-based reconstruction through that contract. This closes the next downstream validation gap after Step 151.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation.
+
+**Validation truth:** Dedicated Step 152 regression coverage is committed. Local pytest execution has not been performed in this session. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 151
 
 ## Step 151 — Retrieval Result Consumption Contract Validation
