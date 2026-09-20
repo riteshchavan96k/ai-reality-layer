@@ -1,3 +1,15 @@
+# Current Status — Step 153
+
+## Step 153 — Evidence Normalization Consumption Contract Validation
+
+**Status:** Implementation complete; merge pending.
+
+Step 153 adds a canonical validation entry point for `EvidenceNormalizationConsumption` and routes the pipeline's evidence-normalization consumption decision through a dedicated normalizer. This closes the next downstream validation gap after Step 152.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation.
+
+**Validation truth:** Dedicated Step 153 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 152
 
 ## Step 152 — Evidence Normalization Contract Validation

@@ -29,6 +29,36 @@ class EvidenceNormalizationConsumption:
             raise ValueError("reason must be a nonempty string when provided")
 
     @classmethod
+    def validate(cls, result: object) -> "EvidenceNormalizationConsumption":
+        """Validate an existing evidence-normalization consumption decision."""
+        if isinstance(result, cls):
+            return result
+
+        if not isinstance(result, dict):
+            raise ValueError(
+                "evidence normalization consumption must be a dictionary"
+            )
+
+        required = {
+            "status",
+            "evidence_status",
+            "usable",
+            "consumption_executed",
+        }
+        if not required.issubset(result):
+            raise ValueError(
+                "evidence normalization consumption is missing required fields"
+            )
+
+        return cls(
+            status=result["status"],
+            evidence_status=result["evidence_status"],
+            usable=result["usable"],
+            reason=result.get("reason"),
+            consumption_executed=result["consumption_executed"],
+        )
+
+    @classmethod
     def usable_result(cls, evidence_status: str) -> "EvidenceNormalizationConsumption":
         return cls(status="usable", evidence_status=evidence_status, usable=True)
 
