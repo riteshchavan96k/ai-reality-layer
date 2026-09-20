@@ -106,3 +106,70 @@ def test_contract_rejects_inconsistent_source_count() -> None:
         EvidenceNormalizationResult(
             status="completed", sources=[{"title": "x"}], content="evidence", source_count=0, has_content=True
         )
+
+
+def test_contract_validate_accepts_canonical_result() -> None:
+    result = EvidenceNormalizationResult(
+        status="completed",
+        sources=[{"title": "Example", "uri": "https://example.com"}],
+        content="evidence",
+        source_count=1,
+        has_content=True,
+    )
+    assert EvidenceNormalizationResult.validate(result) is result
+
+
+def test_contract_validate_accepts_mapping() -> None:
+    result = EvidenceNormalizationResult.validate(
+        {
+            "status": "completed",
+            "sources": [{"title": "Example"}],
+            "content": "evidence",
+            "source_count": 1,
+            "has_content": True,
+            "normalization_executed": True,
+        }
+    )
+    assert result.status == "completed"
+    assert result.source_count == 1
+
+
+def test_contract_validate_rejects_missing_required_field() -> None:
+    with pytest.raises(ValueError, match="missing required fields"):
+        EvidenceNormalizationResult.validate(
+            {
+                "status": "completed",
+                "sources": [],
+                "content": None,
+                "source_count": 0,
+                "has_content": False,
+            }
+        )
+
+
+def test_contract_validate_rejects_inconsistent_has_content() -> None:
+    with pytest.raises(ValueError, match="has_content must match content presence"):
+        EvidenceNormalizationResult.validate(
+            {
+                "status": "completed",
+                "sources": [],
+                "content": "evidence",
+                "source_count": 0,
+                "has_content": False,
+                "normalization_executed": True,
+            }
+        )
+
+
+def test_contract_validate_rejects_inconsistent_source_count() -> None:
+    with pytest.raises(ValueError, match="source_count must match"):
+        EvidenceNormalizationResult.validate(
+            {
+                "status": "completed",
+                "sources": [{"title": "Example"}],
+                "content": "evidence",
+                "source_count": 0,
+                "has_content": True,
+                "normalization_executed": True,
+            }
+        )
