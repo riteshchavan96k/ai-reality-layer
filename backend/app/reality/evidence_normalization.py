@@ -35,19 +35,50 @@ class EvidenceNormalizationResult:
             raise ValueError("normalization_executed must be a boolean")
 
     @classmethod
+    def validate(cls, result: object) -> "EvidenceNormalizationResult":
+        """Validate an existing evidence-normalization contract."""
+        if isinstance(result, cls):
+            return result
+
+        if not isinstance(result, dict):
+            raise ValueError("evidence normalization result must be a dictionary")
+
+        required = {
+            "status",
+            "sources",
+            "content",
+            "source_count",
+            "has_content",
+            "normalization_executed",
+        }
+        if not required.issubset(result):
+            raise ValueError("evidence normalization result is missing required fields")
+
+        return cls(
+            status=result["status"],
+            sources=result["sources"],
+            content=result["content"],
+            source_count=result["source_count"],
+            has_content=result["has_content"],
+            normalization_executed=result["normalization_executed"],
+        )
+
+    @classmethod
     def from_mapping(cls, evidence: dict[str, Any]) -> "EvidenceNormalizationResult":
         if not isinstance(evidence, dict):
             raise ValueError("evidence must be a dictionary")
-        return cls(
-            status=evidence.get("status", "unknown"),
-            sources=evidence.get("sources", []),
-            content=evidence.get("content"),
-            source_count=evidence.get("source_count", len(evidence.get("sources", []))),
-            has_content=evidence.get(
+
+        values = {
+            "status": evidence.get("status", "unknown"),
+            "sources": evidence.get("sources", []),
+            "content": evidence.get("content"),
+            "source_count": evidence.get("source_count", len(evidence.get("sources", []))),
+            "has_content": evidence.get(
                 "has_content", bool(evidence.get("content") and str(evidence.get("content")).strip())
             ),
-            normalization_executed=evidence.get("normalization_executed", True),
-        )
+            "normalization_executed": evidence.get("normalization_executed", True),
+        }
+        return cls.validate(values)
 
     def to_dict(self) -> dict[str, Any]:
         return {
