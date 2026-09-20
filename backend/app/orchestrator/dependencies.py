@@ -10,6 +10,9 @@ from backend.app.reality.claim_conflict_detector import ClaimConflictDetector
 from backend.app.reality.confidence_signal_aggregator import RealityConfidenceSignalAggregator
 from backend.app.reality.reality_state_builder import RealityStateBuilder
 from backend.app.reality.evidence_normalization_consumer import EvidenceNormalizationConsumer
+from backend.app.reality.evidence_normalization_consumption_normalizer import (
+    EvidenceNormalizationConsumptionNormalizer,
+)
 from backend.app.reality.evidence_normalizer import RetrievalEvidenceNormalizer
 from backend.app.reality.evidence_quality import EvidenceQualityValidator
 from backend.app.reality.evidence_quality_validation_normalizer import EvidenceQualityValidationResultNormalizer
@@ -75,6 +78,7 @@ class OrchestrationDependencies:
     retrieval_result_consumption_normalizer: RetrievalResultConsumptionNormalizer
     evidence_normalizer: RetrievalEvidenceNormalizer
     evidence_normalization_consumer: EvidenceNormalizationConsumer
+    evidence_normalization_consumption_normalizer: EvidenceNormalizationConsumptionNormalizer
     evidence_quality_validator: EvidenceQualityValidator
     evidence_quality_validation_result_normalizer: EvidenceQualityValidationResultNormalizer
     grounding_context_builder: EvidenceGroundingContextBuilder
@@ -156,6 +160,7 @@ class OrchestrationDependencies:
             retrieval_result_consumption_normalizer=RetrievalResultConsumptionNormalizer(),
             evidence_normalizer=RetrievalEvidenceNormalizer(),
             evidence_normalization_consumer=EvidenceNormalizationConsumer(),
+            evidence_normalization_consumption_normalizer=EvidenceNormalizationConsumptionNormalizer(),
             evidence_quality_validator=EvidenceQualityValidator(),
             evidence_quality_validation_result_normalizer=EvidenceQualityValidationResultNormalizer(),
             grounding_context_builder=EvidenceGroundingContextBuilder(),
