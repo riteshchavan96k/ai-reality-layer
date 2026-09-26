@@ -2,6 +2,7 @@ from typing import Any
 import re
 
 from backend.app.reality.claim_conflict import ClaimConflict, ClaimConflictResult
+from backend.app.reality.claim_conflict_normalizer import ClaimConflictResultNormalizer
 from backend.app.reality.claim_extraction import ClaimExtractionResult, EvidenceClaim
 
 
@@ -16,9 +17,14 @@ class ClaimConflictDetector:
         if not isinstance(claim_result, ClaimExtractionResult):
             raise ValueError("claim_result must be a ClaimExtractionResult")
         if claim_result.status == "unavailable":
-            return ClaimConflictResult.unavailable_result(claim_result.reason or "claim_extraction_unavailable", len(claim_result.claims))
+            return ClaimConflictResultNormalizer.normalize(
+                ClaimConflictResult.unavailable_result(
+                    claim_result.reason or "claim_extraction_unavailable",
+                    len(claim_result.claims),
+                )
+            )
         if claim_result.status == "empty":
-            return ClaimConflictResult.empty_result(0)
+            return ClaimConflictResultNormalizer.normalize(ClaimConflictResult.empty_result(0))
 
         claims = list(claim_result.claims)
         normalized: dict[str, list[EvidenceClaim]] = {}
@@ -39,10 +45,13 @@ class ClaimConflictDetector:
                     seen.add(key)
                     conflicts.append(ClaimConflict(positive.text, negative.text, positive.source_refs, negative.source_refs))
         if not conflicts:
-            return ClaimConflictResult.empty_result(len(claims))
-        return ClaimConflictResult.usable_result(tuple(conflicts), len(claims))
+            return ClaimConflictResultNormalizer.normalize(ClaimConflictResult.empty_result(len(claims)))
+        return ClaimConflictResultNormalizer.normalize(
+            ClaimConflictResult.usable_result(tuple(conflicts), len(claims))
+        )
 
     def detect(self, claim_result: ClaimExtractionResult | dict[str, Any]) -> dict[str, Any]:
+        """Preserve the dictionary API while returning the canonical conflict result."""
         return self.detect_result(claim_result).to_dict()
 
     @classmethod
