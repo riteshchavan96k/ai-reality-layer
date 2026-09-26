@@ -1,3 +1,41 @@
+# Current Status — Step 156
+
+## Step 156 — Claim Conflict Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 156 adds a canonical validation entry point for `ClaimConflictResult` and routes the claim-conflict detector's result-producing branches through a dedicated normalizer. This closes the next downstream validation gap after Step 155 without changing the deterministic conflict-detection algorithm.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → claim extraction validation → claim-evidence linking validation → claim conflict validation.
+
+**Semantic boundary:** Claim conflicts remain candidate conflicts, not proof of falsehood. The detector continues to recognize only explicit deterministic negation pairs.
+
+**Validation truth:** Dedicated Step 156 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
+# Current Status — Step 155
+
+## Step 155 — Claim-Evidence Linking Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 155 adds a canonical validation entry point for `ClaimEvidenceLinkingResult` and routes the claim-evidence linker result through a dedicated normalizer. This closes the next downstream validation gap after Step 154 without changing the deterministic linking algorithm.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → claim extraction validation → claim-evidence linking validation.
+
+**Validation truth:** Dedicated Step 155 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
+# Current Status — Step 154
+
+## Step 154 — Claim Extraction Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 154 adds a canonical validation entry point for `ClaimExtractionResult` and routes claim-extraction results through a dedicated normalization/validation boundary. This closes the next downstream validation gap after Step 153.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → claim extraction validation.
+
+**Validation truth:** Dedicated Step 154 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 153
 
 ## Step 153 — Evidence Normalization Consumption Contract Validation
