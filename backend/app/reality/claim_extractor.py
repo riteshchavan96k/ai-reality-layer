@@ -2,6 +2,7 @@ import re
 from typing import Any
 
 from backend.app.reality.claim_extraction import ClaimExtractionResult, EvidenceClaim
+from backend.app.reality.claim_extraction_normalizer import ClaimExtractionResultNormalizer
 
 
 class EvidenceClaimExtractor:
@@ -13,15 +14,19 @@ class EvidenceClaimExtractor:
         if not isinstance(evidence, dict):
             raise ValueError("evidence must be a dictionary")
         if evidence.get("status") != "usable":
-            return ClaimExtractionResult.unavailable_result(
-                evidence.get("reason") or "evidence_not_usable",
-                source_count=len(evidence.get("sources", [])) if isinstance(evidence.get("sources", []), list) else 0,
+            return ClaimExtractionResultNormalizer.normalize(
+                ClaimExtractionResult.unavailable_result(
+                    evidence.get("reason") or "evidence_not_usable",
+                    source_count=len(evidence.get("sources", [])) if isinstance(evidence.get("sources", []), list) else 0,
+                )
             )
 
         content = evidence.get("content")
         sources = evidence.get("sources", [])
         if content is None or not isinstance(content, str) or not content.strip():
-            return ClaimExtractionResult.empty_result(source_count=len(sources))
+            return ClaimExtractionResultNormalizer.normalize(
+                ClaimExtractionResult.empty_result(source_count=len(sources))
+            )
         if not isinstance(sources, list):
             raise ValueError("evidence sources must be a list")
 
@@ -46,8 +51,12 @@ class EvidenceClaimExtractor:
             claims.append(EvidenceClaim(text=sentence, source_refs=tuple(source_refs)))
 
         if not claims:
-            return ClaimExtractionResult.empty_result(source_count=len(sources))
-        return ClaimExtractionResult.usable_result(tuple(claims), source_count=len(sources))
+            return ClaimExtractionResultNormalizer.normalize(
+                ClaimExtractionResult.empty_result(source_count=len(sources))
+            )
+        return ClaimExtractionResultNormalizer.normalize(
+            ClaimExtractionResult.usable_result(tuple(claims), source_count=len(sources))
+        )
 
     def extract(self, evidence: dict[str, Any]) -> dict[str, Any]:
         """Preserve a dictionary API while returning the canonical extraction result."""
