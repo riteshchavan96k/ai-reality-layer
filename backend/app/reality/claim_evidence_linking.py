@@ -66,17 +66,59 @@ class ClaimEvidenceLinkingResult:
             raise ValueError("usable or empty claim-evidence linking cannot contain a reason")
 
     @classmethod
-    def usable_result(cls, links: tuple[ClaimEvidenceLink, ...], claim_count: int, source_count: int) -> "ClaimEvidenceLinkingResult":
-        linked_claim_count = len({link.claim_text for link in links})
-        return cls("usable", links=links, claim_count=claim_count, linked_claim_count=linked_claim_count, source_count=source_count)
+    def validate(cls, raw_result: object) -> "ClaimEvidenceLinkingResult":
+        """Validate or normalize a canonical claim-evidence linking result."""
+        if isinstance(raw_result, cls):
+            return raw_result
+        if not isinstance(raw_result, dict):
+            raise ValueError("claim-evidence linking result must be a mapping or ClaimEvidenceLinkingResult")
 
-    @classmethod
-    def empty_result(cls, claim_count: int, source_count: int) -> "ClaimEvidenceLinkingResult":
-        return cls("empty", claim_count=claim_count, source_count=source_count)
+        required = {
+            "status",
+            "links",
+            "claim_count",
+            "linked_claim_count",
+            "source_count",
+            "linking_executed",
+            "reason",
+        }
+        missing = sorted(required - set(raw_result))
+        if missing:
+            raise ValueError(f"missing required fields: {', '.join(missing)}")
 
-    @classmethod
-    def unavailable_result(cls, reason: str, claim_count: int = 0, source_count: int = 0) -> "ClaimEvidenceLinkingResult":
-        return cls("unavailable", claim_count=claim_count, source_count=source_count, reason=reason)
+        raw_links = raw_result["links"]
+        if not isinstance(raw_links, (list, tuple)):
+            raise ValueError("links must be a list or tuple")
+
+        links: list[ClaimEvidenceLink] = []
+        for raw_link in raw_links:
+            if isinstance(raw_link, ClaimEvidenceLink):
+                links.append(raw_link)
+                continue
+            if not isinstance(raw_link, dict):
+                raise ValueError("each claim-evidence link must be a mapping or ClaimEvidenceLink")
+            link_required = {"claim_text", "source_ref", "relationship", "linking_method"}
+            link_missing = sorted(link_required - set(raw_link))
+            if link_missing:
+                raise ValueError(f"claim-evidence link is missing required fields: {', '.join(link_missing)}")
+            links.append(
+                ClaimEvidenceLink(
+                    claim_text=raw_link["claim_text"],
+                    source_ref=raw_link["source_ref"],
+                    relationship=raw_link["relationship"],
+                    linking_method=raw_link["linking_method"],
+                )
+            )
+
+        return cls(
+            status=raw_result["status"],
+            links=tuple(links),
+            claim_count=raw_result["claim_count"],
+            linked_claim_count=raw_result["linked_claim_count"],
+            source_count=raw_result["source_count"],
+            linking_executed=raw_result["linking_executed"],
+            reason=raw_result["reason"],
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return {
