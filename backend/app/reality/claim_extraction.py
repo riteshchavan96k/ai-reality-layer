@@ -59,6 +59,57 @@ class ClaimExtractionResult:
             raise ValueError("usable or empty claim extraction cannot contain a reason")
 
     @classmethod
+    def validate(cls, result: object) -> "ClaimExtractionResult":
+        """Validate an existing claim-extraction result."""
+        if isinstance(result, cls):
+            return result
+
+        if not isinstance(result, dict):
+            raise ValueError("claim extraction result must be a dictionary")
+
+        required = {
+            "status",
+            "claims",
+            "source_count",
+            "extraction_executed",
+        }
+        if not required.issubset(result):
+            raise ValueError("claim extraction result is missing required fields")
+
+        raw_claims = result["claims"]
+        if not isinstance(raw_claims, (list, tuple)):
+            raise ValueError("claims must be a list or tuple")
+
+        claims: list[EvidenceClaim] = []
+        for raw_claim in raw_claims:
+            if isinstance(raw_claim, EvidenceClaim):
+                claims.append(raw_claim)
+                continue
+            if not isinstance(raw_claim, dict):
+                raise ValueError("each claim must be a dictionary")
+            required_claim_fields = {"text", "source_refs", "extraction_method"}
+            if not required_claim_fields.issubset(raw_claim):
+                raise ValueError("claim is missing required fields")
+            source_refs = raw_claim["source_refs"]
+            if not isinstance(source_refs, (list, tuple)):
+                raise ValueError("claim source_refs must be a list or tuple")
+            claims.append(
+                EvidenceClaim(
+                    text=raw_claim["text"],
+                    source_refs=tuple(source_refs),
+                    extraction_method=raw_claim["extraction_method"],
+                )
+            )
+
+        return cls(
+            status=result["status"],
+            claims=tuple(claims),
+            source_count=result["source_count"],
+            extraction_executed=result["extraction_executed"],
+            reason=result.get("reason"),
+        )
+
+    @classmethod
     def usable_result(cls, claims: tuple[EvidenceClaim, ...], source_count: int) -> "ClaimExtractionResult":
         return cls("usable", claims=claims, source_count=source_count)
 
