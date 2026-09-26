@@ -6,6 +6,7 @@ from backend.app.models.provider_invocation_executor import ProviderInvocationEx
 from backend.app.reality.context_requirements import RealityContextRequirementDetector
 from backend.app.reality.claim_evidence_linker import ClaimEvidenceLinker
 from backend.app.reality.claim_extractor import EvidenceClaimExtractor
+from backend.app.reality.claim_extraction_normalizer import ClaimExtractionResultNormalizer
 from backend.app.reality.claim_conflict_detector import ClaimConflictDetector
 from backend.app.reality.confidence_signal_aggregator import RealityConfidenceSignalAggregator
 from backend.app.reality.reality_state_builder import RealityStateBuilder
@@ -60,6 +61,7 @@ class OrchestrationDependencies:
 
     context_detector: RealityContextRequirementDetector
     claim_extractor: EvidenceClaimExtractor
+    claim_extraction_result_normalizer: ClaimExtractionResultNormalizer
     claim_conflict_detector: ClaimConflictDetector
     confidence_signal_aggregator: RealityConfidenceSignalAggregator
     reality_state_builder: RealityStateBuilder
@@ -142,6 +144,7 @@ class OrchestrationDependencies:
         return cls(
             context_detector=RealityContextRequirementDetector(),
             claim_extractor=EvidenceClaimExtractor(),
+            claim_extraction_result_normalizer=ClaimExtractionResultNormalizer(),
             claim_conflict_detector=ClaimConflictDetector(),
             confidence_signal_aggregator=RealityConfidenceSignalAggregator(),
             reality_state_builder=RealityStateBuilder(),
@@ -187,6 +190,3 @@ class OrchestrationDependencies:
             grounded_result_builder=GroundedResultEnvelopeBuilder(),
             provider_executor=ProviderInvocationExecutor(),
         )
-
-
-__all__ = ["OrchestrationDependencies"]
