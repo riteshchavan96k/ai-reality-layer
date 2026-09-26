@@ -1,6 +1,7 @@
 from typing import Any
 
 from backend.app.reality.claim_evidence_linking import ClaimEvidenceLink, ClaimEvidenceLinkingResult
+from backend.app.reality.claim_evidence_linking_normalizer import ClaimEvidenceLinkingResultNormalizer
 from backend.app.reality.claim_extraction import ClaimExtractionResult, EvidenceClaim
 
 
@@ -29,17 +30,35 @@ class ClaimEvidenceLinker:
         claim_count = len(claim_result.claims)
 
         if evidence.get("status") != "usable":
-            return ClaimEvidenceLinkingResult.unavailable_result(
-                evidence.get("reason") or "evidence_not_usable",
-                claim_count=claim_count,
-                source_count=len(sources),
+            return ClaimEvidenceLinkingResultNormalizer.normalize(
+                ClaimEvidenceLinkingResult.unavailable_result(
+                    evidence.get("reason") or "evidence_not_usable",
+                    claim_count=claim_count,
+                    source_count=len(sources),
+                )
             )
         if claim_result.status == "unavailable":
-            return ClaimEvidenceLinkingResult.unavailable_result(claim_result.reason or "claim_extraction_unavailable", claim_count=claim_count, source_count=len(sources))
+            return ClaimEvidenceLinkingResultNormalizer.normalize(
+                ClaimEvidenceLinkingResult.unavailable_result(
+                    claim_result.reason or "claim_extraction_unavailable",
+                    claim_count=claim_count,
+                    source_count=len(sources),
+                )
+            )
         if claim_result.status == "empty":
-            return ClaimEvidenceLinkingResult.empty_result(claim_count=claim_count, source_count=len(sources))
+            return ClaimEvidenceLinkingResultNormalizer.normalize(
+                ClaimEvidenceLinkingResult.empty_result(
+                    claim_count=claim_count,
+                    source_count=len(sources),
+                )
+            )
         if not known_refs:
-            return ClaimEvidenceLinkingResult.empty_result(claim_count=claim_count, source_count=len(sources))
+            return ClaimEvidenceLinkingResultNormalizer.normalize(
+                ClaimEvidenceLinkingResult.empty_result(
+                    claim_count=claim_count,
+                    source_count=len(sources),
+                )
+            )
 
         links: list[ClaimEvidenceLink] = []
         seen: set[tuple[str, str]] = set()
@@ -55,8 +74,19 @@ class ClaimEvidenceLinker:
                 links.append(ClaimEvidenceLink(claim_text=claim.text, source_ref=normalized_ref))
 
         if not links:
-            return ClaimEvidenceLinkingResult.empty_result(claim_count=claim_count, source_count=len(sources))
-        return ClaimEvidenceLinkingResult.usable_result(tuple(links), claim_count=claim_count, source_count=len(sources))
+            return ClaimEvidenceLinkingResultNormalizer.normalize(
+                ClaimEvidenceLinkingResult.empty_result(
+                    claim_count=claim_count,
+                    source_count=len(sources),
+                )
+            )
+        return ClaimEvidenceLinkingResultNormalizer.normalize(
+            ClaimEvidenceLinkingResult.usable_result(
+                tuple(links),
+                claim_count=claim_count,
+                source_count=len(sources),
+            )
+        )
 
     def link(self, claim_result: ClaimExtractionResult | dict[str, Any], evidence: dict[str, Any]) -> dict[str, Any]:
         """Preserve a dictionary API while returning the canonical linking result."""
