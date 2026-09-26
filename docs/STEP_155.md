@@ -26,6 +26,8 @@ Step 155 validates:
 
 A dedicated `ClaimEvidenceLinkingResultNormalizer` accepts either the canonical result or a compatible mapping and routes mapping-shaped results through the canonical validator.
 
+The production `ClaimEvidenceLinker.link_result()` now routes every result-producing branch through that canonical normalizer. Existing deterministic linking behavior is unchanged.
+
 ## Safety Invariant
 
 retrieval result
@@ -47,8 +49,6 @@ The existing deterministic claim-evidence linking behavior remains unchanged. Th
 
 ## Validation Truth
 
-Dedicated Step 155 regression tests are committed. Local pytest execution remains required before claiming a full repository test pass. GitHub status checks are not configured.
+Dedicated Step 155 regression tests include both contract-level validation and an integration check proving that the production linker returns the canonical validated result type.
 
-## Repository Write Note
-
-The canonical normalizer and Step 155 regression coverage are committed. The existing `claim_evidence_linking.py` file already enforces the result invariants in its constructor; the new normalizer uses that existing canonical result contract. A direct in-place rewrite of the existing file was not applied because the repository write interface returned a blob-SHA conflict despite repeated fresh reads; no destructive replacement was attempted.
+Local pytest execution remains required before claiming a full repository test pass. GitHub status checks are not configured.
