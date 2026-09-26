@@ -44,8 +44,10 @@ class ClaimConflictResult:
             raise ValueError("status must be usable, empty, or unavailable")
         if not isinstance(self.conflicts, tuple) or any(not isinstance(item, ClaimConflict) for item in self.conflicts):
             raise ValueError("conflicts must be a tuple of ClaimConflict values")
-        if self.claim_count < 0 or self.conflict_count < 0:
-            raise ValueError("counts must be non-negative")
+        if not isinstance(self.claim_count, int) or self.claim_count < 0:
+            raise ValueError("claim_count must be a non-negative integer")
+        if not isinstance(self.conflict_count, int) or self.conflict_count < 0:
+            raise ValueError("conflict_count must be a non-negative integer")
         if self.conflict_count != len(self.conflicts):
             raise ValueError("conflict_count must match conflicts")
         if not isinstance(self.detection_executed, bool):
@@ -70,6 +72,66 @@ class ClaimConflictResult:
     @classmethod
     def unavailable_result(cls, reason: str, claim_count: int = 0) -> "ClaimConflictResult":
         return cls("unavailable", claim_count=claim_count, reason=reason)
+
+    @classmethod
+    def validate(cls, raw_result: object) -> "ClaimConflictResult":
+        """Validate or normalize a canonical claim-conflict result."""
+        if isinstance(raw_result, cls):
+            return raw_result
+        if not isinstance(raw_result, dict):
+            raise ValueError("claim conflict result must be a mapping or ClaimConflictResult")
+
+        required = {
+            "status",
+            "conflicts",
+            "claim_count",
+            "conflict_count",
+            "detection_executed",
+            "reason",
+        }
+        missing = sorted(required - set(raw_result))
+        if missing:
+            raise ValueError(f"missing required fields: {', '.join(missing)}")
+
+        raw_conflicts = raw_result["conflicts"]
+        if not isinstance(raw_conflicts, (list, tuple)):
+            raise ValueError("conflicts must be a list or tuple")
+
+        conflicts: list[ClaimConflict] = []
+        for raw_conflict in raw_conflicts:
+            if isinstance(raw_conflict, ClaimConflict):
+                conflicts.append(raw_conflict)
+                continue
+            if not isinstance(raw_conflict, dict):
+                raise ValueError("each claim conflict must be a mapping or ClaimConflict")
+            conflict_required = {"claim_a", "claim_b", "source_refs_a", "source_refs_b", "conflict_method"}
+            conflict_missing = sorted(conflict_required - set(raw_conflict))
+            if conflict_missing:
+                raise ValueError(f"claim conflict is missing required fields: {', '.join(conflict_missing)}")
+            source_refs_a = raw_conflict["source_refs_a"]
+            source_refs_b = raw_conflict["source_refs_b"]
+            if not isinstance(source_refs_a, (list, tuple)):
+                raise ValueError("source_refs_a must be a list or tuple")
+            if not isinstance(source_refs_b, (list, tuple)):
+                raise ValueError("source_refs_b must be a list or tuple")
+            conflicts.append(
+                ClaimConflict(
+                    claim_a=raw_conflict["claim_a"],
+                    claim_b=raw_conflict["claim_b"],
+                    source_refs_a=tuple(source_refs_a),
+                    source_refs_b=tuple(source_refs_b),
+                    conflict_method=raw_conflict["conflict_method"],
+                )
+            )
+
+        return cls(
+            status=raw_result["status"],
+            conflicts=tuple(conflicts),
+            claim_count=raw_result["claim_count"],
+            conflict_count=raw_result["conflict_count"],
+            detection_executed=raw_result["detection_executed"],
+            reason=raw_result["reason"],
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return {"status": self.status, "conflicts": [item.to_dict() for item in self.conflicts], "conflict_count": self.conflict_count, "claim_count": self.claim_count, "detection_executed": self.detection_executed, "reason": self.reason}
