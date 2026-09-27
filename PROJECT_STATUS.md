@@ -1,3 +1,17 @@
+# Current Status — Step 158
+
+## Step 158 — Source Observation Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 158 adds a canonical validation entry point for `SourceObservationResult` and routes the existing source-observation builder through a dedicated normalizer. This closes the next downstream validation gap after Step 157 without changing the existing observation timestamp-generation behavior.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → claim extraction validation → claim-evidence linking validation → claim conflict validation → source provenance validation → source observation validation → source freshness evaluation.
+
+**Design boundary:** Source observation contract integrity only. The step preserves stable source identity and retrieval-observation timestamp semantics. It does not establish source authority, factual truth, freshness itself, relevance, or semantic agreement.
+
+**Validation truth:** Dedicated Step 158 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 157
 
 ## Step 157 — Source Provenance Contract Validation
