@@ -50,6 +50,8 @@ class SourceObservationResult:
             raise ValueError("status must be usable, empty, or unavailable")
         if not isinstance(self.observations, tuple) or any(not isinstance(item, SourceObservation) for item in self.observations):
             raise ValueError("observations must be a tuple of SourceObservation values")
+        if not isinstance(self.source_count, int) or self.source_count < 0:
+            raise ValueError("source_count must be a non-negative integer")
         if self.source_count != len(self.observations):
             raise ValueError("source_count must match the number of observations")
         if not isinstance(self.observation_executed, bool):
@@ -76,6 +78,46 @@ class SourceObservationResult:
     @classmethod
     def unavailable_result(cls, reason: str) -> "SourceObservationResult":
         return cls("unavailable", reason=reason)
+
+    @classmethod
+    def validate(cls, raw_result: object) -> "SourceObservationResult":
+        """Validate or normalize a canonical source-observation result."""
+        if isinstance(raw_result, cls):
+            return raw_result
+        if not isinstance(raw_result, dict):
+            raise ValueError("source observation result must be a mapping or SourceObservationResult")
+        required = {"status", "observations", "source_count", "observation_executed", "reason"}
+        missing = sorted(required - set(raw_result))
+        if missing:
+            raise ValueError(f"missing required fields: {', '.join(missing)}")
+        raw_observations = raw_result["observations"]
+        if not isinstance(raw_observations, (list, tuple)):
+            raise ValueError("observations must be a list or tuple")
+        observations: list[SourceObservation] = []
+        for raw_observation in raw_observations:
+            if isinstance(raw_observation, SourceObservation):
+                observations.append(raw_observation)
+                continue
+            if not isinstance(raw_observation, dict):
+                raise ValueError("each source observation must be a mapping or SourceObservation")
+            observation_required = {"source_id", "observed_at", "observation_method"}
+            observation_missing = sorted(observation_required - set(raw_observation))
+            if observation_missing:
+                raise ValueError(f"source observation is missing required fields: {', '.join(observation_missing)}")
+            observations.append(
+                SourceObservation(
+                    source_id=raw_observation["source_id"],
+                    observed_at=raw_observation["observed_at"],
+                    observation_method=raw_observation["observation_method"],
+                )
+            )
+        return cls(
+            status=raw_result["status"],
+            observations=tuple(observations),
+            source_count=raw_result["source_count"],
+            observation_executed=raw_result["observation_executed"],
+            reason=raw_result["reason"],
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return {
