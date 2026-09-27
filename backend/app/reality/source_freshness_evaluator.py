@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 
 from backend.app.reality.source_freshness import SourceFreshnessAssessment, SourceFreshnessResult
+from backend.app.reality.source_freshness_normalizer import SourceFreshnessResultNormalizer
 from backend.app.reality.source_observation import SourceObservationResult
 
 
@@ -25,9 +26,11 @@ class SourceFreshnessEvaluator:
                 raise ValueError("max_age_seconds must be a positive number or None")
 
         if observations.status == "unavailable":
-            return SourceFreshnessResult.unavailable_result(observations.reason or "source_observation_unavailable")
+            return SourceFreshnessResultNormalizer.normalize(
+                SourceFreshnessResult.unavailable_result(observations.reason or "source_observation_unavailable")
+            )
         if observations.status == "empty":
-            return SourceFreshnessResult.empty_result()
+            return SourceFreshnessResultNormalizer.normalize(SourceFreshnessResult.empty_result())
 
         now = self._clock()
         if not isinstance(now, datetime) or now.tzinfo is None:
@@ -56,7 +59,9 @@ class SourceFreshnessEvaluator:
                     age_seconds=age_seconds,
                     max_age_seconds=float(max_age_seconds),
                 ))
-        return SourceFreshnessResult.usable_result(tuple(assessments))
+        return SourceFreshnessResultNormalizer.normalize(
+            SourceFreshnessResult.usable_result(tuple(assessments))
+        )
 
     def evaluate(self, observations: SourceObservationResult | dict[str, Any], max_age_seconds: float | int | None = None) -> dict[str, Any]:
         return self.evaluate_result(observations, max_age_seconds=max_age_seconds).to_dict()
