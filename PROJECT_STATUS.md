@@ -1,3 +1,17 @@
+# Current Status — Step 157
+
+## Step 157 — Source Provenance Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 157 adds a canonical validation entry point for `SourceProvenanceResult` and routes source-provenance construction through a dedicated normalizer. This closes the next downstream validation gap after Step 156 without changing the existing provenance-generation behavior.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → claim extraction validation → claim-evidence linking validation → claim conflict validation → source provenance validation.
+
+**Design boundary:** Source provenance contract integrity only. The step preserves source identity, URI, title, and provenance metadata semantics and does not establish source authority, factual truth, freshness, relevance, or semantic agreement.
+
+**Validation truth:** Dedicated Step 157 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 156
 
 ## Step 156 — Claim Conflict Contract Validation
