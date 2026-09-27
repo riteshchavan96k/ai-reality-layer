@@ -79,6 +79,52 @@ class SourceProvenanceResult:
     def unavailable_result(cls, reason: str) -> "SourceProvenanceResult":
         return cls("unavailable", reason=reason)
 
+    @classmethod
+    def validate(cls, raw_result: object) -> "SourceProvenanceResult":
+        """Validate or normalize a canonical source-provenance result."""
+        if isinstance(raw_result, cls):
+            return raw_result
+        if not isinstance(raw_result, dict):
+            raise ValueError("source provenance result must be a mapping or SourceProvenanceResult")
+
+        required = {"status", "sources", "source_count", "provenance_executed", "reason"}
+        missing = sorted(required - set(raw_result))
+        if missing:
+            raise ValueError(f"missing required fields: {', '.join(missing)}")
+
+        raw_sources = raw_result["sources"]
+        if not isinstance(raw_sources, (list, tuple)):
+            raise ValueError("sources must be a list or tuple")
+
+        sources: list[SourceProvenance] = []
+        for raw_source in raw_sources:
+            if isinstance(raw_source, SourceProvenance):
+                sources.append(raw_source)
+                continue
+            if not isinstance(raw_source, dict):
+                raise ValueError("each source provenance record must be a mapping or SourceProvenance")
+            source_required = {"source_id", "source_ref", "uri", "title", "identity_method"}
+            source_missing = sorted(source_required - set(raw_source))
+            if source_missing:
+                raise ValueError(f"source provenance is missing required fields: {', '.join(source_missing)}")
+            sources.append(
+                SourceProvenance(
+                    source_id=raw_source["source_id"],
+                    source_ref=raw_source["source_ref"],
+                    uri=raw_source["uri"],
+                    title=raw_source["title"],
+                    identity_method=raw_source["identity_method"],
+                )
+            )
+
+        return cls(
+            status=raw_result["status"],
+            sources=tuple(sources),
+            source_count=raw_result["source_count"],
+            provenance_executed=raw_result["provenance_executed"],
+            reason=raw_result["reason"],
+        )
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "status": self.status,
