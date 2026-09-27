@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 
 from backend.app.reality.source_observation import SourceObservation, SourceObservationResult
+from backend.app.reality.source_observation_normalizer import SourceObservationResultNormalizer
 from backend.app.reality.source_provenance import SourceProvenanceResult
 
 
@@ -21,11 +22,13 @@ class SourceObservationBuilder:
             raise ValueError("provenance must be a SourceProvenanceResult")
 
         if provenance.status == "unavailable":
-            return SourceObservationResult.unavailable_result(
-                provenance.reason or "source_provenance_unavailable"
+            return SourceObservationResultNormalizer.normalize(
+                SourceObservationResult.unavailable_result(
+                    provenance.reason or "source_provenance_unavailable"
+                )
             )
         if provenance.status == "empty":
-            return SourceObservationResult.empty_result()
+            return SourceObservationResultNormalizer.normalize(SourceObservationResult.empty_result())
 
         observed_at = self._clock()
         if not isinstance(observed_at, datetime):
@@ -35,10 +38,12 @@ class SourceObservationBuilder:
         observed_at_utc = observed_at.astimezone(timezone.utc)
         timestamp = observed_at_utc.isoformat().replace("+00:00", "Z")
 
-        return SourceObservationResult.usable_result(
-            tuple(
-                SourceObservation(source.source_id, timestamp)
-                for source in provenance.sources
+        return SourceObservationResultNormalizer.normalize(
+            SourceObservationResult.usable_result(
+                tuple(
+                    SourceObservation(source.source_id, timestamp)
+                    for source in provenance.sources
+                )
             )
         )
 
