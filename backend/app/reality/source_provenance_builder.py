@@ -2,6 +2,7 @@ import hashlib
 from typing import Any
 
 from backend.app.reality.source_provenance import SourceProvenance, SourceProvenanceResult
+from backend.app.reality.source_provenance_normalizer import SourceProvenanceResultNormalizer
 
 
 class SourceProvenanceBuilder:
@@ -12,15 +13,17 @@ class SourceProvenanceBuilder:
             raise ValueError("evidence must be a dictionary")
 
         if evidence.get("status") != "usable":
-            return SourceProvenanceResult.unavailable_result(
-                evidence.get("reason") or "evidence_not_usable"
+            return SourceProvenanceResultNormalizer.normalize(
+                SourceProvenanceResult.unavailable_result(
+                    evidence.get("reason") or "evidence_not_usable"
+                )
             )
 
         sources = evidence.get("sources", [])
         if not isinstance(sources, list):
             raise ValueError("evidence sources must be a list")
         if not sources:
-            return SourceProvenanceResult.empty_result()
+            return SourceProvenanceResultNormalizer.normalize(SourceProvenanceResult.empty_result())
 
         records: list[SourceProvenance] = []
         seen_refs: set[str] = set()
@@ -46,8 +49,10 @@ class SourceProvenanceBuilder:
             )
 
         if not records:
-            return SourceProvenanceResult.empty_result()
-        return SourceProvenanceResult.usable_result(tuple(records))
+            return SourceProvenanceResultNormalizer.normalize(SourceProvenanceResult.empty_result())
+        return SourceProvenanceResultNormalizer.normalize(
+            SourceProvenanceResult.usable_result(tuple(records))
+        )
 
     def build(self, evidence: dict[str, Any]) -> dict[str, Any]:
         """Preserve a dictionary API while using the canonical result contract."""
