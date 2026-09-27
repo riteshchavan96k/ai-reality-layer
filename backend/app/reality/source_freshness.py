@@ -21,13 +21,13 @@ class SourceFreshnessAssessment:
             raise ValueError("status must be fresh, stale, or unknown")
         if not isinstance(self.observed_at, str) or not self.observed_at.strip():
             raise ValueError("observed_at must be a non-empty string")
-        if self.age_seconds is not None and (not isinstance(self.age_seconds, (int, float)) or self.age_seconds < 0):
+        if self.age_seconds is not None and (not isinstance(self.age_seconds, (int, float)) or isinstance(self.age_seconds, bool) or self.age_seconds < 0):
             raise ValueError("age_seconds must be a non-negative number or None")
-        if self.max_age_seconds is not None and (not isinstance(self.max_age_seconds, (int, float)) or self.max_age_seconds <= 0):
+        if self.max_age_seconds is not None and (not isinstance(self.max_age_seconds, (int, float)) or isinstance(self.max_age_seconds, bool) or self.max_age_seconds <= 0):
             raise ValueError("max_age_seconds must be a positive number or None")
         if self.status in {"fresh", "stale"} and (self.age_seconds is None or self.max_age_seconds is None):
             raise ValueError("fresh or stale assessment requires age_seconds and max_age_seconds")
-        if self.status == "unknown" and self.reason is None:
+        if self.status == "unknown" and (not isinstance(self.reason, str) or not self.reason.strip()):
             raise ValueError("unknown assessment requires a reason")
         if self.status != "unknown" and self.reason is not None:
             raise ValueError("fresh or stale assessment cannot contain a reason")
@@ -64,6 +64,8 @@ class SourceFreshnessResult:
             raise ValueError("status must be usable, empty, or unavailable")
         if not isinstance(self.assessments, tuple) or any(not isinstance(item, SourceFreshnessAssessment) for item in self.assessments):
             raise ValueError("assessments must be a tuple of SourceFreshnessAssessment values")
+        if not isinstance(self.source_count, int) or self.source_count < 0:
+            raise ValueError("source_count must be a non-negative integer")
         if self.source_count != len(self.assessments):
             raise ValueError("source_count must match the number of assessments")
         counts = {
@@ -102,6 +104,51 @@ class SourceFreshnessResult:
     @classmethod
     def unavailable_result(cls, reason: str) -> "SourceFreshnessResult":
         return cls("unavailable", reason=reason)
+
+    @classmethod
+    def validate(cls, raw_result: object) -> "SourceFreshnessResult":
+        """Validate or normalize a canonical source-freshness result."""
+        if isinstance(raw_result, cls):
+            return raw_result
+        if not isinstance(raw_result, dict):
+            raise ValueError("source freshness result must be a mapping or SourceFreshnessResult")
+        required = {"status", "assessments", "source_count", "fresh_count", "stale_count", "unknown_count", "freshness_executed", "reason"}
+        missing = sorted(required - set(raw_result))
+        if missing:
+            raise ValueError(f"missing required fields: {', '.join(missing)}")
+        raw_assessments = raw_result["assessments"]
+        if not isinstance(raw_assessments, (list, tuple)):
+            raise ValueError("assessments must be a list or tuple")
+        assessments: list[SourceFreshnessAssessment] = []
+        for raw_assessment in raw_assessments:
+            if isinstance(raw_assessment, SourceFreshnessAssessment):
+                assessments.append(raw_assessment)
+                continue
+            if not isinstance(raw_assessment, dict):
+                raise ValueError("each freshness assessment must be a mapping or SourceFreshnessAssessment")
+            assessment_required = {"source_id", "status", "observed_at", "age_seconds", "max_age_seconds", "assessment_method", "reason"}
+            assessment_missing = sorted(assessment_required - set(raw_assessment))
+            if assessment_missing:
+                raise ValueError(f"freshness assessment is missing required fields: {', '.join(assessment_missing)}")
+            assessments.append(SourceFreshnessAssessment(
+                source_id=raw_assessment["source_id"],
+                status=raw_assessment["status"],
+                observed_at=raw_assessment["observed_at"],
+                age_seconds=raw_assessment["age_seconds"],
+                max_age_seconds=raw_assessment["max_age_seconds"],
+                assessment_method=raw_assessment["assessment_method"],
+                reason=raw_assessment["reason"],
+            ))
+        return cls(
+            status=raw_result["status"],
+            assessments=tuple(assessments),
+            source_count=raw_result["source_count"],
+            fresh_count=raw_result["fresh_count"],
+            stale_count=raw_result["stale_count"],
+            unknown_count=raw_result["unknown_count"],
+            freshness_executed=raw_result["freshness_executed"],
+            reason=raw_result["reason"],
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return {
