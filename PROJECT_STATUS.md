@@ -1,3 +1,17 @@
+# Current Status — Step 163
+
+## Step 163 — Grounding Context Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 163 adds canonical validation for the existing provenance-preserving `GroundingContext` boundary and routes grounding-context construction and normalization through that validator. It closes the execution-context validation gap adjacent to the Step 162 grounded-result boundary without changing evidence or grounding semantics.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → grounding context validation → model execution → grounded result validation.
+
+**Design boundary:** Grounding-context contract integrity only. A `ready` context means the existing evidence pipeline produced an execution-ready context; it is not a truth certificate or calibrated probability. This step does not add an LLM judge, embeddings, vector database, new retrieval provider, ML/DL model, model training, or semantic truth inference.
+
+**Validation truth:** Dedicated Step 163 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 162
 
 ## Step 162 — Grounded Result Contract Validation
