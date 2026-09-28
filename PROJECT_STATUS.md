@@ -1,3 +1,17 @@
+# Current Status — Step 160
+
+## Step 160 — Confidence Signal Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 160 adds a canonical validation entry point for `RealityConfidenceSignalResult` and routes the existing confidence-signal aggregator through a dedicated normalizer. This closes the next downstream validation gap after Step 159 without changing the deterministic grounding-signal semantics.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → claim extraction validation → claim-evidence linking validation → claim conflict validation → source provenance validation → source observation validation → source freshness validation → confidence signal validation.
+
+**Design boundary:** Confidence-signal contract integrity only. `supported` and `uncertain` remain deterministic grounding states, not calibrated probabilities or truth certificates. This step does not add an LLM judge, embeddings, vector database, new retrieval provider, ML/DL model, model training, or a new truth-verification mechanism.
+
+**Validation truth:** Dedicated Step 160 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 159
 
 ## Step 159 — Source Freshness Contract Validation
