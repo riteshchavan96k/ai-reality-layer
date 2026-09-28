@@ -1,3 +1,17 @@
+# Current Status — Step 161
+
+## Step 161 — Reality State Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 161 adds a canonical validation entry point for `RealityState` and routes the existing Reality State builder through a dedicated normalizer. This closes the next downstream validation gap after Step 160 without changing the deterministic evidence-backed snapshot semantics.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → claim extraction validation → claim-evidence linking validation → claim conflict validation → source provenance validation → source observation validation → source freshness validation → confidence signal validation → Reality State validation.
+
+**Design boundary:** Reality State contract integrity only. `supported` remains a deterministic grounding state, not a calibrated probability or truth certificate. This step does not add an LLM judge, embeddings, vector database, new retrieval provider, ML/DL model, model training, or a new truth-verification mechanism.
+
+**Validation truth:** Dedicated Step 161 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 160
 
 ## Step 160 — Confidence Signal Contract Validation
@@ -457,7 +471,7 @@ This step establishes the consumption boundary between provider selection and re
 
 - Adds `RetrievalProviderSelectionResultNormalizer` as the canonical selection-result normalization boundary.
 - Accepts typed selection results without rebuilding them.
-- Converts compatible legacy selected/unavailable mappings into the canonical result contract.
+- Converts compatible selected/unavailable mappings into the canonical result contract.
 - Delegates nested decision normalization to `RetrievalProviderSelectionDecisionNormalizer`.
 - Preserves provider objects and stable rejection reasons.
 - Rejects unsupported result shapes and invalid mappings deterministically.
@@ -479,7 +493,7 @@ This step establishes selection-result normalization only. It does not add exter
 
 ### Step 82 Design Boundary
 
-This step establishes decision normalization only. It does not add external providers, network access, credentials, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+This step establishes decision normalization only. It does not add external providers, network access, credentials, active health probes, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
 
 ### Step 81 Scope
 
