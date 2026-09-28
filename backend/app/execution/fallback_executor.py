@@ -1,6 +1,8 @@
 from typing import Any, Callable
 
 from backend.app.execution.execution_budget import ExecutionBudget
+from backend.app.execution.model_execution_contract import ModelExecutionResult
+from backend.app.execution.model_execution_normalizer import ModelExecutionResultNormalizer
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.models.response_contract import ModelResponseNormalizer
 
@@ -15,12 +17,7 @@ def execute_with_fallback(
     provider_name_resolver: Callable[[str], str] | None = None,
     invocation_executor: Callable[[str, str, str, dict[str, Any] | None], dict[str, Any]] | None = None,
 ) -> dict:
-    """Try candidate models in order while respecting a total attempt budget.
-
-    When an invocation executor is supplied, provider execution is routed through
-    the provider-neutral invocation/result boundary introduced in Steps 50–52.
-    The adapter path remains available for backward-compatible isolated callers.
-    """
+    """Try candidate models in order while respecting a total attempt budget."""
     attempts_by_model: dict[str, int] = {}
     errors: dict[str, str] = {}
     budget = execution_budget or ExecutionBudget(
@@ -43,12 +40,7 @@ def execute_with_fallback(
             last_error = None
 
             while attempts < retry_policy.max_attempts and budget.remaining_attempts > 0:
-                result = invocation_executor(
-                    provider_name,
-                    model_name,
-                    task,
-                    context,
-                )
+                result = invocation_executor(provider_name, model_name, task, context)
 
                 if result["status"] == "blocked":
                     attempts_by_model[model_name] = attempts
@@ -60,16 +52,18 @@ def execute_with_fallback(
 
                 if result["status"] == "completed":
                     attempts_by_model[model_name] = attempts
-                    return {
-                        "status": "success",
-                        "model": model_name,
-                        "attempts": attempts,
-                        "total_attempts": budget.used_attempts,
-                        "budget_limit": budget.max_attempts,
-                        "attempts_by_model": attempts_by_model,
-                        "fallback_used": bool(errors),
-                        "result": result["result"],
-                    }
+                    return ModelExecutionResultNormalizer.normalize(
+                        ModelExecutionResult(
+                            status="success",
+                            model=model_name,
+                            attempts=attempts,
+                            total_attempts=budget.used_attempts,
+                            budget_limit=budget.max_attempts,
+                            attempts_by_model=dict(attempts_by_model),
+                            fallback_used=bool(errors),
+                            result=result["result"],
+                        )
+                    ).to_dict()
 
                 last_error = result.get("reason", "provider_execution_failed")
 
@@ -89,39 +83,38 @@ def execute_with_fallback(
         if remaining <= 0:
             break
 
-        model_policy = RetryPolicy(
-            max_attempts=min(retry_policy.max_attempts, remaining)
-        )
+        model_policy = RetryPolicy(max_attempts=min(retry_policy.max_attempts, remaining))
         execution = model_policy.execute(
-            lambda: normalizer.normalize(
-                adapter.generate(task, context=context),
-                model_name,
-            )
+            lambda: normalizer.normalize(adapter.generate(task, context=context), model_name)
         )
         budget.consume(execution["attempts"])
         attempts_by_model[model_name] = execution["attempts"]
 
         if execution["status"] == "success":
-            return {
-                "status": "success",
-                "model": model_name,
-                "attempts": execution["attempts"],
-                "total_attempts": budget.used_attempts,
-                "budget_limit": budget.max_attempts,
-                "attempts_by_model": attempts_by_model,
-                "fallback_used": bool(errors),
-                "result": execution["result"],
-            }
+            return ModelExecutionResultNormalizer.normalize(
+                ModelExecutionResult(
+                    status="success",
+                    model=model_name,
+                    attempts=execution["attempts"],
+                    total_attempts=budget.used_attempts,
+                    budget_limit=budget.max_attempts,
+                    attempts_by_model=dict(attempts_by_model),
+                    fallback_used=bool(errors),
+                    result=execution["result"],
+                )
+            ).to_dict()
 
         errors[model_name] = execution["error"]
 
-    return {
-        "status": "failed",
-        "model": None,
-        "attempts": sum(attempts_by_model.values()),
-        "total_attempts": budget.used_attempts,
-        "budget_limit": budget.max_attempts,
-        "attempts_by_model": attempts_by_model,
-        "fallback_used": len(model_names) > 1,
-        "errors": errors,
-    }
+    return ModelExecutionResultNormalizer.normalize(
+        ModelExecutionResult(
+            status="failed",
+            model=None,
+            attempts=sum(attempts_by_model.values()),
+            total_attempts=budget.used_attempts,
+            budget_limit=budget.max_attempts,
+            attempts_by_model=dict(attempts_by_model),
+            fallback_used=len(model_names) > 1,
+            errors=dict(errors),
+        )
+    ).to_dict()
