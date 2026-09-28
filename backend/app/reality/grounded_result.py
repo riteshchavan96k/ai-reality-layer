@@ -114,11 +114,15 @@ class GroundedResultEnvelopeBuilder:
             else (_ for _ in ()).throw(ValueError("each grounding source must be a dictionary"))
             for source in sources
         )
-        return GroundedResultEnvelope(
-            status=status,
-            grounded=status == "ready",
-            source_count=len(normalized_sources),
-            sources=normalized_sources,
+        from backend.app.reality.grounded_result_normalizer import GroundedResultEnvelopeNormalizer
+
+        return GroundedResultEnvelopeNormalizer.normalize(
+            GroundedResultEnvelope(
+                status=status,
+                grounded=status == "ready",
+                source_count=len(normalized_sources),
+                sources=normalized_sources,
+            )
         )
 
     def build(self, grounding_context: dict[str, Any], result: Any) -> dict[str, Any]:
