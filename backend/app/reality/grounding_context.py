@@ -1,6 +1,7 @@
 from typing import Any
 
 from backend.app.reality.grounding_context_contract import GroundingContext
+from backend.app.reality.grounding_context_normalizer import GroundingContextNormalizer
 
 
 class EvidenceGroundingContextBuilder:
@@ -22,7 +23,9 @@ class EvidenceGroundingContextBuilder:
             raise ValueError("evidence content must be a string or None")
 
         if status != "usable":
-            return GroundingContext.not_available_result(task)
+            return GroundingContextNormalizer.normalize(
+                GroundingContext.not_available_result(task)
+            )
 
         normalized_sources: list[dict[str, Any]] = []
         for source in sources:
@@ -35,10 +38,12 @@ class EvidenceGroundingContextBuilder:
                 }
             )
 
-        return GroundingContext.ready_result(
-            task=task,
-            content=content,
-            sources=normalized_sources,
+        return GroundingContextNormalizer.normalize(
+            GroundingContext.ready_result(
+                task=task,
+                content=content,
+                sources=normalized_sources,
+            )
         )
 
     def build(self, task: str, evidence: dict[str, Any]) -> dict[str, Any]:
