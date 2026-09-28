@@ -28,6 +28,8 @@ class GroundingContext:
             raise ValueError("source_count must match sources")
         if not isinstance(self.grounding_executed, bool):
             raise ValueError("grounding_executed must be a boolean")
+        if self.status == "ready" and not self.grounding_executed:
+            raise ValueError("ready grounding context must have grounding_executed=True")
         if self.status == "not_available":
             if self.content is not None:
                 raise ValueError("not_available grounding context cannot contain content")
@@ -59,6 +61,34 @@ class GroundingContext:
             content=None,
             sources=[],
             source_count=0,
+        )
+
+    @classmethod
+    def validate(cls, raw_context: object) -> "GroundingContext":
+        """Validate or normalize a canonical grounding context."""
+        if isinstance(raw_context, cls):
+            return raw_context
+        if not isinstance(raw_context, dict):
+            raise ValueError("grounding context must be a mapping or GroundingContext")
+        required = {"status", "task", "content", "sources", "source_count", "grounding_executed"}
+        missing = sorted(required - set(raw_context))
+        if missing:
+            raise ValueError(f"missing required fields: {', '.join(missing)}")
+        raw_sources = raw_context["sources"]
+        if not isinstance(raw_sources, (list, tuple)):
+            raise ValueError("sources must be a list or tuple")
+        sources: list[dict[str, Any]] = []
+        for source in raw_sources:
+            if not isinstance(source, dict):
+                raise ValueError("each grounding source must be a mapping")
+            sources.append(dict(source))
+        return cls(
+            status=raw_context["status"],
+            task=raw_context["task"],
+            content=raw_context["content"],
+            sources=sources,
+            source_count=raw_context["source_count"],
+            grounding_executed=raw_context["grounding_executed"],
         )
 
     def to_dict(self) -> dict[str, Any]:
