@@ -1,3 +1,17 @@
+# Current Status — Step 162
+
+## Step 162 — Grounded Result Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 162 adds canonical validation for the existing grounded-result envelope and routes grounded-result construction through a dedicated normalizer. It closes the downstream validation gap after Reality State without changing the existing evidence-backed grounding semantics.
+
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → claim extraction validation → claim-evidence linking validation → claim conflict validation → source provenance validation → source observation validation → source freshness validation → confidence signal validation → Reality State validation → grounded result validation.
+
+**Design boundary:** Grounded-result contract integrity only. Grounded status remains a deterministic representation of whether the existing evidence/reality pipeline produced usable grounding; it is not a truth certificate or calibrated probability. This step does not add an LLM judge, embeddings, vector database, new retrieval provider, ML/DL model, model training, or a new truth-verification mechanism.
+
+**Validation truth:** Dedicated Step 162 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 161
 
 ## Step 161 — Reality State Contract Validation
