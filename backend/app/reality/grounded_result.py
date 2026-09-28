@@ -108,12 +108,12 @@ class GroundedResultEnvelopeBuilder:
         elif sources:
             raise ValueError("not_available grounding context cannot contain sources")
 
-        normalized_sources = tuple(
-            GroundedSource(source.get("title"), source.get("uri"))
-            if isinstance(source, dict)
-            else (_ for _ in ()).throw(ValueError("each grounding source must be a dictionary"))
-            for source in sources
-        )
+        normalized_sources: list[GroundedSource] = []
+        for source in sources:
+            if not isinstance(source, dict):
+                raise ValueError("each grounding source must be a dictionary")
+            normalized_sources.append(GroundedSource(source.get("title"), source.get("uri")))
+
         from backend.app.reality.grounded_result_normalizer import GroundedResultEnvelopeNormalizer
 
         return GroundedResultEnvelopeNormalizer.normalize(
@@ -121,7 +121,7 @@ class GroundedResultEnvelopeBuilder:
                 status=status,
                 grounded=status == "ready",
                 source_count=len(normalized_sources),
-                sources=normalized_sources,
+                sources=tuple(normalized_sources),
             )
         )
 
