@@ -1,3 +1,17 @@
+# Current Status — Step 165
+
+## Step 165 — Execution Trace Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 165 adds a canonical `ExecutionTraceEvent` contract and routes the existing in-memory execution trace through canonical validation. It closes the telemetry/event integrity gap immediately after Step 164 model-execution outcome validation without changing orchestration, retry, fallback, provider, or grounding semantics.
+
+**Safety invariant:** grounding context validation → model execution → model execution outcome validation → execution trace event validation → grounded result validation.
+
+**Design boundary:** Execution-trace event integrity only. A trace event records orchestration telemetry; it is not evidence, a truth judgment, a confidence score, a grounding certificate, or a model-quality assessment. This step does not add an LLM provider, network behavior, credentials, embeddings, vector database, RAG, semantic truth inference, ML/DL model, or model training.
+
+**Validation truth:** Dedicated Step 165 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 164
 
 ## Step 164 — Model Execution Outcome Contract Validation
