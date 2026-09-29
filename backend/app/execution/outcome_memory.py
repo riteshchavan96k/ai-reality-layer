@@ -2,6 +2,8 @@ from datetime import datetime, timezone
 from hashlib import sha256
 from typing import Any
 
+from backend.app.execution.outcome_memory_normalizer import OutcomeMemoryRecordNormalizer
+
 
 class OutcomeMemory:
     """Bounded in-memory store of structured execution outcomes for future optimization."""
@@ -37,20 +39,24 @@ class OutcomeMemory:
             "fallback_used": execution.get("fallback_used", False),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
+        normalized = OutcomeMemoryRecordNormalizer.normalize(record).to_dict()
 
         self._next_id += 1
-        self._records.append(record)
+        self._records.append(normalized)
 
         if len(self._records) > self.max_records:
             self._records.pop(0)
 
-        return dict(record)
+        return dict(normalized)
 
     def recent(self, limit: int = 10) -> list[dict[str, Any]]:
         if limit < 1:
             raise ValueError("limit must be at least 1")
 
-        return [dict(record) for record in self._records[-limit:]]
+        return [
+            OutcomeMemoryRecordNormalizer.normalize(record).to_dict()
+            for record in self._records[-limit:]
+        ]
 
     def statistics(self) -> dict[str, Any]:
         """Return aggregate outcome signals without exposing raw task text."""
