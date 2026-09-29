@@ -3,6 +3,8 @@ from typing import Any
 
 from backend.app.execution.execution_trace_contract import ExecutionTraceEvent
 from backend.app.execution.execution_trace_normalizer import ExecutionTraceEventNormalizer
+from backend.app.execution.execution_trace_snapshot_contract import ExecutionTraceSnapshot
+from backend.app.execution.execution_trace_snapshot_normalizer import ExecutionTraceSnapshotNormalizer
 
 
 class ExecutionTrace:
@@ -22,5 +24,9 @@ class ExecutionTrace:
         )
         self._events.append(event)
 
+    def snapshot_result(self) -> ExecutionTraceSnapshot:
+        return ExecutionTraceSnapshot.from_events(self._events)
+
     def snapshot(self) -> list[dict[str, Any]]:
-        return [event.to_dict() for event in self._events]
+        snapshot = ExecutionTraceSnapshotNormalizer.normalize(self.snapshot_result())
+        return snapshot.to_list()
