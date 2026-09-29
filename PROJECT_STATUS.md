@@ -1,3 +1,19 @@
+# Current Status — Step 166
+
+## Step 166 — Execution Trace Snapshot Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 166 adds a canonical immutable `ExecutionTraceSnapshot` contract and routes the existing in-memory execution trace snapshot through canonical validation. It closes the aggregate trace-integrity gap immediately after Step 165 event validation without changing trace recording semantics or orchestration behavior.
+
+**Safety invariant:** grounding context validation → model execution → model execution outcome validation → execution trace event validation → execution trace snapshot validation → grounded result validation.
+
+**Design boundary:** Execution-trace snapshot integrity only. A trace snapshot records orchestration telemetry; it is not evidence, a truth judgment, a confidence score, a grounding certificate, or a model-quality assessment. This step does not add an LLM provider, network behavior, credentials, embeddings, vector database, RAG, semantic truth inference, ML/DL model, or model training.
+
+**Compatibility:** The existing `ExecutionTrace.snapshot()` list-of-dictionaries API is preserved. `snapshot_result()` provides the new typed snapshot contract for future consumers.
+
+**Validation truth:** Dedicated Step 166 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 165
 
 ## Step 165 — Execution Trace Contract Validation
@@ -656,7 +672,7 @@ This step establishes the provider-health data contract only. It does not perfor
 
 ### Step 75 Design Boundary
 
-This step formalizes availability-evaluation outcomes only. It does not add provider health checks, network access, credentials, external providers, RAG, embeddings/vector search, factual verification, semantic evaluation, citation generation, ML training, or LLM integration.
+This step formalizes availability-evaluation outcomes only. It does not add provider health checks, network access, credentials, external providers, RAG, embeddings/vector search, factual verification, semantic evaluation, ML training, or LLM integration.
 
 ### Step 74 Scope
 
