@@ -120,6 +120,8 @@ Step 160 adds a canonical validation entry point for `RealityConfidenceSignalRes
 
 Step 159 adds a canonical validation entry point for `SourceFreshnessResult` and routes the existing source-freshness evaluator through a dedicated normalizer. This closes the next downstream validation gap after Step 158 without changing the existing observation-age calculation or explicit freshness-window semantics.
 
+**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → claim extraction validation → claim-evidence linking validation → claim conflict validation → source provenance validation → source observation validation → source freshness validation.
+
 **Design boundary:** Source freshness contract integrity only. Freshness remains an observation-age assessment; absence of an explicit freshness window remains `unknown`. This step does not establish source authority, factual truth, publication freshness, relevance, or semantic agreement.
 
 **Validation truth:** Dedicated Step 159 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
