@@ -5,6 +5,8 @@ from datetime import datetime, timezone
 from hashlib import sha256
 from typing import Any, Iterator
 
+from backend.app.execution.outcome_memory_normalizer import OutcomeMemoryRecordNormalizer
+
 
 class PersistentOutcomeMemory:
     """SQLite-backed outcome memory with the same read interface as OutcomeMemory."""
@@ -56,7 +58,7 @@ class PersistentOutcomeMemory:
     def _record_from_row(row: sqlite3.Row) -> dict[str, Any]:
         record = dict(row)
         record["fallback_used"] = bool(record["fallback_used"])
-        return record
+        return OutcomeMemoryRecordNormalizer.normalize(record).to_dict()
 
     def record(
         self,
@@ -102,20 +104,22 @@ class PersistentOutcomeMemory:
             )
             record_id = cursor.lastrowid
 
-        return {
-            "record_id": record_id,
-            "task_fingerprint": task_fingerprint,
-            "task_type": analysis.get("task_type"),
-            "routed_model": routing.get("model"),
-            "executed_model": execution.get("model"),
-            "execution_status": execution.get("status"),
-            "evaluation_score": evaluation.get("score") if evaluation else None,
-            "attempts": execution.get("attempts", 0),
-            "total_attempts": execution.get("total_attempts", 0),
-            "budget_limit": execution.get("budget_limit"),
-            "fallback_used": bool(execution.get("fallback_used", False)),
-            "timestamp": timestamp,
-        }
+        return OutcomeMemoryRecordNormalizer.normalize(
+            {
+                "record_id": record_id,
+                "task_fingerprint": task_fingerprint,
+                "task_type": analysis.get("task_type"),
+                "routed_model": routing.get("model"),
+                "executed_model": execution.get("model"),
+                "execution_status": execution.get("status"),
+                "evaluation_score": evaluation.get("score") if evaluation else None,
+                "attempts": execution.get("attempts", 0),
+                "total_attempts": execution.get("total_attempts", 0),
+                "budget_limit": execution.get("budget_limit"),
+                "fallback_used": bool(execution.get("fallback_used", False)),
+                "timestamp": timestamp,
+            }
+        ).to_dict()
 
     def recent(self, limit: int = 10) -> list[dict[str, Any]]:
         if limit < 1:
