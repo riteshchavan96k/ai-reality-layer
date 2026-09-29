@@ -1,3 +1,17 @@
+# Current Status — Step 167
+
+## Step 167 — Outcome Memory Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 167 adds a canonical immutable `OutcomeMemoryRecord` contract and routes the existing outcome-memory persistence boundary through canonical validation. It closes the execution-history integrity gap after Step 166 without changing retry, fallback, routing, or outcome-memory semantics.
+
+**Safety invariant:** grounding context validation → model execution → model execution outcome validation → execution trace event validation → execution trace snapshot validation → outcome memory validation → grounded result validation.
+
+**Design boundary:** Outcome-memory contract integrity only. Historical execution records describe recorded execution outcomes; they are not evidence of factual truth, calibrated probabilities, grounding certificates, or model-quality assessments. This step does not add an LLM provider, network behavior, credentials, embeddings, vector database, RAG, semantic truth inference, ML/DL model, or model training.
+
+**Validation truth:** Dedicated Step 167 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 166
 
 ## Step 166 — Execution Trace Snapshot Contract Validation
@@ -105,8 +119,6 @@ Step 160 adds a canonical validation entry point for `RealityConfidenceSignalRes
 **Status:** Implementation complete; local validation pending.
 
 Step 159 adds a canonical validation entry point for `SourceFreshnessResult` and routes the existing source-freshness evaluator through a dedicated normalizer. This closes the next downstream validation gap after Step 158 without changing the existing observation-age calculation or explicit freshness-window semantics.
-
-**Safety invariant:** retrieval result → canonical retrieval-result validation → consumption classification → canonical consumption validation → evidence normalization → canonical evidence-normalization validation → evidence normalization consumption → canonical evidence-normalization-consumption validation → evidence quality validation → claim extraction validation → claim-evidence linking validation → claim conflict validation → source provenance validation → source observation validation → source freshness validation.
 
 **Design boundary:** Source freshness contract integrity only. Freshness remains an observation-age assessment; absence of an explicit freshness window remains `unknown`. This step does not establish source authority, factual truth, publication freshness, relevance, or semantic agreement.
 
