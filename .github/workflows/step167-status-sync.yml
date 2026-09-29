@@ -1,0 +1,42 @@
+name: Step 167 Status Synchronization
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  sync-status:
+    if: github.event.head_commit.message == 'Step 167: prepare status synchronization'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepend Step 167 status and remove temporary workflow
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("PROJECT_STATUS.md")
+          existing = path.read_text(encoding="utf-8")
+
+          header = '''# Current Status — Step 167\n\n## Step 167 — Outcome Memory Contract Validation\n\n**Status:** Implementation complete; local validation pending.\n\nStep 167 adds a canonical immutable `OutcomeMemoryRecord` contract and routes the existing in-memory and persistent outcome-memory records through canonical validation. It closes the execution-history integrity gap after Step 166 without changing routing, scoring, persistence, or orchestration semantics.\n\n**Safety invariant:** grounding context validation → model execution → model execution outcome validation → execution trace event validation → execution trace snapshot validation → outcome memory record validation → grounded result validation.\n\n**Design boundary:** Outcome-memory contract integrity only. Historical execution records remain execution history and are not evidence of truth, calibrated probabilities, or semantic correctness. This step does not add an LLM judge, embeddings, vector database, RAG, new retrieval provider, ML/DL model, model training, or a new truth-verification mechanism.\n\n**Validation truth:** Dedicated Step 167 regression coverage is committed. Local pytest execution has not been performed in this workflow. GitHub status checks are not configured, so no automated test-pass claim is made.\n\n'''
+
+          if not existing.startswith("# Current Status — Step 167"):
+              path.write_text(header + existing, encoding="utf-8")
+
+      - name: Remove temporary workflow and commit synchronization
+        shell: bash
+        run: |
+          rm -f .github/workflows/step167-status-sync.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add PROJECT_STATUS.md .github/workflows/step167-status-sync.yml
+          git commit -m "Step 167: synchronize project status"
+          git push origin HEAD:main
