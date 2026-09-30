@@ -1,10 +1,16 @@
 from typing import Any, Callable
 
+from backend.app.evaluation.quality_recovery_normalizer import (
+    QualityRecoveryResultNormalizer,
+)
 from backend.app.evaluation.response_evaluation_normalizer import (
     ResponseEvaluationResultNormalizer,
 )
 from backend.app.execution.execution_budget import ExecutionBudget
 from backend.app.execution.execution_trace import ExecutionTrace
+from backend.app.execution.model_execution_normalizer import (
+    ModelExecutionResultNormalizer,
+)
 from backend.app.execution.outcome_memory import OutcomeMemory
 from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMemory
 from backend.app.execution.retry_policy import RetryPolicy
@@ -349,7 +355,10 @@ class OrchestrationPipeline:
             if state.routing["model"]
             else list(state.routing["candidates"])
         )
-        state.recovery = self.recover(
+
+        initial_model = state.execution["model"]
+        attempts_before_recovery = budget.used_attempts
+        raw_recovery = self.recover(
             task=state.task,
             candidates=candidates,
             adapter_resolver=get_model_adapter,
@@ -363,19 +372,53 @@ class OrchestrationPipeline:
             provider_name_resolver=get_model_provider_name,
             invocation_executor=self.dependencies.provider_executor.execute,
         )
+        recovery = QualityRecoveryResultNormalizer.normalize(
+            raw_recovery
+        ).to_dict()
+
+        consumed_recovery_attempts = (
+            budget.used_attempts - attempts_before_recovery
+        )
+        if recovery["recovery_attempts"] != consumed_recovery_attempts:
+            raise ValueError(
+                "recovery_attempts must match shared execution budget consumption"
+            )
+
+        invalid_candidates = [
+            model
+            for model in recovery["candidates_tried"]
+            if model not in candidates or model == initial_model
+        ]
+        if invalid_candidates:
+            raise ValueError(
+                "candidates_tried must contain only attempted alternative candidates"
+            )
+
+        expected_improved = recovery["best"]["model"] != initial_model
+        if recovery["improved"] != expected_improved:
+            raise ValueError(
+                "improved must match whether the best model replaced the initial model"
+            )
+
+        best_execution = ModelExecutionResultNormalizer.normalize(
+            recovery["best"]["execution"]
+        ).to_dict()
         best_evaluation = ResponseEvaluationResultNormalizer.normalize(
-            state.recovery["best"]["evaluation"]
+            recovery["best"]["evaluation"]
         ).to_dict()
         state.recovery = {
-            **state.recovery,
+            **recovery,
             "best": {
-                **state.recovery["best"],
+                **recovery["best"],
+                "execution": best_execution,
                 "evaluation": best_evaluation,
             },
         }
+
         if state.recovery["improved"]:
-            state.execution = state.recovery["best"]["execution"]
+            state.execution = best_execution
             state.evaluation = best_evaluation
+
         context.trace.record(
             "quality_recovery",
             "improved" if state.recovery["improved"] else "not_improved",
