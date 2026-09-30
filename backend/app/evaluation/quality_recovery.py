@@ -90,7 +90,6 @@ def recover_with_evaluation(
     recovery_attempts = 0
     candidates_tried: list[str] = []
     normalizer = ModelResponseNormalizer()
-    attempts_by_model = _seed_attempts_by_model(initial_execution, execution_budget)
 
     if initial_evaluation["status"] == "pass":
         return {
@@ -101,6 +100,8 @@ def recover_with_evaluation(
             "recovery_attempts": 0,
             "candidates_tried": candidates_tried,
         }
+
+    attempts_by_model = _seed_attempts_by_model(initial_execution, execution_budget)
 
     for model_name in candidates:
         if model_name == initial_execution.get("model"):
