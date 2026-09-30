@@ -2,8 +2,64 @@ from typing import Any, Callable
 
 from backend.app.evaluation.response_evaluator import evaluate_response
 from backend.app.execution.execution_budget import ExecutionBudget
+from backend.app.execution.model_execution_contract import ModelExecutionResult
+from backend.app.execution.model_execution_normalizer import ModelExecutionResultNormalizer
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.models.response_contract import ModelResponseNormalizer
+
+
+def _seed_attempts_by_model(
+    initial_execution: dict[str, Any],
+    execution_budget: ExecutionBudget,
+) -> dict[str, int]:
+    """Seed canonical attempt accounting from the shared execution budget."""
+    raw_attempts = initial_execution.get("attempts_by_model")
+    if isinstance(raw_attempts, dict):
+        valid = all(
+            isinstance(name, str)
+            and bool(name.strip())
+            and type(count) is int
+            and count >= 0
+            for name, count in raw_attempts.items()
+        )
+        if valid and sum(raw_attempts.values()) == execution_budget.used_attempts:
+            return dict(raw_attempts)
+
+    if execution_budget.used_attempts == 0:
+        return {}
+
+    initial_model = initial_execution.get("model")
+    if isinstance(initial_model, str) and initial_model.strip():
+        return {initial_model: execution_budget.used_attempts}
+
+    raise ValueError("cannot establish canonical recovery attempt accounting")
+
+
+def _canonical_recovery_execution(
+    *,
+    model_name: str,
+    attempts: int,
+    attempts_by_model: dict[str, int],
+    execution_budget: ExecutionBudget,
+    initial_execution: dict[str, Any],
+    result: dict[str, Any],
+) -> dict[str, Any]:
+    """Build a recovery success through the canonical model-execution contract."""
+    return ModelExecutionResultNormalizer.normalize(
+        ModelExecutionResult(
+            status="success",
+            model=model_name,
+            attempts=attempts,
+            total_attempts=execution_budget.used_attempts,
+            budget_limit=execution_budget.max_attempts,
+            attempts_by_model=dict(attempts_by_model),
+            fallback_used=bool(
+                initial_execution.get("fallback_used", False)
+                or model_name != initial_execution.get("model")
+            ),
+            result=result,
+        )
+    ).to_dict()
 
 
 def recover_with_evaluation(
@@ -34,6 +90,7 @@ def recover_with_evaluation(
     recovery_attempts = 0
     candidates_tried: list[str] = []
     normalizer = ModelResponseNormalizer()
+    attempts_by_model = _seed_attempts_by_model(initial_execution, execution_budget)
 
     if initial_evaluation["status"] == "pass":
         return {
@@ -76,16 +133,17 @@ def recover_with_evaluation(
 
                 attempts += 1
                 execution_budget.consume(1)
+                attempts_by_model[model_name] = attempts_by_model.get(model_name, 0) + 1
 
                 if provider_result["status"] == "completed":
-                    execution_result = {
-                        "status": "success",
-                        "model": model_name,
-                        "attempts": attempts,
-                        "total_attempts": execution_budget.used_attempts,
-                        "budget_limit": execution_budget.max_attempts,
-                        "result": provider_result["result"],
-                    }
+                    execution_result = _canonical_recovery_execution(
+                        model_name=model_name,
+                        attempts=attempts,
+                        attempts_by_model=attempts_by_model,
+                        execution_budget=execution_budget,
+                        initial_execution=initial_execution,
+                        result=provider_result["result"],
+                    )
                     break
 
                 last_reason = provider_result.get(
@@ -136,14 +194,26 @@ def recover_with_evaluation(
         )
         execution_budget.consume(execution["attempts"])
         recovery_attempts += execution["attempts"]
+        attempts_by_model[model_name] = (
+            attempts_by_model.get(model_name, 0) + execution["attempts"]
+        )
         candidates_tried.append(model_name)
 
         if execution["status"] != "success":
             continue
 
+        canonical_execution = _canonical_recovery_execution(
+            model_name=model_name,
+            attempts=execution["attempts"],
+            attempts_by_model=attempts_by_model,
+            execution_budget=execution_budget,
+            initial_execution=initial_execution,
+            result=execution["result"],
+        )
+
         evaluation = evaluate_response(
             task,
-            execution["result"],
+            canonical_execution["result"],
             analysis,
             {**routing, "model": model_name},
         )
@@ -151,12 +221,7 @@ def recover_with_evaluation(
         if evaluation["score"] > best["evaluation"]["score"]:
             best = {
                 "model": model_name,
-                "execution": {
-                    **execution,
-                    "model": model_name,
-                    "total_attempts": execution_budget.used_attempts,
-                    "budget_limit": execution_budget.max_attempts,
-                },
+                "execution": canonical_execution,
                 "evaluation": evaluation,
             }
 
