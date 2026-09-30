@@ -1,5 +1,6 @@
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from backend.app.evaluation.response_evaluation_contract import (
     ResponseEvaluationResult,
@@ -23,6 +24,9 @@ class QualityRecoveryBest:
         if not isinstance(self.execution, Mapping):
             raise ValueError("best execution must be a mapping")
 
+        if self.execution.get("status") != "success":
+            raise ValueError("best execution must have success status")
+
         execution_model = self.execution.get("model")
         if (
             not isinstance(execution_model, str)
@@ -32,6 +36,9 @@ class QualityRecoveryBest:
             raise ValueError(
                 "best execution model must match the selected best model"
             )
+
+        if not isinstance(self.execution.get("result"), Mapping):
+            raise ValueError("best execution must contain a result mapping")
 
         evaluation = ResponseEvaluationResultNormalizer.normalize(
             self.evaluation
@@ -103,6 +110,12 @@ class QualityRecoveryResult:
             raise ValueError(
                 "recovery_attempts must be a non-negative integer"
             )
+
+        if (
+            not isinstance(self.candidates_tried, Sequence)
+            or isinstance(self.candidates_tried, (str, bytes))
+        ):
+            raise ValueError("candidates_tried must be a sequence")
 
         candidates = tuple(self.candidates_tried)
         if any(
