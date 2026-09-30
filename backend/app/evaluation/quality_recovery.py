@@ -1,6 +1,9 @@
 from typing import Any, Callable
 
 from backend.app.evaluation.response_evaluator import evaluate_response
+from backend.app.evaluation.response_evaluation_normalizer import (
+    ResponseEvaluationResultNormalizer,
+)
 from backend.app.execution.execution_budget import ExecutionBudget
 from backend.app.execution.model_execution_contract import ModelExecutionResult
 from backend.app.execution.model_execution_normalizer import ModelExecutionResultNormalizer
@@ -82,6 +85,9 @@ def recover_with_evaluation(
     execution/result boundary as the primary execution path. The legacy adapter path
     remains available for isolated callers and regression compatibility.
     """
+    initial_evaluation = ResponseEvaluationResultNormalizer.normalize(
+        initial_evaluation
+    ).to_dict()
     best = {
         "model": initial_execution.get("model"),
         "execution": initial_execution,
@@ -162,12 +168,14 @@ def recover_with_evaluation(
             if execution_result is None:
                 continue
 
-            evaluation = evaluate_response(
-                task,
-                execution_result["result"],
-                analysis,
-                {**routing, "model": model_name},
-            )
+            evaluation = ResponseEvaluationResultNormalizer.normalize(
+                evaluate_response(
+                    task,
+                    execution_result["result"],
+                    analysis,
+                    {**routing, "model": model_name},
+                )
+            ).to_dict()
 
             if evaluation["score"] > best["evaluation"]["score"]:
                 best = {
@@ -212,12 +220,14 @@ def recover_with_evaluation(
             result=execution["result"],
         )
 
-        evaluation = evaluate_response(
-            task,
-            canonical_execution["result"],
-            analysis,
-            {**routing, "model": model_name},
-        )
+        evaluation = ResponseEvaluationResultNormalizer.normalize(
+            evaluate_response(
+                task,
+                canonical_execution["result"],
+                analysis,
+                {**routing, "model": model_name},
+            )
+        ).to_dict()
 
         if evaluation["score"] > best["evaluation"]["score"]:
             best = {
