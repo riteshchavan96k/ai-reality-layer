@@ -1,6 +1,9 @@
 from typing import Any
 
 from backend.app.evaluation.relevance import evaluate_relevance
+from backend.app.evaluation.response_evaluation_normalizer import (
+    ResponseEvaluationResultNormalizer,
+)
 
 
 def evaluate_response(
@@ -39,14 +42,16 @@ def evaluate_response(
 
     score = (structural_score + relevance["score"]) / 2
 
-    return {
-        "score": score,
-        "status": "pass" if score >= 0.8 else "review",
-        "checks": checks,
-        "passed_checks": passed_checks,
-        "total_checks": total_checks,
-        "structural_score": structural_score,
-        "relevance": relevance,
-        "task": task,
-        "limitation": "Reference-free relevance is lexical and does not establish factual or semantic correctness.",
-    }
+    return ResponseEvaluationResultNormalizer.normalize(
+        {
+            "score": score,
+            "status": "pass" if score >= 0.8 else "review",
+            "checks": checks,
+            "passed_checks": passed_checks,
+            "total_checks": total_checks,
+            "structural_score": structural_score,
+            "relevance": relevance,
+            "task": task,
+            "limitation": "Reference-free relevance is lexical and does not establish factual or semantic correctness.",
+        }
+    ).to_dict()
