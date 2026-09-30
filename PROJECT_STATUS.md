@@ -1,3 +1,19 @@
+# Current Status — Step 170
+
+## Step 170 — Response Evaluation Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 170 adds a canonical immutable `ResponseEvaluationResult` and `ResponseEvaluationResultNormalizer` boundary for response-evaluation outcomes. The active evaluator, quality-recovery consumer, and orchestration pipeline now validate evaluation results before score/status values can drive tracing, recovery comparison, selected-result replacement, or outcome-memory persistence.
+
+**Safety invariant:** canonical model execution → canonical response evaluation → bounded quality recovery → canonical selected evaluation → outcome memory / orchestration result.
+
+**Design boundary:** Evaluation-result integrity only. The existing structural + lexical relevance algorithm and its current pass threshold are unchanged. Evaluation scores remain prototype quality signals, not factual-truth probabilities, grounding certificates, safety judgments, source-authority scores, or calibrated model-quality estimates. Retrieval, evidence processing, provenance, freshness, conflict detection, confidence signals, grounding authorization, model routing, provider behavior, RAG, embeddings, ML/DL training, and semantic truth inference are unchanged.
+
+**Compatibility:** Minimal historical `{"score": ..., "status": ...}` recovery evaluations remain supported. Existing optional evaluation metadata is preserved. Unknown extension metadata is retained. Injected evaluators and nested recovery evaluations now fail closed on missing/invalid status, non-finite or out-of-range scores, and malformed known structural metadata.
+
+**Validation truth:** Dedicated Step 170 regression coverage is committed for core contract validation, typed construction validation, metadata preservation, canonical evaluator output, direct recovery compatibility, injected evaluator rejection, and nested recovery evaluation validation. A targeted pytest run was attempted from a fresh checkout, but the available runtime could not resolve `github.com`, so test execution did not start. No automated test-pass claim is made.
+
 # Current Status — Step 169
 
 ## Step 169 — Quality Recovery Execution Outcome Contract Integration
