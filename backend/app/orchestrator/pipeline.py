@@ -1,5 +1,8 @@
 from typing import Any, Callable
 
+from backend.app.evaluation.response_evaluation_normalizer import (
+    ResponseEvaluationResultNormalizer,
+)
 from backend.app.execution.execution_budget import ExecutionBudget
 from backend.app.execution.execution_trace import ExecutionTrace
 from backend.app.execution.outcome_memory import OutcomeMemory
@@ -320,14 +323,68 @@ class OrchestrationPipeline:
     def _evaluate_and_recover(self, context: OrchestrationStageContext, retry_policy: RetryPolicy) -> None:
         state = context.state
         budget = context.require_budget()
-        state.evaluation = self.evaluate(state.task, state.result, state.analysis, {**state.routing, "model": state.execution["model"]})
-        context.trace.record("evaluation", state.evaluation["status"], score=state.evaluation["score"])
-        candidates = ([state.routing["model"], *[m for m in state.routing["candidates"] if m != state.routing["model"]]] if state.routing["model"] else list(state.routing["candidates"]))
-        state.recovery = self.recover(task=state.task, candidates=candidates, adapter_resolver=get_model_adapter, analysis=state.analysis, routing=state.routing, initial_execution=state.execution, initial_evaluation=state.evaluation, retry_policy=retry_policy, execution_budget=budget, context=state.execution_context, provider_name_resolver=get_model_provider_name, invocation_executor=self.dependencies.provider_executor.execute)
+        raw_evaluation = self.evaluate(
+            state.task,
+            state.result,
+            state.analysis,
+            {**state.routing, "model": state.execution["model"]},
+        )
+        state.evaluation = ResponseEvaluationResultNormalizer.normalize(
+            raw_evaluation
+        ).to_dict()
+        context.trace.record(
+            "evaluation",
+            state.evaluation["status"],
+            score=state.evaluation["score"],
+        )
+        candidates = (
+            [
+                state.routing["model"],
+                *[
+                    model
+                    for model in state.routing["candidates"]
+                    if model != state.routing["model"]
+                ],
+            ]
+            if state.routing["model"]
+            else list(state.routing["candidates"])
+        )
+        state.recovery = self.recover(
+            task=state.task,
+            candidates=candidates,
+            adapter_resolver=get_model_adapter,
+            analysis=state.analysis,
+            routing=state.routing,
+            initial_execution=state.execution,
+            initial_evaluation=state.evaluation,
+            retry_policy=retry_policy,
+            execution_budget=budget,
+            context=state.execution_context,
+            provider_name_resolver=get_model_provider_name,
+            invocation_executor=self.dependencies.provider_executor.execute,
+        )
+        best_evaluation = ResponseEvaluationResultNormalizer.normalize(
+            state.recovery["best"]["evaluation"]
+        ).to_dict()
+        state.recovery = {
+            **state.recovery,
+            "best": {
+                **state.recovery["best"],
+                "evaluation": best_evaluation,
+            },
+        }
         if state.recovery["improved"]:
             state.execution = state.recovery["best"]["execution"]
-            state.evaluation = state.recovery["best"]["evaluation"]
-        context.trace.record("quality_recovery", "improved" if state.recovery["improved"] else "not_improved", used=state.recovery["used"], recovery_attempts=state.recovery["recovery_attempts"], candidates_tried=state.recovery["candidates_tried"], final_model=state.recovery["best"]["model"], final_score=state.recovery["best"]["evaluation"]["score"])
+            state.evaluation = best_evaluation
+        context.trace.record(
+            "quality_recovery",
+            "improved" if state.recovery["improved"] else "not_improved",
+            used=state.recovery["used"],
+            recovery_attempts=state.recovery["recovery_attempts"],
+            candidates_tried=state.recovery["candidates_tried"],
+            final_model=state.recovery["best"]["model"],
+            final_score=best_evaluation["score"],
+        )
 
     def _approval_blocked_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
