@@ -4,6 +4,9 @@ from backend.app.evaluation.response_evaluator import evaluate_response
 from backend.app.evaluation.response_evaluation_normalizer import (
     ResponseEvaluationResultNormalizer,
 )
+from backend.app.evaluation.quality_recovery_normalizer import (
+    QualityRecoveryResultNormalizer,
+)
 from backend.app.execution.execution_budget import ExecutionBudget
 from backend.app.execution.model_execution_contract import ModelExecutionResult
 from backend.app.execution.model_execution_normalizer import ModelExecutionResultNormalizer
@@ -98,14 +101,16 @@ def recover_with_evaluation(
     normalizer = ModelResponseNormalizer()
 
     if initial_evaluation["status"] == "pass":
-        return {
-            "used": False,
-            "reason": "initial_evaluation_passed",
-            "improved": False,
-            "best": best,
-            "recovery_attempts": 0,
-            "candidates_tried": candidates_tried,
-        }
+        return QualityRecoveryResultNormalizer.normalize(
+            {
+                "used": False,
+                "reason": "initial_evaluation_passed",
+                "improved": False,
+                "best": best,
+                "recovery_attempts": 0,
+                "candidates_tried": candidates_tried,
+            }
+        ).to_dict()
 
     attempts_by_model = _seed_attempts_by_model(initial_execution, execution_budget)
 
@@ -240,11 +245,13 @@ def recover_with_evaluation(
             break
 
     improved = best["model"] != initial_execution.get("model")
-    return {
-        "used": bool(candidates_tried),
-        "reason": "initial_evaluation_review",
-        "improved": improved,
-        "best": best,
-        "recovery_attempts": recovery_attempts,
-        "candidates_tried": candidates_tried,
-    }
+    return QualityRecoveryResultNormalizer.normalize(
+        {
+            "used": bool(candidates_tried),
+            "reason": "initial_evaluation_review",
+            "improved": improved,
+            "best": best,
+            "recovery_attempts": recovery_attempts,
+            "candidates_tried": candidates_tried,
+        }
+    ).to_dict()
