@@ -1,3 +1,19 @@
+# Current Status — Step 169
+
+## Step 169 — Quality Recovery Execution Outcome Contract Integration
+
+**Status:** Implementation complete; local validation pending.
+
+Step 169 closes the Step 164 model-execution contract bypass in evaluation-guided quality recovery. Provider-based and legacy-adapter recovery executions that are eligible to replace primary execution are now constructed through the canonical `ModelExecutionResult` / `ModelExecutionResultNormalizer` boundary, preserving complete attempt accounting and fallback metadata required by downstream orchestration.
+
+**Safety invariant:** canonical primary execution → evaluation → bounded quality recovery → canonical recovery execution outcome → optional replacement of primary execution → outcome memory / final orchestration result.
+
+**Design boundary:** Recovery execution integrity only. Recovery ranking/evaluation semantics, retrieval, grounding, routing, provider credentials, network behavior, RAG, embeddings, ML/DL training, and truth inference are unchanged. A better recovery evaluation score is not evidence of factual truth or calibrated model quality.
+
+**Compatibility:** Passing initial evaluations still skip recovery unchanged. Candidate order, retry budget behavior, blocked-provider behavior, improvement selection, and early stop on passing evaluation are preserved. Canonical recovery results now include `attempts_by_model` and `fallback_used`, preventing the downstream success-response missing-field path.
+
+**Validation truth:** Dedicated Step 169 regression coverage is committed for provider recovery, legacy adapter recovery, canonical attempt accounting, fallback metadata, and pipeline success-response compatibility. A targeted pytest run was attempted from a fresh checkout, but the available runtime could not resolve `github.com`, so test execution did not start. No automated test-pass claim is made.
+
 # Current Status — Step 168
 
 ## Step 168 — Orchestration Stage Contract Restoration and Import Integrity
