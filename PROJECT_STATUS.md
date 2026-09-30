@@ -1,3 +1,19 @@
+# Current Status — Step 168
+
+## Step 168 — Orchestration Stage Contract Restoration and Import Integrity
+
+**Status:** Implementation complete; local validation pending.
+
+Step 168 restores the missing `OrchestrationStageContext` module required by the active orchestration pipeline. Repository history confirms Step 59 defined this shared state/trace/budget contract, a later isolation cleanup removed the file, and the pipeline subsequently integrated an import and active dependency on it. Step 168 repairs that historical repository-integrity break before further feature or contract expansion.
+
+**Safety invariant:** orchestration state + execution trace + shared execution budget → explicit orchestration stage context → pipeline stages. The restored context coordinates execution state only; it does not create evidence, establish truth, bypass grounding gates, authorize execution by itself, or alter routing/model-selection semantics.
+
+**Design boundary:** Restoration and import integrity only. The original Step 59 contract semantics are preserved. No retrieval, grounding, evaluation, recovery, routing, model-provider, outcome-memory, API, network, credential, RAG, embedding, ML/DL, or training behavior is added or changed.
+
+**Compatibility:** The active `OrchestrationPipeline` import is satisfied again, the existing Step 59 regression contract is made reachable, and public orchestration result shapes remain unchanged.
+
+**Validation truth:** Dedicated Step 168 regression coverage is committed. Repository structure/history and final Git diff are verified in this GitHub workflow. Local pytest execution has not been performed, and GitHub status checks are not configured, so no automated test-pass claim is made.
+
 # Current Status — Step 167
 
 ## Step 167 — Outcome Memory Contract Validation
