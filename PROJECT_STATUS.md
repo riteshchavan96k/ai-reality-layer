@@ -1,3 +1,19 @@
+# Current Status — Step 171
+
+## Step 171 — Quality Recovery Result Contract Validation
+
+**Status:** Implementation complete; local validation pending.
+
+Step 171 adds canonical `QualityRecoveryBest`, `QualityRecoveryResult`, and `QualityRecoveryResultNormalizer` boundaries for the complete evaluation-guided recovery envelope. The built-in recovery producer now validates both public result paths, and the orchestration consumer validates injected recovery output before trusting recovery metadata, selected execution/evaluation, attempt accounting, or model replacement.
+
+**Safety invariant:** canonical primary execution → canonical initial evaluation → bounded quality recovery → canonical recovery envelope → shared-budget/candidate consistency checks → canonical selected execution → canonical selected evaluation → optional replacement → outcome memory / final orchestration result.
+
+**Design boundary:** Recovery-result integrity only. Recovery ranking, score comparison, candidate order, retry limits, provider invocation, evaluation methodology, retrieval, evidence processing, provenance, freshness, conflict detection, confidence signals, grounding authorization, routing, credentials, network behavior, RAG, embeddings, ML/DL training, and semantic truth inference are unchanged. `improved=True` remains an evaluator-relative optimization signal, not proof of factual truth or calibrated model superiority.
+
+**Compatibility:** The public recovery API remains dictionary-shaped. Historical direct callers with lightweight successful initial execution fixtures remain supported at the recovery-envelope boundary. The active orchestration path additionally requires `best.execution` to satisfy the existing Step 164 canonical model-execution contract. Unknown extension metadata is preserved.
+
+**Validation truth:** Dedicated Step 171 regression coverage is committed for envelope normalization, typed consistency rules, nested evaluation validation, legacy direct-caller compatibility, malformed injected recovery rejection, shared-budget accounting, model-replacement consistency, canonical selected-execution enforcement, and extension metadata preservation. A targeted pytest run covering Steps 171, 170, 169, 54, and 34 was attempted from a fresh checkout, but the available runtime could not resolve `github.com`; the clone failed before pytest started. No automated test-pass claim is made.
+
 # Current Status — Step 170
 
 ## Step 170 — Response Evaluation Contract Validation
