@@ -68,6 +68,17 @@ def test_invalid_evaluation_status_is_rejected():
         )
 
 
+def test_typed_evaluation_construction_is_validated():
+    with pytest.raises(
+        ValueError,
+        match="score must be a finite number between 0 and 1",
+    ):
+        ResponseEvaluationResult(
+            score=1.5,
+            status="pass",
+        )
+
+
 def test_structural_evaluation_metadata_is_validated():
     with pytest.raises(ValueError, match="passed_checks cannot exceed total_checks"):
         ResponseEvaluationResultNormalizer.normalize(
