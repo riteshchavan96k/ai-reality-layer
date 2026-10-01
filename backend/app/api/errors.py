@@ -1,38 +1,53 @@
-from typing import Any
-
 from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from backend.app.api.error_contract import (
+    build_internal_error_response,
+    build_validation_error_response,
+)
+
+
+def _request_id(request: Request) -> str | None:
+    value = getattr(request.state, "request_id", None)
+    return value if isinstance(value, str) and value else None
+
 
 def validation_exception_handler(
-    request: Request, exc: RequestValidationError
+    request: Request,
+    exc: RequestValidationError,
 ) -> JSONResponse:
+    payload = build_validation_error_response(
+        exc.errors(),
+        _request_id(request),
+    )
     return JSONResponse(
         status_code=422,
-        content={
-            "status": "error",
-            "error": {
-                "code": "validation_error",
-                "message": "Request validation failed.",
-                "details": exc.errors(),
-            },
-            "request_id": getattr(request.state, "request_id", None),
-        },
+        content=payload.model_dump(
+            mode="json",
+            exclude_none=True,
+        ),
     )
 
 
 def unhandled_exception_handler(
-    request: Request, exc: Exception
+    request: Request,
+    exc: Exception,
 ) -> JSONResponse:
+    del exc
+    payload = build_internal_error_response(
+        _request_id(request),
+    )
     return JSONResponse(
         status_code=500,
-        content={
-            "status": "error",
-            "error": {
-                "code": "internal_error",
-                "message": "An internal server error occurred.",
-            },
-            "request_id": getattr(request.state, "request_id", None),
-        },
+        content=payload.model_dump(
+            mode="json",
+            exclude_none=True,
+        ),
     )
+
+
+__all__ = [
+    "unhandled_exception_handler",
+    "validation_exception_handler",
+]
