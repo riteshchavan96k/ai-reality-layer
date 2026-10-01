@@ -1,3 +1,19 @@
+# Current Status — Step 173
+
+## Step 173 — Solve API Contract Hardening
+
+**Status:** Implementation complete; local validation pending.
+
+Step 173 gives `POST /api/v1/solve` dedicated HTTP request and response contracts backed by the canonical Step 172 orchestration-result boundary. `SolveRequest` now lives in `backend/app/api/solve.py`, rejects unsupported fields, and preserves the historical `backend.app.main.SolveRequest` import path. `SolveResponse` declares the six terminal solve statuses, reuses `OrchestrationResultNormalizer` for exact runtime validation, and is now the FastAPI response model for the solve route.
+
+**Safety invariant:** canonical orchestration result → dedicated SolveResponse validation → FastAPI response serialization → `POST /api/v1/solve` client.
+
+**Design boundary:** HTTP API-contract hardening only. Orchestration control flow, approval policy, retrieval, evidence processing, grounding, routing, provider execution, retry/fallback, evaluation, recovery, outcome memory, Reality State generation, credentials, external network behavior, RAG, embeddings, ML/DL training, and semantic truth inference are unchanged. The HTTP schema validates structure and consistency; it is not a factual-truth or universal-safety certificate.
+
+**Compatibility:** The solve request fields remain `task` and `human_approved`, with the existing task length bounds and default approval flag. Unknown request fields now fail validation. Existing sparse terminal response shapes are preserved using `response_model_exclude_unset=True`; extension response metadata is allowed; and the old `backend.app.main.SolveRequest` symbol remains available.
+
+**Validation truth:** Dedicated Step 173 regression coverage is committed for request placement/backward compatibility, extra-field rejection, bounded request validation, route request/response models, exhaustive status schema, sparse response preservation, extension metadata, reuse of Step 172 validation, OpenAPI schema exposure, and required common response fields. The runtime has compatible Pydantic 2.x and FastAPI versions. A targeted pytest run covering Steps 173, 172, 134, and 24 was attempted from a fresh checkout, but the available runtime could not resolve `github.com`; the clone failed before pytest started. No automated test-pass claim is made.
+
 # Current Status — Step 172
 
 ## Step 172 — Orchestration Result Contract Validation
