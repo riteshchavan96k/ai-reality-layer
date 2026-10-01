@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from backend.app.api.error_contract import (
+    InternalErrorResponse,
+    ValidationErrorResponse,
+)
 from backend.app.api.errors import (
     unhandled_exception_handler,
     validation_exception_handler,
@@ -22,7 +26,26 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
 
-@app.get("/health")
+_VALIDATION_AND_INTERNAL_ERROR_RESPONSES = {
+    422: {
+        "model": ValidationErrorResponse,
+        "description": "Request validation failed.",
+    },
+    500: {
+        "model": InternalErrorResponse,
+        "description": "An internal server error occurred.",
+    },
+}
+
+_INTERNAL_ERROR_RESPONSE = {
+    500: {
+        "model": InternalErrorResponse,
+        "description": "An internal server error occurred.",
+    },
+}
+
+
+@app.get("/health", responses=_INTERNAL_ERROR_RESPONSE)
 def health_check():
     return {
         "status": "healthy",
@@ -35,12 +58,17 @@ def health_check():
     "/api/v1/solve",
     response_model=SolveResponse,
     response_model_exclude_unset=True,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
 )
 def solve(request: SolveRequest):
     return process_task(request.task, human_approved=request.human_approved)
 
 
-@app.post("/api/v1/reality-state", response_model=RealityStateResponse)
+@app.post(
+    "/api/v1/reality-state",
+    response_model=RealityStateResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+)
 def reality_state(request: RealityStateRequest):
     """Return the canonical evidence-backed Reality State without a model execution request."""
     reality_state = build_reality_state(request.task)
