@@ -1,3 +1,19 @@
+# Current Status — Step 174
+
+## Step 174 — API Error Contract Hardening
+
+**Status:** Implementation complete; local validation pending.
+
+Step 174 adds exact canonical `ValidationErrorResponse` and `InternalErrorResponse` HTTP contracts, routes the existing global FastAPI 422/500 handlers through those typed models, minimizes public validation details to `type`, `loc`, and `msg`, and documents the real error schemas in OpenAPI for the solve, Reality State, and health endpoints.
+
+**Safety invariant:** request/handler failure → canonical status-specific error contract → sensitive-detail minimization → request-ID correlation → JSON serialization → documented public HTTP response.
+
+**Design boundary:** API error-contract and disclosure hardening only. Orchestration, model execution, retrieval, grounding, routing, provider behavior, retry/fallback, evaluation, recovery, outcome memory, Reality State logic, credentials, external provider configuration, RAG, embeddings, ML/DL training, and semantic truth inference are unchanged. Canonical error responses describe failures safely; they do not expose internal exception details, stack traces, rejected input values, raw validator context, or private debugging state.
+
+**Compatibility:** HTTP status codes, top-level `status="error"`, existing error codes/messages, global exception-handler registration, and the top-level `request_id` field are preserved. The deliberate hardening change is data minimization: rejected request `input` values and raw validation `ctx` metadata are no longer reflected to clients. OpenAPI now documents exact 422 and 500 schemas rather than the default/missing error shapes.
+
+**Validation truth:** Dedicated Step 174 regression coverage is committed for exact 422/500 construction, rejected-input/context non-disclosure, request-ID preservation, exception-message non-disclosure, endpoint OpenAPI error schemas, health-route error documentation, minimized validation-detail schema, and unknown-field rejection. The runtime has Pydantic 2.13.4 and FastAPI 0.128.2. A targeted pytest run covering Steps 174, 173, 24, and 134 was attempted from a fresh checkout, but the available runtime could not resolve `github.com`; the clone failed before pytest started. No automated test-pass claim is made.
+
 # Current Status — Step 173
 
 ## Step 173 — Solve API Contract Hardening
