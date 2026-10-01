@@ -1,3 +1,19 @@
+# Current Status — Step 176
+
+## Step 176 — Health API Contract Hardening
+
+**Status:** Implementation complete; local validation pending.
+
+Step 176 completes the current public success-response contract surface by adding a strict `HealthResponse` for `GET /health`, centralizing `SERVICE_NAME` and `API_VERSION`, and wiring the health route through the typed response model while preserving Step 174 error contracts and Step 175 request-ID headers.
+
+**Safety invariant:** API process liveness → canonical service/version metadata → strict `HealthResponse` → FastAPI response validation → canonical request-correlation header → documented public liveness response.
+
+**Design boundary:** Health HTTP-contract hardening only. The health endpoint remains a cheap process/API liveness signal and does not perform readiness checks, provider health probes, retrieval, grounding, model execution, database access, external network calls, authentication/authorization, routing, retry/fallback, evaluation, recovery, outcome-memory processing, RAG, embeddings, ML/DL training, or semantic truth inference.
+
+**Compatibility:** The `/health` path, GET method, HTTP 200 behavior, and exact historical success fields/values are preserved. FastAPI application metadata and the health response now share one `API_VERSION` source. Existing Step 174 `InternalErrorResponse` 500 behavior and Step 175 `X-Request-ID` request/response header contract remain intact. No 422 response is introduced for health.
+
+**Validation truth:** Dedicated Step 176 regression coverage is committed for strict health fields, invalid status/service/version/extra-field rejection, canonical builder output, application/health version consistency, FastAPI response-model declaration, liveness-only behavior, absence of system/network dependencies, OpenAPI 200/500 schemas, exact health schema constraints, and preservation of Step 175 request-ID documentation. The available runtime reports Pydantic 2.13.4 and FastAPI 0.128.2 while the repository pins FastAPI 0.141.1. A targeted pytest run covering Steps 176, 175, 174, and 24 was attempted from a fresh checkout, but the runtime could not resolve `github.com`; the clone failed before pytest started. No automated test-pass claim is made.
+
 # Current Status — Step 175
 
 ## Step 175 — Request ID Contract Hardening
