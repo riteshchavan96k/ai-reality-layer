@@ -1,3 +1,19 @@
+# Current Status — Step 175
+
+## Step 175 — Request ID Contract Hardening
+
+**Status:** Implementation complete; local validation pending.
+
+Step 175 hardens the existing `X-Request-ID` correlation boundary. Safe caller-supplied IDs are preserved only when they satisfy a bounded ASCII contract; missing, empty, oversized, whitespace/control-character, unsupported-Unicode, or otherwise unsafe values are replaced with a generated UUID before entering request state or response headers. The same trust rule now protects error-body request-ID reflection, and the request/response correlation header is documented in OpenAPI across all public routes and applicable 200/422/500 responses.
+
+**Safety invariant:** optional client correlation ID → bounded validation → preserve safe value or generate UUID → one canonical request-state ID → safe error-body correlation → response `X-Request-ID` header → documented API client contract.
+
+**Design boundary:** Request-correlation contract hardening only. A request ID is an opaque telemetry/correlation token; it does not authenticate a caller, authorize a request, identify a user, establish tenancy, or provide a security boundary. Authentication/authorization, orchestration, retrieval, grounding, routing, provider execution, retry/fallback, evaluation, recovery, outcome memory, Reality State logic, credentials, external providers, RAG, embeddings, ML/DL training, and semantic truth inference are unchanged.
+
+**Compatibility:** Existing safe identifiers such as `test-request`, `request-174`, standard UUIDs, and similar ASCII tokens remain unchanged. Requests without a header still receive a generated UUID. Unsafe IDs are replaced rather than causing request rejection. Existing Solve/Reality State success body schemas and Step 174 422/500 error body schemas remain intact while gaining documented `X-Request-ID` response headers.
+
+**Validation truth:** Dedicated Step 175 regression coverage is committed for valid/max-length ID preservation, unsafe/missing/oversized ID replacement, middleware state/header consistency, unsafe error-state non-reflection, OpenAPI request-header documentation, 200/422/500 response-header documentation, preservation of success/error body schemas, and health-route response behavior. The available runtime reports Pydantic 2.13.4 and FastAPI 0.128.2. A targeted pytest run covering Steps 175, 174, 24, and 173 was attempted from a fresh checkout, but the runtime could not resolve `github.com`; the clone failed before pytest started. No automated test-pass claim is made.
+
 # Current Status — Step 174
 
 ## Step 174 — API Error Contract Hardening
