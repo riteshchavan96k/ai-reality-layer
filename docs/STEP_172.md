@@ -221,4 +221,4 @@ It does not add:
 
 ## Validation truth
 
-Dedicated Step 172 regression coverage is committed. Repository structure and the final Git diff are verified in this workflow. Runtime test execution is reported separately and is never inferred from committed tests.
+Dedicated Step 172 regression coverage is committed. Repository structure and the final Git diff are verified in this workflow. A targeted pytest run covering Steps 172, 171, 170, 169, and 23 was attempted from a fresh checkout, but the available runtime could not resolve `github.com`; the clone failed before pytest started. No automated test-pass claim is made.
