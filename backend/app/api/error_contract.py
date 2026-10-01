@@ -1,7 +1,7 @@
-from typing import Any, Literal
+from typing import Any, Literal, TypeAlias
 
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ValidationIssue(BaseModel):
@@ -15,37 +15,52 @@ class ValidationIssue(BaseModel):
     ctx: dict[str, Any] | None = None
 
 
-class ApiErrorDetail(BaseModel):
-    """Canonical API error body."""
+class ValidationErrorDetail(BaseModel):
+    """Exact 422 error body."""
 
     model_config = ConfigDict(extra="forbid")
 
-    code: Literal["validation_error", "internal_error"]
-    message: str = Field(min_length=1)
-    details: list[ValidationIssue] | None = None
-
-    @model_validator(mode="after")
-    def validate_details_by_code(self) -> "ApiErrorDetail":
-        if self.code == "validation_error":
-            if self.details is None:
-                raise ValueError(
-                    "validation_error must include validation details"
-                )
-        elif self.details is not None:
-            raise ValueError(
-                "internal_error must not expose validation details"
-            )
-        return self
+    code: Literal["validation_error"] = "validation_error"
+    message: Literal["Request validation failed."] = (
+        "Request validation failed."
+    )
+    details: list[ValidationIssue]
 
 
-class ApiErrorResponse(BaseModel):
-    """Canonical HTTP error envelope for public API failures."""
+class ValidationErrorResponse(BaseModel):
+    """Canonical request-validation error envelope."""
 
     model_config = ConfigDict(extra="forbid")
 
-    status: Literal["error"]
-    error: ApiErrorDetail
+    status: Literal["error"] = "error"
+    error: ValidationErrorDetail
     request_id: str | None = None
+
+
+class InternalErrorDetail(BaseModel):
+    """Exact safe 500 error body."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: Literal["internal_error"] = "internal_error"
+    message: Literal["An internal server error occurred."] = (
+        "An internal server error occurred."
+    )
+
+
+class InternalErrorResponse(BaseModel):
+    """Canonical internal-error envelope."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["error"] = "error"
+    error: InternalErrorDetail
+    request_id: str | None = None
+
+
+ApiErrorResponse: TypeAlias = (
+    ValidationErrorResponse | InternalErrorResponse
+)
 
 
 def normalize_validation_issues(
@@ -96,12 +111,9 @@ def normalize_validation_issues(
 def build_validation_error_response(
     raw_errors: list[dict[str, Any]],
     request_id: str | None,
-) -> ApiErrorResponse:
-    return ApiErrorResponse(
-        status="error",
-        error=ApiErrorDetail(
-            code="validation_error",
-            message="Request validation failed.",
+) -> ValidationErrorResponse:
+    return ValidationErrorResponse(
+        error=ValidationErrorDetail(
             details=normalize_validation_issues(raw_errors),
         ),
         request_id=request_id,
@@ -110,20 +122,19 @@ def build_validation_error_response(
 
 def build_internal_error_response(
     request_id: str | None,
-) -> ApiErrorResponse:
-    return ApiErrorResponse(
-        status="error",
-        error=ApiErrorDetail(
-            code="internal_error",
-            message="An internal server error occurred.",
-        ),
+) -> InternalErrorResponse:
+    return InternalErrorResponse(
+        error=InternalErrorDetail(),
         request_id=request_id,
     )
 
 
 __all__ = [
-    "ApiErrorDetail",
     "ApiErrorResponse",
+    "InternalErrorDetail",
+    "InternalErrorResponse",
+    "ValidationErrorDetail",
+    "ValidationErrorResponse",
     "ValidationIssue",
     "build_internal_error_response",
     "build_validation_error_response",
