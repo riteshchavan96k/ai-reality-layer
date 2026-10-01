@@ -16,6 +16,9 @@ from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMem
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.models.registry import get_model_adapter, get_model_provider_name
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
+from backend.app.orchestrator.result_normalizer import (
+    OrchestrationResultNormalizer,
+)
 from backend.app.orchestrator.stage_contract import OrchestrationStageContext
 from backend.app.orchestrator.state import OrchestrationState
 from backend.app.reality.grounding_execution_context import GroundingExecutionContext
@@ -431,29 +434,109 @@ class OrchestrationPipeline:
 
     def _approval_blocked_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
-        return {"status": "awaiting_human_approval", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "trace": context.trace.snapshot()}
+        return OrchestrationResultNormalizer.normalize(
+            {
+                "status": "awaiting_human_approval",
+                "analysis": state.analysis,
+                "routing": state.routing,
+                "approval": state.approval,
+                "trace": context.trace.snapshot(),
+            }
+        ).to_dict()
 
     def _retrieval_blocked_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
         context.trace.record("execution", "blocked", reason="required_retrieval_evidence_quality_insufficient", retrieval_status=state.retrieval["status"], evidence_status=state.evidence["status"], quality_status=state.evidence_quality["status"], quality_issues=state.evidence_quality["issues"])
-        return {"status": "retrieval_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": self.dependencies.grounded_result_builder.build(state.grounding, None), "trace": context.trace.snapshot()}
+        return OrchestrationResultNormalizer.normalize(
+            {
+                "status": "retrieval_unavailable",
+                "analysis": state.analysis,
+                "routing": state.routing,
+                "approval": state.approval,
+                "retrieval": state.retrieval,
+                "evidence": state.evidence,
+                "evidence_quality": state.evidence_quality,
+                "grounding": self.dependencies.grounded_result_builder.build(
+                    state.grounding,
+                    None,
+                ),
+                "trace": context.trace.snapshot(),
+            }
+        ).to_dict()
 
     def _grounding_blocked_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
         reason = state.analysis["reality_grounding_execution_gate"].get("reason") or state.analysis["reality_grounding_consumption"].get("reason") or "grounding_context_rejected"
         context.trace.record("execution", "blocked", reason=reason, grounding_status=state.grounding["status"], grounding_source_count=state.grounding["source_count"])
-        return {"status": "grounding_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "trace": context.trace.snapshot()}
+        return OrchestrationResultNormalizer.normalize(
+            {
+                "status": "grounding_unavailable",
+                "analysis": state.analysis,
+                "routing": state.routing,
+                "approval": state.approval,
+                "retrieval": state.retrieval,
+                "evidence": state.evidence,
+                "evidence_quality": state.evidence_quality,
+                "grounding": state.grounding,
+                "trace": context.trace.snapshot(),
+            }
+        ).to_dict()
 
     def _execution_context_blocked_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
         reason = state.analysis["reality_grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result"].get("reason") or state.analysis["reality_grounding_execution_context_consumption_decision"].get("reason") or state.analysis["reality_grounding_execution_context_consumption"].get("reason") or "execution_context_rejected"
         context.trace.record("execution", "blocked", reason=reason, grounding_status=state.execution_context.get("grounding_status"), grounding_source_count=state.execution_context.get("source_count", 0))
-        return {"status": "execution_context_unavailable", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "retrieval": state.retrieval, "evidence": state.evidence, "evidence_quality": state.evidence_quality, "grounding": state.grounding, "execution_context": state.execution_context, "trace": context.trace.snapshot()}
+        return OrchestrationResultNormalizer.normalize(
+            {
+                "status": "execution_context_unavailable",
+                "analysis": state.analysis,
+                "routing": state.routing,
+                "approval": state.approval,
+                "retrieval": state.retrieval,
+                "evidence": state.evidence,
+                "evidence_quality": state.evidence_quality,
+                "grounding": state.grounding,
+                "execution_context": state.execution_context,
+                "trace": context.trace.snapshot(),
+            }
+        ).to_dict()
 
     def _execution_failed_result(self, context: OrchestrationStageContext) -> dict:
         state = context.state
-        return {"status": "execution_failed", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "execution": state.execution, "outcome": state.outcome, "trace": context.trace.snapshot()}
+        return OrchestrationResultNormalizer.normalize(
+            {
+                "status": "execution_failed",
+                "analysis": state.analysis,
+                "routing": state.routing,
+                "approval": state.approval,
+                "execution": state.execution,
+                "outcome": state.outcome,
+                "trace": context.trace.snapshot(),
+            }
+        ).to_dict()
 
     def _success_result(self, context: OrchestrationStageContext, grounding_result: dict) -> dict:
         state = context.state
-        return {"status": "orchestrated", "analysis": state.analysis, "routing": state.routing, "approval": state.approval, "execution": {"status": state.execution["status"], "model": state.execution["model"], "attempts": state.execution["attempts"], "total_attempts": state.execution["total_attempts"], "budget_limit": state.execution["budget_limit"], "attempts_by_model": state.execution["attempts_by_model"], "fallback_used": state.execution["fallback_used"]}, "result": state.result, "grounding": grounding_result, "evaluation": state.evaluation, "quality_recovery": state.recovery, "outcome": state.outcome, "trace": context.trace.snapshot()}
+        return OrchestrationResultNormalizer.normalize(
+            {
+                "status": "orchestrated",
+                "analysis": state.analysis,
+                "routing": state.routing,
+                "approval": state.approval,
+                "execution": {
+                    "status": state.execution["status"],
+                    "model": state.execution["model"],
+                    "attempts": state.execution["attempts"],
+                    "total_attempts": state.execution["total_attempts"],
+                    "budget_limit": state.execution["budget_limit"],
+                    "attempts_by_model": state.execution["attempts_by_model"],
+                    "fallback_used": state.execution["fallback_used"],
+                },
+                "result": state.result,
+                "grounding": grounding_result,
+                "evaluation": state.evaluation,
+                "quality_recovery": state.recovery,
+                "outcome": state.outcome,
+                "trace": context.trace.snapshot(),
+            }
+        ).to_dict()
