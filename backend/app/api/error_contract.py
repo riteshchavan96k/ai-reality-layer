@@ -1,6 +1,5 @@
 from typing import Any, Literal, TypeAlias
 
-from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -12,7 +11,6 @@ class ValidationIssue(BaseModel):
     type: str = Field(min_length=1)
     loc: list[str | int]
     msg: str = Field(min_length=1)
-    ctx: dict[str, Any] | None = None
 
 
 class ValidationErrorDetail(BaseModel):
@@ -86,13 +84,6 @@ def normalize_validation_issues(
             else:
                 loc.append(str(item))
 
-        ctx = raw_error.get("ctx")
-        safe_ctx = None
-        if isinstance(ctx, dict):
-            encoded_ctx = jsonable_encoder(ctx)
-            if isinstance(encoded_ctx, dict):
-                safe_ctx = encoded_ctx
-
         issues.append(
             ValidationIssue(
                 type=str(raw_error.get("type") or "validation_error"),
@@ -101,7 +92,6 @@ def normalize_validation_issues(
                     raw_error.get("msg")
                     or "Request validation failed."
                 ),
-                ctx=safe_ctx,
             )
         )
 
