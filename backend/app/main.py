@@ -1,13 +1,12 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
-from pydantic import BaseModel, Field
-
 from backend.app.api.errors import (
     unhandled_exception_handler,
     validation_exception_handler,
 )
 from backend.app.api.request_id import RequestIdMiddleware
 from backend.app.api.reality_state import RealityStateRequest, RealityStateResponse
+from backend.app.api.solve import SolveRequest, SolveResponse
 from backend.app.services.solve_service import process_task
 from backend.app.orchestrator.orchestrator import build_reality_state
 
@@ -23,11 +22,6 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
 
-class SolveRequest(BaseModel):
-    task: str = Field(min_length=1, max_length=10_000)
-    human_approved: bool = False
-
-
 @app.get("/health")
 def health_check():
     return {
@@ -37,7 +31,11 @@ def health_check():
     }
 
 
-@app.post("/api/v1/solve")
+@app.post(
+    "/api/v1/solve",
+    response_model=SolveResponse,
+    response_model_exclude_unset=True,
+)
 def solve(request: SolveRequest):
     return process_task(request.task, human_approved=request.human_approved)
 
