@@ -8,7 +8,12 @@ from backend.app.api.errors import (
     unhandled_exception_handler,
     validation_exception_handler,
 )
-from backend.app.api.request_id import RequestIdMiddleware
+from backend.app.api.request_id import (
+    REQUEST_ID_HEADER,
+    REQUEST_ID_OPENAPI_PARAMETER,
+    REQUEST_ID_OPENAPI_RESPONSE_HEADER,
+    RequestIdMiddleware,
+)
 from backend.app.api.reality_state import RealityStateRequest, RealityStateResponse
 from backend.app.api.solve import SolveRequest, SolveResponse
 from backend.app.services.solve_service import process_task
@@ -26,26 +31,47 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
 
+_REQUEST_ID_RESPONSE_HEADERS = {
+    REQUEST_ID_HEADER: REQUEST_ID_OPENAPI_RESPONSE_HEADER,
+}
+
+_REQUEST_ID_OPENAPI_EXTRA = {
+    "parameters": [REQUEST_ID_OPENAPI_PARAMETER],
+}
+
 _VALIDATION_AND_INTERNAL_ERROR_RESPONSES = {
+    200: {
+        "headers": _REQUEST_ID_RESPONSE_HEADERS,
+    },
     422: {
         "model": ValidationErrorResponse,
         "description": "Request validation failed.",
+        "headers": _REQUEST_ID_RESPONSE_HEADERS,
     },
     500: {
         "model": InternalErrorResponse,
         "description": "An internal server error occurred.",
+        "headers": _REQUEST_ID_RESPONSE_HEADERS,
     },
 }
 
-_INTERNAL_ERROR_RESPONSE = {
+_HEALTH_RESPONSES = {
+    200: {
+        "headers": _REQUEST_ID_RESPONSE_HEADERS,
+    },
     500: {
         "model": InternalErrorResponse,
         "description": "An internal server error occurred.",
+        "headers": _REQUEST_ID_RESPONSE_HEADERS,
     },
 }
 
 
-@app.get("/health", responses=_INTERNAL_ERROR_RESPONSE)
+@app.get(
+    "/health",
+    responses=_HEALTH_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
 def health_check():
     return {
         "status": "healthy",
@@ -59,6 +85,7 @@ def health_check():
     response_model=SolveResponse,
     response_model_exclude_unset=True,
     responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
 )
 def solve(request: SolveRequest):
     return process_task(request.task, human_approved=request.human_approved)
@@ -68,6 +95,7 @@ def solve(request: SolveRequest):
     "/api/v1/reality-state",
     response_model=RealityStateResponse,
     responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
 )
 def reality_state(request: RealityStateRequest):
     """Return the canonical evidence-backed Reality State without a model execution request."""
