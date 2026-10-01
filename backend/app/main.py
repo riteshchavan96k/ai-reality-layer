@@ -8,6 +8,11 @@ from backend.app.api.errors import (
     unhandled_exception_handler,
     validation_exception_handler,
 )
+from backend.app.api.health import (
+    API_VERSION,
+    HealthResponse,
+    build_health_response,
+)
 from backend.app.api.request_id import (
     REQUEST_ID_HEADER,
     REQUEST_ID_OPENAPI_PARAMETER,
@@ -22,7 +27,7 @@ from backend.app.orchestrator.orchestrator import build_reality_state
 
 app = FastAPI(
     title="AI Reality Layer API",
-    version="0.1.0",
+    version=API_VERSION,
     description="Production-oriented API surface for AI Reality Layer orchestration.",
 )
 
@@ -69,15 +74,12 @@ _HEALTH_RESPONSES = {
 
 @app.get(
     "/health",
+    response_model=HealthResponse,
     responses=_HEALTH_RESPONSES,
     openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
 )
 def health_check():
-    return {
-        "status": "healthy",
-        "service": "ai-reality-layer",
-        "version": "0.1.0",
-    }
+    return build_health_response()
 
 
 @app.post(
