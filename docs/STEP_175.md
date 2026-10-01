@@ -208,4 +208,4 @@ It does not change:
 
 ## Validation truth
 
-Dedicated Step 175 regression coverage is committed. Repository structure and the final Git diff are verified in this workflow. Runtime test execution is reported separately and is never inferred from committed tests.
+Dedicated Step 175 regression coverage is committed. Repository structure and the final Git diff are verified in this workflow. The available runtime reports Pydantic 2.13.4 and FastAPI 0.128.2. A targeted pytest run covering Steps 175, 174, 24, and 173 was attempted from a fresh checkout, but the runtime could not resolve `github.com`; the clone failed before pytest started. No automated test-pass claim is made.
