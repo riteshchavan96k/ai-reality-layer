@@ -265,11 +265,55 @@ class OrchestrationResult:
                     payload["quality_recovery"]
                 ).to_dict()
             )
+            selected_execution = ModelExecutionResultNormalizer.normalize(
+                payload["quality_recovery"]["best"]["execution"]
+            ).to_dict()
+            payload["quality_recovery"] = {
+                **payload["quality_recovery"],
+                "best": {
+                    **payload["quality_recovery"]["best"],
+                    "execution": selected_execution,
+                },
+            }
+
             payload["outcome"] = (
                 OutcomeMemoryRecordNormalizer.normalize(
                     payload["outcome"]
                 ).to_dict()
             )
+
+            if (
+                payload["quality_recovery"]["best"]["model"]
+                != payload["execution"]["model"]
+            ):
+                raise ValueError(
+                    "quality recovery best model must match orchestration execution model"
+                )
+            if (
+                selected_execution["model"]
+                != payload["execution"]["model"]
+            ):
+                raise ValueError(
+                    "quality recovery execution model must match orchestration execution model"
+                )
+            for name in (
+                "attempts",
+                "total_attempts",
+                "budget_limit",
+                "attempts_by_model",
+                "fallback_used",
+            ):
+                if selected_execution[name] != payload["execution"][name]:
+                    raise ValueError(
+                        f"quality recovery execution {name} must match orchestration execution summary"
+                    )
+            if (
+                payload["quality_recovery"]["best"]["evaluation"]["score"]
+                != payload["evaluation"]["score"]
+            ):
+                raise ValueError(
+                    "quality recovery best evaluation must match orchestration evaluation"
+                )
 
             if payload["outcome"]["execution_status"] != "success":
                 raise ValueError(
@@ -288,6 +332,28 @@ class OrchestrationResult:
             ):
                 raise ValueError(
                     "outcome evaluation_score must match orchestration evaluation score"
+                )
+            for outcome_name, execution_name in (
+                ("attempts", "attempts"),
+                ("total_attempts", "total_attempts"),
+                ("budget_limit", "budget_limit"),
+                ("fallback_used", "fallback_used"),
+            ):
+                if (
+                    payload["outcome"][outcome_name]
+                    != payload["execution"][execution_name]
+                ):
+                    raise ValueError(
+                        f"outcome {outcome_name} must match orchestration execution {execution_name}"
+                    )
+
+            result_model = payload["result"].get("model")
+            if (
+                result_model is not None
+                and result_model != payload["execution"]["model"]
+            ):
+                raise ValueError(
+                    "result model must match orchestration execution model"
                 )
 
         object.__setattr__(self, "payload", payload)
