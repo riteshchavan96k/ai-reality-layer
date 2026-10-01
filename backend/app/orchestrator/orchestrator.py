@@ -14,6 +14,9 @@ from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMem
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.orchestrator.pipeline import OrchestrationPipeline
+from backend.app.orchestrator.result_normalizer import (
+    OrchestrationResultNormalizer,
+)
 
 
 DEFAULT_PERSISTENT_MEMORY_PATH = os.getenv(
@@ -66,7 +69,7 @@ def orchestrate_task(
         recover=recover_with_evaluation,
         fallback=execute_with_fallback,
     )
-    return pipeline.run(
+    result = pipeline.run(
         task=task,
         human_approved=human_approved,
         approval_policy=approval_policy,
@@ -75,6 +78,7 @@ def orchestrate_task(
         outcome_memory=memory,
         retrieval_engine=retrieval_engine,
     )
+    return OrchestrationResultNormalizer.normalize(result).to_dict()
 
 
 __all__ = ["build_reality_state", "orchestrate_task"]
