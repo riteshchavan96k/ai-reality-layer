@@ -7,11 +7,12 @@ from backend.app.api.error_contract import (
     build_internal_error_response,
     build_validation_error_response,
 )
+from backend.app.api.request_id import is_valid_request_id
 
 
 def _request_id(request: Request) -> str | None:
     value = getattr(request.state, "request_id", None)
-    return value if isinstance(value, str) and value else None
+    return value if is_valid_request_id(value) else None
 
 
 def _error_content(payload: ApiErrorResponse) -> dict:
