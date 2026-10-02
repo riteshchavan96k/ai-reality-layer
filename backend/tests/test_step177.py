@@ -1,4 +1,6 @@
 from pathlib import Path
+import subprocess
+import sys
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -84,3 +86,27 @@ def test_readme_documents_reproducible_local_validation_commands():
     assert "python -m pip install -r backend/requirements-dev.txt" in content
     assert "python -m pytest" in content
     assert "GitHub Actions" in content
+
+def test_grounding_authorization_contract_modules_import_without_cycle():
+    code = (
+        "import backend.app.reality."
+        "grounding_execution_authorization_consumption_decision_result_"
+        "consumption_result_decision_result_consumption as consumption; "
+        "import backend.app.reality."
+        "grounding_execution_authorization_consumption_decision_result_"
+        "consumption_result_decision_result_consumption_result as result; "
+        "assert consumption."
+        "GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumer; "
+        "assert result."
+        "GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResult"
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+
