@@ -12,7 +12,10 @@ README = ROOT / "README.md"
 
 
 def _read(path: Path) -> str:
-    return path.read_text(encoding="utf-8-sig")
+    data = path.read_bytes()
+    if data.startswith((b"\\xff\\xfe", b"\\xfe\\xff")):
+        return data.decode("utf-16")
+    return data.decode("utf-8-sig")
 
 
 def test_development_requirements_layer_on_production_requirements():
