@@ -13,7 +13,9 @@ README = ROOT / "README.md"
 
 def _read(path: Path) -> str:
     data = path.read_bytes()
-    if data.startswith((b"\\xff\\xfe", b"\\xfe\\xff")):
+    if data.startswith(
+        (bytes.fromhex("fffe"), bytes.fromhex("feff"))
+    ):
         return data.decode("utf-16")
     return data.decode("utf-8-sig")
 
