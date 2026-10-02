@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumption import (
-    GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption,
-)
+if TYPE_CHECKING:
+    from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumption import (
+        GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption,
+    )
 
 
 @dataclass(frozen=True)
@@ -80,8 +81,12 @@ class GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultD
     @classmethod
     def from_consumption(
         cls,
-        consumption: GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption,
+        consumption: "GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption",
     ) -> "GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResult":
+        from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumption import (
+            GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption,
+        )
+
         if not isinstance(
             consumption,
             GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumption,
