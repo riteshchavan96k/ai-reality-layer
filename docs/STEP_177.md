@@ -201,8 +201,46 @@ A green CI run demonstrates that the declared automated test suite passed in tha
 
 ## Validation truth
 
-Step 177 implementation and self-checking regression coverage are committed.
+Step 177 is operational and has now executed on GitHub-hosted Actions.
 
-The committed Step 177 validation artifacts were reconstructed in the available runtime and `backend/tests/test_step177.py` executed successfully: **8 passed**. The committed workflow YAML was also parsed successfully as structured YAML, including the expected push, pull-request, manual-dispatch, read-only-permission, and test-job sections.
+### Step-owned validation
 
-GitHub-hosted execution is a separate validation layer. The repository Actions API did not report a run for the workflow-creation commit; it showed only an older historical Step 167 workflow run. Commits made through the connected GitHub app may not emit the same Actions-triggering event as a native repository push, and the available connector exposes workflow-run inspection/rerun tools but no workflow-dispatch action. Therefore no GitHub-hosted green-CI claim is made until GitHub reports a completed successful `Backend tests` run.
+The Step 177 infrastructure regression suite passes. The latest code-bearing CI run did not report any `backend/tests/test_step177.py` failure.
+
+The workflow also completed these infrastructure stages successfully:
+
+- repository checkout;
+- Python 3.13 setup;
+- development-dependency installation;
+- backend `compileall` validation.
+
+The workflow uses the current Node 24-compatible `actions/checkout@v7` and `actions/setup-python@v7` majors. The earlier Node 20 deprecation warning is absent from the latest run.
+
+### Defects exposed and repaired during Step 177
+
+The first full-suite CI execution revealed a runtime circular import between the final grounding-authorization consumption contract modules. Step 177 replaced the reverse top-level import with a type-checking/local runtime import and added a subprocess regression guard.
+
+CI also exposed an incomplete `OrchestrationDependencies.default()` composition: `SourceProvenanceBuilder`, `SourceObservationBuilder`, and `SourceFreshnessEvaluator` were declared dataclass dependencies but omitted from default construction. Step 177 restored all three default services.
+
+The Step 177 infrastructure test was also corrected to read the repository's existing UTF-16 production requirements file safely.
+
+### Current full-suite baseline
+
+GitHub Actions run **#9** (`36980879042`) on commit `88c11ec8f2ef8dc65835c7161e9b5f49bce6a956` completed the full backend pytest suite with:
+
+- **1074 passed**;
+- **92 failed**;
+- application compilation successful;
+- Step 177 infrastructure tests passing.
+
+The remaining 92 failures span historical contract/test drift across multiple earlier steps (including grounding compatibility, claim/evidence compatibility, retrieval compatibility, provider/execution compatibility, and older FastAPI-test assumptions). They are not hidden, skipped, marked expected, or removed from CI.
+
+Step 177 deliberately leaves the full-suite job red until those regressions are reconciled. A green badge is not manufactured by weakening current contracts or excluding legacy tests.
+
+Therefore the truthful Step 177 result is:
+
+- CI/test infrastructure: implemented and operational;
+- Step 177 self-validation: passing;
+- complete repository regression baseline: executing correctly but currently red with 92 known failures.
+
+A green full-repository regression baseline is a separate remediation milestone and must be addressed explicitly rather than silently folded into CI configuration.
