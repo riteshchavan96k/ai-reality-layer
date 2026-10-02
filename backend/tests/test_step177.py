@@ -63,6 +63,15 @@ def test_backend_ci_workflow_uses_pinned_project_python_and_dev_dependencies():
     assert "python -m pip install -r backend/requirements-dev.txt" in content
 
 
+def test_backend_ci_workflow_uses_current_node24_action_majors():
+    content = _read(WORKFLOW)
+
+    assert "actions/checkout@v7" in content
+    assert "actions/setup-python@v7" in content
+    assert "actions/checkout@v4" not in content
+    assert "actions/setup-python@v5" not in content
+
+
 def test_backend_ci_workflow_compiles_before_running_full_test_suite():
     content = _read(WORKFLOW)
 
