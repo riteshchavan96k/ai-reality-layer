@@ -1,3 +1,23 @@
+# Current Status — Step 177
+
+## Step 177 — Backend Test Runtime and Continuous Integration Validation
+
+**Status:** CI infrastructure complete and operational; full historical regression baseline currently red.
+
+Step 177 establishes the project's first reproducible backend development-test environment and GitHub Actions full-suite workflow. It adds `backend/requirements-dev.txt`, canonical `pytest.ini`, README validation commands, a read-only/no-secrets GitHub Actions workflow, and Step 177 self-tests for the validation infrastructure itself.
+
+**Safety invariant:** repository change → declared development environment → read-only GitHub Actions checkout → backend compile validation → complete pytest suite → visible CI result. The workflow has no repository write permission, no provider/deployment credentials, no secrets, and no `pull_request_target` trigger.
+
+**Current CI truth:** GitHub Actions run #9 (`36980879042`) on code-bearing commit `88c11ec8f2ef8dc65835c7161e9b5f49bce6a956` completed Python 3.13 setup, dependency installation, backend compilation, and the complete pytest suite. Result: **1074 passed, 92 failed**. Step 177's own infrastructure tests did not fail, and the earlier Node 20 action deprecation warning is absent after upgrading to `actions/checkout@v7` and `actions/setup-python@v7`.
+
+**Defects repaired while establishing CI:** The first hosted runs exposed and Step 177 repaired (1) a runtime circular import in the final grounding-authorization consumption contract chain, (2) missing default wiring for `SourceProvenanceBuilder`, `SourceObservationBuilder`, and `SourceFreshnessEvaluator`, and (3) Step 177 test decoding for the repository's existing UTF-16 production requirements file.
+
+**Compatibility / integrity:** Production dependencies remain separate from pytest/test dependencies. CI runs the complete suite rather than a hand-picked current-step subset. Remaining failures are not skipped, xfailed, removed, or hidden to manufacture a green result.
+
+**Remaining baseline:** The 92 failures span historical contract/test drift across earlier grounding, claim/evidence, retrieval, provider/execution, orchestration, and FastAPI-test assumptions. Reconciling that full regression baseline is a distinct remediation milestone; Step 177 intentionally leaves CI red until those inconsistencies are resolved.
+
+**Validation truth:** CI infrastructure and Step 177 self-validation are complete and passing. The repository-wide regression baseline is now observable and reproducible, but it is not green. No full-suite pass claim is made.
+
 # Current Status — Step 176
 
 ## Step 176 — Health API Contract Hardening
