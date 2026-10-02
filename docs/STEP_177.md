@@ -201,4 +201,8 @@ A green CI run demonstrates that the declared automated test suite passed in tha
 
 ## Validation truth
 
-Step 177 implementation and self-checking regression coverage are committed. The first GitHub Actions execution result is inspected separately before project-status synchronization; no green-CI claim is made unless GitHub reports a successful completed run.
+Step 177 implementation and self-checking regression coverage are committed.
+
+The committed Step 177 validation artifacts were reconstructed in the available runtime and `backend/tests/test_step177.py` executed successfully: **8 passed**. The committed workflow YAML was also parsed successfully as structured YAML, including the expected push, pull-request, manual-dispatch, read-only-permission, and test-job sections.
+
+GitHub-hosted execution is a separate validation layer. The repository Actions API did not report a run for the workflow-creation commit; it showed only an older historical Step 167 workflow run. Commits made through the connected GitHub app may not emit the same Actions-triggering event as a native repository push, and the available connector exposes workflow-run inspection/rerun tools but no workflow-dispatch action. Therefore no GitHub-hosted green-CI claim is made until GitHub reports a completed successful `Backend tests` run.
