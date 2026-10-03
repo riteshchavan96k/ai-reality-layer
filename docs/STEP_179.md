@@ -128,6 +128,24 @@ The state is `uncertain`, not `supported`, because the test intentionally provid
 
 That distinction is a core Reality Layer trust behavior.
 
+## Reality State state-initialization repair
+
+The first Step 179 end-to-end regression uncovered a separate active-path defect in `OrchestrationPipeline.build_reality_state()`.
+
+The method attempted to assign:
+
+`state.retrieval_contract = ...`
+
+but `OrchestrationState.retrieval_contract` is a read-only derived property backed by:
+
+`state.analysis["reality_retrieval"]`.
+
+That made the public Reality State path fail before retrieval execution.
+
+Step 179 now builds the retrieval contract into a local value and initializes `state.analysis` with that canonical contract before entering `_retrieve_and_ground()`.
+
+This preserves the existing state model rather than adding a setter solely to accommodate an incorrect write.
+
 ## Existing HTTP retrieval path
 
 The repository already contains an opt-in `HttpRetrievalProvider` and default composition support through:
@@ -225,4 +243,18 @@ It does not add:
 
 ## Validation truth
 
-Step 179 completion requires the complete GitHub-hosted backend suite to remain green on the final synchronized repository HEAD.
+Step 179 reached a real GitHub-hosted green full-repository result.
+
+Backend tests run #72 (`37118462174`) on commit `b0abd70aa5caa4260c68e3db7bd79735706d07af` completed successfully with:
+
+- checkout: passed;
+- Python 3.13 setup: passed;
+- dependency installation: passed;
+- backend compile validation: passed;
+- complete pytest suite: **1183 passed**;
+- failures: **0**;
+- Step 179 regression tests: passed.
+
+The run includes the canonical completed-evidence linking/provenance repairs, unknown-freshness uncertainty behavior, the end-to-end completed-retrieval Reality State regression, the configured generic HTTPS retrieval regression, and the Reality State state-initialization repair.
+
+The final project-status synchronization is validated by a separate GitHub Actions run before Step 179 receives its completion checkmark.
