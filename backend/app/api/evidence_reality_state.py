@@ -18,6 +18,7 @@ class EvidenceDocumentInput(BaseModel):
     content: str = Field(min_length=1, max_length=MAX_SUBMITTED_CONTENT_CHARS)
     uri: str = Field(min_length=1, max_length=MAX_SUBMITTED_URI_CHARS)
     title: str | None = Field(default=None, max_length=MAX_SUBMITTED_TITLE_CHARS)
+    observed_at: str | None = None
 
     @field_validator("content")
     @classmethod
@@ -47,6 +48,35 @@ class EvidenceDocumentInput(BaseModel):
         return normalized
 
 
+    @field_validator("observed_at")
+    @classmethod
+    def validate_observed_at(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        from datetime import datetime, timezone
+
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("observed_at must not be blank when provided")
+        try:
+            parsed = datetime.fromisoformat(
+                normalized.replace("Z", "+00:00")
+            )
+        except ValueError as exc:
+            raise ValueError(
+                "observed_at must be a valid ISO-8601 timestamp"
+            ) from exc
+        if parsed.tzinfo is None:
+            raise ValueError("observed_at must include a timezone")
+        if parsed.astimezone(timezone.utc) > datetime.now(timezone.utc):
+            raise ValueError("observed_at cannot be in the future")
+        return (
+            parsed.astimezone(timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
+
+
 class EvidenceRealityStateRequest(BaseModel):
     """Request contract for building a Reality State from supplied evidence."""
 
@@ -57,6 +87,7 @@ class EvidenceRealityStateRequest(BaseModel):
         min_length=1,
         max_length=MAX_SUBMITTED_DOCUMENTS,
     )
+    freshness_max_age_seconds: float | int | None = None
 
     @field_validator("task")
     @classmethod
@@ -67,10 +98,29 @@ class EvidenceRealityStateRequest(BaseModel):
         return normalized
 
     @model_validator(mode="after")
-    def validate_unique_source_uris(self) -> "EvidenceRealityStateRequest":
+    def validate_request_consistency(self) -> "EvidenceRealityStateRequest":
         uris = [document.uri for document in self.documents]
         if len(set(uris)) != len(uris):
             raise ValueError("document uris must be unique")
+
+        if self.freshness_max_age_seconds is not None:
+            value = self.freshness_max_age_seconds
+            if (
+                not isinstance(value, (int, float))
+                or isinstance(value, bool)
+                or value <= 0
+            ):
+                raise ValueError(
+                    "freshness_max_age_seconds must be a positive number"
+                )
+            if any(
+                document.observed_at is None
+                for document in self.documents
+            ):
+                raise ValueError(
+                    "freshness_max_age_seconds requires observed_at "
+                    "for every document"
+                )
         return self
 
 
