@@ -83,3 +83,31 @@ This endpoint does not fetch the submitted URIs and does not run the configured 
 
 Freshness remains uncertain in this initial direct-evidence contract because ingestion time is not treated as source publication time.
 
+## Optional freshness policy for supplied evidence
+
+If your search/RAG/connector already knows when each source was observed, include `observed_at` on every document and declare a freshness window:
+
+```http
+POST /api/v1/reality-state/evidence
+Content-Type: application/json
+
+{
+  "task": "What is the current status of Company X?",
+  "freshness_max_age_seconds": 3600,
+  "documents": [
+    {
+      "title": "Company X official update",
+      "uri": "https://example.com/company-x",
+      "content": "Company X launched Feature A.",
+      "observed_at": "2026-10-03T12:30:00Z"
+    }
+  ]
+}
+```
+
+`observed_at` means when your system observed the source, not when it was published or independently verified. It must be a timezone-aware ISO-8601 timestamp and cannot be in the future.
+
+When a freshness window is declared, every document must include `observed_at`. Sources inside the declared age window are assessed as fresh; older sources are stale. If no freshness window is supplied, freshness remains unknown even when observation timestamps are present.
+
+If no `observed_at` is supplied, AI Reality Layer records the submission ingestion time for observation metadata but does not use that ingestion time to claim the evidence is fresh.
+
