@@ -29,7 +29,7 @@ class ClaimEvidenceLinker:
         known_refs = set(source_refs)
         claim_count = len(claim_result.claims)
 
-        if evidence.get("status") != "usable":
+        if evidence.get("status") not in {"usable", "completed"}:
             return ClaimEvidenceLinkingResultNormalizer.normalize(
                 ClaimEvidenceLinkingResult.unavailable_result(
                     evidence.get("reason") or "evidence_not_usable",
