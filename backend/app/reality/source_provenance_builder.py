@@ -12,7 +12,7 @@ class SourceProvenanceBuilder:
         if not isinstance(evidence, dict):
             raise ValueError("evidence must be a dictionary")
 
-        if evidence.get("status") != "usable":
+        if evidence.get("status") not in {"usable", "completed"}:
             return SourceProvenanceResultNormalizer.normalize(
                 SourceProvenanceResult.unavailable_result(
                     evidence.get("reason") or "evidence_not_usable"
