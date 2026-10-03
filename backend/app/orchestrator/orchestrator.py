@@ -12,6 +12,7 @@ from backend.app.execution.execution_budget import ExecutionBudget
 from backend.app.execution.outcome_memory import DEFAULT_OUTCOME_MEMORY, OutcomeMemory
 from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMemory
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
+from backend.app.reality.submitted_evidence import SubmittedEvidenceBundle
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.orchestrator.pipeline import OrchestrationPipeline
 from backend.app.orchestrator.result_normalizer import (
@@ -48,6 +49,60 @@ def build_reality_state(
     return pipeline.build_reality_state(task=task, retrieval_engine=retrieval_engine)
 
 
+
+def build_reality_state_from_evidence(
+    task: str,
+    documents: list[dict],
+    dependencies: OrchestrationDependencies | None = None,
+) -> dict:
+    """Build a canonical Reality State from caller-supplied source-scoped evidence."""
+    if not isinstance(task, str) or not task.strip():
+        raise ValueError("task must be a non-empty string")
+
+    services = dependencies or OrchestrationDependencies.default()
+    bundle = SubmittedEvidenceBundle.from_mappings(documents)
+    evidence = bundle.to_evidence()
+
+    raw_quality_result = services.evidence_quality_validator.validate_result(
+        evidence
+    )
+    quality_result = (
+        services.evidence_quality_validation_result_normalizer.normalize(
+            raw_quality_result
+        )
+    )
+
+    claim_result = bundle.extract_claims(services.claim_extractor)
+    linking = services.claim_evidence_linker.link_result(
+        claim_result,
+        evidence,
+    )
+    conflicts = services.claim_conflict_detector.detect_result(claim_result)
+    provenance = services.source_provenance_builder.build_result(evidence)
+    observation = services.source_observation_builder.build_result(provenance)
+    freshness = services.source_freshness_evaluator.evaluate_result(
+        observation,
+        max_age_seconds=None,
+    )
+    confidence = services.confidence_signal_aggregator.aggregate_result(
+        quality_result.to_dict(),
+        linking.to_dict(),
+        freshness.to_dict(),
+        conflicts.to_dict(),
+    )
+    reality_state = services.reality_state_builder.build_result(
+        task,
+        evidence,
+        claim_result.to_dict(),
+        linking.to_dict(),
+        provenance.to_dict(),
+        observation.to_dict(),
+        freshness.to_dict(),
+        conflicts.to_dict(),
+        confidence.to_dict(),
+    )
+    return reality_state.to_dict()
+
 def orchestrate_task(
     task: str,
     human_approved: bool = False,
@@ -81,4 +136,8 @@ def orchestrate_task(
     return OrchestrationResultNormalizer.normalize(result).to_dict()
 
 
-__all__ = ["build_reality_state", "orchestrate_task"]
+__all__ = [
+    "build_reality_state",
+    "build_reality_state_from_evidence",
+    "orchestrate_task",
+]
