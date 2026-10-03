@@ -24,8 +24,15 @@ class SourceObservation:
             raise ValueError("observed_at must include a timezone")
         if parsed.astimezone(timezone.utc) > datetime.now(timezone.utc):
             raise ValueError("observed_at cannot be in the future")
-        if self.observation_method != "retrieval_observation":
-            raise ValueError("observation_method must be retrieval_observation")
+        if self.observation_method not in {
+            "retrieval_observation",
+            "submitted_evidence_observation",
+            "submitted_evidence_ingestion",
+        }:
+            raise ValueError(
+                "observation_method must be retrieval_observation, "
+                "submitted_evidence_observation, or submitted_evidence_ingestion"
+            )
 
     def to_dict(self) -> dict[str, Any]:
         return {
