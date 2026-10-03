@@ -29,7 +29,13 @@ def test_reality_state_route_uses_dedicated_http_contracts():
     route = next(route for route in app.routes if route.path == "/api/v1/reality-state")
     assert route.response_model is RealityStateResponse
     assert route.body_field is not None
-    assert route.body_field.type_ is RealityStateRequest
+
+    schema = app.openapi()
+    request_ref = (
+        schema["paths"]["/api/v1/reality-state"]["post"]
+        ["requestBody"]["content"]["application/json"]["schema"]["$ref"]
+    )
+    assert request_ref.endswith("/RealityStateRequest")
 
 
 def test_reality_state_request_rejects_solve_only_fields():
