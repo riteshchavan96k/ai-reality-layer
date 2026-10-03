@@ -1,3 +1,29 @@
+# Current Status — Step 180
+
+## Step 180 — Developer-Supplied Evidence Reality-State Input
+
+**Status:** Implementation complete; final synchronized HEAD validation in progress.
+
+Step 180 adds a dedicated developer-facing path for building a canonical Reality State from evidence that the caller already retrieved through search, RAG, crawlers, databases, or connectors. The new `POST /api/v1/reality-state/evidence` endpoint accepts bounded source-scoped documents and reuses the existing Reality Layer evidence-quality, claim, linking, provenance, observation, freshness, conflict, confidence, and Reality State components without pretending AI Reality Layer performed retrieval.
+
+**Safety invariant:** caller-supplied source-scoped documents → bounded validation → per-source claim extraction → duplicate-claim/source-ref merge → evidence quality → claim/evidence links → source provenance → source observation → unknown freshness → conservative confidence → canonical Reality State. Submitted URIs are provenance identifiers only; they are not fetched and are not treated as proof that source content is true.
+
+**Source-lineage integrity:** Claims are extracted independently from each document before aggregation. Claims unique to one document retain only that document's URI. Exact duplicate claims across multiple documents are represented once with all contributing source references. This prevents the misleading behavior of combining multiple documents first and then linking every claim to every source.
+
+**Multi-source behavior:** Direct submitted evidence can now produce explicit cross-source deterministic conflicts. A positive claim from one source and an explicit negation from another retain separate source references, enter the existing conflict detector, and keep confidence uncertain.
+
+**Input/API contract:** The endpoint accepts 1–20 documents. Each document requires nonblank content and an HTTP/HTTPS URI; optional titles are bounded. Content is limited to 50,000 characters per document, URIs to 2,048 characters, titles to 500 characters, duplicate URIs are rejected, unexpected fields fail validation, and blank tasks are rejected. The existing `POST /api/v1/reality-state` request remains task-only.
+
+**Retrieval independence:** The direct-evidence path does not call `HttpRetrievalProvider`, provider selection, or external network retrieval. A regression test configures a retrieval endpoint and makes provider invocation fail if called; direct evidence Reality State construction still succeeds.
+
+**Shared public contracts:** The new endpoint reuses `RealityStateResponse`, `ValidationErrorResponse`, `InternalErrorResponse`, and the existing `X-Request-ID` request/response contract. It is documented independently in OpenAPI through `EvidenceRealityStateRequest`.
+
+**Design boundary:** Developer-supplied evidence ingestion only. Step 180 does not add URL fetching, scraping, vendor search APIs, authentication/authorization, persistence, file upload, vector databases, embeddings, semantic claim verification, learned confidence calibration, model training, autonomous agents, or deployment infrastructure.
+
+**Hosted validation evidence:** Backend tests run #81 (`37119500430`) on commit `22c8d62d507603c4f6090e9d56bdedb27337cb89` passed backend compilation and the complete suite with **1194 passed / 0 failed**, including all dedicated Step 180 regressions.
+
+**Validation truth:** A real green full-suite GitHub Actions result exists for the Step 180 implementation. This status synchronization commit is validated separately on the final repository HEAD before Step 180 receives its completion checkmark.
+
 # Current Status — Step 179
 
 ## Step 179 — Canonical Completed Evidence Reality-State Integration
