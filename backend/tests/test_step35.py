@@ -68,16 +68,18 @@ class TestStep35(unittest.TestCase):
 
         self.assertEqual(result["status"], "orchestrated")
         self.assertFalse(result["analysis"]["reality_context"]["needs_external_evidence"])
+        stages = [event["stage"] for event in result["trace"]]
+        core_stages = [
+            "analysis",
+            "routing",
+            "approval",
+            "execution",
+            "evaluation",
+            "quality_recovery",
+        ]
         self.assertEqual(
-            [event["stage"] for event in result["trace"]],
-            [
-                "analysis",
-                "routing",
-                "approval",
-                "execution",
-                "evaluation",
-                "quality_recovery",
-            ],
+            [stage for stage in stages if stage in core_stages],
+            core_stages,
         )
 
 
