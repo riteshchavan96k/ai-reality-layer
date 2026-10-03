@@ -58,6 +58,14 @@ class EvidenceRealityStateRequest(BaseModel):
         max_length=MAX_SUBMITTED_DOCUMENTS,
     )
 
+    @field_validator("task")
+    @classmethod
+    def validate_task(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("task must not be blank")
+        return normalized
+
     @model_validator(mode="after")
     def validate_unique_source_uris(self) -> "EvidenceRealityStateRequest":
         uris = [document.uri for document in self.documents]
