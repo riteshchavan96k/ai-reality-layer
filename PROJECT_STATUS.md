@@ -2,7 +2,7 @@
 
 ## Step 181 — Explicit Source Observation Freshness Policy
 
-**Status:** Implementation complete; final synchronized HEAD validation in progress.
+**Status:** Complete; final synchronized HEAD validated.
 
 Step 181 extends the Step 180 direct-evidence Reality State path with explicit caller-supplied source observation timestamps and an explicit freshness policy. Developers can now provide per-document `observed_at` metadata plus request-level `freshness_max_age_seconds`, allowing the existing canonical freshness evaluator to distinguish fresh, stale, and unknown evidence without treating ingestion time as publication time.
 
@@ -22,7 +22,7 @@ Step 181 extends the Step 180 direct-evidence Reality State path with explicit c
 
 **Hosted validation evidence:** Backend tests run #92 (`37128168903`) on commit `26720464560a942f43ff331bc9cfefecd2002fae` passed backend compilation and the complete suite with **1210 passed / 0 failed**, including all dedicated Step 181 regressions. Documentation-bearing run #95 (`37128304830`) also passed the complete suite with **1210 passed / 0 failed**.
 
-**Validation truth:** A real green full-suite GitHub Actions result exists for the Step 181 implementation and documentation. This project-status synchronization commit is validated separately on the final repository HEAD before Step 181 receives its completion checkmark.
+**Validation truth:** GitHub Actions run #96 (`37128377472`) on synchronized HEAD `125987131d950a3fa0d969ae04e8088afc686fd4` passed every CI stage and the complete backend suite with **1210 passed / 0 failed**. Step 181's observation-provenance extension, freshness-policy domain/API integration, dedicated regressions, developer documentation, and synchronized project status are therefore validated together.
 
 # Current Status — Step 180
 
