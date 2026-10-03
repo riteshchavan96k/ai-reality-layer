@@ -2,7 +2,7 @@
 
 ## Step 180 — Developer-Supplied Evidence Reality-State Input
 
-**Status:** Implementation complete; final synchronized HEAD validation in progress.
+**Status:** Complete; final synchronized HEAD validated.
 
 Step 180 adds a dedicated developer-facing path for building a canonical Reality State from evidence that the caller already retrieved through search, RAG, crawlers, databases, or connectors. The new `POST /api/v1/reality-state/evidence` endpoint accepts bounded source-scoped documents and reuses the existing Reality Layer evidence-quality, claim, linking, provenance, observation, freshness, conflict, confidence, and Reality State components without pretending AI Reality Layer performed retrieval.
 
@@ -22,7 +22,7 @@ Step 180 adds a dedicated developer-facing path for building a canonical Reality
 
 **Hosted validation evidence:** Backend tests run #81 (`37119500430`) on commit `22c8d62d507603c4f6090e9d56bdedb27337cb89` passed backend compilation and the complete suite with **1194 passed / 0 failed**, including all dedicated Step 180 regressions.
 
-**Validation truth:** A real green full-suite GitHub Actions result exists for the Step 180 implementation. This status synchronization commit is validated separately on the final repository HEAD before Step 180 receives its completion checkmark.
+**Validation truth:** GitHub Actions run #84 (`37119632519`) on synchronized HEAD `452e637a24399d58366876fee4ab525481b78691` passed every CI stage and the complete backend suite with **1194 passed / 0 failed**. Step 180's domain contract, direct-evidence orchestration path, HTTP API contract, dedicated regressions, developer documentation, and synchronized project status are therefore validated together.
 
 # Current Status — Step 179
 
