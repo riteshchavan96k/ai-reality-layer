@@ -8,7 +8,7 @@ from backend.app.reality.claim_extraction_normalizer import ClaimExtractionResul
 class EvidenceClaimExtractor:
     """Extract deterministic candidate claims from normalized evidence content."""
 
-    _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\\s+|\\n+")
+    _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+|\n+")
 
     def extract_result(self, evidence: dict[str, Any]) -> ClaimExtractionResult:
         if not isinstance(evidence, dict):
