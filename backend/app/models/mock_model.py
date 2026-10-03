@@ -12,9 +12,13 @@ class MockModelAdapter(BaseModelAdapter):
             "provider": "internal",
         }
         if context is not None:
+            grounding_status = context.get(
+                "grounding_status",
+                context.get("status"),
+            )
             response["grounding"] = {
-                "status": context.get("status"),
+                "status": grounding_status,
                 "source_count": context.get("source_count", 0),
-                "grounded": context.get("status") == "ready",
+                "grounded": grounding_status == "ready",
             }
         return response
