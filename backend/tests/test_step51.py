@@ -47,6 +47,8 @@ def test_executor_blocks_when_adapter_is_unavailable():
     assert result == {
         "status": "blocked",
         "execution_performed": False,
+        "provider": "fake-provider",
+        "model": "fake-model",
         "reason": "model_adapter_unavailable",
         "request": {
             "provider_name": "fake-provider",
