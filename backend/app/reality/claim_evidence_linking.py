@@ -65,6 +65,10 @@ class ClaimEvidenceLinkingResult:
         if self.status != "unavailable" and self.reason is not None:
             raise ValueError("usable or empty claim-evidence linking cannot contain a reason")
 
+    @property
+    def unlinked_claim_count(self) -> int:
+        return self.claim_count - self.linked_claim_count
+
     @classmethod
     def usable_result(
         cls,
@@ -176,7 +180,7 @@ class ClaimEvidenceLinkingResult:
             "link_count": len(self.links),
             "claim_count": self.claim_count,
             "linked_claim_count": self.linked_claim_count,
-            "unlinked_claim_count": self.claim_count - self.linked_claim_count,
+            "unlinked_claim_count": self.unlinked_claim_count,
             "source_count": self.source_count,
             "linking_executed": self.linking_executed,
             "reason": self.reason,
