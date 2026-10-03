@@ -199,10 +199,20 @@ It does not add:
 
 ## Validation truth
 
-A pre-documentation Step 178 code checkpoint reached a real GitHub-hosted green baseline in Backend tests run #59 (`37104958968`) at commit `6f7337af29d5e68285e93dd5d66edc6d3ed0bb37`:
+Step 178 reached a real GitHub-hosted green full-repository regression baseline.
 
-- backend compile: passed;
-- complete pytest suite: **1166 passed**;
-- failures: **0**.
+The first code checkpoint that eliminated the Step 177 baseline debt was Backend tests run #59 (`37104958968`) at commit `6f7337af29d5e68285e93dd5d66edc6d3ed0bb37`, with **1166 passed / 0 failed**.
 
-Step 178 then added dedicated regression coverage for the repaired boundaries. The final completion claim is made only after GitHub Actions also passes on the final Step 178 repository HEAD.
+Step 178 then added dedicated reconciliation regressions and one final canonical completed-evidence claim-extraction repair. Backend tests run #62 (`37105127807`) on commit `33e6735782e33dabef900f16363bee05ef241e1a` completed successfully with:
+
+- checkout: passed;
+- Python 3.13 setup: passed;
+- development dependency installation: passed;
+- backend compile validation: passed;
+- complete pytest suite: **1175 passed**;
+- failures: **0**;
+- Step 178 regression tests: passed.
+
+No test is skipped, xfailed, deleted, or excluded to produce the green result. The workflow continues to execute the complete backend suite with `python -m pytest`.
+
+The final project-status synchronization is validated by a separate GitHub Actions run before Step 178 is marked complete.
