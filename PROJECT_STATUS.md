@@ -2,7 +2,7 @@
 
 ## Step 178 — Full Regression Baseline Reconciliation
 
-**Status:** Implementation complete; final synchronized HEAD validation in progress.
+**Status:** Complete; final synchronized HEAD validated.
 
 Step 178 reconciles the full backend regression baseline exposed by Step 177. The work preserves stronger later contracts, fixes current production defects where CI identified real runtime/integration breakage, and updates historical tests only where later canonical boundaries intentionally superseded older assumptions.
 
@@ -16,7 +16,7 @@ Step 178 reconciles the full backend regression baseline exposed by Step 177. Th
 
 **Design boundary:** Regression-baseline reconciliation only. Step 178 does not add new model/retrieval providers, provider credentials, deployment infrastructure, RAG/vector databases, embeddings, model training, autonomous agents, product UI, or semantic-truth claims.
 
-**Validation truth:** A real full-suite green GitHub Actions result exists for the completed Step 178 code. This status synchronization commit is validated separately on the final repository HEAD before Step 178 receives its completion checkmark.
+**Validation truth:** GitHub Actions run #64 (`37105736195`) on synchronized HEAD `641c1a8413019a126cbb5e068454fc6499ec20ba` passed every CI stage and the complete backend suite with **1175 passed / 0 failed**. Step 178's code, dedicated regression coverage, documentation, and synchronized project status are therefore validated together.
 
 # Current Status — Step 177
 
