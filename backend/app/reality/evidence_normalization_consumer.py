@@ -45,7 +45,7 @@ class EvidenceNormalizationConsumer:
             )
 
         return EvidenceNormalizationConsumptionResult.rejected_result(
-            str(status), "unsupported_evidence_status"
+            "unknown", "unsupported_evidence_status"
         )
 
 
