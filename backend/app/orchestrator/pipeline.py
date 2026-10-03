@@ -193,11 +193,14 @@ class OrchestrationPipeline:
         state = context.state
         reality_context = self.dependencies.context_detector.detect(task)
         reality_source_plan = self.dependencies.source_planner.plan(reality_context)
-        state.retrieval_contract = self.dependencies.retrieval_contract.build(task, reality_source_plan)
+        retrieval_contract = self.dependencies.retrieval_contract.build(
+            task,
+            reality_source_plan,
+        )
         state.analysis = {
             "reality_context": reality_context,
             "reality_source_plan": reality_source_plan,
-            "reality_retrieval": state.retrieval_contract,
+            "reality_retrieval": retrieval_contract,
         }
         self._retrieve_and_ground(context, retrieval_engine)
         reality_state = state.analysis.get("reality_state")
