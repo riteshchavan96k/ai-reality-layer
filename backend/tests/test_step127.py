@@ -86,6 +86,6 @@ def test_result_rejects_inconsistent_states():
     with pytest.raises(ValueError, match="usable source provenance requires"):
         SourceProvenanceResult("usable")
     with pytest.raises(ValueError, match="empty source provenance cannot"):
-        SourceProvenanceResult("empty", sources=(source,))
+        SourceProvenanceResult("empty", sources=(source,), source_count=1)
     with pytest.raises(ValueError, match="requires a reason"):
         SourceProvenanceResult("unavailable")
