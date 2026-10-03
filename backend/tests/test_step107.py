@@ -1,6 +1,9 @@
 import pytest
 
 from backend.app.reality.grounding_execution_authorization import GroundingExecutionAuthorization
+from backend.app.reality.grounding_execution_authorization_result import (
+    GroundingExecutionAuthorizationResult,
+)
 from backend.app.reality.grounding_execution_authorization_evaluator import GroundingExecutionAuthorizationEvaluator
 from backend.app.reality.grounding_execution_context_consumption_decision_result import (
     GroundingExecutionContextConsumptionDecisionResult,
@@ -10,7 +13,7 @@ from backend.app.reality.grounding_execution_context_consumption_decision_result
 def test_allowed_decision_becomes_authorized():
     decision = GroundingExecutionContextConsumptionDecisionResult.allowed_result("ready")
     authorization = GroundingExecutionAuthorizationEvaluator.evaluate(decision)
-    assert authorization == GroundingExecutionAuthorization.authorized_result("ready")
+    assert authorization == GroundingExecutionAuthorizationResult.authorized_result("ready")
 
 
 def test_blocked_decision_becomes_denied():
