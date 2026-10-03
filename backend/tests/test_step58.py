@@ -1,7 +1,9 @@
 import unittest
+from dataclasses import replace
 from unittest.mock import Mock
 
 from backend.app.execution.execution_budget import ExecutionBudget
+from backend.app.execution.outcome_memory import OutcomeMemory
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.orchestrator.pipeline import OrchestrationPipeline
@@ -10,51 +12,35 @@ from backend.app.orchestrator.state import OrchestrationState
 
 class Step58Tests(unittest.TestCase):
     def _dependencies(self):
-        dependencies = Mock(spec=OrchestrationDependencies)
-        dependencies.context_detector.detect.return_value = {
-            "needs_current_info": False,
-            "needs_external_evidence": False,
-        }
-        dependencies.source_planner.plan.return_value = {
-            "source_type": "model_knowledge",
-            "priority": "optional",
-            "requires_retrieval": False,
-            "temporal_scope": "unspecified",
-            "status": "planned",
-        }
-        dependencies.retrieval_contract.build.return_value = {
-            "status": "not_required",
-            "request": {"required": False},
-        }
-        dependencies.approval_policy.evaluate.return_value = {
-            "required": False,
-            "risk_level": "normal",
-            "mode": "test",
-        }
-        dependencies.retrieval_engine.retrieve.return_value = {
-            "status": "not_required", "sources": [], "content": ""
-        }
-        dependencies.evidence_normalizer.normalize.return_value = {
-            "status": "usable", "sources": [], "content": ""
-        }
-        dependencies.evidence_quality_validator.validate.return_value = {
-            "status": "usable", "issues": []
-        }
-        dependencies.grounding_context_builder.build.return_value = {
-            "status": "not_required", "source_count": 0, "sources": [], "content": ""
-        }
-        dependencies.grounded_result_builder.build.return_value = {
-            "status": "ungrounded", "result": {"text": "ok"}
-        }
-        return dependencies
+        defaults = OrchestrationDependencies.default()
+        return replace(
+            defaults,
+            context_detector=Mock(wraps=defaults.context_detector),
+            source_planner=Mock(wraps=defaults.source_planner),
+            retrieval_contract=Mock(wraps=defaults.retrieval_contract),
+            approval_policy=Mock(wraps=defaults.approval_policy),
+            retrieval_engine=Mock(wraps=defaults.retrieval_engine),
+            evidence_normalizer=Mock(wraps=defaults.evidence_normalizer),
+            evidence_quality_validator=Mock(
+                wraps=defaults.evidence_quality_validator
+            ),
+            grounding_context_builder=Mock(
+                wraps=defaults.grounding_context_builder
+            ),
+        )
 
     def test_state_contract_exposes_named_pipeline_state(self):
         state = OrchestrationState(task="test")
-        state.analysis = {"reality_retrieval": {"request": {"required": False}}}
+        state.analysis = {
+            "reality_retrieval": {"request": {"required": False}}
+        }
         state.execution = {"result": {"text": "ok"}}
 
         self.assertEqual(state.task, "test")
-        self.assertEqual(state.retrieval_contract["request"]["required"], False)
+        self.assertEqual(
+            state.retrieval_contract["request"]["required"],
+            False,
+        )
         self.assertEqual(state.result["text"], "ok")
 
     def test_pipeline_populates_state_backed_outputs_without_changing_result_shape(self):
@@ -67,28 +53,43 @@ class Step58Tests(unittest.TestCase):
             "budget_limit": 2,
             "attempts_by_model": {"test-model": 1},
             "fallback_used": False,
-            "result": {"text": "ok", "model": "test-model"},
+            "result": {
+                "text": "ok",
+                "model": "test-model",
+                "provider": "internal",
+            },
         }
-        evaluation = {"status": "acceptable", "score": 1.0}
+        evaluation = {"status": "pass", "score": 1.0}
         recovery = {
             "improved": False,
             "used": False,
+            "reason": "initial_evaluation_passed",
             "recovery_attempts": 0,
             "candidates_tried": [],
-            "best": {"model": "test-model", "execution": execution, "evaluation": evaluation},
+            "best": {
+                "model": "test-model",
+                "execution": execution,
+                "evaluation": evaluation,
+            },
         }
-        memory = Mock()
-        memory.record.return_value = {"status": "recorded"}
+        memory = Mock(wraps=OutcomeMemory())
 
         pipeline = OrchestrationPipeline(
             dependencies=dependencies,
-            analyze=Mock(return_value={"task_type": "general", "confidence": 0.9}),
-            route=Mock(return_value={
-                "strategy": "general",
-                "model": "test-model",
-                "candidates": ["test-model"],
-                "optimization": {"status": "not_applied", "exploration": False},
-            }),
+            analyze=Mock(
+                return_value={"task_type": "general", "confidence": 0.9}
+            ),
+            route=Mock(
+                return_value={
+                    "strategy": "general",
+                    "model": "test-model",
+                    "candidates": ["test-model"],
+                    "optimization": {
+                        "status": "not_applied",
+                        "exploration": False,
+                    },
+                }
+            ),
             evaluate=Mock(return_value=evaluation),
             recover=Mock(return_value=recovery),
             fallback=Mock(return_value=execution),
