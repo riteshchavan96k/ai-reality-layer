@@ -12,7 +12,7 @@ class Provider:
         self.calls = []
 
     def retrieve(self, request):
-        self.calls.append(dict(request))
+        self.calls.append(request.to_dict())
         if self.error:
             raise RuntimeError("provider failure")
         return self.result
