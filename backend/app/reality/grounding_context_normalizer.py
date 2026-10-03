@@ -13,6 +13,7 @@ class GroundingContextNormalizer:
 
         if isinstance(raw_context, Mapping):
             values = dict(raw_context)
+            values.setdefault("grounding_executed", True)
             return GroundingContext.validate(values)
 
         raise ValueError("grounding context must be a result contract or mapping")
