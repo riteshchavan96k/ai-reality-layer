@@ -66,6 +66,55 @@ class ClaimEvidenceLinkingResult:
             raise ValueError("usable or empty claim-evidence linking cannot contain a reason")
 
     @classmethod
+    def usable_result(
+        cls,
+        links: tuple[ClaimEvidenceLink, ...],
+        *,
+        claim_count: int,
+        source_count: int,
+    ) -> "ClaimEvidenceLinkingResult":
+        linked_claim_count = len(
+            {link.claim_text.casefold() for link in links}
+        )
+        return cls(
+            status="usable",
+            links=links,
+            claim_count=claim_count,
+            linked_claim_count=linked_claim_count,
+            source_count=source_count,
+        )
+
+    @classmethod
+    def empty_result(
+        cls,
+        *,
+        claim_count: int = 0,
+        source_count: int = 0,
+    ) -> "ClaimEvidenceLinkingResult":
+        return cls(
+            status="empty",
+            claim_count=claim_count,
+            linked_claim_count=0,
+            source_count=source_count,
+        )
+
+    @classmethod
+    def unavailable_result(
+        cls,
+        reason: str,
+        *,
+        claim_count: int = 0,
+        source_count: int = 0,
+    ) -> "ClaimEvidenceLinkingResult":
+        return cls(
+            status="unavailable",
+            claim_count=claim_count,
+            linked_claim_count=0,
+            source_count=source_count,
+            reason=reason,
+        )
+
+    @classmethod
     def validate(cls, raw_result: object) -> "ClaimEvidenceLinkingResult":
         """Validate or normalize a canonical claim-evidence linking result."""
         if isinstance(raw_result, cls):
