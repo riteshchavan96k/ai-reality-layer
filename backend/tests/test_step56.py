@@ -1,7 +1,9 @@
 import unittest
+from dataclasses import replace
 from unittest.mock import Mock, patch
 
 from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
+from backend.app.execution.outcome_memory import OutcomeMemory
 from backend.app.models.provider_invocation_executor import ProviderInvocationExecutor
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.orchestrator.orchestrator import orchestrate_task
@@ -13,6 +15,42 @@ from backend.app.reality.grounding_context import EvidenceGroundingContextBuilde
 from backend.app.reality.retrieval_contract import RealityRetrievalContract
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 from backend.app.reality.source_planner import RealitySourcePlanner
+
+
+def _execution(budget_limit=1):
+    return {
+        "status": "success",
+        "model": "test-model",
+        "attempts": 1,
+        "total_attempts": 1,
+        "budget_limit": budget_limit,
+        "attempts_by_model": {"test-model": 1},
+        "fallback_used": False,
+        "result": {
+            "text": "ok",
+            "model": "test-model",
+            "provider": "internal",
+        },
+    }
+
+
+def _evaluation():
+    return {"status": "pass", "score": 1.0}
+
+
+def _recovery(execution, evaluation):
+    return {
+        "improved": False,
+        "used": False,
+        "reason": "initial_evaluation_passed",
+        "recovery_attempts": 0,
+        "candidates_tried": [],
+        "best": {
+            "model": "test-model",
+            "execution": execution,
+            "evaluation": evaluation,
+        },
+    }
 
 
 class Step56Tests(unittest.TestCase):
@@ -43,63 +81,27 @@ class Step56Tests(unittest.TestCase):
         )
 
     def test_orchestrator_uses_injected_services_without_constructing_defaults(self):
-        context_detector = Mock()
-        context_detector.detect.return_value = {
-            "needs_current_info": False,
-            "needs_external_evidence": False,
-            "temporal_scope": "unspecified",
-        }
-        source_planner = Mock()
-        source_planner.plan.return_value = {
-            "source_type": "model_knowledge",
-            "priority": "optional",
-            "temporal_scope": "unspecified",
-            "requires_retrieval": False,
-            "status": "planned",
-        }
-        retrieval_contract = Mock()
-        retrieval_contract.build.return_value = {
-            "status": "not_required",
-            "request": {"required": False},
-        }
-        approval_policy = Mock()
-        approval_policy.evaluate.return_value = {
-            "required": False,
-            "risk_level": "normal",
-            "mode": "test",
-        }
-        retrieval_engine = Mock()
-        retrieval_engine.retrieve.return_value = {
-            "status": "not_required",
-            "sources": [],
-            "content": "",
-        }
-        evidence_normalizer = Mock()
-        evidence_normalizer.normalize.return_value = {
-            "status": "usable",
-            "sources": [],
-            "content": "",
-        }
-        evidence_quality_validator = Mock()
-        evidence_quality_validator.validate.return_value = {
-            "status": "usable",
-            "issues": [],
-        }
-        grounding_context_builder = Mock()
-        grounding_context_builder.build.return_value = {
-            "status": "not_required",
-            "source_count": 0,
-            "sources": [],
-            "content": "",
-        }
-        grounded_result_builder = Mock()
-        grounded_result_builder.build.return_value = {
-            "status": "ungrounded",
-            "result": {"text": "ok"},
-        }
-        provider_executor = Mock()
+        defaults = OrchestrationDependencies.default()
 
-        dependencies = OrchestrationDependencies(
+        context_detector = Mock(wraps=defaults.context_detector)
+        source_planner = Mock(wraps=defaults.source_planner)
+        retrieval_contract = Mock(wraps=defaults.retrieval_contract)
+        approval_policy = Mock(wraps=defaults.approval_policy)
+        retrieval_engine = Mock(wraps=defaults.retrieval_engine)
+        evidence_normalizer = Mock(wraps=defaults.evidence_normalizer)
+        evidence_quality_validator = Mock(
+            wraps=defaults.evidence_quality_validator
+        )
+        grounding_context_builder = Mock(
+            wraps=defaults.grounding_context_builder
+        )
+        grounded_result_builder = Mock(
+            wraps=defaults.grounded_result_builder
+        )
+        provider_executor = Mock(wraps=defaults.provider_executor)
+
+        dependencies = replace(
+            defaults,
             context_detector=context_detector,
             source_planner=source_planner,
             retrieval_contract=retrieval_contract,
@@ -112,26 +114,10 @@ class Step56Tests(unittest.TestCase):
             provider_executor=provider_executor,
         )
 
-        execution = {
-            "status": "success",
-            "model": "test-model",
-            "attempts": 1,
-            "total_attempts": 1,
-            "budget_limit": 1,
-            "attempts_by_model": {"test-model": 1},
-            "fallback_used": False,
-            "result": {"text": "ok", "model": "test-model"},
-        }
-        evaluation = {"status": "acceptable", "score": 1.0}
-        recovery = {
-            "improved": False,
-            "used": False,
-            "recovery_attempts": 0,
-            "candidates_tried": [],
-            "best": {"model": "test-model", "execution": execution, "evaluation": evaluation},
-        }
-        outcome_memory = Mock()
-        outcome_memory.record.return_value = {"status": "recorded"}
+        execution = _execution()
+        evaluation = _evaluation()
+        recovery = _recovery(execution, evaluation)
+        outcome_memory = Mock(wraps=OutcomeMemory())
 
         with patch(
             "backend.app.orchestrator.orchestrator.analyze_task",
@@ -142,7 +128,10 @@ class Step56Tests(unittest.TestCase):
                 "strategy": "general",
                 "model": "test-model",
                 "candidates": ["test-model"],
-                "optimization": {"status": "not_applied", "exploration": False},
+                "optimization": {
+                    "status": "not_applied",
+                    "exploration": False,
+                },
             },
         ), patch(
             "backend.app.orchestrator.orchestrator.execute_with_fallback",
@@ -167,11 +156,12 @@ class Step56Tests(unittest.TestCase):
         retrieval_contract.build.assert_called_once()
         approval_policy.evaluate.assert_called_once()
         retrieval_engine.retrieve.assert_called_once()
-        evidence_normalizer.normalize.assert_called_once()
-        evidence_quality_validator.validate.assert_called_once()
-        grounding_context_builder.build.assert_called_once()
+        evidence_normalizer.normalize_result.assert_called_once()
+        evidence_quality_validator.validate_result.assert_called_once()
+        grounding_context_builder.build_result.assert_called_once()
         grounded_result_builder.build.assert_called_once()
         fallback.assert_called_once()
+        outcome_memory.record.assert_called_once()
         self.assertIs(dependencies.provider_executor, provider_executor)
 
 
