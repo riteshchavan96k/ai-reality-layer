@@ -163,7 +163,12 @@ def test_recovered_execution_fits_pipeline_success_contract():
 
     result = pipeline._success_result(
         context,
-        grounding_result={"status": "grounded"},
+        grounding_result={
+            "status": "not_available",
+            "grounded": False,
+            "source_count": 0,
+            "sources": [],
+        },
     )
 
     assert result["status"] == "orchestrated"
