@@ -70,6 +70,6 @@ def test_result_rejects_inconsistent_states():
     with pytest.raises(ValueError, match="usable source observation requires"):
         SourceObservationResult("usable")
     with pytest.raises(ValueError, match="empty source observation cannot"):
-        SourceObservationResult("empty", observations=(item,))
+        SourceObservationResult("empty", observations=(item,), source_count=1)
     with pytest.raises(ValueError, match="requires a reason"):
         SourceObservationResult("unavailable")
