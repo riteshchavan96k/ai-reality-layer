@@ -1,3 +1,4 @@
+import inspect
 from typing import Any, Callable
 
 from backend.app.evaluation.response_evaluator import evaluate_response
@@ -12,6 +13,28 @@ from backend.app.execution.model_execution_contract import ModelExecutionResult
 from backend.app.execution.model_execution_normalizer import ModelExecutionResultNormalizer
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.models.response_contract import ModelResponseNormalizer
+
+
+def _invoke_adapter_generate(
+    adapter: Any,
+    task: str,
+    context: dict[str, Any] | None,
+) -> Any:
+    """Invoke current or legacy adapter signatures without masking adapter errors."""
+    generate = adapter.generate
+    try:
+        parameters = inspect.signature(generate).parameters.values()
+    except (TypeError, ValueError):
+        return generate(task, context=context)
+
+    accepts_context = any(
+        parameter.name == "context"
+        or parameter.kind is inspect.Parameter.VAR_KEYWORD
+        for parameter in parameters
+    )
+    if accepts_context:
+        return generate(task, context=context)
+    return generate(task)
 
 
 def _seed_attempts_by_model(
@@ -202,7 +225,7 @@ def recover_with_evaluation(
         model_policy = RetryPolicy(max_attempts=min(retry_policy.max_attempts, remaining))
         execution = model_policy.execute(
             lambda: normalizer.normalize(
-                adapter.generate(task, context=context),
+                _invoke_adapter_generate(adapter, task, context),
                 model_name,
             )
         )
