@@ -19,7 +19,9 @@ class Step71CapabilityEvaluatorTests(unittest.TestCase):
             source_type="live_web",
             temporal_scope="current",
         )
-        self.assertTrue(self.evaluator.evaluate(self.capabilities, request))
+        result = self.evaluator.evaluate(self.capabilities, request)
+        self.assertTrue(result.supported)
+        self.assertEqual(result.status, "supported")
 
     def test_evaluator_rejects_temporal_mismatch(self):
         request = RetrievalProviderRequest(
@@ -27,7 +29,9 @@ class Step71CapabilityEvaluatorTests(unittest.TestCase):
             source_type="live_web",
             temporal_scope="historical",
         )
-        self.assertFalse(self.evaluator.evaluate(self.capabilities, request))
+        result = self.evaluator.evaluate(self.capabilities, request)
+        self.assertFalse(result.supported)
+        self.assertEqual(result.status, "unsupported")
 
     def test_evaluator_rejects_source_type_mismatch(self):
         request = RetrievalProviderRequest(
@@ -35,7 +39,9 @@ class Step71CapabilityEvaluatorTests(unittest.TestCase):
             source_type="database",
             temporal_scope="current",
         )
-        self.assertFalse(self.evaluator.evaluate(self.capabilities, request))
+        result = self.evaluator.evaluate(self.capabilities, request)
+        self.assertFalse(result.supported)
+        self.assertEqual(result.status, "unsupported")
 
     def test_evaluator_rejects_invalid_capabilities(self):
         request = RetrievalProviderRequest(
