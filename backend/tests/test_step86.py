@@ -18,6 +18,7 @@ def test_usable_mapping_is_normalized():
             "status": "usable",
             "retrieval_status": "completed",
             "usable": True,
+            "consumption_executed": True,
         }
     )
 
@@ -47,6 +48,7 @@ def test_missing_optional_fields_use_contract_defaults():
             "status": "usable",
             "retrieval_status": "not_required",
             "usable": True,
+            "consumption_executed": True,
         }
     )
 
@@ -84,6 +86,7 @@ def test_serialization_is_deterministic():
             "retrieval_status": "blocked",
             "usable": False,
             "reason": "provider_unavailable",
+            "consumption_executed": True,
         }
     )
 
