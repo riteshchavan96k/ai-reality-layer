@@ -69,7 +69,7 @@ class TestStep38(unittest.TestCase):
 
         result = RealityRetrievalEngine().retrieve(contract)
 
-        self.assertEqual(result["status"], "provider_unavailable")
+        self.assertEqual(result["status"], "blocked")
         self.assertIsNone(result["provider"])
         self.assertEqual(result["sources"], [])
 
@@ -121,7 +121,7 @@ class TestStep38(unittest.TestCase):
         self.assertEqual(result["status"], "retrieval_unavailable")
         self.assertEqual(
             result["retrieval"]["status"],
-            "provider_unavailable",
+            "blocked",
         )
         self.assertEqual(result["trace"][-1]["stage"], "execution")
         self.assertEqual(result["trace"][-1]["status"], "blocked")
