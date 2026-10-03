@@ -51,6 +51,8 @@ class RealityConfidenceSignalAggregator:
         linking_unavailable = linking.get("status") == "unavailable"
         if linking_unavailable:
             signals.append("claim_evidence_linking_unavailable")
+        stale = 0
+        unknown = 0
         if fs == "usable":
             stale = freshness.get("stale_count", 0)
             unknown = freshness.get("unknown_count", 0)
@@ -58,7 +60,15 @@ class RealityConfidenceSignalAggregator:
                 raise ValueError("stale_count must be a non-negative integer")
             if not isinstance(unknown, int) or isinstance(unknown, bool) or unknown < 0:
                 raise ValueError("unknown_count must be a non-negative integer")
-            signals.append("stale_sources_present" if stale else ("freshness_uncertain" if unknown else "sources_within_declared_observation_window"))
+            signals.append(
+                "stale_sources_present"
+                if stale
+                else (
+                    "freshness_uncertain"
+                    if unknown
+                    else "sources_within_declared_observation_window"
+                )
+            )
         else:
             signals.append("freshness_unavailable")
 
@@ -74,7 +84,8 @@ class RealityConfidenceSignalAggregator:
             or conflicts_count
             or (coverage is not None and coverage < 1)
             or fs != "usable"
-            or freshness.get("stale_count", 0) > 0
+            or stale > 0
+            or unknown > 0
         )
         return RealityConfidenceSignalResultNormalizer.normalize(
             RealityConfidenceSignalResult(
