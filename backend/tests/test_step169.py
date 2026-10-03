@@ -1,3 +1,4 @@
+import hashlib
 from unittest.mock import Mock
 
 from backend.app.evaluation.quality_recovery import recover_with_evaluation
@@ -146,7 +147,22 @@ def test_recovered_execution_fits_pipeline_success_contract():
     state.execution = recovered_execution
     state.evaluation = recovery["best"]["evaluation"]
     state.recovery = recovery
-    state.outcome = {"record_id": 1}
+    state.outcome = {
+        "record_id": 1,
+        "task_fingerprint": hashlib.sha256(
+            state.task.encode("utf-8")
+        ).hexdigest(),
+        "task_type": "programming",
+        "routed_model": "initial-model",
+        "executed_model": recovered_execution["model"],
+        "execution_status": recovered_execution["status"],
+        "evaluation_score": recovery["best"]["evaluation"]["score"],
+        "attempts": recovered_execution["attempts"],
+        "total_attempts": recovered_execution["total_attempts"],
+        "budget_limit": recovered_execution["budget_limit"],
+        "fallback_used": recovered_execution["fallback_used"],
+        "timestamp": "2026-10-03T00:00:00+00:00",
+    }
 
     trace = Mock()
     trace.snapshot.return_value = []
