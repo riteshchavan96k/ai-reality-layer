@@ -8,6 +8,7 @@ from backend.app.api.errors import (
     unhandled_exception_handler,
     validation_exception_handler,
 )
+from backend.app.api.evidence_reality_state import EvidenceRealityStateRequest
 from backend.app.api.health import (
     API_VERSION,
     HealthResponse,
@@ -22,7 +23,10 @@ from backend.app.api.request_id import (
 from backend.app.api.reality_state import RealityStateRequest, RealityStateResponse
 from backend.app.api.solve import SolveRequest, SolveResponse
 from backend.app.services.solve_service import process_task
-from backend.app.orchestrator.orchestrator import build_reality_state
+from backend.app.orchestrator.orchestrator import (
+    build_reality_state,
+    build_reality_state_from_evidence,
+)
 
 
 app = FastAPI(
@@ -92,6 +96,21 @@ def health_check():
 def solve(request: SolveRequest):
     return process_task(request.task, human_approved=request.human_approved)
 
+
+
+
+@app.post(
+    "/api/v1/reality-state/evidence",
+    response_model=RealityStateResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
+def reality_state_from_evidence(request: EvidenceRealityStateRequest):
+    """Build a canonical Reality State from caller-supplied source-scoped evidence."""
+    return build_reality_state_from_evidence(
+        request.task,
+        [document.model_dump() for document in request.documents],
+    )
 
 @app.post(
     "/api/v1/reality-state",
