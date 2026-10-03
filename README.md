@@ -52,3 +52,34 @@ The retrieval service supplies source content only. AI Reality Layer performs th
 
 If no retrieval endpoint is configured, requests that require external/current evidence fail closed through the existing unavailable/insufficient Reality State path rather than fabricating evidence.
 
+## Already have search or RAG evidence?
+
+Use the direct evidence endpoint instead of configuring AI Reality Layer retrieval:
+
+```http
+POST /api/v1/reality-state/evidence
+Content-Type: application/json
+
+{
+  "task": "What is the current status of Company X?",
+  "documents": [
+    {
+      "title": "Company X official update",
+      "uri": "https://example.com/company-x-official",
+      "content": "Company X launched Feature A today."
+    },
+    {
+      "title": "Independent report",
+      "uri": "https://example.com/company-x-report",
+      "content": "not Company X continues to operate."
+    }
+  ]
+}
+```
+
+The documents remain source-scoped during claim extraction, so claims retain the URI(s) they actually came from. Exact duplicate claims across sources are merged while preserving all source references.
+
+This endpoint does not fetch the submitted URIs and does not run the configured retrieval provider. It processes the supplied evidence through evidence-quality validation, claim extraction, claim/evidence linking, provenance, observation, freshness, conflict detection, confidence signals, and Reality State assembly.
+
+Freshness remains uncertain in this initial direct-evidence contract because ingestion time is not treated as source publication time.
+
