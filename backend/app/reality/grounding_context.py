@@ -22,7 +22,7 @@ class EvidenceGroundingContextBuilder:
         if content is not None and not isinstance(content, str):
             raise ValueError("evidence content must be a string or None")
 
-        if status != "usable":
+        if status not in {"usable", "completed"}:
             return GroundingContextNormalizer.normalize(
                 GroundingContext.not_available_result(task)
             )
