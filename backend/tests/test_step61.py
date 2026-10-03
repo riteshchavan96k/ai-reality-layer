@@ -70,7 +70,15 @@ class Step61RetrievalProviderSelectionBoundaryTests(unittest.TestCase):
                 raise AssertionError("selector must not run")
 
         engine = RealityRetrievalEngine(provider_selector=UnexpectedSelector())
-        result = engine.retrieve({"status": "not_required", "request": None})
+        result = engine.retrieve({
+            "status": "not_required",
+            "request": {
+                "query": "stable information",
+                "source_type": "model_knowledge",
+                "temporal_scope": "unspecified",
+                "required": False,
+            },
+        })
 
         self.assertEqual(result["status"], "not_required")
         self.assertFalse(result["retrieval_executed"])
