@@ -26,57 +26,57 @@ class Step148NotRequiredRetrievalResultTests(unittest.TestCase):
 
     def test_not_required_result_rejects_provider(self):
         with self.assertRaisesRegex(ValueError, "not_required results must not contain a provider"):
-            RetrievalResultContract._build_result(
-                status="not_required",
-                request=self.request,
-                provider="http_retrieval",
-                sources=[],
-                content=None,
-                retrieval_executed=False,
-            )
+            RetrievalResultContract.validate({
+                "status": "not_required",
+                "request": self.request,
+                "provider": "http_retrieval",
+                "sources": [],
+                "content": None,
+                "retrieval_executed": False,
+            })
 
     def test_not_required_result_rejects_payload(self):
         with self.assertRaises(ValueError):
-            RetrievalResultContract._build_result(
-                status="not_required",
-                request=self.request,
-                provider=None,
-                sources=[{"uri": "https://example.test/source"}],
-                content=None,
-                retrieval_executed=False,
-            )
+            RetrievalResultContract.validate({
+                "status": "not_required",
+                "request": self.request,
+                "provider": None,
+                "sources": [{"uri": "https://example.test/source"}],
+                "content": None,
+                "retrieval_executed": False,
+            })
 
         with self.assertRaises(ValueError):
-            RetrievalResultContract._build_result(
-                status="not_required",
-                request=self.request,
-                provider=None,
-                sources=[],
-                content="unexpected",
-                retrieval_executed=False,
-            )
+            RetrievalResultContract.validate({
+                "status": "not_required",
+                "request": self.request,
+                "provider": None,
+                "sources": [],
+                "content": "unexpected",
+                "retrieval_executed": False,
+            })
 
     def test_not_required_result_rejects_reason_and_execution_claim(self):
         with self.assertRaises(ValueError):
-            RetrievalResultContract._build_result(
-                status="not_required",
-                request=self.request,
-                provider=None,
-                sources=[],
-                content=None,
-                reason="unexpected",
-                retrieval_executed=False,
-            )
+            RetrievalResultContract.validate({
+                "status": "not_required",
+                "request": self.request,
+                "provider": None,
+                "sources": [],
+                "content": None,
+                "reason": "unexpected",
+                "retrieval_executed": False,
+            })
 
         with self.assertRaisesRegex(ValueError, "retrieval_executed is inconsistent"):
-            RetrievalResultContract._build_result(
-                status="not_required",
-                request=self.request,
-                provider=None,
-                sources=[],
-                content=None,
-                retrieval_executed=True,
-            )
+            RetrievalResultContract.validate({
+                "status": "not_required",
+                "request": self.request,
+                "provider": None,
+                "sources": [],
+                "content": None,
+                "retrieval_executed": True,
+            })
 
     def test_engine_uses_canonical_not_required_result(self):
         engine = RealityRetrievalEngine()
