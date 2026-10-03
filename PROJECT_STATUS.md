@@ -1,3 +1,25 @@
+# Current Status — Step 179
+
+## Step 179 — Canonical Completed Evidence Reality-State Integration
+
+**Status:** Implementation complete; final synchronized HEAD validation in progress.
+
+Step 179 repairs the normal successful retrieval-to-Reality-State path so canonical `status="completed"` evidence can flow through claim/evidence linking and source provenance instead of being rejected by stale `status="usable"`-only gates. It also makes unknown source freshness produce an `uncertain` confidence state rather than a misleading `supported` state.
+
+**Safety invariant:** canonical completed retrieval → usable evidence quality → claims → explicit claim/evidence links → stable source provenance → source observation → freshness assessment → conservative confidence → Reality State. Unknown freshness remains explicit uncertainty; a linked/provenance-backed state is not treated as proof that source content is true.
+
+**Production repairs included:** `ClaimEvidenceLinker` now accepts canonical completed evidence while preserving the legacy usable alias; `SourceProvenanceBuilder` does the same; `RealityConfidenceSignalAggregator` now treats nonzero unknown freshness as uncertainty; and `OrchestrationPipeline.build_reality_state()` no longer writes to the read-only `retrieval_contract` state property, instead initializing the canonical contract through `state.analysis["reality_retrieval"]`.
+
+**MVP path validation:** Step 179 proves both an injected canonical completed retrieval result and the existing opt-in generic HTTPS provider configuration can reach a Reality State containing claims, claim/evidence links, source provenance, observations, freshness, and confidence. The generic provider remains configured through `ARL_HTTP_RETRIEVAL_ENDPOINT_TEMPLATE`; no vendor-specific search API or credential was introduced.
+
+**Developer usability:** README now documents the HTTPS retrieval endpoint template, expected completed-provider JSON shape, `POST /api/v1/reality-state` request, and fail-closed behavior when no current/external retrieval provider is configured.
+
+**Design boundary:** Existing MVP integration repair only. Step 179 does not add a vendor-specific retrieval service, credentials, vector databases, embeddings, model training, semantic claim verification, learned confidence calibration, autonomous agents, or deployment infrastructure.
+
+**Hosted validation evidence:** Backend tests run #72 (`37118462174`) on commit `b0abd70aa5caa4260c68e3db7bd79735706d07af` passed backend compilation and the complete suite with **1183 passed / 0 failed**, including all dedicated Step 179 regressions.
+
+**Validation truth:** A real green full-suite GitHub Actions result exists for the completed Step 179 code. This status synchronization commit is validated separately on the final repository HEAD before Step 179 receives its completion checkmark.
+
 # Current Status — Step 178
 
 ## Step 178 — Full Regression Baseline Reconciliation
