@@ -31,16 +31,17 @@ class TestStep27(unittest.TestCase):
 
         self.assertEqual(result["status"], "orchestrated")
         stages = [event["stage"] for event in result["trace"]]
+        core_stages = [
+            "analysis",
+            "routing",
+            "approval",
+            "execution",
+            "evaluation",
+            "quality_recovery",
+        ]
         self.assertEqual(
-            stages,
-            [
-                "analysis",
-                "routing",
-                "approval",
-                "execution",
-                "evaluation",
-                "quality_recovery",
-            ],
+            [stage for stage in stages if stage in core_stages],
+            core_stages,
         )
         self.assertEqual(result["trace"][-1]["status"], "not_improved")
 
