@@ -1,5 +1,8 @@
 import pytest
 
+from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result import (
+    GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult,
+)
 from backend.app.reality.grounding_execution_authorization_consumption_decision_result_consumption_result_decision import (
     GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecision,
 )
@@ -12,18 +15,18 @@ from backend.app.reality.grounding_execution_authorization_consumption_decision_
 
 
 def test_allowed_decision_produces_canonical_result():
-    decision = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecision.allowed_result()
-    result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionEvaluator.evaluate(decision)
+    consumption_result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult.usable_result()
+    result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionEvaluator.evaluate(consumption_result)
     assert result == GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResult.allowed_result(
         "authorized"
     )
 
 
 def test_blocked_decision_produces_result_and_preserves_reason():
-    decision = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecision.blocked_result(
+    consumption_result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResult.rejected_result(
         "denied", "authorization_decision_rejected"
     )
-    result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionEvaluator.evaluate(decision)
+    result = GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionEvaluator.evaluate(consumption_result)
     assert result.status == "blocked"
     assert result.allowed is False
     assert result.authorization_status == "denied"
