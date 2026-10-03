@@ -53,6 +53,7 @@ def build_reality_state(
 def build_reality_state_from_evidence(
     task: str,
     documents: list[dict],
+    freshness_max_age_seconds: float | int | None = None,
     dependencies: OrchestrationDependencies | None = None,
 ) -> dict:
     """Build a canonical Reality State from caller-supplied source-scoped evidence."""
@@ -61,6 +62,7 @@ def build_reality_state_from_evidence(
 
     services = dependencies or OrchestrationDependencies.default()
     bundle = SubmittedEvidenceBundle.from_mappings(documents)
+    bundle.validate_freshness_policy(freshness_max_age_seconds)
     evidence = bundle.to_evidence()
 
     raw_quality_result = services.evidence_quality_validator.validate_result(
@@ -79,10 +81,10 @@ def build_reality_state_from_evidence(
     )
     conflicts = services.claim_conflict_detector.detect_result(claim_result)
     provenance = services.source_provenance_builder.build_result(evidence)
-    observation = services.source_observation_builder.build_result(provenance)
+    observation = bundle.build_observations(provenance)
     freshness = services.source_freshness_evaluator.evaluate_result(
         observation,
-        max_age_seconds=None,
+        max_age_seconds=freshness_max_age_seconds,
     )
     confidence = services.confidence_signal_aggregator.aggregate_result(
         quality_result.to_dict(),
