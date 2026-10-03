@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, Iterable, Mapping
+from datetime import datetime, timezone
+from typing import Any, Callable, Iterable, Mapping
 from urllib.parse import urlparse
 
 from backend.app.reality.claim_extraction import (
@@ -7,6 +8,11 @@ from backend.app.reality.claim_extraction import (
     EvidenceClaim,
 )
 from backend.app.reality.claim_extractor import EvidenceClaimExtractor
+from backend.app.reality.source_observation import (
+    SourceObservation,
+    SourceObservationResult,
+)
+from backend.app.reality.source_provenance import SourceProvenanceResult
 
 
 MAX_SUBMITTED_DOCUMENTS = 20
@@ -22,6 +28,7 @@ class SubmittedEvidenceDocument:
     content: str
     uri: str
     title: str | None = None
+    observed_at: str | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.content, str) or not self.content.strip():
@@ -51,6 +58,36 @@ class SubmittedEvidenceDocument:
                 raise ValueError("submitted evidence title is too long")
             object.__setattr__(self, "title", normalized_title)
 
+        if self.observed_at is not None:
+            if not isinstance(self.observed_at, str) or not self.observed_at.strip():
+                raise ValueError(
+                    "submitted evidence observed_at must be non-empty when provided"
+                )
+            normalized_observed_at = self.observed_at.strip()
+            try:
+                parsed_observed_at = datetime.fromisoformat(
+                    normalized_observed_at.replace("Z", "+00:00")
+                )
+            except ValueError as exc:
+                raise ValueError(
+                    "submitted evidence observed_at must be a valid ISO-8601 timestamp"
+                ) from exc
+            if parsed_observed_at.tzinfo is None:
+                raise ValueError(
+                    "submitted evidence observed_at must include a timezone"
+                )
+            if parsed_observed_at.astimezone(timezone.utc) > datetime.now(timezone.utc):
+                raise ValueError(
+                    "submitted evidence observed_at cannot be in the future"
+                )
+            object.__setattr__(
+                self,
+                "observed_at",
+                parsed_observed_at.astimezone(timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z"),
+            )
+
     @classmethod
     def from_mapping(
         cls,
@@ -62,6 +99,7 @@ class SubmittedEvidenceDocument:
             content=value.get("content", ""),
             uri=value.get("uri", ""),
             title=value.get("title"),
+            observed_at=value.get("observed_at"),
         )
 
     def source_dict(self) -> dict[str, Any]:
@@ -134,6 +172,79 @@ class SubmittedEvidenceBundle:
             "has_content": True,
             "normalization_executed": True,
         }
+
+    def validate_freshness_policy(
+        self,
+        max_age_seconds: float | int | None,
+    ) -> None:
+        if max_age_seconds is None:
+            return
+        if (
+            not isinstance(max_age_seconds, (int, float))
+            or isinstance(max_age_seconds, bool)
+            or max_age_seconds <= 0
+        ):
+            raise ValueError(
+                "freshness_max_age_seconds must be a positive number or None"
+            )
+        if any(document.observed_at is None for document in self.documents):
+            raise ValueError(
+                "freshness_max_age_seconds requires observed_at for every document"
+            )
+
+    def build_observations(
+        self,
+        provenance: SourceProvenanceResult,
+        clock: Callable[[], datetime] | None = None,
+    ) -> SourceObservationResult:
+        if not isinstance(provenance, SourceProvenanceResult):
+            raise ValueError(
+                "provenance must be a SourceProvenanceResult"
+            )
+        if provenance.status == "unavailable":
+            return SourceObservationResult.unavailable_result(
+                provenance.reason or "source_provenance_unavailable"
+            )
+        if provenance.status == "empty":
+            return SourceObservationResult.empty_result()
+
+        now = (clock or (lambda: datetime.now(timezone.utc)))()
+        if not isinstance(now, datetime) or now.tzinfo is None:
+            raise ValueError("clock must return a timezone-aware datetime")
+        ingestion_timestamp = (
+            now.astimezone(timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
+        document_by_uri = {
+            document.uri: document
+            for document in self.documents
+        }
+
+        observations = []
+        for source in provenance.sources:
+            document = document_by_uri.get(source.uri)
+            if document is None:
+                raise ValueError(
+                    "source provenance contains an unknown submitted evidence uri"
+                )
+            if document.observed_at is not None:
+                timestamp = document.observed_at
+                method = "submitted_evidence_observation"
+            else:
+                timestamp = ingestion_timestamp
+                method = "submitted_evidence_ingestion"
+            observations.append(
+                SourceObservation(
+                    source_id=source.source_id,
+                    observed_at=timestamp,
+                    observation_method=method,
+                )
+            )
+
+        return SourceObservationResult.usable_result(
+            tuple(observations)
+        )
 
     def extract_claims(
         self,
