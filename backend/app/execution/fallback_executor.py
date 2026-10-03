@@ -1,3 +1,4 @@
+import inspect
 from typing import Any, Callable
 
 from backend.app.execution.execution_budget import ExecutionBudget
@@ -5,6 +6,28 @@ from backend.app.execution.model_execution_contract import ModelExecutionResult
 from backend.app.execution.model_execution_normalizer import ModelExecutionResultNormalizer
 from backend.app.execution.retry_policy import RetryPolicy
 from backend.app.models.response_contract import ModelResponseNormalizer
+
+
+def _invoke_adapter_generate(
+    adapter: Any,
+    task: str,
+    context: dict[str, Any] | None,
+) -> Any:
+    """Invoke current or legacy adapter signatures without masking adapter errors."""
+    generate = adapter.generate
+    try:
+        parameters = inspect.signature(generate).parameters.values()
+    except (TypeError, ValueError):
+        return generate(task, context=context)
+
+    accepts_context = any(
+        parameter.name == "context"
+        or parameter.kind is inspect.Parameter.VAR_KEYWORD
+        for parameter in parameters
+    )
+    if accepts_context:
+        return generate(task, context=context)
+    return generate(task)
 
 
 def execute_with_fallback(
@@ -85,7 +108,10 @@ def execute_with_fallback(
 
         model_policy = RetryPolicy(max_attempts=min(retry_policy.max_attempts, remaining))
         execution = model_policy.execute(
-            lambda: normalizer.normalize(adapter.generate(task, context=context), model_name)
+            lambda: normalizer.normalize(
+                _invoke_adapter_generate(adapter, task, context),
+                model_name,
+            )
         )
         budget.consume(execution["attempts"])
         attempts_by_model[model_name] = execution["attempts"]
