@@ -54,16 +54,15 @@ class TestStep39(unittest.TestCase):
         self.assertEqual(result["source_count"], 0)
         self.assertFalse(result["has_content"])
 
-    def test_provider_failure_is_preserved(self):
-        result = self.normalizer.normalize(
-            {
-                "status": "provider_unavailable",
-                "sources": [],
-                "content": None,
-            }
-        )
-
-        self.assertEqual(result["status"], "provider_unavailable")
+    def test_blocked_retrieval_is_rejected_before_evidence_normalization(self):
+        with self.assertRaises(ValueError):
+            self.normalizer.normalize(
+                {
+                    "status": "blocked",
+                    "sources": [],
+                    "content": None,
+                }
+            )
 
     def test_completed_empty_result_is_invalid_evidence(self):
         result = self.normalizer.normalize(
