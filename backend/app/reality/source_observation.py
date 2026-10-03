@@ -5,7 +5,7 @@ from typing import Any
 
 @dataclass(frozen=True)
 class SourceObservation:
-    """Record when a source was observed by the retrieval pipeline."""
+    """Record when a source was observed, with explicit observation provenance."""
 
     source_id: str
     observed_at: str
