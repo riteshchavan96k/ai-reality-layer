@@ -2,16 +2,17 @@ import unittest
 
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine, _blocked_selection_result
 from backend.app.reality.retrieval_result import RetrievalResultContract
-
-
-class _NonExecutableSelection:
-    selection_executed = False
-    reason = "selection_rejected"
+from backend.app.reality.retrieval_provider_selection import (
+    RetrievalProviderSelectionResult,
+)
 
 
 class _NonExecutableSelector:
     def select(self, request):
-        return _NonExecutableSelection()
+        return RetrievalProviderSelectionResult.unavailable(
+            request["source_type"],
+            reason="selection_rejected",
+        )
 
 
 class Step149BlockedRetrievalResultTests(unittest.TestCase):
