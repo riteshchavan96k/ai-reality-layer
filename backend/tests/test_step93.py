@@ -45,7 +45,7 @@ def test_invalid_shape_is_rejected() -> None:
 
 
 def test_invalid_source_shape_is_rejected() -> None:
-    with pytest.raises(ValueError, match="sources must be dictionaries"):
+    with pytest.raises(ValueError, match="each grounding source must be a mapping"):
         GroundingContextNormalizer.normalize(
             {
                 "status": "ready",
