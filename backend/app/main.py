@@ -110,6 +110,7 @@ def reality_state_from_evidence(request: EvidenceRealityStateRequest):
     return build_reality_state_from_evidence(
         request.task,
         [document.model_dump() for document in request.documents],
+        freshness_max_age_seconds=request.freshness_max_age_seconds,
     )
 
 @app.post(
