@@ -97,6 +97,24 @@ class EvidenceRealityStateRequest(BaseModel):
             raise ValueError("task must not be blank")
         return normalized
 
+    @field_validator("freshness_max_age_seconds", mode="before")
+    @classmethod
+    def validate_freshness_window(
+        cls,
+        value: object,
+    ) -> object:
+        if value is None:
+            return None
+        if (
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or value <= 0
+        ):
+            raise ValueError(
+                "freshness_max_age_seconds must be a positive number"
+            )
+        return value
+
     @model_validator(mode="after")
     def validate_request_consistency(self) -> "EvidenceRealityStateRequest":
         uris = [document.uri for document in self.documents]
