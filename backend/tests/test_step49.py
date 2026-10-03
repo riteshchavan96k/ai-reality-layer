@@ -5,6 +5,18 @@ from backend.app.models.provider_execution_gate import ProviderExecutionGate
 from backend.app.models.provider_config import ProviderConfig, PROVIDER_CONFIGS
 
 
+
+class _ReadyChecker:
+    def check(self, provider_name):
+        return {
+            "status": "ready",
+            "provider": provider_name,
+            "adapter_available": True,
+            "credential_configured": True,
+            "endpoint_configured": False,
+        }
+
+
 def test_internal_provider_does_not_require_credentials():
     result = ProviderCredentialResolver(environment={}).check("internal")
     assert result == {
@@ -73,7 +85,10 @@ def test_execution_gate_blocks_missing_credentials():
     )
     try:
         resolver = ProviderCredentialResolver(environment={})
-        gate = ProviderExecutionGate(credential_resolver=resolver)
+        gate = ProviderExecutionGate(
+            readiness_checker=_ReadyChecker(),
+            credential_resolver=resolver,
+        )
         result = gate.check("test-provider")
         assert result["status"] == "blocked"
         assert result["credentials"]["status"] == "missing"
@@ -88,7 +103,10 @@ def test_require_ready_reports_credential_block_reason():
     )
     try:
         resolver = ProviderCredentialResolver(environment={})
-        gate = ProviderExecutionGate(credential_resolver=resolver)
+        gate = ProviderExecutionGate(
+            readiness_checker=_ReadyChecker(),
+            credential_resolver=resolver,
+        )
         with pytest.raises(RuntimeError, match="missing"):
             gate.require_ready("test-provider")
     finally:
