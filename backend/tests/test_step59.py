@@ -33,6 +33,7 @@ class Step59Tests(unittest.TestCase):
             "budget_limit": budget_limit,
             "attempts_by_model": {"test-model": 1},
             "fallback_used": False,
+            "errors": None,
             "result": {
                 "text": "ok",
                 "model": "test-model",
