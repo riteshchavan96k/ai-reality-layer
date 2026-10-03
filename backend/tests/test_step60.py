@@ -82,10 +82,12 @@ class Step60RetrievalProviderExecutionBoundaryTests(unittest.TestCase):
                     "retrieval_executed": True,
                 }
 
-        request = RetrievalProviderRequest(
-            query="current information",
-            source_type="web",
-        )
+        request = {
+            "query": "current information",
+            "source_type": "web",
+            "temporal_scope": "unspecified",
+            "required": True,
+        }
         engine = RealityRetrievalEngine(
             provider=SuccessfulProvider(),
             provider_executor=RecordingExecutor(),
