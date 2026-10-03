@@ -136,7 +136,12 @@ class TestRetrievalSelectionResultConsumption(unittest.TestCase):
         result = engine.retrieve(
             {
                 "status": "not_required",
-                "request": None,
+                "request": {
+                    "query": "stable information",
+                    "source_type": "model_knowledge",
+                    "temporal_scope": "unspecified",
+                    "required": False,
+                },
             }
         )
 
