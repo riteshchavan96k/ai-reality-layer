@@ -1,3 +1,23 @@
+# Current Status — Step 178
+
+## Step 178 — Full Regression Baseline Reconciliation
+
+**Status:** Implementation complete; final synchronized HEAD validation in progress.
+
+Step 178 reconciles the full backend regression baseline exposed by Step 177. The work preserves stronger later contracts, fixes current production defects where CI identified real runtime/integration breakage, and updates historical tests only where later canonical boundaries intentionally superseded older assumptions.
+
+**Safety invariant:** historical + current regression suite → classify production defect vs superseded expectation → repair the owning boundary or reconcile the historical test → preserve canonical validation strength → execute the complete suite → require zero failures before completion.
+
+**Production repairs included:** typed evidence-consumption integration at the Step 153 boundary; restored claim-evidence-linking factories; deterministic claim sentence splitting; typed grounding-context normalization before consumption; legacy grounding-execution default restoration; fail-closed unsupported evidence handling; canonical completed-evidence grounding compatibility; signature-aware fallback/quality-recovery support for legacy task-only adapters; canonical grounding metadata in the mock model; and the final completed-evidence claim-extraction path.
+
+**Historical regression reconciliation:** Older tests were moved to current canonical result/request/normalizer boundaries where later steps had deliberately strengthened contracts. This included grounding result classes, retrieval-result envelopes, provider selection/capability objects, provider execution metadata, expanded traces, modern FastAPI/OpenAPI assertions, current dependency-injection construction, and canonical outcome/grounding fixtures. No failing test was skipped, xfailed, deleted, or excluded to manufacture a green result.
+
+**Hosted validation evidence:** Step 177 ended at **1074 passed / 92 failed**. Step 178 progressively reduced that baseline and Backend tests run #62 (`37105127807`) on commit `33e6735782e33dabef900f16363bee05ef241e1a` completed successfully with **1175 passed / 0 failed**, including Step 178's dedicated regression coverage and successful backend compile validation.
+
+**Design boundary:** Regression-baseline reconciliation only. Step 178 does not add new model/retrieval providers, provider credentials, deployment infrastructure, RAG/vector databases, embeddings, model training, autonomous agents, product UI, or semantic-truth claims.
+
+**Validation truth:** A real full-suite green GitHub Actions result exists for the completed Step 178 code. This status synchronization commit is validated separately on the final repository HEAD before Step 178 receives its completion checkmark.
+
 # Current Status — Step 177
 
 ## Step 177 — Backend Test Runtime and Continuous Integration Validation
