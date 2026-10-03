@@ -1,3 +1,29 @@
+# Current Status — Step 181
+
+## Step 181 — Explicit Source Observation Freshness Policy
+
+**Status:** Implementation complete; final synchronized HEAD validation in progress.
+
+Step 181 extends the Step 180 direct-evidence Reality State path with explicit caller-supplied source observation timestamps and an explicit freshness policy. Developers can now provide per-document `observed_at` metadata plus request-level `freshness_max_age_seconds`, allowing the existing canonical freshness evaluator to distinguish fresh, stale, and unknown evidence without treating ingestion time as publication time.
+
+**Safety invariant:** caller-supplied source-scoped evidence → explicit observation provenance → optional declared freshness window → canonical observation-age evaluation → fresh/stale/unknown source assessments → conservative confidence → Reality State. Observation time is not publication time, event time, independent verification time, or proof that source content is true.
+
+**Observation provenance:** `SourceObservation` now recognizes `retrieval_observation`, `submitted_evidence_observation`, and `submitted_evidence_ingestion`. Existing retrieval behavior is preserved. Explicit caller timestamps are labeled as submitted evidence observations; documents without timestamps are labeled as submission ingestion observations rather than being falsely described as retrieval observations.
+
+**Freshness policy:** `freshness_max_age_seconds` must be a positive numeric value. If a freshness window is declared, every submitted document must have a timezone-aware non-future `observed_at`. This rule is enforced both in the HTTP Pydantic request contract and in the submitted-evidence domain bundle so direct Python callers cannot bypass it.
+
+**Trust behavior:** A source is classified fresh only when an explicit observation timestamp exists and its observation age is inside the declared window. A stale source forces confidence uncertainty. An observation timestamp without a window remains freshness-unknown. Documents with no observation timestamp receive ingestion observation metadata, but that ingestion time is not used to claim the source is fresh.
+
+**Supported-state behavior:** When all submitted sources are explicitly observed within the declared window, evidence quality is usable, every claim is linked, and there are no detected conflicts, the existing confidence aggregator may return `supported`. This is still a structural/evidence-state signal, not a calibrated probability or factual-truth certificate.
+
+**API compatibility:** The existing `POST /api/v1/reality-state/evidence` endpoint remains the direct-evidence surface. Step 180 requests that omit `observed_at` and `freshness_max_age_seconds` remain valid and continue to produce unknown freshness. The original task-only `POST /api/v1/reality-state` retrieval path is unchanged.
+
+**Design boundary:** Explicit observation-age freshness for developer-supplied evidence only. Step 181 does not add publication-time extraction, URL fetching, source timestamp verification, semantic source trust, vendor search, learned freshness models, calibrated probabilities, authentication/authorization, persistence, embeddings, model training, or autonomous agents.
+
+**Hosted validation evidence:** Backend tests run #92 (`37128168903`) on commit `26720464560a942f43ff331bc9cfefecd2002fae` passed backend compilation and the complete suite with **1210 passed / 0 failed**, including all dedicated Step 181 regressions. Documentation-bearing run #95 (`37128304830`) also passed the complete suite with **1210 passed / 0 failed**.
+
+**Validation truth:** A real green full-suite GitHub Actions result exists for the Step 181 implementation and documentation. This project-status synchronization commit is validated separately on the final repository HEAD before Step 181 receives its completion checkmark.
+
 # Current Status — Step 180
 
 ## Step 180 — Developer-Supplied Evidence Reality-State Input
