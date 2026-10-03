@@ -59,7 +59,13 @@ def test_solve_route_declares_dedicated_http_contracts():
     assert route.response_model is SolveResponse
     assert route.response_model_exclude_unset is True
     assert route.body_field is not None
-    assert route.body_field.type_ is SolveRequest
+
+    schema = app.openapi()
+    request_ref = (
+        schema["paths"]["/api/v1/solve"]["post"]
+        ["requestBody"]["content"]["application/json"]["schema"]["$ref"]
+    )
+    assert request_ref.endswith("/SolveRequest")
 
 
 def test_solve_response_status_schema_is_exhaustive():
