@@ -6,6 +6,9 @@ from backend.app.reality.grounding_execution_authorization_consumption_decision 
 from backend.app.reality.grounding_execution_authorization_consumption_decision_evaluator import (
     GroundingExecutionAuthorizationConsumptionDecisionEvaluator,
 )
+from backend.app.reality.grounding_execution_authorization_consumption_decision_result import (
+    GroundingExecutionAuthorizationConsumptionDecisionResult,
+)
 from backend.app.reality.grounding_execution_authorization_consumption_result import (
     GroundingExecutionAuthorizationConsumptionResult,
 )
@@ -14,7 +17,7 @@ from backend.app.reality.grounding_execution_authorization_consumption_result im
 def test_usable_authorization_consumption_allows_execution():
     consumption = GroundingExecutionAuthorizationConsumptionResult.usable_result()
     decision = GroundingExecutionAuthorizationConsumptionDecisionEvaluator.evaluate(consumption)
-    assert decision == GroundingExecutionAuthorizationConsumptionDecision.allowed_result(
+    assert decision == GroundingExecutionAuthorizationConsumptionDecisionResult.allowed_result(
         "authorized"
     )
 
