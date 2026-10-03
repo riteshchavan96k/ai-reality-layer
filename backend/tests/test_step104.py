@@ -6,6 +6,9 @@ from backend.app.reality.grounding_execution_context_consumption_decision import
 from backend.app.reality.grounding_execution_context_consumption_decision_evaluator import (
     GroundingExecutionContextConsumptionDecisionEvaluator,
 )
+from backend.app.reality.grounding_execution_context_consumption_decision_result import (
+    GroundingExecutionContextConsumptionDecisionResult,
+)
 from backend.app.reality.grounding_execution_context_consumption_result import (
     GroundingExecutionContextConsumptionResult,
 )
@@ -14,7 +17,7 @@ from backend.app.reality.grounding_execution_context_consumption_result import (
 def test_usable_consumption_allows_execution():
     consumption = GroundingExecutionContextConsumptionResult.usable_result("ready")
     decision = GroundingExecutionContextConsumptionDecisionEvaluator.evaluate(consumption)
-    assert decision == GroundingExecutionContextConsumptionDecision.allowed_result("ready")
+    assert decision == GroundingExecutionContextConsumptionDecisionResult.allowed_result("ready")
 
 
 def test_rejected_consumption_blocks_execution():
