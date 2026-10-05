@@ -10,6 +10,7 @@ from backend.app.reality.claim_extraction import (
 )
 from backend.app.reality.claim_extractor import EvidenceClaimExtractor
 from backend.app.reality.retrieval_input_bounds import MAX_RETRIEVED_CLAIMS
+from backend.app.reality.freshness_policy import is_positive_finite_number
 from backend.app.reality.source_observation import (
     SourceObservation,
     SourceObservationResult,
@@ -185,11 +186,7 @@ class SubmittedEvidenceBundle:
     ) -> None:
         if max_age_seconds is None:
             return
-        if (
-            not isinstance(max_age_seconds, (int, float))
-            or isinstance(max_age_seconds, bool)
-            or max_age_seconds <= 0
-        ):
+        if not is_positive_finite_number(max_age_seconds):
             raise ValueError(
                 "freshness_max_age_seconds must be a positive number or None"
             )
