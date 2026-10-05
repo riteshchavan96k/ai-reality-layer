@@ -15,9 +15,13 @@ MAX_RETRIEVED_URI_CHARS = 2_048
 MAX_RETRIEVED_OBSERVED_AT_CHARS = 64
 MAX_RETRIEVED_CLAIMS = 2_000
 
-# These are the only source fields consumed by the canonical pipeline. Do not
-# carry arbitrary nested or oversized provider metadata through the API.
+# Canonical pipeline-consumed fields. Early provider contracts intentionally
+# allow small legacy scalar fields (e.g., id/url), which normalization later
+# drops. Reject nested, numerous, or oversized unused metadata.
 _SOURCE_FIELDS = frozenset({"uri", "title", "content", "observed_at"})
+_MAX_EXTRA_FIELDS = 4
+_MAX_EXTRA_FIELD_NAME_CHARS = 64
+_MAX_EXTRA_SCALAR_CHARS = 500
 
 
 def validate_retrieved_evidence_bounds(
@@ -44,8 +48,18 @@ def validate_retrieved_evidence_bounds(
     for source in sources:
         if not isinstance(source, dict):
             return "invalid_sources"
-        if set(source) - _SOURCE_FIELDS:
+        extra = set(source) - _SOURCE_FIELDS
+        if len(extra) > _MAX_EXTRA_FIELDS:
             return "unexpected_source_metadata"
+        for key in extra:
+            value = source[key]
+            if (
+                not isinstance(key, str)
+                or len(key) > _MAX_EXTRA_FIELD_NAME_CHARS
+                or not isinstance(value, (str, int, float, bool))
+                or len(str(value)) > _MAX_EXTRA_SCALAR_CHARS
+            ):
+                return "unexpected_source_metadata"
         uri: Any = source.get("uri")
         if isinstance(uri, str) and len(uri) > MAX_RETRIEVED_URI_CHARS:
             return "source_uri_too_long"
