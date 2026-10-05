@@ -205,3 +205,30 @@ remains unknown even if observations exist. Legacy single-source and
 task-only retrieval requests still work.
 
 See `docs/STEP_183.md` for full rules, compatibility and regression scope.
+
+## Bounded configured retrieval (Step 184)
+
+The configured HTTPS retrieval path now rejects oversized or unexpected
+source data **before** extracting claims. These boundaries match the
+existing direct-evidence MVP document limits wherever applicable:
+
+- Maximum **20** sources per response.
+- Maximum **50,000 characters** of content per original source.
+- Maximum **2,048** URI characters and **500** title characters.
+- Maximum **64** characters for an optional provider `observed_at` value.
+- Maximum **2,000 unique candidate claims** extracted from a retrieved
+  response. Inputs exceeding the claim budget produce no partial claims.
+
+The optional `sources[]` fields are `uri`, `title`, `content`, and
+`observed_at`. Extra nested metadata is rejected rather than carried
+through to the resulting Reality State. Combined text has a bounded
+length matching the number of original sources; Step 182's exact aggregate
+consistency validation still applies. The HTTPS adapter's existing byte
+limit remains in effect.
+
+For invalid retrieved evidence, the system fails closed with a structured
+unavailable/insufficient Reality State rather than partially attributing
+claims or labeling unsupported evidence as verified. The direct-submitted
+evidence API is unchanged.
+
+See `docs/STEP_184.md` for the precise limits and compatibility tests.
