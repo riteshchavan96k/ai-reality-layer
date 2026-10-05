@@ -187,12 +187,38 @@ class OrchestrationPipeline:
         state.outcome = outcome_memory.record(task, state.analysis, state.routing, state.execution, state.evaluation)
         return self._success_result(context, grounding_result)
 
-    def build_reality_state(self, task: str, retrieval_engine: Any | None = None) -> dict:
+    def build_reality_state(
+        self,
+        task: str,
+        retrieval_engine: Any | None = None,
+        freshness_max_age_seconds: float | int | None = None,
+    ) -> dict:
         """Build and return the canonical Reality State without model execution."""
         context = OrchestrationStageContext(state=OrchestrationState(task=task), trace=ExecutionTrace(), execution_budget=None)
         state = context.state
         reality_context = self.dependencies.context_detector.detect(task)
         reality_source_plan = self.dependencies.source_planner.plan(reality_context)
+        if freshness_max_age_seconds is not None:
+            from math import isfinite
+
+            if (
+                not isinstance(freshness_max_age_seconds, (int, float))
+                or isinstance(freshness_max_age_seconds, bool)
+            ):
+                raise ValueError("freshness_max_age_seconds must be a positive finite number")
+            try:
+                valid = (
+                    freshness_max_age_seconds > 0
+                    and isfinite(freshness_max_age_seconds)
+                )
+            except OverflowError:
+                valid = False
+            if not valid:
+                raise ValueError("freshness_max_age_seconds must be a positive finite number")
+            reality_source_plan = {
+                **reality_source_plan,
+                "freshness_max_age_seconds": float(freshness_max_age_seconds),
+            }
         retrieval_contract = self.dependencies.retrieval_contract.build(
             task,
             reality_source_plan,
@@ -275,9 +301,29 @@ class OrchestrationPipeline:
         )
         source_provenance = self.dependencies.source_provenance_builder.build_result(state.evidence)
         state.analysis["reality_source_provenance"] = source_provenance.to_dict()
-        source_observation = self.dependencies.source_observation_builder.build_result(source_provenance)
+        freshness_window = state.retrieval_contract["request"].get(
+            "freshness_max_age_seconds"
+        )
+        evidence_sources = state.evidence.get("sources", [])
+        has_provider_observation = any(
+            isinstance(source, dict) and "observed_at" in source
+            for source in evidence_sources
+        )
+        if freshness_window is not None or has_provider_observation:
+            source_observation = (
+                self.dependencies.source_observation_builder.build_retrieval_result(
+                    source_provenance,
+                    evidence_sources,
+                    require_provider_observations=freshness_window is not None,
+                )
+            )
+        else:
+            source_observation = (
+                self.dependencies.source_observation_builder.build_result(
+                    source_provenance
+                )
+            )
         state.analysis["reality_source_observation"] = source_observation.to_dict()
-        freshness_window = state.retrieval_contract["request"].get("freshness_max_age_seconds")
         source_freshness = self.dependencies.source_freshness_evaluator.evaluate_result(
             source_observation,
             max_age_seconds=freshness_window,
