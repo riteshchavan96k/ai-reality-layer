@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 
 from backend.app.reality.evidence_normalization import EvidenceNormalizationResult
 from backend.app.reality.source_observation import normalize_reported_observation_time
+from backend.app.reality.retrieval_input_bounds import validate_retrieved_evidence_bounds
 
 
 class RetrievalEvidenceNormalizer:
@@ -21,6 +22,17 @@ class RetrievalEvidenceNormalizer:
             raise ValueError("retrieval sources must be a list")
         if content is not None and not isinstance(content, str):
             raise ValueError("retrieval content must be a string or None")
+
+        if status == "completed":
+            bounds_reason = validate_retrieved_evidence_bounds(sources, content)
+            if bounds_reason is not None:
+                return EvidenceNormalizationResult(
+                    status="invalid_evidence",
+                    sources=[],
+                    content=None,
+                    source_count=0,
+                    has_content=False,
+                )
 
         normalized_sources: list[dict[str, Any]] = []
         invalid_observation = False
