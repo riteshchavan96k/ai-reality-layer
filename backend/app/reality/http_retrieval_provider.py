@@ -7,6 +7,7 @@ from urllib.request import Request, urlopen
 
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
 from backend.app.reality.retrieval_provider_response import RetrievalProviderResponse
+from backend.app.reality.source_observation import normalize_reported_observation_time
 
 
 class HttpRetrievalProvider:
@@ -74,7 +75,19 @@ class HttpRetrievalProvider:
                 return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="invalid_source_title")
             if uri is None and title is None:
                 return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="source_missing_provenance")
-            normalized_sources_list.append(dict(source))
+            normalized_source = dict(source)
+            if "observed_at" in source:
+                try:
+                    normalized_source["observed_at"] = (
+                        normalize_reported_observation_time(source["observed_at"])
+                    )
+                except ValueError:
+                    return RetrievalProviderResponse(
+                        status="failed",
+                        provider=self.provider_name,
+                        reason="invalid_source_observed_at",
+                    )
+            normalized_sources_list.append(normalized_source)
 
         if status != "completed":
             if normalized_sources_list or content is not None:
