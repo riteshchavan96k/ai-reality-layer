@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from backend.app.reality.freshness_policy import is_positive_finite_number
+
 
 @dataclass(frozen=True)
 class RetrievalProviderRequest:
@@ -21,7 +23,7 @@ class RetrievalProviderRequest:
             raise ValueError("temporal_scope must not be empty")
         if not isinstance(self.required, bool):
             raise ValueError("required must be a boolean")
-        if self.freshness_max_age_seconds is not None and (not isinstance(self.freshness_max_age_seconds, (int, float)) or isinstance(self.freshness_max_age_seconds, bool) or self.freshness_max_age_seconds <= 0):
+        if self.freshness_max_age_seconds is not None and not is_positive_finite_number(self.freshness_max_age_seconds):
             raise ValueError("freshness_max_age_seconds must be a positive number or None")
 
     @classmethod
