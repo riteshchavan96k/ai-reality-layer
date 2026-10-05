@@ -1,3 +1,19 @@
+# Current Status — Step 186
+
+## Step 186 — Finite Freshness-Window Integrity Across Evidence Paths
+
+**Status:** Implemented on isolated development branch; full CI, merge, and final status-synchronized main validation pending. No completion claim until final exact-HEAD tests pass.
+
+**Roadmap basis:** Step 183 rejects nonfinite declared observation windows on configured retrieval, but the Step 181 direct-evidence HTTP/domain path and lower-level retrieval/freshness contracts continued to accept positive infinity (which could make even old evidence appear fresh), NaN (unordered/non-JSON), and unrepresentably large integer values. The original MVP roadmap did not preassign an individual Step 186 title; this is a confirmed freshness integrity gap in the existing source observation → freshness → confidence path.
+
+**Implementation:** A lightweight shared finite-numeric predicate rejects booleans, numeric strings, NaN, infinities, nonpositive windows and overflow-sized integers. The invariant now applies to both API request validators, the direct-evidence domain, retrieval request/provider contracts, retrieval orchestration, freshness evaluator, and serialized canonical freshness assessments. Age measurements must be nonnegative finite numbers. Optional/omitted windows remain valid and leave observation freshness unknown.
+
+**Conservative epistemics:** Freshness represents source observation age against an explicit window. It is not independently verified publication time, source authenticity, calibrated factual confidence, or proof of truth. A deliberately large but finite user-supplied window continues to be honored.
+
+**Compatibility:** Previous positive finite policies, Step 181 submitted timestamps, Step 183 provider observation timestamps, Step 182 attribution, and Steps 184–185 graph/resource caps remain unchanged. Invalid inputs fail through existing request/domain validation; no new model, vendor, persistence, source fetching, deployment or autonomy.
+
+**Regression validation:** `backend/tests/test_step186.py` tests all public and internal trust boundaries, overflows, canonical assessment serialization, unknown/stale/valid-finite behavior, API schemas and unchanged legacy contracts. Full hosted CI and a successful final status commit are required before marking complete.
+
 # Current Status — Step 185
 
 ## Step 185 — Bounded Developer-Submitted Claim Processing

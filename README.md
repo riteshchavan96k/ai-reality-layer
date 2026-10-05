@@ -256,3 +256,24 @@ claim extractor contract remain unchanged.
 
 See `docs/STEP_185.md` for examples, reasons, safety boundaries and
 regression coverage.
+
+## Finite freshness policies (Step 186)
+
+Both `POST /api/v1/reality-state` (configured retrieval) and
+`POST /api/v1/reality-state/evidence` (developer-submitted evidence)
+support an optional `freshness_max_age_seconds`.
+
+The policy must be a **positive, finite JSON number**, not a boolean,
+numeric string, zero, negative value, NaN, infinity or unrepresentably
+large integer. The same rule applies to the underlying Python
+retrieval/domain contracts and the freshness evaluator; canonical source
+freshness assessments also reject nonfinite age/window measurements.
+This prevents a positive infinite window from classifying arbitrarily
+old observations as fresh or allowing a non-JSON NaN result.
+
+If the policy is **omitted**, observation-age freshness remains unknown.
+Finite windows classify only **source observation age**, never the
+publication date, authenticity or factual truth of a source. Existing
+source-scoped provenance and evidence limits remain in place.
+
+See `docs/STEP_186.md` for contract details and full regression scope.

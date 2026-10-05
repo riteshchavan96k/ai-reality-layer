@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any
 
+from backend.app.reality.freshness_policy import is_positive_finite_number
+
 
 @dataclass(frozen=True)
 class RetrievalRequest:
@@ -17,7 +19,7 @@ class RetrievalRequest:
             raise ValueError("query must not be empty")
         if not self.source_type.strip():
             raise ValueError("source_type must not be empty")
-        if self.freshness_max_age_seconds is not None and (not isinstance(self.freshness_max_age_seconds, (int, float)) or isinstance(self.freshness_max_age_seconds, bool) or self.freshness_max_age_seconds <= 0):
+        if self.freshness_max_age_seconds is not None and not is_positive_finite_number(self.freshness_max_age_seconds):
             raise ValueError("freshness_max_age_seconds must be a positive number or None")
 
     def to_dict(self) -> dict[str, Any]:

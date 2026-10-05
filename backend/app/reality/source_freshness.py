@@ -1,6 +1,11 @@
 from dataclasses import dataclass
 from typing import Any
 
+from backend.app.reality.freshness_policy import (
+    is_nonnegative_finite_number,
+    is_positive_finite_number,
+)
+
 
 @dataclass(frozen=True)
 class SourceFreshnessAssessment:
@@ -21,9 +26,9 @@ class SourceFreshnessAssessment:
             raise ValueError("status must be fresh, stale, or unknown")
         if not isinstance(self.observed_at, str) or not self.observed_at.strip():
             raise ValueError("observed_at must be a non-empty string")
-        if self.age_seconds is not None and (not isinstance(self.age_seconds, (int, float)) or isinstance(self.age_seconds, bool) or self.age_seconds < 0):
+        if self.age_seconds is not None and not is_nonnegative_finite_number(self.age_seconds):
             raise ValueError("age_seconds must be a non-negative number or None")
-        if self.max_age_seconds is not None and (not isinstance(self.max_age_seconds, (int, float)) or isinstance(self.max_age_seconds, bool) or self.max_age_seconds <= 0):
+        if self.max_age_seconds is not None and not is_positive_finite_number(self.max_age_seconds):
             raise ValueError("max_age_seconds must be a positive number or None")
         if self.status in {"fresh", "stale"} and (self.age_seconds is None or self.max_age_seconds is None):
             raise ValueError("fresh or stale assessment requires age_seconds and max_age_seconds")
