@@ -244,8 +244,17 @@ def test_http_handler_uses_submitted_evidence_without_solve_or_retrieval():
     assert state["source_provenance"]["source_count"] == 2
 
 
-def test_original_reality_state_request_remains_task_only():
-    assert set(RealityStateRequest.model_fields) == {"task"}
+def test_original_reality_state_request_stays_separate_from_submitted_documents():
+    # Step 183 adds an optional retrieval freshness policy but never accepts
+    # direct source documents on this existing retrieval endpoint.
+    assert set(RealityStateRequest.model_fields) == {
+        "task", "freshness_max_age_seconds",
+    }
+    with pytest.raises(ValueError):
+        RealityStateRequest(
+            task="Current status?",
+            documents=[{"uri": "https://example.test", "content": "Untrusted."}],
+        )
 
 
 def test_openapi_documents_direct_evidence_endpoint_and_shared_contracts():

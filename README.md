@@ -153,3 +153,55 @@ publisher's URI if no source is returned. A URI is **caller/provider-supplied
 provenance**, not independent verification or proof of factual truth.
 
 See `docs/STEP_182.md` for the full boundary and regression contract.
+
+## Optional freshness policy for configured retrieval (Step 183)
+
+The configured HTTPS retrieval path now supports **provider-reported source
+observation times**, separate from the time the Reality Layer processes the
+provider response. To declare a freshness requirement, use:
+
+```http
+POST /api/v1/reality-state
+Content-Type: application/json
+
+{
+  "task": "What is the current status of Company X?",
+  "freshness_max_age_seconds": 3600
+}
+```
+
+A source-scoped retrieval response may supply:
+
+```json
+{
+  "status": "completed",
+  "sources": [
+    {
+      "uri": "https://example.com/original-a",
+      "content": "Feature A launched.",
+      "observed_at": "2026-01-01T12:30:00Z"
+    },
+    {
+      "uri": "https://example.com/original-b",
+      "content": "Feature B launched.",
+      "observed_at": "2026-01-01T18:15:00+05:30"
+    }
+  ]
+}
+```
+
+`observed_at` means **when the retrieval provider says it observed that
+original source**, **not** when the publisher posted it, when the event
+occurred, or when AI Reality Layer verified the source. These are
+provider-reported times, not independently authenticated statements. All
+source timestamps require explicit timezones and cannot be in the future.
+
+When a freshness window is requested, **every source must have a provider-
+reported observation timestamp**. Missing timestamps make freshness
+unavailable and prevent supported confidence; using the current processing
+time as a substitute would misleadingly classify cached evidence as fresh.
+Stale sources force uncertainty. Without a declared window, freshness
+remains unknown even if observations exist. Legacy single-source and
+task-only retrieval requests still work.
+
+See `docs/STEP_183.md` for full rules, compatibility and regression scope.

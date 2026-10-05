@@ -5,7 +5,11 @@ from backend.app.main import app
 
 
 def test_reality_state_request_does_not_include_solve_only_approval_field():
-    assert set(RealityStateRequest.model_fields) == {"task"}
+    # Step 183 adds retrieval freshness, not solve-only approvals or documents.
+    assert set(RealityStateRequest.model_fields) == {
+        "task", "freshness_max_age_seconds",
+    }
+    assert "human_approved" not in RealityStateRequest.model_fields
 
 
 def test_reality_state_response_exposes_canonical_fields():

@@ -35,6 +35,7 @@ def build_reality_state(
     task: str,
     retrieval_engine: RealityRetrievalEngine | None = None,
     dependencies: OrchestrationDependencies | None = None,
+    freshness_max_age_seconds: float | int | None = None,
 ) -> dict:
     """Build the canonical Reality State without executing a model."""
     services = dependencies or OrchestrationDependencies.default()
@@ -46,7 +47,11 @@ def build_reality_state(
         recover=recover_with_evaluation,
         fallback=execute_with_fallback,
     )
-    return pipeline.build_reality_state(task=task, retrieval_engine=retrieval_engine)
+    return pipeline.build_reality_state(
+        task=task,
+        retrieval_engine=retrieval_engine,
+        freshness_max_age_seconds=freshness_max_age_seconds,
+    )
 
 
 

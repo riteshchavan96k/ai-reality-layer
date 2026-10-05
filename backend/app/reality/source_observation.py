@@ -3,6 +3,22 @@ from datetime import datetime, timezone
 from typing import Any
 
 
+def normalize_reported_observation_time(value: object) -> str:
+    """Validate provider-reported observation time; never infer publication time."""
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("reported observed_at must be a non-empty ISO-8601 string")
+    try:
+        observed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("reported observed_at must be valid ISO-8601") from exc
+    if observed.tzinfo is None:
+        raise ValueError("reported observed_at must include a timezone")
+    observed_utc = observed.astimezone(timezone.utc)
+    if observed_utc > datetime.now(timezone.utc):
+        raise ValueError("reported observed_at cannot be in the future")
+    return observed_utc.isoformat().replace("+00:00", "Z")
+
+
 @dataclass(frozen=True)
 class SourceObservation:
     """Record when a source was observed, with explicit observation provenance."""
@@ -28,10 +44,12 @@ class SourceObservation:
             "retrieval_observation",
             "submitted_evidence_observation",
             "submitted_evidence_ingestion",
+            "retrieval_provider_observation",
         }:
             raise ValueError(
                 "observation_method must be retrieval_observation, "
-                "submitted_evidence_observation, or submitted_evidence_ingestion"
+                "submitted_evidence_observation, submitted_evidence_ingestion, "
+                "or retrieval_provider_observation"
             )
 
     def to_dict(self) -> dict[str, Any]:
@@ -136,4 +154,4 @@ class SourceObservationResult:
         }
 
 
-__all__ = ["SourceObservation", "SourceObservationResult"]
+__all__ = ["SourceObservation", "SourceObservationResult", "normalize_reported_observation_time"]
