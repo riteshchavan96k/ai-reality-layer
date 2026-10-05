@@ -121,7 +121,13 @@ def reality_state_from_evidence(request: EvidenceRealityStateRequest):
 )
 def reality_state(request: RealityStateRequest):
     """Return the canonical evidence-backed Reality State without a model execution request."""
-    reality_state = build_reality_state(request.task)
+    if request.freshness_max_age_seconds is None:
+        reality_state = build_reality_state(request.task)
+    else:
+        reality_state = build_reality_state(
+            request.task,
+            freshness_max_age_seconds=request.freshness_max_age_seconds,
+        )
     if reality_state is None:
         return {
             "status": "unavailable",
