@@ -1,3 +1,17 @@
+# Current Status — Step 185
+
+## Step 185 — Bounded Developer-Submitted Claim Processing
+
+**Status:** Implementation and regressions on isolated branch; full CI, merge and final status synchronization pending. Do not declare complete until full backend tests pass on the synchronized final `main` HEAD.
+
+**Roadmap basis:** Step 184 bounded retrieved evidence to 2,000 unique candidate claims, while the existing Step 180 direct-submission path still merged per-document extraction results without a **global across-document claim limit**. Up to 20 documents of 50,000 characters each could produce an oversized downstream claim/link/conflict graph. Step 185 closes this concrete MVP reliability gap, not a preassigned title in the high-level roadmap.
+
+**Implementation:** Enforce `MAX_SUBMITTED_CLAIMS=2,000` across each `SubmittedEvidenceBundle.extract_claims` operation, counting casefold-deduplicated claims only. Over-limit direct submissions yield a canonical unavailable extraction with `submitted_claim_limit_exceeded`, zero partial claims and no downstream links or supported confidence. Per-document extraction over-limit uses the same submitted-specific reason. Lazy or infinite submitted document iterables consume at most one over the existing 20-document cap before rejection, rather than being fully materialized.
+
+**Compatibility:** In-budget direct submissions retain original source-URI lineage, duplicate claims merged across documents, observation/freshness handling, and conflict detection. Retrieved claim budgets from Step 184 and generic lower-level `usable` extraction behavior are unchanged. No new model, vendor, truth-verification promise, persistence, or deployment was added.
+
+**Tests:** `backend/tests/test_step185.py` covers exactly 2,000/2,001 distinct claims in one and multiple documents, duplicates with multi-URI lineage, direct API and Reality State no-partial-graph behavior, legacy extractor non-regression, and bounded lazy/indefinite iterable ingestion. Full hosted CI validation is required before synchronization.
+
 # Current Status — Step 184
 
 ## Step 184 — Bounded Retrieved-Evidence Processing

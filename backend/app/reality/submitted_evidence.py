@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from itertools import islice
 from datetime import datetime, timezone
 from typing import Any, Callable, Iterable, Mapping
 from urllib.parse import urlparse
@@ -8,6 +9,7 @@ from backend.app.reality.claim_extraction import (
     EvidenceClaim,
 )
 from backend.app.reality.claim_extractor import EvidenceClaimExtractor
+from backend.app.reality.retrieval_input_bounds import MAX_RETRIEVED_CLAIMS
 from backend.app.reality.source_observation import (
     SourceObservation,
     SourceObservationResult,
@@ -19,6 +21,8 @@ MAX_SUBMITTED_DOCUMENTS = 20
 MAX_SUBMITTED_CONTENT_CHARS = 50_000
 MAX_SUBMITTED_URI_CHARS = 2_048
 MAX_SUBMITTED_TITLE_CHARS = 500
+# Keep submitted and retrieved graph amplification budgets aligned.
+MAX_SUBMITTED_CLAIMS = MAX_RETRIEVED_CLAIMS
 
 
 @dataclass(frozen=True)
@@ -144,9 +148,11 @@ class SubmittedEvidenceBundle:
                 "submitted evidence documents must be an iterable of mappings"
             )
         try:
+            # Consume at most one over-limit item. Caller-provided iterables
+            # can be lazy or infinite; never materialize all their documents.
             normalized = tuple(
                 SubmittedEvidenceDocument.from_mapping(document)
-                for document in documents
+                for document in islice(documents, MAX_SUBMITTED_DOCUMENTS + 1)
             )
         except TypeError as exc:
             raise ValueError(
@@ -266,8 +272,14 @@ class SubmittedEvidenceBundle:
                 }
             )
             if result.status == "unavailable":
+                reason = result.reason or "claim_extraction_unavailable"
+                # The extractor's Step 184 budget protects each completed
+                # source document. Translate it to the submitted-evidence
+                # surface instead of exposing a misleading retrieval reason.
+                if reason == "retrieved_claim_limit_exceeded":
+                    reason = "submitted_claim_limit_exceeded"
                 return ClaimExtractionResult.unavailable_result(
-                    result.reason or "claim_extraction_unavailable",
+                    reason,
                     source_count=len(self.documents),
                 )
 
@@ -275,6 +287,14 @@ class SubmittedEvidenceBundle:
                 key = claim.text.casefold()
                 existing = claims_by_key.get(key)
                 if existing is None:
+                    # The per-document limit alone is insufficient: 20 valid
+                    # documents can each introduce new candidate claims.
+                    # Reject globally without returning a partial claim graph.
+                    if len(claims_by_key) >= MAX_SUBMITTED_CLAIMS:
+                        return ClaimExtractionResult.unavailable_result(
+                            "submitted_claim_limit_exceeded",
+                            source_count=len(self.documents),
+                        )
                     claims_by_key[key] = claim
                     ordered_keys.append(key)
                     continue
@@ -306,6 +326,7 @@ class SubmittedEvidenceBundle:
 
 __all__ = [
     "MAX_SUBMITTED_CONTENT_CHARS",
+    "MAX_SUBMITTED_CLAIMS",
     "MAX_SUBMITTED_DOCUMENTS",
     "MAX_SUBMITTED_TITLE_CHARS",
     "MAX_SUBMITTED_URI_CHARS",
