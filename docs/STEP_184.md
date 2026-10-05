@@ -41,11 +41,14 @@ Combined content is limited to:
 - Source-scoped documents must still match the exact top-level aggregate
   content, if supplied, under Step 182.
 
-Source dictionaries only accept the four pipeline-consumed fields
-`uri`, `title`, `content` and `observed_at`.
-Arbitrary nested/extra source metadata is **not** passed through the
-canonical provider response; it is rejected, rather than carried to a
-possibly public Reality State or consuming agent.
+The four canonical source fields used downstream are `uri`, `title`,
+`content` and `observed_at`. To preserve the older provider-neutral
+contracts, up to four additional **small scalar** legacy fields (such as
+`id` or `url`) are tolerated with field names up to 64 characters and
+stringified values up to 500 characters. Evidence normalization discards
+unused scalar fields; they do not become provenance. Nested, oversized or
+numerous extra metadata fields are **rejected**, not forwarded into Reality
+State or consuming agents.
 
 The existing HTTPS response byte limit (default 1,000,000 bytes) remains
 active. It protects transport response size and complements these
