@@ -2,11 +2,16 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+# Single, source-neutral input limit for developer and provider timestamps.
+MAX_SOURCE_OBSERVED_AT_CHARS = 64
+
 
 def normalize_reported_observation_time(value: object) -> str:
     """Validate provider-reported observation time; never infer publication time."""
     if not isinstance(value, str) or not value.strip():
         raise ValueError("reported observed_at must be a non-empty ISO-8601 string")
+    if len(value) > MAX_SOURCE_OBSERVED_AT_CHARS:
+        raise ValueError("reported observed_at exceeds 64 characters")
     try:
         observed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
     except ValueError as exc:
@@ -32,6 +37,8 @@ class SourceObservation:
             raise ValueError("source_id must be a non-empty string")
         if not isinstance(self.observed_at, str) or not self.observed_at.strip():
             raise ValueError("observed_at must be a non-empty string")
+        if len(self.observed_at) > MAX_SOURCE_OBSERVED_AT_CHARS:
+            raise ValueError("observed_at exceeds 64 characters")
         try:
             parsed = datetime.fromisoformat(self.observed_at.replace("Z", "+00:00"))
         except ValueError as exc:
@@ -154,4 +161,9 @@ class SourceObservationResult:
         }
 
 
-__all__ = ["SourceObservation", "SourceObservationResult", "normalize_reported_observation_time"]
+__all__ = [
+    "MAX_SOURCE_OBSERVED_AT_CHARS",
+    "SourceObservation",
+    "SourceObservationResult",
+    "normalize_reported_observation_time",
+]
