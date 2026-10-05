@@ -75,9 +75,9 @@ class HttpRetrievalProvider:
             if uri is None and title is None:
                 return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="source_missing_provenance")
             normalized_sources_list.append(dict(source))
-        normalized_sources = tuple(normalized_sources_list)
+
         if status != "completed":
-            if normalized_sources or content is not None:
+            if normalized_sources_list or content is not None:
                 return RetrievalProviderResponse(
                     status="failed",
                     provider=self.provider_name,
@@ -88,9 +88,56 @@ class HttpRetrievalProvider:
                 provider=self.provider_name,
                 reason=reason,
             )
-        if not normalized_sources and content:
-            normalized_sources = ({"uri": request_url, "title": None},)
-        return RetrievalProviderResponse(status="completed", sources=normalized_sources, content=content, provider=self.provider_name, reason=reason)
+
+        # A retrieval endpoint is not the original publisher. Never fabricate a
+        # source by substituting request_url when no source URI was returned.
+        # Legacy source-less results can still be represented, but are not
+        # accepted downstream as provenance-backed evidence.
+        if any(source.get("uri") is None for source in normalized_sources_list):
+            return RetrievalProviderResponse(
+                status="failed", provider=self.provider_name,
+                reason="source_uri_required",
+            )
+        uris = [source["uri"] for source in normalized_sources_list]
+        if len(set(uris)) != len(uris):
+            return RetrievalProviderResponse(
+                status="failed", provider=self.provider_name,
+                reason="duplicate_source_uri",
+            )
+
+        scoped = ["content" in source for source in normalized_sources_list]
+        if any(scoped):
+            if not all(scoped):
+                return RetrievalProviderResponse(
+                    status="failed", provider=self.provider_name,
+                    reason="incomplete_source_scoped_content",
+                )
+            if any(
+                not isinstance(source["content"], str)
+                or not source["content"].strip()
+                for source in normalized_sources_list
+            ):
+                return RetrievalProviderResponse(
+                    status="failed", provider=self.provider_name,
+                    reason="invalid_source_scoped_content",
+                )
+            joined = "\n\n".join(
+                source["content"].strip() for source in normalized_sources_list
+            )
+            if content is not None and content.strip() != joined:
+                return RetrievalProviderResponse(
+                    status="failed", provider=self.provider_name,
+                    reason="inconsistent_source_scoped_content",
+                )
+            content = joined
+
+        return RetrievalProviderResponse(
+            status="completed",
+            sources=tuple(normalized_sources_list),
+            content=content,
+            provider=self.provider_name,
+            reason=reason,
+        )
 
 
 __all__ = ["HttpRetrievalProvider"]
