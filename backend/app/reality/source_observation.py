@@ -8,10 +8,13 @@ MAX_SOURCE_OBSERVED_AT_CHARS = 64
 
 def normalize_reported_observation_time(value: object) -> str:
     """Validate provider-reported observation time; never infer publication time."""
-    if not isinstance(value, str) or not value.strip():
+    if not isinstance(value, str):
         raise ValueError("reported observed_at must be a non-empty ISO-8601 string")
+    # Check raw length before stripping or parsing untrusted strings.
     if len(value) > MAX_SOURCE_OBSERVED_AT_CHARS:
         raise ValueError("reported observed_at exceeds 64 characters")
+    if not value.strip():
+        raise ValueError("reported observed_at must be a non-empty ISO-8601 string")
     try:
         observed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
     except ValueError as exc:
@@ -35,10 +38,12 @@ class SourceObservation:
     def __post_init__(self) -> None:
         if not isinstance(self.source_id, str) or not self.source_id.strip():
             raise ValueError("source_id must be a non-empty string")
-        if not isinstance(self.observed_at, str) or not self.observed_at.strip():
+        if not isinstance(self.observed_at, str):
             raise ValueError("observed_at must be a non-empty string")
         if len(self.observed_at) > MAX_SOURCE_OBSERVED_AT_CHARS:
             raise ValueError("observed_at exceeds 64 characters")
+        if not self.observed_at.strip():
+            raise ValueError("observed_at must be a non-empty string")
         try:
             parsed = datetime.fromisoformat(self.observed_at.replace("Z", "+00:00"))
         except ValueError as exc:
