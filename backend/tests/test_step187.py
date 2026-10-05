@@ -47,13 +47,24 @@ def _documents():
 
 
 def _state(documents=None, age=None):
+    requested_documents = _documents() if documents is None else documents
+    # Submitted ingestion timestamps are generated at real runtime, unlike
+    # explicitly supplied January observations. An earlier fixed clock would
+    # incorrectly place valid ingestion in the future during these tests.
+    evaluation_clock = (
+        (lambda: NOW)
+        if all("observed_at" in doc for doc in requested_documents)
+        else (lambda: datetime.now(timezone.utc))
+    )
     dependencies = replace(
         OrchestrationDependencies.default(),
-        source_freshness_evaluator=SourceFreshnessEvaluator(clock=lambda: NOW),
+        source_freshness_evaluator=SourceFreshnessEvaluator(
+            clock=evaluation_clock,
+        ),
     )
     return build_reality_state_from_evidence(
         TASK,
-        _documents() if documents is None else documents,
+        requested_documents,
         freshness_max_age_seconds=age,
         dependencies=dependencies,
     )
