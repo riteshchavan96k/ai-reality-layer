@@ -10,7 +10,7 @@ Step 182 closes a provenance-integrity gap in the configured retrieval → Reali
 
 **Scope:** provenance/claim attribution only. No new vendor integrations, model execution, semantic truth verification, source ownership verification, publication time, auth, persistence, or autonomous behavior.
 
-**Validation:** Dedicated tests in backend/tests/test_step182.py and the corrected historical test in backend/tests/test_step125.py are committed. Full CI validation and final status synchronization are required before completion.
+**Validation:** Dedicated tests in backend/tests/test_step182.py and the corrected historical regressions in backend/tests/test_step125.py and backend/tests/test_step135.py are committed. Full CI validation and final status synchronization are required before completion.
 
 # Current Status — Step 181
 
