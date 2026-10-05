@@ -1,3 +1,17 @@
+# Current Status — Step 187
+
+## Step 187 — Source-Scoped Submitted-Evidence Round-Trip Integrity
+
+**Status:** Implementation, tests and documentation committed on a separate feature branch; full CI, merge and final status synchronization pending. Do not mark complete without CI on exact final `main` HEAD.
+
+**Roadmap basis:** The original MVP requires source-linked evidence and auditable claim attribution, but the Step 180 direct developer-evidence response previously included only `sources[].uri`/`title` and a combined `evidence.content` body. Per-source extraction worked internally, yet independently re-extracting claims from the returned evidence (Step 182's strict generic extractor) failed for multi-source text with `ambiguous_source_attribution`. No individually preassigned Step 187 title existed in the broad MVP roadmap; this is the verified next source integrity gap.
+
+**Implementation:** Preserve each source's exact trimmed developer-submitted text in canonical `evidence.sources[].content`, alongside original URI/title. The top-level content remains the deterministic two-newline join of the same original source texts. The full returned evidence can now reproduce the exact same candidate claims, duplicates and source URI refs under the normal in-budget extractor contract. Observation timestamps remain in the separate source-observation provenance objects.
+
+**Compatibility and bounds:** No change to the retrieval API, original developer-submitted documents schema, claim extraction algorithms, 2,000-unique-claim budget, fail-closed zero partial claims, source identity hashes, age/freshness analysis, conflict detection or confidence. Source content now appears both as per-source and aggregate text in the API response, deliberately increasing output size within existing 20 × 50,000 input limits; content remains untrusted caller-supplied data and does not certify factual truth.
+
+**Testing:** `backend/tests/test_step187.py` tests original source/text URI mapping, deterministic aggregation, independent in-budget re-extraction parity, conflict/duplicates, JSON and Pydantic/API serialization, provider-neutral normalization, observation/freshness safety, original input bounds and over-limit empty claim graphs. Full hosted CI must pass before declaring completion.
+
 # Current Status — Step 186
 
 ## Step 186 — Finite Freshness-Window Integrity Across Evidence Paths

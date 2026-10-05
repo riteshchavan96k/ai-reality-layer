@@ -277,3 +277,33 @@ publication date, authenticity or factual truth of a source. Existing
 source-scoped provenance and evidence limits remain in place.
 
 See `docs/STEP_186.md` for contract details and full regression scope.
+
+## Auditable submitted evidence (Step 187)
+
+The direct developer-evidence endpoint
+`POST /api/v1/reality-state/evidence` now includes **the trimmed original
+`content` for each original source** in its canonical
+`response.evidence.sources[]` entries, alongside `uri` and `title`.
+Its top-level `response.evidence.content` remains the deterministic
+two-newline concatenation of those original per-source texts.
+
+This makes the returned evidence independently auditable: for
+**in-budget** submitted requests, the existing
+`EvidenceClaimExtractor().extract_result(response["evidence"])`
+reconstructs the same candidate claims and original source URI
+attribution as `response["claims"]`, including duplicate claims
+reported by multiple sources.
+
+The `source_observation` object remains the authoritative structured
+place to distinguish caller-reported `observed_at` from ingestion
+timestamps. Observations do **not** certify publication time, origin
+ownership, or factual truth. The returned text is still developer-
+supplied, untrusted evidence rather than independently verified content.
+
+The explicit per-source content also duplicates text already present
+in the aggregate field: consumers must account for the increased
+response size (requests are already limited to 20 × 50,000-character
+documents). The existing 2,000-unique-claim cap and no-partial-claim
+failure behavior are unchanged.
+
+See `docs/STEP_187.md` for contract details and end-to-end tests.

@@ -108,9 +108,15 @@ class SubmittedEvidenceDocument:
         )
 
     def source_dict(self) -> dict[str, Any]:
+        """Return the source and its exact text for auditable claim lineage.
+
+        Keep observed_at in the separate source-observation contract, which
+        records whether it was caller-supplied or merely ingestion time.
+        """
         return {
             "title": self.title,
             "uri": self.uri,
+            "content": self.content.strip(),
         }
 
 
@@ -162,7 +168,11 @@ class SubmittedEvidenceBundle:
         return cls(normalized)
 
     def to_evidence(self) -> dict[str, Any]:
-        """Build canonical completed evidence without claiming system retrieval."""
+        """Build source-scoped evidence that can be independently re-extracted.
+
+        The top-level body is only the deterministic aggregation of original
+        per-source texts; it is not a separately attributed publication.
+        """
         content = "\n\n".join(
             document.content.strip()
             for document in self.documents
