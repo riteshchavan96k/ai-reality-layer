@@ -2,15 +2,21 @@
 
 ## Step 182 — Source-Scoped Retrieval Claim Lineage and Provenance Integrity
 
-**Status:** Implementation and regressions committed on the isolated development branch; full CI validation pending. Do not mark complete until the final synchronized HEAD passes the full suite.
+**Status:** Complete; merged through PR #179. The implementation passed full GitHub-hosted regression validation both before and after merging.
 
-Step 182 closes a provenance-integrity gap in the configured retrieval → Reality State path. Before this step, a single combined text body with multiple source URIs caused the claim extractor to attach every URI to every sentence. The HTTPS adapter could also fabricate an apparent originating source by substituting its retrieval gateway URL when content had no original source.
+**Objective:** Close a provenance-integrity gap in the configured retrieval → Reality State path. Previously, one combined text body with multiple source URIs caused every extracted claim to inherit every URI, even when the provider had not indicated which source supplied the claim. The HTTP adapter also treated its own retrieval gateway URL as the origin when no original sources were returned.
 
-**New behavior:** provider-returned per-source content stays attached to its URI through evidence normalization. Claim extraction preserves actual document-level references, merges exact duplicate claims while retaining all true source references, and rejects ambiguous multi-source combined text rather than producing potentially fabricated citations. The HTTP adapter rejects duplicate/missing source URIs and invalid or inconsistent scoped payloads, and no longer treats its gateway URL as an original content URI. The existing single-source legacy path remains valid.
+**Safety invariant:** explicitly source-scoped retrieved documents → preserve document text and original URI → extract per-source claims → merge only exact duplicates with actual source references → canonical claim/evidence links → provenance, observation, freshness, conflicts, conservative confidence → Reality State. Ambiguous combined multi-source text never receives fabricated per-claim source attribution.
 
-**Scope:** provenance/claim attribution only. No new vendor integrations, model execution, semantic truth verification, source ownership verification, publication time, auth, persistence, or autonomous behavior.
+**Implementation:** The HTTPS provider accepts `sources[].content` for unique URI-bearing original source documents. Missing top-level combined content is assembled deterministically; inconsistent, partially scoped, blank, duplicate, or title-only source inputs fail closed. The provider does not synthesize an original URI from the search/retrieval endpoint. Provider-neutral evidence normalization preserves source content and rejects invalid lineage, and the claim extractor assigns source references only to claims present in each source. Existing single-source legacy responses remain usable.
 
-**Validation:** Dedicated tests in backend/tests/test_step182.py and the corrected historical regressions in backend/tests/test_step125.py and backend/tests/test_step135.py are committed. Full CI validation and final status synchronization are required before completion.
+**Historical regression reconciliation:** The Step 125 test formerly expected every claim from combined multi-source text to inherit all supplied URIs. The Step 135 test formerly expected retrieval-gateway URL fabrication. Both expectations were strengthened to assert conservative, provenance-preserving behavior. No historical tests were skipped or removed.
+
+**Developer documentation:** README explains the new multi-source response shape. `docs/STEP_182.md` specifies the contract, non-goals and complete regression boundaries. The Step 180–181 direct-evidence API and freshness semantics remain unchanged.
+
+**Design boundary:** Claim/source attribution correctness only. Neither a source URI nor recent retrieval verifies the source's authorship, publication age, semantic accuracy, or truth. No new provider vendor, credentials, network integration, source verification, model execution, embeddings, ML, persistent store, auth, deployment, or autonomous capabilities are added.
+
+**Validation:** GitHub Actions PR run #100 (`37379539853`) on branch commit `4cf15f885427533c1aeac07f45ddfb7c16f80503` passed backend compilation and the entire regression suite: **1233 passed / 0 failed**. Post-merge GitHub Actions run #101 (`37379653673`) on merged main commit `c533055bd70c2768bddb2edab4e3bd2085667e1d` also passed with **1233 passed / 0 failed**. The final status synchronization commit is subject to that same full CI workflow.
 
 # Current Status — Step 181
 
