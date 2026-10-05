@@ -3,6 +3,7 @@ from typing import Any
 
 from backend.app.reality.claim_extraction import ClaimExtractionResult, EvidenceClaim
 from backend.app.reality.claim_extraction_normalizer import ClaimExtractionResultNormalizer
+from backend.app.reality.retrieval_input_bounds import MAX_RETRIEVED_CLAIMS
 
 
 class EvidenceClaimExtractor:
@@ -85,6 +86,16 @@ class EvidenceClaimExtractor:
                 key = sentence.casefold()
                 previous = claims_by_key.get(key)
                 if previous is None:
+                    # The retrieved-evidence path is untrusted, even when its
+                    # source count and text length fit the configured bounds.
+                    # Bound the claim graph before downstream linking.
+                    if (
+                        evidence.get("status") == "completed"
+                        and len(claims_by_key) >= MAX_RETRIEVED_CLAIMS
+                    ):
+                        return self._unavailable(
+                            "retrieved_claim_limit_exceeded", source_count,
+                        )
                     claims_by_key[key] = EvidenceClaim(
                         text=sentence, source_refs=source_refs
                     )

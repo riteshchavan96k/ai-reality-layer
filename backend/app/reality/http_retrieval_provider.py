@@ -8,6 +8,7 @@ from urllib.request import Request, urlopen
 from backend.app.reality.retrieval_provider_request import RetrievalProviderRequest
 from backend.app.reality.retrieval_provider_response import RetrievalProviderResponse
 from backend.app.reality.source_observation import normalize_reported_observation_time
+from backend.app.reality.retrieval_input_bounds import validate_retrieved_evidence_bounds
 
 
 class HttpRetrievalProvider:
@@ -100,6 +101,16 @@ class HttpRetrievalProvider:
                 status=status,
                 provider=self.provider_name,
                 reason=reason,
+            )
+
+        bounds_reason = validate_retrieved_evidence_bounds(
+            normalized_sources_list, content,
+        )
+        if bounds_reason is not None:
+            return RetrievalProviderResponse(
+                status="failed",
+                provider=self.provider_name,
+                reason=bounds_reason,
             )
 
         # A retrieval endpoint is not the original publisher. Never fabricate a
