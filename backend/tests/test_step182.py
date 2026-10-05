@@ -310,6 +310,8 @@ def test_scoped_sources_with_explicit_negation_preserve_conflict_lineage(
 
     assert state["conflicts"]["conflict_count"] == 1
     conflict = state["conflicts"]["conflicts"][0]
-    assert set(conflict["positive_source_refs"]) == {URI_A}
-    assert set(conflict["negative_source_refs"]) == {URI_B}
+    assert conflict["claim_a"] == "Company X is operating."
+    assert conflict["claim_b"] == "not Company X is operating."
+    assert set(conflict["source_refs_a"]) == {URI_A}
+    assert set(conflict["source_refs_b"]) == {URI_B}
     assert state["confidence_signals"]["status"] == "uncertain"
