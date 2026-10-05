@@ -10,7 +10,7 @@
 
 **Compatibility:** Existing task-only configured retrieval, default retrieval observations without a window, direct evidence submissions from Steps 180–181, and Step 182 per-source attribution remain supported. No publication-date inference, provider-authenticity assertion, independent web verification, new credentials, persistence, deployment, embeddings, or autonomy are introduced.
 
-**Validation:** `backend/tests/test_step183.py` covers API/domain validation, provider timestamps, source-scoped observation mapping, unknown/stale/fresh behavior, missing and partial data, legacy fallbacks, and end-to-end Reality States. A historical Step 180 API schema test has been intentionally updated for the newly optional policy field, not skipped.
+**Validation:** `backend/tests/test_step183.py` covers API/domain validation, provider timestamps, source-scoped observation mapping, unknown/stale/fresh behavior, missing and partial data, legacy fallbacks, and end-to-end Reality States. Historical Step 134 and Step 180 API schema assertions were intentionally updated for the new optional retrieval policy, while retaining solve-only approval rejection. No tests were skipped.
 
 # Current Status — Step 182
 
