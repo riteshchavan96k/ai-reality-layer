@@ -1,7 +1,8 @@
 from typing import Any, Literal
-from math import isfinite
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from backend.app.reality.freshness_policy import is_positive_finite_number
 
 
 class RealityStateRequest(BaseModel):
@@ -17,13 +18,7 @@ class RealityStateRequest(BaseModel):
     def validate_freshness_window(cls, value: object) -> object:
         if value is None:
             return None
-        if not isinstance(value, (int, float)) or isinstance(value, bool):
-            raise ValueError("freshness_max_age_seconds must be a positive finite number")
-        try:
-            valid = value > 0 and isfinite(value)
-        except OverflowError:
-            valid = False
-        if not valid:
+        if not is_positive_finite_number(value):
             raise ValueError("freshness_max_age_seconds must be a positive finite number")
         return value
 
