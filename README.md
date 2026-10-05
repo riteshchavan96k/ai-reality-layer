@@ -111,3 +111,45 @@ When a freshness window is declared, every document must include `observed_at`. 
 
 If no `observed_at` is supplied, AI Reality Layer records the submission ingestion time for observation metadata but does not use that ingestion time to claim the evidence is fresh.
 
+
+## Scoped retrieval provenance (Step 182)
+
+For **more than one retrieved source**, the configured HTTPS retrieval service must supply
+the text belonging to each original source. A combined text body plus several source
+URLs does **not** establish which source supports a claim.
+
+Example of the supported provider-neutral response:
+
+```json
+{
+  "status": "completed",
+  "sources": [
+    {
+      "uri": "https://example.com/original-a",
+      "title": "Original A",
+      "content": "Company X launched Feature A. Shared fact."
+    },
+    {
+      "uri": "https://example.com/original-b",
+      "title": "Original B",
+      "content": "Company X expanded its team. Shared fact."
+    }
+  ]
+}
+```
+
+The optional top-level `content` must equal the source documents joined with a
+blank line (after trimming each document), if it is supplied. Otherwise the
+Reality Layer constructs that combined content itself.
+
+Unique claims are linked only to their contributing original URI, and exactly
+duplicate claims merge source references. Multi-source legacy responses without
+source-level text do **not** produce misleading claim citations: extraction
+becomes unavailable due to ambiguous source attribution. Single-source legacy
+responses remain valid.
+
+The retrieval endpoint's own URL is never substituted as the original
+publisher's URI if no source is returned. A URI is **caller/provider-supplied
+provenance**, not independent verification or proof of factual truth.
+
+See `docs/STEP_182.md` for the full boundary and regression contract.

@@ -50,14 +50,18 @@ def test_http_provider_url_encodes_query_and_normalizes_json():
     assert captured["timeout"] == 10.0
 
 
-def test_http_provider_adds_request_source_when_content_has_no_sources():
+def test_http_provider_does_not_fabricate_source_from_retrieval_gateway():
+    # Step 135 previously substituted the gateway URL when the response had
+    # no original source URI. Step 182 must preserve missing provenance rather
+    # than advertising the gateway as the actual publisher.
     provider = HttpRetrievalProvider(
         "https://example.test/search?q={query}",
         opener=lambda request, timeout: FakeResponse(b'{"content":"fact"}'),
     )
     result = provider.retrieve(make_request())
     assert result.status == "completed"
-    assert result.sources[0]["uri"].startswith("https://example.test/search?q=")
+    assert result.content == "fact"
+    assert result.sources == ()
 
 
 def test_http_provider_fails_closed_on_invalid_payload():

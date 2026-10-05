@@ -13,49 +13,104 @@ class EvidenceClaimExtractor:
     def extract_result(self, evidence: dict[str, Any]) -> ClaimExtractionResult:
         if not isinstance(evidence, dict):
             raise ValueError("evidence must be a dictionary")
-        if evidence.get("status") not in {"usable", "completed"}:
-            return ClaimExtractionResultNormalizer.normalize(
-                ClaimExtractionResult.unavailable_result(
-                    evidence.get("reason") or "evidence_not_usable",
-                    source_count=len(evidence.get("sources", [])) if isinstance(evidence.get("sources", []), list) else 0,
-                )
-            )
-
-        content = evidence.get("content")
         sources = evidence.get("sources", [])
-        if content is None or not isinstance(content, str) or not content.strip():
-            return ClaimExtractionResultNormalizer.normalize(
-                ClaimExtractionResult.empty_result(source_count=len(sources))
+        if evidence.get("status") not in {"usable", "completed"}:
+            return self._unavailable(
+                evidence.get("reason") or "evidence_not_usable",
+                len(sources) if isinstance(sources, list) else 0,
             )
         if not isinstance(sources, list):
             raise ValueError("evidence sources must be a list")
+        if any(not isinstance(source, dict) for source in sources):
+            raise ValueError("each evidence source must be a dictionary")
 
-        source_refs: list[str] = []
-        for source in sources:
-            if not isinstance(source, dict):
-                raise ValueError("each evidence source must be a dictionary")
-            uri = source.get("uri")
-            if uri is not None and str(uri).strip():
-                source_refs.append(str(uri).strip())
+        content = evidence.get("content")
+        if content is not None and not isinstance(content, str):
+            raise ValueError("evidence content must be a string or None")
+        source_count = len(sources)
 
-        claims: list[EvidenceClaim] = []
-        seen: set[str] = set()
-        for raw_sentence in self._SENTENCE_SPLIT.split(content):
-            sentence = " ".join(raw_sentence.split()).strip()
-            if not sentence:
-                continue
-            normalized_key = sentence.casefold()
-            if normalized_key in seen:
-                continue
-            seen.add(normalized_key)
-            claims.append(EvidenceClaim(text=sentence, source_refs=tuple(source_refs)))
-
-        if not claims:
+        # A source-less payload cannot establish claim provenance, even when
+        # it contains text. Do not invent a source reference.
+        if not sources:
+            if content and content.strip():
+                return self._unavailable("missing_source_attribution", 0)
             return ClaimExtractionResultNormalizer.normalize(
-                ClaimExtractionResult.empty_result(source_count=len(sources))
+                ClaimExtractionResult.empty_result()
+            )
+
+        uris = [source.get("uri") for source in sources]
+        if any(not isinstance(uri, str) or not uri.strip() for uri in uris):
+            return self._unavailable("missing_source_attribution", source_count)
+        if len(set(uris)) != source_count:
+            return self._unavailable("duplicate_source_attribution", source_count)
+
+        scoped = ["content" in source for source in sources]
+        if any(scoped):
+            if not all(scoped):
+                return self._unavailable("incomplete_source_scoped_content", source_count)
+            if any(
+                not isinstance(source["content"], str)
+                or not source["content"].strip()
+                for source in sources
+            ):
+                return self._unavailable("invalid_source_scoped_content", source_count)
+            combined = "\n\n".join(source["content"].strip() for source in sources)
+            if content is not None and content.strip() != combined:
+                return self._unavailable("inconsistent_source_scoped_content", source_count)
+            segments = [
+                (source["content"], (source["uri"],))
+                for source in sources
+            ]
+        elif source_count == 1:
+            if not content or not content.strip():
+                return ClaimExtractionResultNormalizer.normalize(
+                    ClaimExtractionResult.empty_result(source_count=1)
+                )
+            # A single URI is unambiguous and remains backward compatible.
+            segments = [(content, (sources[0]["uri"],))]
+        else:
+            if not content or not content.strip():
+                return ClaimExtractionResultNormalizer.normalize(
+                    ClaimExtractionResult.empty_result(source_count=source_count)
+                )
+            # A combined text body cannot establish which source said what.
+            return self._unavailable("ambiguous_source_attribution", source_count)
+
+        claims_by_key: dict[str, EvidenceClaim] = {}
+        for source_text, source_refs in segments:
+            for raw_sentence in self._SENTENCE_SPLIT.split(source_text):
+                sentence = " ".join(raw_sentence.split()).strip()
+                if not sentence:
+                    continue
+                key = sentence.casefold()
+                previous = claims_by_key.get(key)
+                if previous is None:
+                    claims_by_key[key] = EvidenceClaim(
+                        text=sentence, source_refs=source_refs
+                    )
+                else:
+                    claims_by_key[key] = EvidenceClaim(
+                        text=previous.text,
+                        source_refs=tuple(
+                            dict.fromkeys((*previous.source_refs, *source_refs))
+                        ),
+                        extraction_method=previous.extraction_method,
+                    )
+
+        if not claims_by_key:
+            return ClaimExtractionResultNormalizer.normalize(
+                ClaimExtractionResult.empty_result(source_count=source_count)
             )
         return ClaimExtractionResultNormalizer.normalize(
-            ClaimExtractionResult.usable_result(tuple(claims), source_count=len(sources))
+            ClaimExtractionResult.usable_result(
+                tuple(claims_by_key.values()), source_count=source_count
+            )
+        )
+
+    @staticmethod
+    def _unavailable(reason: str, source_count: int) -> ClaimExtractionResult:
+        return ClaimExtractionResultNormalizer.normalize(
+            ClaimExtractionResult.unavailable_result(reason, source_count)
         )
 
     def extract(self, evidence: dict[str, Any]) -> dict[str, Any]:

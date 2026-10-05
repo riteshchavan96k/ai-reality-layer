@@ -30,7 +30,10 @@ def test_extractor_splits_sentences_and_preserves_source_refs():
     assert result.to_dict()["claim_count"] == 2
 
 
-def test_extractor_handles_multiple_sources_without_inventing_provenance():
+def test_extractor_rejects_ambiguous_multi_source_attribution():
+    # Historical behavior assigned both URIs to every claim even though the
+    # combined text did not say which source supplied each statement. Step 182
+    # intentionally closes that provenance-integrity hole.
     result = EvidenceClaimExtractor().extract_result(
         {
             "status": "usable",
@@ -41,7 +44,10 @@ def test_extractor_handles_multiple_sources_without_inventing_provenance():
             ],
         }
     )
-    assert result.claims[0].source_refs == ("https://a.example", "https://b.example")
+    assert result.status == "unavailable"
+    assert result.reason == "ambiguous_source_attribution"
+    assert result.claims == ()
+    assert result.source_count == 2
 
 
 def test_non_usable_evidence_is_not_presented_as_claims():
