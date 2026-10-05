@@ -10,7 +10,7 @@
 
 **Safety invariant:** Untrusted configured retrieval input → bounded provider-neutral source data → canonical Step 182 per-source claim extraction → Step 183 observation/freshness → conservative confidence and Reality State. Limits reject or downgrade oversized input without claiming false provenance or constructing misleading partial claim links.
 
-**Compatibility:** The valid single-source legacy and scoped multi-source retrieval shapes, Step 182 source attribution, Step 183 timestamps, and the independent direct evidence API remain compatible. The retrieved-only claim cap does not change direct-evidence extraction semantics. Unknown unused source fields are deliberately rejected rather than forwarded to consumers.
+**Compatibility:** The valid single-source legacy and scoped multi-source retrieval shapes, Step 182 source attribution, Step 183 timestamps, and the independent direct evidence API remain compatible. The retrieved-only claim cap does not change direct-evidence extraction semantics. Unused bounded legacy scalar fields are discarded during normalization; nested, excessive, or oversized source metadata is rejected rather than forwarded to consumers.
 
 **Validation:** `backend/tests/test_step184.py` covers exact bounds, over-limit and unexpected metadata rejection, provider-neutral and HTTP fail-closed behavior, 2,000/2,001 unique claim boundaries, valid legacy behavior, and end-to-end Reality State checks. Full GitHub-hosted CI validation is required before recording completion.
 
