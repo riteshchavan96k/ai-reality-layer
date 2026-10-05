@@ -2,6 +2,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from backend.app.reality.evidence_normalization import EvidenceNormalizationResult
+from backend.app.reality.source_observation import normalize_reported_observation_time
 
 
 class RetrievalEvidenceNormalizer:
@@ -22,6 +23,7 @@ class RetrievalEvidenceNormalizer:
             raise ValueError("retrieval content must be a string or None")
 
         normalized_sources: list[dict[str, Any]] = []
+        invalid_observation = False
         for source in sources:
             if not isinstance(source, dict):
                 raise ValueError("each retrieval source must be a dictionary")
@@ -38,12 +40,19 @@ class RetrievalEvidenceNormalizer:
             # Never discard the per-source payload before claim extraction.
             if "content" in source:
                 normalized_source["content"] = source["content"]
+            if "observed_at" in source:
+                try:
+                    normalized_source["observed_at"] = (
+                        normalize_reported_observation_time(source["observed_at"])
+                    )
+                except ValueError:
+                    invalid_observation = True
             normalized_sources.append(normalized_source)
 
         normalized_status = status or "unknown"
         if status == "completed":
             scoped = ["content" in source for source in normalized_sources]
-            invalid_attribution = bool(
+            invalid_attribution = invalid_observation or bool(
                 normalized_sources and any(
                     not source.get("uri") for source in normalized_sources
                 )
