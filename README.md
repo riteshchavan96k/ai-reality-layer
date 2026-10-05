@@ -233,3 +233,26 @@ claims or labeling unsupported evidence as verified. The direct-submitted
 evidence API is unchanged.
 
 See `docs/STEP_184.md` for the precise limits and compatibility tests.
+
+## Submitted-evidence claim budget (Step 185)
+
+The existing developer-supplied evidence endpoint
+`POST /api/v1/reality-state/evidence` now limits **each entire
+submission** to **2,000 distinct deterministic candidate claims**, across
+all documents. The existing maximum of 20 documents and 50,000 characters
+per document still applies.
+
+Identical claims repeated in multiple original documents are merged and
+retain every contributing original source URI without consuming additional
+unique claim slots. On an over-budget submission, the pipeline fails
+conservatively with `submitted_claim_limit_exceeded` and emits **no partial
+claims, citations/claim links, or supported confidence**. In the underlying
+Python bundle API, lazy document iterables are also read only up to the
+first over-limit (21st) item, avoiding unbounded materialization.
+
+The retrieval-based API's independent Step 184 budget, Step 181–183
+freshness and provenance rules, and the generic lower-level `usable`
+claim extractor contract remain unchanged.
+
+See `docs/STEP_185.md` for examples, reasons, safety boundaries and
+regression coverage.
