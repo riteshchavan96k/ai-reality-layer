@@ -199,21 +199,9 @@ class OrchestrationPipeline:
         reality_context = self.dependencies.context_detector.detect(task)
         reality_source_plan = self.dependencies.source_planner.plan(reality_context)
         if freshness_max_age_seconds is not None:
-            from math import isfinite
+            from backend.app.reality.freshness_policy import is_positive_finite_number
 
-            if (
-                not isinstance(freshness_max_age_seconds, (int, float))
-                or isinstance(freshness_max_age_seconds, bool)
-            ):
-                raise ValueError("freshness_max_age_seconds must be a positive finite number")
-            try:
-                valid = (
-                    freshness_max_age_seconds > 0
-                    and isfinite(freshness_max_age_seconds)
-                )
-            except OverflowError:
-                valid = False
-            if not valid:
+            if not is_positive_finite_number(freshness_max_age_seconds):
                 raise ValueError("freshness_max_age_seconds must be a positive finite number")
             reality_source_plan = {
                 **reality_source_plan,
