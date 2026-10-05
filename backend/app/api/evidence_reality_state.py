@@ -2,6 +2,8 @@ from urllib.parse import urlparse
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from backend.app.reality.freshness_policy import is_positive_finite_number
+
 from backend.app.reality.submitted_evidence import (
     MAX_SUBMITTED_CONTENT_CHARS,
     MAX_SUBMITTED_DOCUMENTS,
@@ -105,11 +107,7 @@ class EvidenceRealityStateRequest(BaseModel):
     ) -> object:
         if value is None:
             return None
-        if (
-            not isinstance(value, (int, float))
-            or isinstance(value, bool)
-            or value <= 0
-        ):
+        if not is_positive_finite_number(value):
             raise ValueError(
                 "freshness_max_age_seconds must be a positive number"
             )
@@ -123,11 +121,7 @@ class EvidenceRealityStateRequest(BaseModel):
 
         if self.freshness_max_age_seconds is not None:
             value = self.freshness_max_age_seconds
-            if (
-                not isinstance(value, (int, float))
-                or isinstance(value, bool)
-                or value <= 0
-            ):
+            if not is_positive_finite_number(value):
                 raise ValueError(
                     "freshness_max_age_seconds must be a positive number"
                 )
