@@ -1,3 +1,17 @@
+# Current Status — Step 183
+
+## Step 183 — Explicit Retrieved-Source Observation Freshness Policy
+
+**Status:** Implementation and regression tests committed on an isolated branch; complete-suite CI validation and final status synchronization pending. Do not mark complete until tested on the exact final main HEAD.
+
+**Objective:** Close the configured-retrieval freshness gap after Steps 181–182. A retrieval service can return cached or previously obtained content; the time the Reality Layer processes the response does not prove when the provider actually observed each original source.
+
+**Behavior:** The retrieval-based API accepts an optional strictly validated `freshness_max_age_seconds`. Configured retrieval source records can include timezone-aware non-future provider-reported `observed_at`, with distinct `retrieval_provider_observation` provenance. Source identity and timestamp survive normalization. When a freshness window is requested, every returned source needs explicit provider-observation time; missing times produce `provider_observation_required`, leaving freshness unavailable and confidence conservative. Valid observations are evaluated with the existing freshness evaluator. Without a declared window, freshness remains unknown even for explicitly observed sources.
+
+**Compatibility:** Existing task-only configured retrieval, default retrieval observations without a window, direct evidence submissions from Steps 180–181, and Step 182 per-source attribution remain supported. No publication-date inference, provider-authenticity assertion, independent web verification, new credentials, persistence, deployment, embeddings, or autonomy are introduced.
+
+**Validation:** `backend/tests/test_step183.py` covers API/domain validation, provider timestamps, source-scoped observation mapping, unknown/stale/fresh behavior, missing and partial data, legacy fallbacks, and end-to-end Reality States. A historical Step 180 API schema test has been intentionally updated for the newly optional policy field, not skipped.
+
 # Current Status — Step 182
 
 ## Step 182 — Source-Scoped Retrieval Claim Lineage and Provenance Integrity
