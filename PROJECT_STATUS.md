@@ -1,3 +1,17 @@
+# Current Status — Step 188
+
+## Step 188 — Consistent, Bounded Source-Observation Timestamp Validation
+
+**Status:** Implementation and dedicated tests committed to isolated branch; full CI, PR merge and final exact-`main`-HEAD status synchronization still pending. Do not call this complete until full hosted regression and compilation checks pass on the exact final `main` commit.
+
+**MVP basis:** The MVP requires truthful representation of observation-age freshness. Steps 183–184 capped retrieved provider `observed_at` at 64 characters, but Step 181 direct developer-submitted document input and the typed `SourceObservation` contract still accepted unbounded timestamp text, with duplicated ISO-8601 parsing logic. This unnecessary metadata parser asymmetry was verified by examining the Step 187 `main` implementation. The broad original MVP specification did not preassign a distinct Step 188 title.
+
+**Implementation:** Add one source-neutral `MAX_SOURCE_OBSERVED_AT_CHARS=64` bound in `source_observation.py`; the canonical `normalize_reported_observation_time` rejects oversized raw input *before trimming or parsing*. The direct Python submitted-document domain model and the HTTP `EvidenceDocumentInput` schema now share that validator. `SourceObservation` typed records enforce the same bound. The existing retrieved `MAX_RETRIEVED_OBSERVED_AT_CHARS` name remains exported but aliases the shared limit. Timezone-aware ISO-8601 parsing, normalized UTC `Z`, future/naive/blank rejection, and declared-window semantics remain intact.
+
+**Safety invariant:** Source reported observation time is untrusted declarative metadata, not publisher truth or independently verified date. Absent `observed_at` remains valid only for a source not subject to explicit-window requirements; no ingestion-time fallback is used to satisfy declared source freshness. In-bounds source URI attribution, Step 187 auditable text, Steps 184–185 limits, and Step 186 finite freshness windows remain unaffected.
+
+**Tests:** `backend/tests/test_step188.py` covers exact 64-character and 65+ raw timestamp boundaries on API/domain/retrieval/canonical contracts, oversized string rejection, UTC offset normalization, existing invalid/naive/future time rejection, schema maxLength, no-window unknown freshness, stale declared observation and source/claim identity preservation. Historical tests must continue passing; no tests deleted or skipped.
+
 # Current Status — Step 187
 
 ## Step 187 — Source-Scoped Submitted-Evidence Round-Trip Integrity
