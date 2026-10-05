@@ -4,6 +4,7 @@ from typing import Any, Callable
 from backend.app.reality.source_freshness import SourceFreshnessAssessment, SourceFreshnessResult
 from backend.app.reality.source_freshness_normalizer import SourceFreshnessResultNormalizer
 from backend.app.reality.source_observation import SourceObservationResult
+from backend.app.reality.freshness_policy import is_positive_finite_number
 
 
 class SourceFreshnessEvaluator:
@@ -22,7 +23,7 @@ class SourceFreshnessEvaluator:
         if not isinstance(observations, SourceObservationResult):
             raise ValueError("observations must be a SourceObservationResult")
         if max_age_seconds is not None:
-            if not isinstance(max_age_seconds, (int, float)) or isinstance(max_age_seconds, bool) or max_age_seconds <= 0:
+            if not is_positive_finite_number(max_age_seconds):
                 raise ValueError("max_age_seconds must be a positive number or None")
 
         if observations.status == "unavailable":
