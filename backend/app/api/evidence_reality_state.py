@@ -4,6 +4,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from backend.app.reality.freshness_policy import is_positive_finite_number
 
+from backend.app.reality.source_observation import (
+    MAX_SOURCE_OBSERVED_AT_CHARS,
+    normalize_reported_observation_time,
+)
 from backend.app.reality.submitted_evidence import (
     MAX_SUBMITTED_CONTENT_CHARS,
     MAX_SUBMITTED_DOCUMENTS,
@@ -20,7 +24,9 @@ class EvidenceDocumentInput(BaseModel):
     content: str = Field(min_length=1, max_length=MAX_SUBMITTED_CONTENT_CHARS)
     uri: str = Field(min_length=1, max_length=MAX_SUBMITTED_URI_CHARS)
     title: str | None = Field(default=None, max_length=MAX_SUBMITTED_TITLE_CHARS)
-    observed_at: str | None = None
+    observed_at: str | None = Field(
+        default=None, max_length=MAX_SOURCE_OBSERVED_AT_CHARS
+    )
 
     @field_validator("content")
     @classmethod
@@ -55,28 +61,7 @@ class EvidenceDocumentInput(BaseModel):
     def validate_observed_at(cls, value: str | None) -> str | None:
         if value is None:
             return None
-        from datetime import datetime, timezone
-
-        normalized = value.strip()
-        if not normalized:
-            raise ValueError("observed_at must not be blank when provided")
-        try:
-            parsed = datetime.fromisoformat(
-                normalized.replace("Z", "+00:00")
-            )
-        except ValueError as exc:
-            raise ValueError(
-                "observed_at must be a valid ISO-8601 timestamp"
-            ) from exc
-        if parsed.tzinfo is None:
-            raise ValueError("observed_at must include a timezone")
-        if parsed.astimezone(timezone.utc) > datetime.now(timezone.utc):
-            raise ValueError("observed_at cannot be in the future")
-        return (
-            parsed.astimezone(timezone.utc)
-            .isoformat()
-            .replace("+00:00", "Z")
-        )
+        return normalize_reported_observation_time(value)
 
 
 class EvidenceRealityStateRequest(BaseModel):

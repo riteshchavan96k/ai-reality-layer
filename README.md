@@ -307,3 +307,25 @@ documents). The existing 2,000-unique-claim cap and no-partial-claim
 failure behavior are unchanged.
 
 See `docs/STEP_187.md` for contract details and end-to-end tests.
+
+## Shared observation timestamp bounds (Step 188)
+
+The optional source `observed_at` values used by both the configured
+retrieval path and `POST /api/v1/reality-state/evidence` now share the same
+**64-character maximum**, applied to the **raw string** before timestamp
+normalization. The limit is enforced by the HTTP/API request model and by
+Python/domain and canonical source-observation validation so direct callers
+cannot bypass the API constraint. Values exceeding 64 characters are
+rejected; 64-character or shorter nonblank, timezone-aware ISO-8601 values
+are validated and normalized to UTC `Z` as before.
+
+For example, `2026-01-01T18:00:00+05:30` normalizes to
+`2026-01-01T12:30:00Z`. Future times, timezone-naive, invalid and blank
+values are still rejected. A missing timestamp remains valid **only when no
+explicit freshness window requires that source observation**, and
+does not create an assertion of fresh source evidence.
+
+This metadata is an observation **reported** by the caller or provider,
+not an independently verified publication time or proof of factual truth.
+Existing source URI lineage and claim/evidence limits are unchanged.
+See `docs/STEP_188.md` for API details and regression tests.
