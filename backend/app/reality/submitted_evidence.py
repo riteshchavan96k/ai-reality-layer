@@ -14,6 +14,7 @@ from backend.app.reality.freshness_policy import is_positive_finite_number
 from backend.app.reality.source_observation import (
     SourceObservation,
     SourceObservationResult,
+    normalize_reported_observation_time,
 )
 from backend.app.reality.source_provenance import SourceProvenanceResult
 
@@ -64,33 +65,16 @@ class SubmittedEvidenceDocument:
             object.__setattr__(self, "title", normalized_title)
 
         if self.observed_at is not None:
-            if not isinstance(self.observed_at, str) or not self.observed_at.strip():
-                raise ValueError(
-                    "submitted evidence observed_at must be non-empty when provided"
-                )
-            normalized_observed_at = self.observed_at.strip()
             try:
-                parsed_observed_at = datetime.fromisoformat(
-                    normalized_observed_at.replace("Z", "+00:00")
+                normalized_observed_at = normalize_reported_observation_time(
+                    self.observed_at
                 )
             except ValueError as exc:
-                raise ValueError(
-                    "submitted evidence observed_at must be a valid ISO-8601 timestamp"
-                ) from exc
-            if parsed_observed_at.tzinfo is None:
-                raise ValueError(
-                    "submitted evidence observed_at must include a timezone"
-                )
-            if parsed_observed_at.astimezone(timezone.utc) > datetime.now(timezone.utc):
-                raise ValueError(
-                    "submitted evidence observed_at cannot be in the future"
-                )
+                raise ValueError(f"submitted evidence {exc}") from exc
             object.__setattr__(
                 self,
                 "observed_at",
-                parsed_observed_at.astimezone(timezone.utc)
-                .isoformat()
-                .replace("+00:00", "Z"),
+                normalized_observed_at,
             )
 
     @classmethod
