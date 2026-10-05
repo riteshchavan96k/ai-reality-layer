@@ -1,3 +1,17 @@
+# Current Status — Step 182
+
+## Step 182 — Source-Scoped Retrieval Claim Lineage and Provenance Integrity
+
+**Status:** Implementation and regressions committed on the isolated development branch; full CI validation pending. Do not mark complete until the final synchronized HEAD passes the full suite.
+
+Step 182 closes a provenance-integrity gap in the configured retrieval → Reality State path. Before this step, a single combined text body with multiple source URIs caused the claim extractor to attach every URI to every sentence. The HTTPS adapter could also fabricate an apparent originating source by substituting its retrieval gateway URL when content had no original source.
+
+**New behavior:** provider-returned per-source content stays attached to its URI through evidence normalization. Claim extraction preserves actual document-level references, merges exact duplicate claims while retaining all true source references, and rejects ambiguous multi-source combined text rather than producing potentially fabricated citations. The HTTP adapter rejects duplicate/missing source URIs and invalid or inconsistent scoped payloads, and no longer treats its gateway URL as an original content URI. The existing single-source legacy path remains valid.
+
+**Scope:** provenance/claim attribution only. No new vendor integrations, model execution, semantic truth verification, source ownership verification, publication time, auth, persistence, or autonomous behavior.
+
+**Validation:** Dedicated tests in backend/tests/test_step182.py and the corrected historical test in backend/tests/test_step125.py are committed. Full CI validation and final status synchronization are required before completion.
+
 # Current Status — Step 181
 
 ## Step 181 — Explicit Source Observation Freshness Policy
