@@ -5,6 +5,8 @@ at the configured-HTTP and provider-neutral boundaries before claim splitting.
 """
 from typing import Any
 
+from backend.app.reality.source_observation import MAX_SOURCE_OBSERVED_AT_CHARS
+
 
 # Match the direct-evidence MVP limits. Keep this module dependency-free:
 # submitted_evidence imports the claim extractor, which uses these limits.
@@ -12,7 +14,7 @@ MAX_RETRIEVED_SOURCES = 20
 MAX_RETRIEVED_SOURCE_CONTENT_CHARS = 50_000
 MAX_RETRIEVED_TITLE_CHARS = 500
 MAX_RETRIEVED_URI_CHARS = 2_048
-MAX_RETRIEVED_OBSERVED_AT_CHARS = 64
+MAX_RETRIEVED_OBSERVED_AT_CHARS = MAX_SOURCE_OBSERVED_AT_CHARS
 MAX_RETRIEVED_CLAIMS = 2_000
 
 # Canonical pipeline-consumed fields. Early provider contracts intentionally
