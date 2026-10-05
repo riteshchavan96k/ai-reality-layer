@@ -159,6 +159,38 @@ def test_http_preserves_old_non_completed_failure_reason():
     assert result.reason == "upstream_failed"
 
 
+def test_legacy_provider_neutral_scalar_source_fields_remain_compatible():
+    # Old typed/legacy contracts used id and url fields. Keep them bounded
+    # but never elevate those fields to canonical claim provenance.
+    response = RetrievalProviderResponse(
+        status="completed",
+        sources=({
+            "uri": URI_A,
+            "id": "doc-1",
+            "url": "https://old.example.test/source",
+            "title": "Original",
+        },),
+        content="Safe legacy evidence.",
+    )
+    assert response.status == "completed"
+    normalized = RetrievalEvidenceNormalizer().normalize_result(
+        _evidence(list(response.sources), response.content)
+    )
+    assert normalized.status == "completed"
+    assert normalized.sources == [{"uri": URI_A, "title": "Original"}]
+
+
+def test_many_or_oversized_legacy_scalar_fields_are_rejected():
+    assert validate_retrieved_evidence_bounds(
+        [{"uri": URI_A, **{f"legacy{i}": "ok" for i in range(5)}}],
+        "A fact.",
+    ) == "unexpected_source_metadata"
+    assert validate_retrieved_evidence_bounds(
+        [{"uri": URI_A, "url": "x" * 501}],
+        "A fact.",
+    ) == "unexpected_source_metadata"
+
+
 def test_provider_neutral_legacy_response_rejects_oversized_sources():
     oversized = [
         _source(uri=f"https://example.test/doc/{i}")
