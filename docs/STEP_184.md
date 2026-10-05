@@ -90,8 +90,10 @@ provider-neutral character/graph limits. No additional dependency is needed.
 - The existing developer-submitted evidence path has its own independent
   document validation and **is not subject** to the retrieval-only
   2,000-claim budget; no direct-evidence behavior is intentionally changed.
-- Unknown unused source metadata was previously passed through the raw
-  retrieval envelope; this behavior is intentionally closed for safety.
+- Legacy small scalar source metadata may still pass through the raw
+  provider response for backward compatibility, but it is discarded
+  during canonical evidence normalization. Nested or excessive extra
+  metadata is rejected rather than forwarded downstream.
 - The system does not start fetching source URLs or verifying factual truth.
 
 ## Files
