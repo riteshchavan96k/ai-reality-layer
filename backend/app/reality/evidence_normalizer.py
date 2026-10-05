@@ -20,6 +20,8 @@ class RetrievalEvidenceNormalizer:
 
         if not isinstance(sources, list):
             raise ValueError("retrieval sources must be a list")
+        if any(not isinstance(source, dict) for source in sources):
+            raise ValueError("each retrieval source must be a dictionary")
         if content is not None and not isinstance(content, str):
             raise ValueError("retrieval content must be a string or None")
 
