@@ -133,8 +133,9 @@ judgments or external verification are introduced.
 - backend/app/reality/source_observation_builder.py: source-identity-aligned
   observation building, strict policy requiring all source timestamps
 - backend/tests/test_step183.py: complete new regression coverage
-- backend/tests/test_step180.py: deliberate compatibility reconciliation
-  for the retrieval endpoint's expanded optional policy field
+- backend/tests/test_step134.py and backend/tests/test_step180.py:
+  deliberate schema compatibility reconciliation for the retrieval endpoint's
+  expanded optional policy field (solve-only approval remains forbidden)
 
 ## Regression acceptance criteria
 
