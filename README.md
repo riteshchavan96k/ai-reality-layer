@@ -219,9 +219,10 @@ existing direct-evidence MVP document limits wherever applicable:
 - Maximum **2,000 unique candidate claims** extracted from a retrieved
   response. Inputs exceeding the claim budget produce no partial claims.
 
-The optional `sources[]` fields are `uri`, `title`, `content`, and
-`observed_at`. Extra nested metadata is rejected rather than carried
-through to the resulting Reality State. Combined text has a bounded
+The canonical `sources[]` fields are `uri`, `title`, `content`, and
+`observed_at`. Small legacy scalar fields such as `id` or `url` remain
+compatible but are discarded during evidence normalization; oversized or
+nested extras are rejected instead of entering the Reality State. Combined text has a bounded
 length matching the number of original sources; Step 182's exact aggregate
 consistency validation still applies. The HTTPS adapter's existing byte
 limit remains in effect.
