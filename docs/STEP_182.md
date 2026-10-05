@@ -92,7 +92,7 @@ The first three boundaries change; this is not a new provider or a parallel pipe
 
 The dedicated backend/tests/test_step182.py tests validate the HTTP format, the provider-neutral evidence normalization, source-specific claims, duplicate source refs, missing and ambiguous attribution, malformed documents, backward compatibility, and full end-to-end Reality State provenance and conflict lineage.
 
-The historical Step 125 expectation assigning both combined-source URIs to one claim is corrected to assert the new conservative unavailable state; it is not skipped or deleted.
+The historical Step 125 test that assigned every URI to an unattributed claim, and the Step 135 test that expected a synthesized gateway source URI, are reconciled with the stronger provenance rules. Neither regression is skipped or deleted.
 
 ## Completion bar
 
