@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from backend.app.reality.retrieval_input_bounds import validate_retrieved_evidence_bounds
+
 
 @dataclass(frozen=True)
 class RetrievalProviderResponse:
@@ -29,6 +31,12 @@ class RetrievalProviderResponse:
             if not isinstance(self.reason, str) or not self.reason.strip():
                 raise ValueError("reason must be a nonempty string when provided")
             object.__setattr__(self, "reason", self.reason.strip())
+        if self.status == "completed":
+            bounds_reason = validate_retrieved_evidence_bounds(
+                self.sources, self.content,
+            )
+            if bounds_reason is not None:
+                raise ValueError(f"retrieved evidence bounds: {bounds_reason}")
         if self.status != "completed" and self.sources:
             raise ValueError("non-completed responses must not contain sources")
         if self.status != "completed" and self.content is not None:
