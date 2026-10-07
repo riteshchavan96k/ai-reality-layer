@@ -60,6 +60,10 @@ class SourceFreshnessAssessment:
             raise ValueError(
                 "stale assessment requires age_seconds > max_age_seconds"
             )
+        if self.status == "unknown" and self.max_age_seconds is not None:
+            raise ValueError(
+                "unknown assessment requires max_age_seconds to be None"
+            )
         if self.status == "unknown" and (not isinstance(self.reason, str) or not self.reason.strip()):
             raise ValueError("unknown assessment requires a reason")
         if self.status != "unknown" and self.reason is not None:
