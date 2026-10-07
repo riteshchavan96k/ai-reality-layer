@@ -1,3 +1,19 @@
+# Current Status — Step 191
+
+## Step 191 — Canonical Unknown-Freshness Policy Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 191 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** The MVP semantics established by Steps 181 and 183 define `unknown` freshness as the absence of an explicit freshness window. After Steps 159, 186, 189, and 190, canonical assessments still accepted `status="unknown"` together with a non-null `max_age_seconds`, including mappings whose reason claimed `freshness_window_not_declared`. This allowed a canonical record to deny and declare a freshness policy simultaneously.
+
+**Implementation:** `SourceFreshnessAssessment.__post_init__()` now rejects `unknown` assessments when `max_age_seconds` is present. Mapping-shaped `SourceFreshnessResult` inputs inherit the same invariant through typed nested reconstruction. Optional finite `age_seconds` remains allowed when no policy window exists, preserving the distinction between a measurable observation age and a declared classification policy.
+
+**Compatibility and safety:** Normal evaluator behavior is unchanged: no window produces unknown freshness; a declared window with usable observation metadata produces fresh or stale; missing required observations under a declared policy continue to fail closed through the existing unavailable path. Step 186 finite numeric guards, Step 189 timestamp canonicalization, Step 190 fresh/stale inequality rules, provenance, claims, conflicts, confidence aggregation, APIs, and resource limits remain unchanged. No publication-time inference, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step191.py` covers direct and mapping rejection of unknown assessments with policy windows, preservation of finite age without a window, required unknown reasons, evaluator behavior with/without a policy, conservative downstream confidence, and non-regression of Steps 186, 189, and 190.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 191 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 190
 
 ## Step 190 — Canonical Freshness Classification Integrity
