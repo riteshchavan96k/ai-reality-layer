@@ -370,3 +370,23 @@ step does not change confidence aggregation, publication-time semantics, source
 authenticity, or factual-truth claims.
 
 See `docs/STEP_190.md` for the exact invariant and regression scope.
+
+
+## Unknown freshness policy integrity (Step 191)
+
+Canonical `SourceFreshnessAssessment` records now reject `status="unknown"`
+when `max_age_seconds` is present. In the current MVP contract, unknown
+freshness means that no explicit freshness policy window was declared; once a
+window exists, a usable observation must be classified as fresh or stale under
+the Step-190 inequality.
+
+This rule also applies to `SourceFreshnessResult` mapping/deserialization
+paths. A finite `age_seconds` may still be retained without a policy window,
+because observation age can be measurable even when the system correctly
+refuses to classify freshness.
+
+Existing Step-186 finite-number checks, Step-189 timestamp canonicalization,
+Step-190 fresh/stale consistency, and conservative confidence behavior remain
+unchanged.
+
+See `docs/STEP_191.md` for the exact invariant and regression scope.
