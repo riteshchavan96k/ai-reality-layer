@@ -2,7 +2,7 @@
 
 ## Step 190 — Canonical Freshness Classification Integrity
 
-**Status:** Implementation and dedicated regressions are committed on the isolated Step 190 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+**Status:** Complete. Implemented and merged into `main` through PR #187 after successful full GitHub-hosted validation on the feature PR and the merged implementation commit. The final status-synchronization commit is subject to the same complete CI workflow on its exact `main` SHA before definitive completion is claimed.
 
 **Verified gap:** After Steps 159, 186, and 189, canonical freshness assessments had validated structure, finite numeric age/window values, and canonical timestamps, but they still did not prove that the declared `fresh`/`stale` status agreed with those values. Direct typed construction or `SourceFreshnessResult.validate()` mapping deserialization could accept `fresh` with `age_seconds > max_age_seconds`, or `stale` with `age_seconds <= max_age_seconds`.
 
@@ -10,9 +10,9 @@
 
 **Compatibility and safety:** Existing evaluator output remains valid. Step 186 finite-number validation, Step 189 timestamp canonicalization, unknown-freshness reason semantics, aggregate freshness counts, provenance, claims, conflicts, confidence aggregation policy, API routes, and resource limits remain unchanged. No publication-time inference, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
 
-**Regressions:** `backend/tests/test_step190.py` covers contradictory fresh/stale rejection, exact-boundary behavior, strictly-over-boundary stale behavior, mapping/deserialization integrity, consistent mapping acceptance, unknown-state preservation, evaluator boundary behavior, and non-regression of Steps 186 and 189.
+**Regressions:** `backend/tests/test_step190.py` covers contradictory fresh/stale rejection, exact-boundary behavior, strictly-over-boundary stale behavior, mapping/deserialization integrity, consistent mapping acceptance, unknown-state preservation, evaluator boundary behavior, and non-regression of Steps 186 and 189. Historical tests remain enabled.
 
-**Validation:** Pending full GitHub Actions validation. Do not mark Step 190 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+**GitHub verification:** PR #187 CI run **#133** (`37652525810`) on head SHA `4ecb33c4f7bd736015bb1cd6edc9d09066f770f5` passed backend compilation and the complete regression suite. PR #187 merged cleanly to `main` as `4846d632115bb0503ca3c75428fb60f8e2a74fb4`. Independent post-merge `main` CI run **#134** (`37652677945`) passed backend compilation and the complete regression suite on that exact merge SHA. This final status synchronization must also pass the complete workflow on its resulting `main` SHA.
 
 # Current Status — Step 189
 
