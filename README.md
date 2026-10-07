@@ -349,3 +349,24 @@ checks, source lineage, and claim/conflict/confidence behavior are unchanged.
 publication timestamp, source-authenticity assertion, or factual-truth proof.
 
 See `docs/STEP_189.md` for the invariant and regression scope.
+
+
+## Canonical freshness classification integrity (Step 190)
+
+Canonical `SourceFreshnessAssessment` records now require their declared
+classification to agree with their own finite age/window measurements:
+
+- `fresh` requires `age_seconds <= max_age_seconds`
+- `stale` requires `age_seconds > max_age_seconds`
+
+The exact boundary remains fresh, matching the existing evaluator. This rule
+also applies when `SourceFreshnessResult` is reconstructed from mappings, so a
+deserialized canonical result cannot claim `fresh` or `stale` while carrying
+contradictory measurements.
+
+Step 186 finite-number protections and Step 189 canonical `observed_at`
+validation remain unchanged. Unknown freshness remains reason-based, and this
+step does not change confidence aggregation, publication-time semantics, source
+authenticity, or factual-truth claims.
+
+See `docs/STEP_190.md` for the exact invariant and regression scope.
