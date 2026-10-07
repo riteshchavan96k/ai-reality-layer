@@ -1,3 +1,19 @@
+# Current Status — Step 194
+
+## Step 194 — Canonical Source-Observation Execution-State Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 194 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** Step 158 introduced `observation_executed` as part of the canonical source-observation result but only enforced its boolean type. A canonical mapping could still contain `status="usable"`, real source observations, and `observation_executed=False`. `SourceFreshnessEvaluator` consumes observation status/records rather than the execution flag, so this contradictory state could still generate usable freshness and later contribute to confidence.
+
+**Implementation:** `SourceObservationResult.__post_init__()` now requires `observation_executed=True` whenever `status=="usable"`. Mapping-shaped results inherit the same invariant through canonical reconstruction, including mappings consumed by `SourceFreshnessEvaluator`. Boolean type validation remains. `empty` and `unavailable` results are deliberately permitted to record `observation_executed=False`, preserving representation of skipped/unavailable work without exposing usable observations.
+
+**Compatibility and safety:** Existing source-observation builders and helper constructors already emit `observation_executed=True` for current production outputs, so normal behavior is unchanged. Step 188 timestamp bounds, Step 189 timestamp canonicalization, Step 190 fresh/stale consistency, Step 191 unknown-policy integrity, Step 192 strict freshness counts, Step 193 freshness execution-state integrity, downstream confidence policy, provenance, claims, conflicts, APIs, retrieval behavior, and resource limits remain unchanged. No publication-time inference, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step194.py` covers direct/mapping/normalizer rejection of usable non-executed observations, valid executed usable observations, non-boolean rejection, deliberate empty/unavailable flexibility, current helper behavior, downstream freshness rejection/acceptance, builder integration, timestamp canonicalization, and Step-193 downstream execution integrity.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 194 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 193
 
 ## Step 193 — Canonical Freshness Execution-State Integrity

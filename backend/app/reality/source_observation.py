@@ -88,6 +88,10 @@ class SourceObservationResult:
             raise ValueError("source_count must match the number of observations")
         if not isinstance(self.observation_executed, bool):
             raise ValueError("observation_executed must be a boolean")
+        if self.status == "usable" and not self.observation_executed:
+            raise ValueError(
+                "usable source observation requires observation_executed to be True"
+            )
         if self.status == "usable" and not self.observations:
             raise ValueError("usable source observation requires observations")
         if self.status == "empty" and self.observations:

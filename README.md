@@ -427,3 +427,22 @@ semantics, Step-190 classification rules, and downstream confidence behavior
 remain unchanged.
 
 See `docs/STEP_193.md` for the exact invariant and regression scope.
+
+
+## Canonical source-observation execution-state integrity (Step 194)
+
+Canonical `SourceObservationResult` records now reject
+`status="usable"` when `observation_executed=False`. A result cannot expose
+usable source-observation records while simultaneously claiming that source
+observation did not run.
+
+The rule applies to direct typed construction, mapping/deserialization, and
+mapping-shaped inputs consumed by `SourceFreshnessEvaluator`. `empty` and
+`unavailable` observation results remain permitted to record
+`observation_executed=False`, because they contain no usable observations and
+cannot legitimately produce a positive downstream freshness signal.
+
+Existing timestamp canonicalization, freshness classification, freshness count
+integrity, and freshness execution-state integrity remain unchanged.
+
+See `docs/STEP_194.md` for the exact invariant and regression scope.
