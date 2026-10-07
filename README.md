@@ -390,3 +390,21 @@ Step-190 fresh/stale consistency, and conservative confidence behavior remain
 unchanged.
 
 See `docs/STEP_191.md` for the exact invariant and regression scope.
+
+
+## Canonical freshness count type integrity (Step 192)
+
+Canonical `SourceFreshnessResult` count fields now require strict
+non-negative integers. `source_count`, `fresh_count`, `stale_count`, and
+`unknown_count` reject booleans, floats, strings, and negative values before
+count/state consistency is checked.
+
+This closes Python equality loopholes such as `True == 1`,
+`False == 0`, and `1.0 == 1`, which could previously allow non-integer
+count representations through mapping/deserialization paths.
+
+Normal evaluator and helper outputs already use real integer counts, so
+fresh/stale/unknown classification semantics and downstream confidence behavior
+are unchanged.
+
+See `docs/STEP_192.md` for the exact invariant and regression scope.
