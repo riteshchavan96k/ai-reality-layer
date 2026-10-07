@@ -5,6 +5,9 @@ from backend.app.reality.freshness_policy import (
     is_nonnegative_finite_number,
     is_positive_finite_number,
 )
+from backend.app.reality.source_observation import (
+    normalize_reported_observation_time,
+)
 
 
 @dataclass(frozen=True)
@@ -24,8 +27,15 @@ class SourceFreshnessAssessment:
             raise ValueError("source_id must be a non-empty string")
         if self.status not in {"fresh", "stale", "unknown"}:
             raise ValueError("status must be fresh, stale, or unknown")
-        if not isinstance(self.observed_at, str) or not self.observed_at.strip():
-            raise ValueError("observed_at must be a non-empty string")
+
+        # Freshness is a downstream canonical contract. Re-validate and
+        # canonicalize observed_at here so direct construction or mapping
+        # deserialization cannot bypass the source-observation invariant.
+        normalized_observed_at = normalize_reported_observation_time(
+            self.observed_at
+        )
+        object.__setattr__(self, "observed_at", normalized_observed_at)
+
         if self.age_seconds is not None and not is_nonnegative_finite_number(self.age_seconds):
             raise ValueError("age_seconds must be a non-negative number or None")
         if self.max_age_seconds is not None and not is_positive_finite_number(self.max_age_seconds):
