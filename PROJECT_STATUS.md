@@ -2,7 +2,7 @@
 
 ## Step 191 — Canonical Unknown-Freshness Policy Integrity
 
-**Status:** Implementation and dedicated regressions are committed on the isolated Step 191 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+**Status:** Complete. Implemented and merged into `main` through PR #188 after successful full GitHub-hosted validation on the feature PR and the merged implementation commit. The final status-synchronization commit is subject to the same complete CI workflow on its exact `main` SHA before definitive completion is claimed.
 
 **Verified gap:** The MVP semantics established by Steps 181 and 183 define `unknown` freshness as the absence of an explicit freshness window. After Steps 159, 186, 189, and 190, canonical assessments still accepted `status="unknown"` together with a non-null `max_age_seconds`, including mappings whose reason claimed `freshness_window_not_declared`. This allowed a canonical record to deny and declare a freshness policy simultaneously.
 
@@ -10,9 +10,9 @@
 
 **Compatibility and safety:** Normal evaluator behavior is unchanged: no window produces unknown freshness; a declared window with usable observation metadata produces fresh or stale; missing required observations under a declared policy continue to fail closed through the existing unavailable path. Step 186 finite numeric guards, Step 189 timestamp canonicalization, Step 190 fresh/stale inequality rules, provenance, claims, conflicts, confidence aggregation, APIs, and resource limits remain unchanged. No publication-time inference, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
 
-**Regressions:** `backend/tests/test_step191.py` covers direct and mapping rejection of unknown assessments with policy windows, preservation of finite age without a window, required unknown reasons, evaluator behavior with/without a policy, conservative downstream confidence, and non-regression of Steps 186, 189, and 190.
+**Regressions:** `backend/tests/test_step191.py` covers direct and mapping rejection of unknown assessments with policy windows, preservation of finite age without a window, required unknown reasons, evaluator behavior with/without a policy, conservative downstream confidence, and non-regression of Steps 186, 189, and 190. Historical tests remain enabled.
 
-**Validation:** Pending full GitHub Actions validation. Do not mark Step 191 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+**GitHub verification:** PR #188 CI run **#137** (`37654057993`) on head SHA `d59e97a2596501a04318718a5288cebb89ccfbd8` passed backend compilation and the complete regression suite. PR #188 merged cleanly to `main` as `ae5a51910d8f4dfda8e8d9b889943c86943b4b3a`. Independent post-merge `main` CI run **#138** (`37654131223`) passed backend compilation and the complete regression suite on that exact merge SHA. This final status synchronization must also pass the complete workflow on its resulting `main` SHA.
 
 # Current Status — Step 190
 
