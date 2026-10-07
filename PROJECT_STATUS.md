@@ -1,3 +1,19 @@
+# Current Status — Step 189
+
+## Step 189 — Canonical Observation/Freshness Timestamp Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 189 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** Step 188 unified the external/provider/developer `observed_at` trust boundary, but canonical internal timestamp carriers were not fully aligned with it. `SourceObservation` retained a parallel parser and could preserve equivalent timezone-offset forms rather than canonical UTC `Z`. `SourceFreshnessAssessment` only required a non-empty timestamp string, so direct construction or `SourceFreshnessResult.validate()` mapping deserialization could reintroduce malformed, timezone-naive, oversized, future, or noncanonical observation values downstream.
+
+**Implementation:** `SourceObservation.__post_init__()` now delegates to the shared Step 188 `normalize_reported_observation_time` function and stores the normalized UTC `Z` value. `SourceFreshnessAssessment.__post_init__()` applies the same canonical contract, so both typed and mapping-shaped freshness results preserve the identical 64-character, timezone-aware, non-future ISO-8601 invariant. No second timestamp parser or new temporal meaning was introduced.
+
+**Compatibility and safety:** Existing `observation_method` values, submitted/retrieved source semantics, finite freshness policy checks, fresh/stale/unknown behavior, claim/evidence lineage, conflicts, confidence signals, API routes, and resource limits remain unchanged. The only intentional representation change for valid direct internal callers is normalization of equivalent offsets/outer whitespace to UTC `Z`. Observation time remains declarative metadata, not publication time, source authenticity, or a truth guarantee.
+
+**Regressions:** `backend/tests/test_step189.py` covers typed and mapping construction, UTC-offset canonicalization, 64/65-character boundaries, very long inputs, malformed/timezone-naive/blank/non-string/future timestamps, downstream freshness mapping validation, unknown freshness preservation, observation-age evaluation, and submitted-evidence → Reality State canonical timestamp propagation.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 189 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 188
 
 ## Step 188 — Consistent, Bounded Source-Observation Timestamp Validation
