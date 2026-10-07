@@ -56,6 +56,10 @@ class SourceProvenanceResult:
             raise ValueError("source_count must match the number of sources")
         if not isinstance(self.provenance_executed, bool):
             raise ValueError("provenance_executed must be a boolean")
+        if self.status == "usable" and not self.provenance_executed:
+            raise ValueError(
+                "usable source provenance requires provenance_executed to be True"
+            )
         if self.status == "usable" and not self.sources:
             raise ValueError("usable source provenance requires at least one source")
         if self.status == "empty" and self.sources:
