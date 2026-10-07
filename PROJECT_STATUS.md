@@ -1,3 +1,19 @@
+# Current Status — Step 192
+
+## Step 192 — Canonical Freshness Count Type Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 192 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** `SourceFreshnessResult` checked source-count shape and aggregate count equality, but did not strictly type all count fields. Because Python booleans are integers and numeric equality crosses int/float types, canonical mappings could admit values such as `source_count=True`, `fresh_count=True`, `stale_count=False`, or `fresh_count=1.0` when those values compared equal to the expected totals. These serialized freshness counts feed downstream confidence signals.
+
+**Implementation:** `SourceFreshnessResult.__post_init__()` now requires `source_count`, `fresh_count`, `stale_count`, and `unknown_count` to be non-negative `int` values while explicitly excluding `bool`. Type/range validation occurs before collection/count consistency checks. Mapping-shaped results inherit the same rule through canonical reconstruction; no coercion is introduced.
+
+**Compatibility and safety:** Production constructors and evaluator outputs already generate real integer counts, so legitimate behavior is unchanged. Step 186 finite numeric measurement rules, Step 189 timestamp canonicalization, Step 190 fresh/stale classification consistency, Step 191 unknown-policy integrity, confidence policy, provenance, claims, conflicts, APIs, retrieval behavior, and resource limits remain unchanged. No publication-time inference, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step192.py` covers boolean and non-integer source counts, boolean/float/string/negative aggregate counts, mapping/deserialization loopholes, mixed valid integer counts, empty/unavailable results, downstream confidence compatibility, and non-regression of Steps 190 and 191.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 192 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 191
 
 ## Step 191 — Canonical Unknown-Freshness Policy Integrity
