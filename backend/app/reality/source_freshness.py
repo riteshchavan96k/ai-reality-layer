@@ -101,10 +101,27 @@ class SourceFreshnessResult:
             raise ValueError("status must be usable, empty, or unavailable")
         if not isinstance(self.assessments, tuple) or any(not isinstance(item, SourceFreshnessAssessment) for item in self.assessments):
             raise ValueError("assessments must be a tuple of SourceFreshnessAssessment values")
-        if not isinstance(self.source_count, int) or self.source_count < 0:
+        if (
+            not isinstance(self.source_count, int)
+            or isinstance(self.source_count, bool)
+            or self.source_count < 0
+        ):
             raise ValueError("source_count must be a non-negative integer")
         if self.source_count != len(self.assessments):
             raise ValueError("source_count must match the number of assessments")
+
+        for value, name in (
+            (self.fresh_count, "fresh_count"),
+            (self.stale_count, "stale_count"),
+            (self.unknown_count, "unknown_count"),
+        ):
+            if (
+                not isinstance(value, int)
+                or isinstance(value, bool)
+                or value < 0
+            ):
+                raise ValueError(f"{name} must be a non-negative integer")
+
         counts = {
             "fresh": sum(item.status == "fresh" for item in self.assessments),
             "stale": sum(item.status == "stale" for item in self.assessments),
