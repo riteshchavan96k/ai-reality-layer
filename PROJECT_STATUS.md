@@ -1,3 +1,19 @@
+# Current Status — Step 195
+
+## Step 195 — Canonical Source-Provenance Execution-State Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 195 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** Step 157 introduced `provenance_executed` as part of the canonical source-provenance result but only enforced its boolean type. A canonical mapping could still contain `status="usable"`, real source-provenance records, and `provenance_executed=False`. `SourceObservationBuilder` consumes provenance status/source records rather than the execution flag, so this contradictory provenance state could still generate usable source observations, freshness, confidence signals, and a Reality State.
+
+**Implementation:** `SourceProvenanceResult.__post_init__()` now requires `provenance_executed=True` whenever `status=="usable"`. Mapping-shaped results inherit the same invariant through canonical reconstruction, including mappings consumed by `SourceObservationBuilder`. Boolean type validation remains. `empty` and `unavailable` results are deliberately permitted to record `provenance_executed=False`, preserving representation of skipped/unavailable work without exposing usable provenance records.
+
+**Compatibility and safety:** Existing source-provenance builders/helpers already emit `provenance_executed=True` for current production usable outputs, so normal behavior is unchanged. Step 182 source-scoped lineage, Step 188 timestamp bounds, Step 189 timestamp canonicalization, Step 190 fresh/stale consistency, Step 191 unknown-policy integrity, Step 192 strict freshness counts, Step 193 freshness execution-state integrity, Step 194 source-observation execution-state integrity, downstream confidence policy, claims, conflicts, APIs, retrieval behavior, and resource limits remain unchanged. No publication-time inference, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step195.py` covers direct/mapping/normalizer rejection of usable non-executed provenance, valid executed usable provenance, non-boolean rejection, deliberate empty/unavailable flexibility, current helper behavior, observation-builder rejection paths, valid provenance → observation → freshness flow, production provenance-builder semantics, and non-regression of Steps 193–194.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 195 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 194
 
 ## Step 194 — Canonical Source-Observation Execution-State Integrity

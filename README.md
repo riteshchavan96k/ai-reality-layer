@@ -446,3 +446,23 @@ Existing timestamp canonicalization, freshness classification, freshness count
 integrity, and freshness execution-state integrity remain unchanged.
 
 See `docs/STEP_194.md` for the exact invariant and regression scope.
+
+
+## Canonical source-provenance execution-state integrity (Step 195)
+
+Canonical `SourceProvenanceResult` records now reject
+`status="usable"` when `provenance_executed=False`. A result cannot expose
+usable source-provenance records while simultaneously claiming that provenance
+assignment did not run.
+
+The rule applies to direct typed construction, mapping/deserialization, and
+mapping-shaped provenance consumed by `SourceObservationBuilder`. `empty`
+and `unavailable` provenance results remain permitted to record
+`provenance_executed=False`, because they contain no usable provenance records
+and cannot legitimately drive a positive downstream observation/freshness
+signal.
+
+Existing source lineage, observation, freshness, and confidence semantics
+remain unchanged.
+
+See `docs/STEP_195.md` for the exact invariant and regression scope.
