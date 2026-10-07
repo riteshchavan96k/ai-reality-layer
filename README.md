@@ -408,3 +408,22 @@ fresh/stale/unknown classification semantics and downstream confidence behavior
 are unchanged.
 
 See `docs/STEP_192.md` for the exact invariant and regression scope.
+
+
+## Canonical freshness execution-state integrity (Step 193)
+
+Canonical `SourceFreshnessResult` records now reject
+`status="usable"` when `freshness_executed=False`. A result cannot expose
+usable freshness assessments and positive fresh/stale/unknown counts while
+simultaneously claiming that freshness evaluation did not run.
+
+The rule applies to direct typed construction and mapping/deserialization.
+`empty` and `unavailable` results remain permitted to record
+`freshness_executed=False`, because those states cannot contribute a positive
+freshness signal and may legitimately represent skipped or unavailable work.
+
+Existing evaluator outputs, Step-192 strict count types, Step-191 unknown-policy
+semantics, Step-190 classification rules, and downstream confidence behavior
+remain unchanged.
+
+See `docs/STEP_193.md` for the exact invariant and regression scope.

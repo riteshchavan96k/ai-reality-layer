@@ -131,6 +131,10 @@ class SourceFreshnessResult:
             raise ValueError("freshness counts must match assessment states")
         if not isinstance(self.freshness_executed, bool):
             raise ValueError("freshness_executed must be a boolean")
+        if self.status == "usable" and not self.freshness_executed:
+            raise ValueError(
+                "usable freshness result requires freshness_executed to be True"
+            )
         if self.status == "usable" and not self.assessments:
             raise ValueError("usable freshness result requires assessments")
         if self.status in {"empty", "unavailable"} and self.assessments:
