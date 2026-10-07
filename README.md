@@ -329,3 +329,23 @@ This metadata is an observation **reported** by the caller or provider,
 not an independently verified publication time or proof of factual truth.
 Existing source URI lineage and claim/evidence limits are unchanged.
 See `docs/STEP_188.md` for API details and regression tests.
+
+
+## Canonical observation/freshness timestamps (Step 189)
+
+Canonical internal source-observation and source-freshness records now enforce
+the same `observed_at` contract as the Step 188 public/provider boundaries.
+Direct typed construction and mapping deserialization reject oversized,
+malformed, timezone-naive, blank, non-string, and future timestamps, and
+normalize valid timezone offsets to UTC `Z`.
+
+This means equivalent values such as
+`2026-01-01T18:00:00+05:30` are serialized canonically as
+`2026-01-01T12:30:00Z` in both `source_observation` and `freshness`
+records. Existing fresh/stale/unknown policy semantics, finite age/window
+checks, source lineage, and claim/conflict/confidence behavior are unchanged.
+
+`observed_at` remains source-observation metadata only. It is not a verified
+publication timestamp, source-authenticity assertion, or factual-truth proof.
+
+See `docs/STEP_189.md` for the invariant and regression scope.
