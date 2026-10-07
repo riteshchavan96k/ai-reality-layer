@@ -7,7 +7,7 @@ MAX_SOURCE_OBSERVED_AT_CHARS = 64
 
 
 def normalize_reported_observation_time(value: object) -> str:
-    """Validate provider-reported observation time; never infer publication time."""
+    """Validate and canonicalize a reported source observation timestamp."""
     if not isinstance(value, str):
         raise ValueError("reported observed_at must be a non-empty ISO-8601 string")
     # Check raw length before stripping or parsing untrusted strings.
@@ -38,20 +38,15 @@ class SourceObservation:
     def __post_init__(self) -> None:
         if not isinstance(self.source_id, str) or not self.source_id.strip():
             raise ValueError("source_id must be a non-empty string")
-        if not isinstance(self.observed_at, str):
-            raise ValueError("observed_at must be a non-empty string")
-        if len(self.observed_at) > MAX_SOURCE_OBSERVED_AT_CHARS:
-            raise ValueError("observed_at exceeds 64 characters")
-        if not self.observed_at.strip():
-            raise ValueError("observed_at must be a non-empty string")
-        try:
-            parsed = datetime.fromisoformat(self.observed_at.replace("Z", "+00:00"))
-        except ValueError as exc:
-            raise ValueError("observed_at must be a valid ISO-8601 timestamp") from exc
-        if parsed.tzinfo is None:
-            raise ValueError("observed_at must include a timezone")
-        if parsed.astimezone(timezone.utc) > datetime.now(timezone.utc):
-            raise ValueError("observed_at cannot be in the future")
+
+        # Canonical records must enforce the same trust-boundary contract as
+        # public/provider inputs. This prevents direct construction or mapping
+        # deserialization from reintroducing alternate timestamp forms.
+        normalized_observed_at = normalize_reported_observation_time(
+            self.observed_at
+        )
+        object.__setattr__(self, "observed_at", normalized_observed_at)
+
         if self.observation_method not in {
             "retrieval_observation",
             "submitted_evidence_observation",
