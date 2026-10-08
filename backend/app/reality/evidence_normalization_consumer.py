@@ -10,13 +10,17 @@ class EvidenceNormalizationConsumer:
     """Classify normalized evidence and return a stable consumption result."""
 
     def consume(self, evidence: object) -> EvidenceNormalizationConsumptionResult:
-        evidence = EvidenceNormalizationResult.validate(evidence)
+        if isinstance(evidence, EvidenceNormalizationResult):
+            evidence = evidence.to_dict()
+        if not isinstance(evidence, dict):
+            raise ValueError("normalized evidence must be a dictionary")
 
-        status = evidence.status
-        sources = evidence.sources
-        content = evidence.content
+        status = evidence.get("status")
+        sources = evidence.get("sources", [])
+        content = evidence.get("content")
 
         if status == "not_required":
+            EvidenceNormalizationResult.from_mapping(evidence)
             return EvidenceNormalizationConsumptionResult.usable_result(status)
 
         if status == "completed":
@@ -32,6 +36,7 @@ class EvidenceNormalizationConsumer:
                 return EvidenceNormalizationConsumptionResult.rejected_result(
                     status, "empty_normalized_evidence"
                 )
+            EvidenceNormalizationResult.from_mapping(evidence)
             return EvidenceNormalizationConsumptionResult.usable_result(status)
 
         if status == "invalid_evidence":
