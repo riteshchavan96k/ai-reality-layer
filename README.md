@@ -580,11 +580,12 @@ See `docs/STEP_201.md` for the exact invariant and regression scope.
 Canonical `EvidenceNormalizationResult` records now reject
 `status="completed"` when `normalization_executed=False`.
 
-The immediate downstream `EvidenceNormalizationConsumer` now validates all
-typed or mapping-shaped normalized evidence through
-`EvidenceNormalizationResult.validate()` before classifying it. This prevents
-a raw completed/non-executed mapping from bypassing the canonical contract and
-being treated as usable evidence.
+The immediate downstream `EvidenceNormalizationConsumer` now preserves its
+legacy compact-dictionary behavior while reconstructing positive completed and
+not-required inputs through the canonical `EvidenceNormalizationResult`
+contract before classifying them. This prevents an explicit completed
+non-executed mapping from bypassing the execution invariant without breaking
+older callers that omit newer metadata.
 
 Non-completed statuses keep their existing execution flexibility, while normal
 production normalization continues to record execution as `True`.
