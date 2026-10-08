@@ -1,3 +1,19 @@
+# Current Status — Step 197
+
+## Step 197 — Canonical Claim-Evidence Linked-Claim Count Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 197 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** Step 155 established canonical claim-evidence linking and the `linked_claim_count` field, while `usable_result()` defined that count as the number of distinct case-insensitive claim texts present in the links. Direct construction and mapping normalization did not enforce that relationship. A malformed canonical result could therefore overstate linked claims—for example one actual linked claim with `claim_count=2` and `linked_claim_count=2`—and downstream confidence would calculate false 100% claim coverage from those declared counts.
+
+**Implementation:** `ClaimEvidenceLinkingResult.__post_init__()` now derives the actual linked-claim total from `links` using the existing case-insensitive distinct-claim rule and requires `linked_claim_count` to match exactly. Existing non-negative count rules and the `linked_claim_count <= claim_count` guard remain intact. Mapping-shaped inputs inherit the same invariant through canonical reconstruction and normalization.
+
+**Compatibility and safety:** `usable_result()`, `empty_result()`, and the production `ClaimEvidenceLinker` already produce counts consistent with actual links, so normal behavior is unchanged. Multiple links for the same claim continue to count as one linked claim. Step 182 source-scoped lineage, Steps 188–196 provenance/observation/freshness/conflict integrity, downstream confidence policy, APIs, retrieval behavior, and resource limits remain unchanged. No semantic evidence matching, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step197.py` covers overstated/understated counts, empty-result inflation, mapping/normalizer rejection, duplicate links for the same claim, case-insensitive duplicates, multiple distinct claims, helper semantics, production linker consistency, legitimate supported confidence, false-full-coverage blocking, and preservation of the existing overflow guard.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 197 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 196
 
 ## Step 196 — Canonical Claim-Conflict Execution-State Integrity
