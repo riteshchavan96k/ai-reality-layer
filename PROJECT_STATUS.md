@@ -1,3 +1,19 @@
+# Current Status — Step 198
+
+## Step 198 — Canonical Claim-Evidence Linking Execution-State Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 198 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** Step 155 introduced `linking_executed` as part of the canonical claim-evidence linking result but only enforced its boolean type. A canonical result could still contain `status="usable"`, real links, full linked-claim coverage, and `linking_executed=False`. `RealityConfidenceSignalAggregator` computes coverage from `claim_count` and `linked_claim_count` rather than the execution flag, so that contradictory result could still contribute to a supported confidence outcome.
+
+**Implementation:** `ClaimEvidenceLinkingResult.__post_init__()` now requires `linking_executed=True` whenever `status=="usable"`. Mapping-shaped results inherit the same invariant through canonical reconstruction and normalization. `empty` and `unavailable` results are deliberately permitted to record `linking_executed=False` because they cannot produce full positive claim-evidence coverage.
+
+**Compatibility and safety:** Existing `ClaimEvidenceLinkingResult.usable_result()` and the production `ClaimEvidenceLinker` already emit executed usable results, so normal behavior is unchanged. Step 197 linked-claim count integrity, Step 196 conflict execution integrity, Step 182 source-scoped lineage, Steps 188–195 provenance/observation/freshness integrity, downstream confidence policy, APIs, retrieval behavior, and resource limits remain unchanged. No semantic evidence matching, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step198.py` covers direct/mapping/normalizer rejection of usable non-executed linking, valid executed usable linking, non-boolean rejection, deliberate empty/unavailable flexibility, helper and production-linker behavior, supported confidence compatibility for valid executed full coverage, blocking non-executed full coverage before confidence, and non-regression of Step 197 count integrity.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 198 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 197
 
 ## Step 197 — Canonical Claim-Evidence Linked-Claim Count Integrity
