@@ -147,15 +147,42 @@ def test_consumer_rejects_completed_mapping_that_denies_normalization_execution(
         )
 
 
-def test_consumer_requires_complete_canonical_normalization_mapping():
-    raw = _completed_mapping(normalization_executed=True)
-    del raw["normalization_executed"]
+def test_consumer_preserves_legacy_completed_mapping_compatibility():
+    raw_consumption = EvidenceNormalizationConsumer().consume(
+        {
+            "status": "completed",
+            "sources": [{"uri": SOURCE}],
+            "content": CONTENT,
+        }
+    )
+    consumption = EvidenceNormalizationConsumptionNormalizer.normalize(
+        raw_consumption
+    )
 
+    assert consumption.status == "usable"
+    assert consumption.evidence_status == "completed"
+    assert consumption.consumption_executed is True
+
+
+def test_consumer_preserves_legacy_invalid_source_rejection():
+    raw_consumption = EvidenceNormalizationConsumer().consume(
+        {
+            "status": "completed",
+            "sources": {},
+            "content": CONTENT,
+        }
+    )
+
+    assert raw_consumption.status == "rejected"
+    assert raw_consumption.reason == "invalid_normalized_evidence_sources"
+
+
+def test_consumer_preserves_legacy_invalid_input_error():
     with pytest.raises(
         ValueError,
-        match="evidence normalization result is missing required fields",
+        match="normalized evidence must be a dictionary",
     ):
-        EvidenceNormalizationConsumer().consume(raw)
+        EvidenceNormalizationConsumer().consume(None)
 
 
 def test_consumer_accepts_canonical_typed_completed_result():
