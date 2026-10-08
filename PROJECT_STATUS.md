@@ -1,3 +1,23 @@
+# Current Status — Step 205
+
+## Step 205 — Reality State Verification Metadata Foundation
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 205 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified product gap:** After Step 204, the MVP still had no implementation for its required “last verification time” output. Structured subject/relation/object claims are also a major gap, but forcing semantic claim parsing with today’s deterministic sentence splitter would create false certainty. Verification-pass timing can be defined precisely today and is therefore the safer/high-quality Step 205 foundation.
+
+**Implementation:** Added immutable `RealityVerification` with `completed` and `not_completed` states. Completed verification requires a bounded timezone-aware ISO-8601 `verified_at`, canonical UTC normalization, `verification_method="deterministic_pipeline_snapshot"`, and no reason. Not-completed verification forbids a timestamp and requires a nonempty reason. `RealityStateBuilder` now has an injectable timezone-aware clock and stamps completed verification only at final deterministic Reality State assembly.
+
+**Reality State/API integration:** `RealityState` now serializes a top-level `verification` object after entity identity. Legacy mapping-shaped or directly constructed states without verification do not receive fabricated historical timestamps; they normalize to `not_completed` with reason `verification_metadata_unavailable`. `RealityStateResponse` exposes typed `RealityVerificationResponse`. Verification remains output-only: neither Reality State request model accepts caller-supplied verification metadata.
+
+**Trust boundary:** `verified_at` means when AI Reality Layer completed assembly of this deterministic evidence/signal snapshot. It is explicitly distinct from source publication time, event occurrence time, provider/caller source observation time, source authenticity, independent fact checking, or factual-truth certification. A Reality State may be `uncertain`, `insufficient`, or `unavailable` while verification is still `completed` if the pipeline successfully reached that conclusion.
+
+**Fail-closed behavior:** If a canonical Reality State cannot be assembled, fallback paths emit `verification.status="not_completed"`, no timestamp, and an explicit reason. Verification timestamps reject blank, malformed, timezone-naive, future, or oversized values. Builder clocks reject naive datetimes and non-datetime values.
+
+**Regressions:** `backend/tests/test_step205.py` covers timestamp normalization and rejection, completed/not-completed state invariants, mapping validation, legacy-state compatibility, fixed-clock stamping, invalid clocks, unavailable Reality State with completed verification, retrieval-backed and submitted-evidence snapshots, separation from source observation timestamps, output-only API semantics, typed response/OpenAPI exposure, and serialization order. Historical Step-132/134 exact response-shape regressions are updated only for the intentionally added field.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 205 complete until the entire backend suite passes on the final PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 204
 
 ## Step 204 — First-Class Reality Entity Foundation

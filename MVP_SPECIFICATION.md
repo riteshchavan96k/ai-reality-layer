@@ -99,6 +99,11 @@ The system should return structured machine-readable data containing:
 - confidence
 - last verification time
 
+Current implementation note: Step 205 exposes this as
+`verification.verified_at`, meaning the UTC time when deterministic Reality
+State signal-snapshot assembly completed. It is not a publication timestamp,
+event timestamp, or certificate of factual truth.
+
 ## 9. MVP Features
 
 1. Query input

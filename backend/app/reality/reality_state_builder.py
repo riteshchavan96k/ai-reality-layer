@@ -1,12 +1,34 @@
-from typing import Any
+from datetime import datetime, timezone
+from typing import Any, Callable
 
 from backend.app.reality.reality_entity import RealityEntity
 from backend.app.reality.reality_state import RealityState
+from backend.app.reality.reality_verification import RealityVerification
 from backend.app.reality.reality_state_normalizer import RealityStateNormalizer
 
 
 class RealityStateBuilder:
     """Assemble a deterministic snapshot from already-computed reality signals."""
+
+    def __init__(
+        self,
+        clock: Callable[[], datetime] | None = None,
+    ) -> None:
+        self._clock = clock or (lambda: datetime.now(timezone.utc))
+
+    def _build_verification(self) -> RealityVerification:
+        now = self._clock()
+        if not isinstance(now, datetime) or now.tzinfo is None:
+            raise ValueError(
+                "Reality State verification clock must return "
+                "a timezone-aware datetime"
+            )
+        verified_at = (
+            now.astimezone(timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
+        return RealityVerification.completed(verified_at)
 
     def build_result(
         self,
@@ -41,6 +63,7 @@ class RealityStateBuilder:
                 conflicts,
                 confidence,
                 entity=RealityEntity.validate(entity),
+                verification=self._build_verification(),
                 reason=reason,
             )
         )

@@ -23,6 +23,7 @@ from backend.app.orchestrator.stage_contract import OrchestrationStageContext
 from backend.app.orchestrator.state import OrchestrationState
 from backend.app.reality.grounding_execution_context import GroundingExecutionContext
 from backend.app.reality.reality_entity import RealityEntity
+from backend.app.reality.reality_verification import RealityVerification
 
 
 class OrchestrationPipeline:
@@ -227,6 +228,9 @@ class OrchestrationPipeline:
                 "status": "unavailable",
                 "task": task,
                 "entity": reality_entity.to_dict(),
+                "verification": RealityVerification.not_completed(
+                    "reality_state_not_assembled"
+                ).to_dict(),
                 "evidence": {},
                 "claims": {},
                 "claim_evidence_linking": {},
