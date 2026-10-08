@@ -635,3 +635,30 @@ NER, heuristic parsing, embedding matching, LLM entity extraction or
 entity-aware retrieval rewriting.
 
 See `docs/STEP_204.md` for the complete contract and compatibility rules.
+
+
+## Reality State verification metadata foundation (Step 205)
+
+Canonical Reality States now include a top-level `verification` object with a
+system-generated UTC `verified_at` timestamp when deterministic signal-snapshot
+assembly completes.
+
+```json
+{
+  "status": "completed",
+  "verified_at": "2026-01-02T03:04:05Z",
+  "verification_method": "deterministic_pipeline_snapshot",
+  "reason": null
+}
+```
+
+This timestamp means the Reality Layer completed this snapshot's evidence and
+signal assembly. It does **not** mean source publication time, event time,
+source-observation time, independent fact-check time, or guaranteed factual
+truth.
+
+Legacy snapshots without verification metadata normalize to an explicit
+`not_completed` state instead of receiving invented historical timestamps.
+Verification is output-only; API callers cannot submit or override it.
+
+See `docs/STEP_205.md` for the complete timestamp and trust semantics.
