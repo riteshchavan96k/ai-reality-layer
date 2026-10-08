@@ -31,9 +31,9 @@ class RealityState:
     freshness: dict[str, Any]
     conflicts: dict[str, Any]
     confidence_signals: dict[str, Any]
-    entity: RealityEntity = field(default_factory=RealityEntity.unspecified)
     assembly_method: str = "deterministic_signal_snapshot"
     reason: str | None = None
+    entity: RealityEntity = field(default_factory=RealityEntity.unspecified)
 
     def __post_init__(self) -> None:
         if self.status not in _ALLOWED_STATUSES:
