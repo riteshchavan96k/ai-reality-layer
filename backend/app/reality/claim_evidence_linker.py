@@ -3,6 +3,7 @@ from typing import Any
 from backend.app.reality.claim_evidence_linking import ClaimEvidenceLink, ClaimEvidenceLinkingResult
 from backend.app.reality.claim_evidence_linking_normalizer import ClaimEvidenceLinkingResultNormalizer
 from backend.app.reality.claim_extraction import ClaimExtractionResult, EvidenceClaim
+from backend.app.reality.claim_semantic_structure import ClaimSemanticStructure
 
 
 class ClaimEvidenceLinker:
@@ -105,7 +106,19 @@ class ClaimEvidenceLinker:
             source_refs = raw_claim.get("source_refs", [])
             if not isinstance(source_refs, list):
                 raise ValueError("claim source_refs must be a list")
-            claims.append(EvidenceClaim(text=raw_claim.get("text", ""), source_refs=tuple(source_refs), extraction_method=raw_claim.get("extraction_method", "deterministic_sentence_split")))
+            claims.append(
+                EvidenceClaim(
+                    text=raw_claim.get("text", ""),
+                    source_refs=tuple(source_refs),
+                    extraction_method=raw_claim.get(
+                        "extraction_method",
+                        "deterministic_sentence_split",
+                    ),
+                    semantic_structure=ClaimSemanticStructure.validate(
+                        raw_claim.get("semantic_structure")
+                    ),
+                )
+            )
         return ClaimExtractionResult(status=status, claims=tuple(claims), source_count=value.get("source_count", 0), extraction_executed=value.get("extraction_executed", True), reason=value.get("reason"))
 
 

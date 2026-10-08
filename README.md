@@ -662,3 +662,31 @@ Legacy snapshots without verification metadata normalize to an explicit
 Verification is output-only; API callers cannot submit or override it.
 
 See `docs/STEP_205.md` for the complete timestamp and trust semantics.
+
+
+## Canonical structured claim representation foundation (Step 206)
+
+Every `EvidenceClaim` now carries a canonical `semantic_structure` object.
+
+The current deterministic sentence extractor is still deliberately honest about
+its limits and emits:
+
+```json
+{
+  "status": "unstructured",
+  "subject": null,
+  "predicate": null,
+  "object": null,
+  "structuring_method": "not_attempted",
+  "reason": "semantic_structuring_not_attempted"
+}
+```
+
+The same contract also defines a validated provider-neutral `structured`
+subject/predicate/object form for future semantic NLP/ML/LLM components.
+
+Step 206 does not infer semantic parts from task text, does not bind the Step-204
+Reality Entity to every claim automatically, and does not change linking,
+conflict, freshness or confidence behavior.
+
+See `docs/STEP_206.md` for the complete semantic and compatibility boundary.

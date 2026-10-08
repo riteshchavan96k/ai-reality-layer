@@ -1,5 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
+
+from backend.app.reality.claim_semantic_structure import (
+    ClaimSemanticStructure,
+)
 
 
 @dataclass(frozen=True)
@@ -9,6 +13,9 @@ class EvidenceClaim:
     text: str
     source_refs: tuple[str, ...] = ()
     extraction_method: str = "deterministic_sentence_split"
+    semantic_structure: ClaimSemanticStructure = field(
+        default_factory=ClaimSemanticStructure.unstructured
+    )
 
     def __post_init__(self) -> None:
         if not isinstance(self.text, str) or not self.text.strip():
@@ -19,12 +26,18 @@ class EvidenceClaim:
             raise ValueError("source_refs must contain non-empty strings")
         if not isinstance(self.extraction_method, str) or not self.extraction_method.strip():
             raise ValueError("extraction_method must be a non-empty string")
+        object.__setattr__(
+            self,
+            "semantic_structure",
+            ClaimSemanticStructure.validate(self.semantic_structure),
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "text": self.text,
             "source_refs": list(self.source_refs),
             "extraction_method": self.extraction_method,
+            "semantic_structure": self.semantic_structure.to_dict(),
         }
 
 
@@ -102,6 +115,9 @@ class ClaimExtractionResult:
                     text=raw_claim["text"],
                     source_refs=tuple(source_refs),
                     extraction_method=raw_claim["extraction_method"],
+                    semantic_structure=ClaimSemanticStructure.validate(
+                        raw_claim.get("semantic_structure")
+                    ),
                 )
             )
 

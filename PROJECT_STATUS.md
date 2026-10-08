@@ -1,3 +1,23 @@
+# Current Status — Step 206
+
+## Step 206 — Canonical Structured Claim Representation Foundation
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 206 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified product gap:** After Steps 204–205 introduced first-class entity identity and Reality verification metadata, the next major MVP semantic gap is Claim structure. `EvidenceClaim` still contained only free-form sentence text, source refs, and extraction method. The architecture calls for structured claims, but the current production extractor is only a deterministic sentence splitter; forcing subject/predicate/object heuristics now would create false semantic certainty.
+
+**Implementation:** Added immutable `ClaimSemanticStructure` with explicit `structured` and `unstructured` states. Structured claims require normalized non-empty subject, predicate, object, a real structuring method, and no reason. Unstructured claims forbid semantic parts, require `structuring_method="not_attempted"`, and require a reason. Semantic fields are bounded. `EvidenceClaim` now carries the canonical semantic structure while preserving historical positional construction.
+
+**Current production semantics:** `EvidenceClaimExtractor` continues to perform deterministic sentence splitting only. Claims it emits are explicitly `unstructured` with reason `semantic_structuring_not_attempted`. Legacy mapping-shaped claims without the new field normalize to the same unstructured state instead of failing. Mapping-shaped structured claims are validated and preserved.
+
+**Downstream compatibility:** Claim deduplication preserves semantic metadata. `ClaimEvidenceLinker` and `ClaimConflictDetector` preserve semantic structure when reconstructing mapping-shaped claim results, but their algorithms remain unchanged and still operate on established text/source-lineage semantics. Existing linking, explicit-negation conflict detection, freshness, confidence, entity identity, verification metadata, and Reality State status behavior are unchanged.
+
+**Safety boundary:** Step 206 does not infer subject/predicate/object from task or evidence text. An explicit Step-204 Reality Entity is not automatically assigned as every claim's subject because request scope is not proof of sentence-level semantic subject identity. No NER, relation model, embeddings, LLM parsing, ML/DL inference, semantic conflict judge, entity resolution, temporal qualifiers, persistence, or knowledge graph is introduced.
+
+**Regressions:** `backend/tests/test_step206.py` covers structured/unstructured invariants, normalization/bounds, legacy claim compatibility, structured round-trip, malformed nested structures, current extractor output, deduplication preservation, linker/conflict reconstruction, downstream compatibility, Reality State output, explicit no-auto-binding to entity, and preservation of claim text/source lineage.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 206 complete until the entire backend suite passes on the final PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 205
 
 ## Step 205 — Reality State Verification Metadata Foundation
