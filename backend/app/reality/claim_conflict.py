@@ -52,6 +52,10 @@ class ClaimConflictResult:
             raise ValueError("conflict_count must match conflicts")
         if not isinstance(self.detection_executed, bool):
             raise ValueError("detection_executed must be a boolean")
+        if self.status in {"usable", "empty"} and not self.detection_executed:
+            raise ValueError(
+                "usable or empty conflict result requires detection_executed to be True"
+            )
         if self.status == "usable" and not self.conflicts:
             raise ValueError("usable conflict result requires conflicts")
         if self.status in {"empty", "unavailable"} and self.conflicts:
