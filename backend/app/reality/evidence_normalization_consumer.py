@@ -1,5 +1,6 @@
 from typing import Any
 
+from backend.app.reality.evidence_normalization import EvidenceNormalizationResult
 from backend.app.reality.evidence_normalization_consumption_result import (
     EvidenceNormalizationConsumptionResult,
 )
@@ -9,12 +10,11 @@ class EvidenceNormalizationConsumer:
     """Classify normalized evidence and return a stable consumption result."""
 
     def consume(self, evidence: object) -> EvidenceNormalizationConsumptionResult:
-        if not isinstance(evidence, dict):
-            raise ValueError("normalized evidence must be a dictionary")
+        evidence = EvidenceNormalizationResult.validate(evidence)
 
-        status = evidence.get("status")
-        sources = evidence.get("sources", [])
-        content = evidence.get("content")
+        status = evidence.status
+        sources = evidence.sources
+        content = evidence.content
 
         if status == "not_required":
             return EvidenceNormalizationConsumptionResult.usable_result(status)
