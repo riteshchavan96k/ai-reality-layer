@@ -11,7 +11,7 @@ def test_builder_assembles_all_existing_signals():
 
 def test_serialization_shape():
     r=RealityStateBuilder().build("test task",*parts())
-    assert list(r)==["status","task","entity","evidence","claims","claim_evidence_linking","source_provenance","source_observation","freshness","conflicts","confidence_signals","assembly_method","reason"]
+    assert list(r)==["status","task","entity","verification","evidence","claims","claim_evidence_linking","source_provenance","source_observation","freshness","conflicts","confidence_signals","assembly_method","reason"]
 
 def test_confidence_state_drives_reality_state():
     p=list(parts()); p[-1]={"status":"uncertain","evidence_usable":True,"claim_coverage":0.5}
