@@ -309,3 +309,79 @@ def test_existing_usable_status_still_requires_usable_true():
             issues=[],
             validation_executed=True,
         )
+
+
+def test_usable_result_rejects_zero_sources():
+    with pytest.raises(
+        ValueError,
+        match="usable evidence quality requires at least one source",
+    ):
+        EvidenceQualityValidationResult(
+            status="usable",
+            usable=True,
+            source_count=0,
+            has_content=True,
+            provenance_complete=True,
+            issues=[],
+            validation_executed=True,
+        )
+
+
+def test_usable_result_rejects_missing_content():
+    with pytest.raises(
+        ValueError,
+        match="usable evidence quality requires has_content=True",
+    ):
+        EvidenceQualityValidationResult(
+            status="usable",
+            usable=True,
+            source_count=1,
+            has_content=False,
+            provenance_complete=True,
+            issues=[],
+            validation_executed=True,
+        )
+
+
+def test_usable_result_rejects_incomplete_provenance():
+    with pytest.raises(
+        ValueError,
+        match="usable evidence quality requires provenance_complete=True",
+    ):
+        EvidenceQualityValidationResult(
+            status="usable",
+            usable=True,
+            source_count=1,
+            has_content=True,
+            provenance_complete=False,
+            issues=[],
+            validation_executed=True,
+        )
+
+
+def test_usable_result_rejects_validation_issues():
+    with pytest.raises(
+        ValueError,
+        match="usable evidence quality cannot contain validation issues",
+    ):
+        EvidenceQualityValidationResult(
+            status="usable",
+            usable=True,
+            source_count=1,
+            has_content=True,
+            provenance_complete=True,
+            issues=["unexpected_issue"],
+            validation_executed=True,
+        )
+
+
+def test_usable_helper_inherits_complete_usable_state_integrity():
+    with pytest.raises(
+        ValueError,
+        match="usable evidence quality requires has_content=True",
+    ):
+        EvidenceQualityValidationResult.usable_result(
+            source_count=1,
+            has_content=False,
+            provenance_complete=True,
+        )
