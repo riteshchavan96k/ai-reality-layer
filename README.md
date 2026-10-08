@@ -556,3 +556,20 @@ explicitly record `validation_executed=False`; neither can establish supported
 external-evidence quality.
 
 See `docs/STEP_200.md` for the exact invariant and regression scope.
+
+
+## Canonical evidence-normalization consumption execution integrity (Step 201)
+
+The canonical evidence-normalization consumption gate now rejects
+`status="usable"` when `consumption_executed=False`.
+
+That decision's `usable` field is the explicit orchestration gate into
+evidence-quality validation, so a positive decision cannot claim that the
+consumption evaluation never ran. Rejected decisions remain permitted to record
+`consumption_executed=False` because they fail closed.
+
+The legacy `EvidenceNormalizationConsumptionResult` adapter inherits the same
+rule when `consumption_evaluated` is mapped into the canonical execution
+field.
+
+See `docs/STEP_201.md` for the exact invariant and regression scope.
