@@ -22,6 +22,7 @@ from backend.app.orchestrator.result_normalizer import (
 from backend.app.orchestrator.stage_contract import OrchestrationStageContext
 from backend.app.orchestrator.state import OrchestrationState
 from backend.app.reality.grounding_execution_context import GroundingExecutionContext
+from backend.app.reality.reality_entity import RealityEntity
 
 
 class OrchestrationPipeline:
@@ -192,10 +193,12 @@ class OrchestrationPipeline:
         task: str,
         retrieval_engine: Any | None = None,
         freshness_max_age_seconds: float | int | None = None,
+        entity: str | None = None,
     ) -> dict:
         """Build and return the canonical Reality State without model execution."""
         context = OrchestrationStageContext(state=OrchestrationState(task=task), trace=ExecutionTrace(), execution_budget=None)
         state = context.state
+        reality_entity = RealityEntity.validate(entity)
         reality_context = self.dependencies.context_detector.detect(task)
         reality_source_plan = self.dependencies.source_planner.plan(reality_context)
         if freshness_max_age_seconds is not None:
@@ -212,6 +215,7 @@ class OrchestrationPipeline:
             reality_source_plan,
         )
         state.analysis = {
+            "reality_entity": reality_entity.to_dict(),
             "reality_context": reality_context,
             "reality_source_plan": reality_source_plan,
             "reality_retrieval": retrieval_contract,
@@ -222,6 +226,7 @@ class OrchestrationPipeline:
             return {
                 "status": "unavailable",
                 "task": task,
+                "entity": reality_entity.to_dict(),
                 "evidence": {},
                 "claims": {},
                 "claim_evidence_linking": {},
@@ -341,6 +346,7 @@ class OrchestrationPipeline:
             source_freshness.to_dict(),
             claim_conflicts.to_dict(),
             confidence_signals.to_dict(),
+            entity=state.analysis.get("reality_entity"),
         )
         state.analysis["reality_state"] = reality_state.to_dict()
         context.trace.record(

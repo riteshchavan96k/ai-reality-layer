@@ -48,6 +48,10 @@ Input
 
 A real-world object being investigated.
 
+Current implementation note: Step 204 adds a first-class canonical entity slot
+to every Reality State and optional explicit entity input to both Reality State
+APIs. Automatic entity extraction/resolution remains future work.
+
 ### Claim
 
 A statement about an entity.

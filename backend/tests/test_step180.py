@@ -248,7 +248,7 @@ def test_original_reality_state_request_stays_separate_from_submitted_documents(
     # Step 183 adds an optional retrieval freshness policy but never accepts
     # direct source documents on this existing retrieval endpoint.
     assert set(RealityStateRequest.model_fields) == {
-        "task", "freshness_max_age_seconds",
+        "task", "entity", "freshness_max_age_seconds",
     }
     with pytest.raises(ValueError):
         RealityStateRequest(

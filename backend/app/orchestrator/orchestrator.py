@@ -36,6 +36,7 @@ def build_reality_state(
     retrieval_engine: RealityRetrievalEngine | None = None,
     dependencies: OrchestrationDependencies | None = None,
     freshness_max_age_seconds: float | int | None = None,
+    entity: str | None = None,
 ) -> dict:
     """Build the canonical Reality State without executing a model."""
     services = dependencies or OrchestrationDependencies.default()
@@ -51,6 +52,7 @@ def build_reality_state(
         task=task,
         retrieval_engine=retrieval_engine,
         freshness_max_age_seconds=freshness_max_age_seconds,
+        entity=entity,
     )
 
 
@@ -60,6 +62,7 @@ def build_reality_state_from_evidence(
     documents: list[dict],
     freshness_max_age_seconds: float | int | None = None,
     dependencies: OrchestrationDependencies | None = None,
+    entity: str | None = None,
 ) -> dict:
     """Build a canonical Reality State from caller-supplied source-scoped evidence."""
     if not isinstance(task, str) or not task.strip():
@@ -107,6 +110,7 @@ def build_reality_state_from_evidence(
         freshness.to_dict(),
         conflicts.to_dict(),
         confidence.to_dict(),
+        entity=entity,
     )
     return reality_state.to_dict()
 
