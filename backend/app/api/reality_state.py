@@ -3,6 +3,10 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from backend.app.reality.freshness_policy import is_positive_finite_number
+from backend.app.reality.reality_entity import (
+    MAX_REALITY_ENTITY_NAME_CHARS,
+    normalize_explicit_entity_name,
+)
 
 
 class RealityStateRequest(BaseModel):
@@ -11,7 +15,18 @@ class RealityStateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     task: str = Field(min_length=1, max_length=10_000)
+    entity: str | None = Field(
+        default=None,
+        max_length=MAX_REALITY_ENTITY_NAME_CHARS,
+    )
     freshness_max_age_seconds: float | int | None = None
+
+    @field_validator("entity", mode="before")
+    @classmethod
+    def validate_entity(cls, value: object) -> object:
+        if value is None:
+            return None
+        return normalize_explicit_entity_name(value)
 
     @field_validator("freshness_max_age_seconds", mode="before")
     @classmethod
@@ -23,11 +38,22 @@ class RealityStateRequest(BaseModel):
         return value
 
 
+class RealityEntityResponse(BaseModel):
+    """HTTP representation of the canonical explicit Reality Entity."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["specified", "unspecified"]
+    name: str | None
+    identification_method: Literal["explicit_input", "not_provided"]
+
+
 class RealityStateResponse(BaseModel):
     """HTTP response contract for the canonical Reality State snapshot."""
 
     status: Literal["supported", "uncertain", "insufficient", "unavailable"]
     task: str
+    entity: RealityEntityResponse
     evidence: dict[str, Any]
     claims: dict[str, Any]
     claim_evidence_linking: dict[str, Any]
@@ -40,4 +66,8 @@ class RealityStateResponse(BaseModel):
     reason: str | None = None
 
 
-__all__ = ["RealityStateRequest", "RealityStateResponse"]
+__all__ = [
+    "RealityEntityResponse",
+    "RealityStateRequest",
+    "RealityStateResponse",
+]
