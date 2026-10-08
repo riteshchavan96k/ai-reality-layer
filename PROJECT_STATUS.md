@@ -1,3 +1,19 @@
+# Current Status — Step 200
+
+## Step 200 — Canonical Evidence-Quality Usable-State Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 200 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** The canonical evidence-quality result could report `status="usable"` / `usable=True` while declaring `validation_executed=False`, or while having zero sources, missing content, incomplete provenance, or validation issues. The production `EvidenceQualityValidator` never emits those combinations, but `RealityConfidenceSignalAggregator` trusts `evidence_quality.status=="usable"` as its positive evidence-quality gate. A malformed canonical result could therefore overstate grounding quality and contribute to supported confidence.
+
+**Implementation:** `EvidenceQualityValidationResult.__post_init__()` now requires every usable result to have `validation_executed=True`, `source_count>0`, `has_content=True`, `provenance_complete=True`, and an empty `issues` list. Existing status/usability and type checks remain intact. Mapping-shaped inputs inherit the same invariant through `EvidenceQualityValidationResultNormalizer`. `insufficient` and `not_required` remain permitted to record `validation_executed=False` because they are non-positive confidence states.
+
+**Compatibility and safety:** `EvidenceQualityValidator.validate_result()` already emits usable only when all of those positive conditions hold, so normal production behavior is unchanged. Steps 152–153 evidence-normalization boundaries, Step 199 claim-extraction execution integrity, Step 198 linking execution integrity, Step 197 linked-claim count integrity, Step 196 conflict execution integrity, Steps 188–195 provenance/observation/freshness integrity, the confidence formula, APIs, retrieval behavior, and resource limits remain unchanged. No semantic quality scoring, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step200.py` covers usable non-executed rejection, normalizer rejection, valid usable state, non-boolean rejection, insufficient/not-required flexibility, helper and production-validator behavior, supported-confidence compatibility, non-supported insufficient/not-required behavior, usable zero-source/missing-content/incomplete-provenance/issues rejection, helper inheritance, and preservation of existing status/usability consistency.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 200 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 199
 
 ## Step 199 — Canonical Claim-Extraction Execution-State Integrity

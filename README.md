@@ -538,3 +538,21 @@ execution integrity, conflict behavior, and confidence semantics remain
 unchanged.
 
 See `docs/STEP_199.md` for the exact invariant and regression scope.
+
+
+## Canonical evidence-quality usable-state integrity (Step 200)
+
+Canonical `EvidenceQualityValidationResult` records now enforce the same
+positive evidence-quality conditions used by the production validator.
+
+A `status="usable"` result must have validation executed, at least one source,
+content present, complete provenance, and no validation issues. This closes a
+confidence-integrity gap where a malformed canonical quality result could claim
+usable external evidence despite missing the conditions required by the actual
+validator.
+
+`insufficient` and `not_required` remain non-positive states and may
+explicitly record `validation_executed=False`; neither can establish supported
+external-evidence quality.
+
+See `docs/STEP_200.md` for the exact invariant and regression scope.
