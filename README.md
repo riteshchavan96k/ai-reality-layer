@@ -520,3 +520,21 @@ Step-197 linked-claim count integrity, production linking behavior, and the
 confidence formula remain unchanged.
 
 See `docs/STEP_198.md` for the exact invariant and regression scope.
+
+
+## Canonical claim-extraction execution-state integrity (Step 199)
+
+Canonical `ClaimExtractionResult` records now reject
+`status="usable"` when `extraction_executed=False`.
+
+Usable extracted claims feed both claim-evidence linking and conflict
+detection, so they cannot safely exist while the result claims extraction never
+ran. `empty` and `unavailable` extraction results remain permitted to record
+`extraction_executed=False` because they cannot produce positive claim
+coverage.
+
+Existing deterministic extraction, Step-197 count integrity, Step-198 linking
+execution integrity, conflict behavior, and confidence semantics remain
+unchanged.
+
+See `docs/STEP_199.md` for the exact invariant and regression scope.
