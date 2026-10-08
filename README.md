@@ -591,3 +591,21 @@ Non-completed statuses keep their existing execution flexibility, while normal
 production normalization continues to record execution as `True`.
 
 See `docs/STEP_202.md` for the exact invariant and regression scope.
+
+
+## Canonical retrieval-result consumption state integrity (Step 203)
+
+The canonical retrieval-consumption gate now enforces the complete positive
+state used by production orchestration.
+
+A `status="usable"` decision must have executed consumption, may correspond
+only to `completed` or `not_required` retrieval, and cannot carry a rejection
+reason. Rejected decisions must remain non-usable and carry a nonempty reason;
+they may explicitly record `consumption_executed=False` because they fail
+closed.
+
+This aligns the Step-151 canonical contract with the actual Step-85 production
+consumer and prevents contradictory dependency output from authorizing evidence
+normalization.
+
+See `docs/STEP_203.md` for the complete state matrix and regression scope.
