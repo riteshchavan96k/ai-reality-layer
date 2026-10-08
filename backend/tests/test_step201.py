@@ -234,15 +234,15 @@ def test_existing_status_usability_integrity_remains_intact():
         )
 
 
-def test_upstream_normalization_execution_semantics_are_not_changed_here():
+def test_upstream_noncompleted_execution_flexibility_remains_unchanged():
     result = EvidenceNormalizationResult(
-        status="completed",
-        sources=[{"uri": SOURCE}],
-        content=CONTENT,
-        source_count=1,
-        has_content=True,
+        status="not_required",
+        sources=[],
+        content=None,
+        source_count=0,
+        has_content=False,
         normalization_executed=False,
     )
 
-    assert result.status == "completed"
+    assert result.status == "not_required"
     assert result.normalization_executed is False
