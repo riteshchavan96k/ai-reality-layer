@@ -37,6 +37,16 @@ class EvidenceQualityValidationResult:
             raise ValueError("usable status requires usable=True")
         if self.status != "usable" and self.usable:
             raise ValueError("non-usable status requires usable=False")
+        if self.status == "usable" and self.source_count == 0:
+            raise ValueError("usable evidence quality requires at least one source")
+        if self.status == "usable" and not self.has_content:
+            raise ValueError("usable evidence quality requires has_content=True")
+        if self.status == "usable" and not self.provenance_complete:
+            raise ValueError(
+                "usable evidence quality requires provenance_complete=True"
+            )
+        if self.status == "usable" and self.issues:
+            raise ValueError("usable evidence quality cannot contain validation issues")
         if self.status == "not_required" and self.issues:
             raise ValueError("not_required status cannot contain validation issues")
 
