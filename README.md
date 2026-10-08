@@ -504,3 +504,19 @@ existing production helper semantics. Empty link collections require a linked
 claim count of zero.
 
 See `docs/STEP_197.md` for the exact invariant and regression scope.
+
+
+## Canonical claim-evidence linking execution-state integrity (Step 198)
+
+Canonical `ClaimEvidenceLinkingResult` records now reject
+`status="usable"` when `linking_executed=False`.
+
+A usable linking result can provide positive claim-evidence coverage to the
+confidence layer, so it cannot simultaneously claim that linking never ran.
+`empty` and `unavailable` linking results remain permitted to record
+`linking_executed=False` because they cannot produce full supported coverage.
+
+Step-197 linked-claim count integrity, production linking behavior, and the
+confidence formula remain unchanged.
+
+See `docs/STEP_198.md` for the exact invariant and regression scope.
