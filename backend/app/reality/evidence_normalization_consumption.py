@@ -21,6 +21,10 @@ class EvidenceNormalizationConsumption:
             raise ValueError("usable must be a boolean")
         if not isinstance(self.consumption_executed, bool):
             raise ValueError("consumption_executed must be a boolean")
+        if self.status == "usable" and not self.consumption_executed:
+            raise ValueError(
+                "usable evidence normalization consumption requires consumption_executed to be True"
+            )
         if self.status == "usable" and not self.usable:
             raise ValueError("usable status requires usable=True")
         if self.status == "rejected" and self.usable:
