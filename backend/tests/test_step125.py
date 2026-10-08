@@ -10,6 +10,14 @@ def test_claim_contract_is_immutable_and_serializable():
         "text": "The system is available.",
         "source_refs": ["https://example.com"],
         "extraction_method": "deterministic_sentence_split",
+        "semantic_structure": {
+            "status": "unstructured",
+            "subject": None,
+            "predicate": None,
+            "object": None,
+            "structuring_method": "not_attempted",
+            "reason": "semantic_structuring_not_attempted",
+        },
     }
     with pytest.raises(Exception):
         claim.text = "changed"
