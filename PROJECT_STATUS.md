@@ -1,3 +1,19 @@
+# Current Status — Step 202
+
+## Step 202 — Canonical Evidence-Normalization Execution-State Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 202 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** Step 152 established `EvidenceNormalizationResult.validate()`, but `status="completed"` could still coexist with `normalization_executed=False`. The downstream `EvidenceNormalizationConsumer` also interpreted arbitrary dictionaries directly rather than invoking the canonical normalization-result validator, so a raw completed/non-executed mapping could bypass the dataclass boundary and still be classified as usable.
+
+**Implementation:** `EvidenceNormalizationResult.__post_init__()` now requires `normalization_executed=True` whenever `status=="completed"`. `EvidenceNormalizationConsumer.consume()` now validates typed or mapping-shaped input through `EvidenceNormalizationResult.validate()` before inspecting status/sources/content. This makes the completed execution invariant effective at the immediate downstream consumption boundary. `not_required`, `invalid_evidence`, and `unknown` are deliberately not assigned new execution semantics in this step.
+
+**Compatibility and safety:** `RetrievalEvidenceNormalizer.normalize_result()` already emits `normalization_executed=True` for normal production outputs, so the orchestration path is unchanged. Step 201 normalization-consumption execution integrity, Step 200 evidence-quality usable-state integrity, Step 199 claim-extraction integrity, Steps 196–198 linking/conflict integrity, Steps 188–195 provenance/observation/freshness integrity, APIs, retrieval behavior, and resource limits remain unchanged. No semantic evidence scoring, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step202.py` covers direct/mapping/from-mapping rejection of completed non-executed normalization, valid execution, non-boolean rejection, deliberate non-completed flexibility, consumer canonical-validation enforcement, typed/mapping consumer compatibility, production normalizer completed/invalid/not-required behavior, source-count/content-presence non-regression, and Step-201 downstream execution integrity.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 202 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 201
 
 ## Step 201 — Canonical Evidence-Normalization Consumption Execution-State Integrity
