@@ -107,9 +107,16 @@ def solve(request: SolveRequest):
 )
 def reality_state_from_evidence(request: EvidenceRealityStateRequest):
     """Build a canonical Reality State from caller-supplied source-scoped evidence."""
+    documents = [document.model_dump() for document in request.documents]
+    if request.entity is None:
+        return build_reality_state_from_evidence(
+            request.task,
+            documents,
+            freshness_max_age_seconds=request.freshness_max_age_seconds,
+        )
     return build_reality_state_from_evidence(
         request.task,
-        [document.model_dump() for document in request.documents],
+        documents,
         freshness_max_age_seconds=request.freshness_max_age_seconds,
         entity=request.entity,
     )
@@ -123,9 +130,17 @@ def reality_state_from_evidence(request: EvidenceRealityStateRequest):
 def reality_state(request: RealityStateRequest):
     """Return the canonical evidence-backed Reality State without a model execution request."""
     if request.freshness_max_age_seconds is None:
+        if request.entity is None:
+            reality_state = build_reality_state(request.task)
+        else:
+            reality_state = build_reality_state(
+                request.task,
+                entity=request.entity,
+            )
+    elif request.entity is None:
         reality_state = build_reality_state(
             request.task,
-            entity=request.entity,
+            freshness_max_age_seconds=request.freshness_max_age_seconds,
         )
     else:
         reality_state = build_reality_state(
