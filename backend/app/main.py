@@ -27,6 +27,7 @@ from backend.app.orchestrator.orchestrator import (
     build_reality_state,
     build_reality_state_from_evidence,
 )
+from backend.app.reality.reality_verification import RealityVerification
 
 
 app = FastAPI(
@@ -159,6 +160,9 @@ def reality_state(request: RealityStateRequest):
                     "explicit_input" if request.entity is not None else "not_provided"
                 ),
             },
+            "verification": RealityVerification.not_completed(
+                "reality_state_not_available"
+            ).to_dict(),
             "evidence": {},
             "claims": {},
             "claim_evidence_linking": {},
