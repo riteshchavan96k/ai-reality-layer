@@ -486,3 +486,21 @@ Existing deterministic conflict detection, provenance, freshness, and
 confidence semantics remain unchanged.
 
 See `docs/STEP_196.md` for the exact invariant and regression scope.
+
+
+## Canonical claim-evidence linked-claim count integrity (Step 197)
+
+Canonical `ClaimEvidenceLinkingResult` records now require
+`linked_claim_count` to exactly match the number of distinct
+case-insensitive claim texts represented by the canonical `links` collection.
+
+This closes a confidence-integrity gap where a malformed linking result could
+overstate linked-claim coverage—for example, one actual linked claim with
+`linked_claim_count=2` and `claim_count=2`—and thereby appear to have 100%
+claim-evidence coverage.
+
+Multiple links for the same claim still count as one linked claim, matching the
+existing production helper semantics. Empty link collections require a linked
+claim count of zero.
+
+See `docs/STEP_197.md` for the exact invariant and regression scope.
