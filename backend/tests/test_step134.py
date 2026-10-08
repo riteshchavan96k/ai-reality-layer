@@ -17,6 +17,7 @@ def test_reality_state_response_exposes_canonical_fields():
         "status",
         "task",
         "entity",
+        "verification",
         "evidence",
         "claims",
         "claim_evidence_linking",
