@@ -48,12 +48,27 @@ class RealityEntityResponse(BaseModel):
     identification_method: Literal["explicit_input", "not_provided"]
 
 
+class RealityVerificationResponse(BaseModel):
+    """HTTP representation of Reality State verification-pass metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["completed", "not_completed"]
+    verified_at: str | None
+    verification_method: Literal[
+        "deterministic_pipeline_snapshot",
+        "not_completed",
+    ]
+    reason: str | None = None
+
+
 class RealityStateResponse(BaseModel):
     """HTTP response contract for the canonical Reality State snapshot."""
 
     status: Literal["supported", "uncertain", "insufficient", "unavailable"]
     task: str
     entity: RealityEntityResponse
+    verification: RealityVerificationResponse
     evidence: dict[str, Any]
     claims: dict[str, Any]
     claim_evidence_linking: dict[str, Any]
@@ -68,6 +83,7 @@ class RealityStateResponse(BaseModel):
 
 __all__ = [
     "RealityEntityResponse",
+    "RealityVerificationResponse",
     "RealityStateRequest",
     "RealityStateResponse",
 ]
