@@ -21,10 +21,24 @@ class RetrievalResultConsumption:
             raise ValueError("usable must be a boolean")
         if not isinstance(self.consumption_executed, bool):
             raise ValueError("consumption_executed must be a boolean")
+        if self.status == "usable" and not self.consumption_executed:
+            raise ValueError(
+                "usable retrieval consumption requires consumption_executed to be True"
+            )
         if self.status == "usable" and not self.usable:
             raise ValueError("usable status requires usable=True")
         if self.status == "rejected" and self.usable:
             raise ValueError("rejected status requires usable=False")
+        if self.status == "usable" and self.retrieval_status not in {"completed", "not_required"}:
+            raise ValueError(
+                "usable retrieval consumption requires completed or not_required retrieval status"
+            )
+        if self.status == "usable" and self.reason is not None:
+            raise ValueError("usable retrieval consumption cannot contain a reason")
+        if self.status == "rejected" and (
+            not isinstance(self.reason, str) or not self.reason.strip()
+        ):
+            raise ValueError("rejected retrieval consumption requires a nonempty reason")
         if self.reason is not None and (not isinstance(self.reason, str) or not self.reason.strip()):
             raise ValueError("reason must be a nonempty string when provided")
 
