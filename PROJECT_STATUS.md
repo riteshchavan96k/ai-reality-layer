@@ -1,3 +1,19 @@
+# Current Status — Step 199
+
+## Step 199 — Canonical Claim-Extraction Execution-State Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 199 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** Step 154 introduced `extraction_executed` as part of the canonical claim-extraction result but only enforced its boolean type. A canonical result could still contain `status="usable"`, real extracted claims, and `extraction_executed=False`. Both `ClaimEvidenceLinker` and `ClaimConflictDetector` consume claim status/data rather than that execution flag, so contradictory extraction metadata could still produce usable links, conflict outcomes, positive claim coverage, and eventually supported confidence.
+
+**Implementation:** `ClaimExtractionResult.__post_init__()` now requires `extraction_executed=True` whenever `status=="usable"`. Mapping-shaped results inherit the same invariant through canonical reconstruction and normalization, including mapping intake by the linker and conflict detector. `empty` and `unavailable` results are deliberately permitted to record `extraction_executed=False` because neither state can provide positive claim coverage.
+
+**Compatibility and safety:** Existing `ClaimExtractionResult.usable_result()` and `EvidenceClaimExtractor` already emit executed usable results, so normal behavior is unchanged. Step 197 linked-claim count integrity, Step 198 linking execution integrity, Step 196 conflict execution integrity, Step 182 source-scoped lineage, Steps 188–195 provenance/observation/freshness integrity, downstream confidence policy, APIs, retrieval behavior, and resource limits remain unchanged. No semantic extraction, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step199.py` covers direct/mapping/normalizer rejection of usable non-executed extraction, valid executed usable extraction, non-boolean rejection, deliberate empty/unavailable flexibility, helper semantics, linker/conflict-detector rejection paths, production extractor behavior, valid extraction → linking → supported-confidence flow, Step-198 non-regression, and preservation of the usable-result claim requirement.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 199 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 198
 
 ## Step 198 — Canonical Claim-Evidence Linking Execution-State Integrity

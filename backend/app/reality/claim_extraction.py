@@ -47,6 +47,10 @@ class ClaimExtractionResult:
             raise ValueError("source_count must be a non-negative integer")
         if not isinstance(self.extraction_executed, bool):
             raise ValueError("extraction_executed must be a boolean")
+        if self.status == "usable" and not self.extraction_executed:
+            raise ValueError(
+                "usable claim extraction requires extraction_executed to be True"
+            )
         if self.status == "usable" and not self.claims:
             raise ValueError("usable claim extraction requires at least one claim")
         if self.status == "empty" and self.claims:
