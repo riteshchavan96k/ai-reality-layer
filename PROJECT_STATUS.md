@@ -1,3 +1,19 @@
+# Current Status — Step 196
+
+## Step 196 — Canonical Claim-Conflict Execution-State Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 196 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** Step 156 introduced `detection_executed` as part of the canonical claim-conflict result but only enforced its boolean type. Both `status="usable"` with detected conflicts and `status="empty"` with zero conflicts could still carry `detection_executed=False`. The empty case is especially significant because downstream confidence treats zero detected conflicts as a positive signal when the remaining grounding signals are healthy.
+
+**Implementation:** `ClaimConflictResult.__post_init__()` now requires `detection_executed=True` whenever `status` is `usable` or `empty`. Mapping-shaped results inherit the same invariant through canonical reconstruction and normalization. `unavailable` results are deliberately permitted to record `detection_executed=False`, preserving the ability to represent conflict detection that could not run.
+
+**Compatibility and safety:** The production conflict detector already emits executed usable results when conflicts are found, executed empty results when no conflicts are found, and unavailable results when upstream claim extraction is unavailable. Normal production behavior is therefore unchanged. Step 182 source-scoped lineage and Steps 188–195 provenance/observation/freshness integrity remain unchanged. No semantic contradiction inference, truth/authenticity verification, provider, persistence, auth, UI, monitoring, model/LLM judging, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step196.py` covers direct/mapping/normalizer rejection for usable and empty non-executed results, valid executed usable/empty results, non-boolean rejection, unavailable non-executed compatibility, detector conflict/zero-conflict/unavailable behavior, supported-confidence compatibility for a valid executed empty result, uncertainty for unavailable detection, and conflict-count consistency.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 196 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 195
 
 ## Step 195 — Canonical Source-Provenance Execution-State Integrity

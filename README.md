@@ -466,3 +466,23 @@ Existing source lineage, observation, freshness, and confidence semantics
 remain unchanged.
 
 See `docs/STEP_195.md` for the exact invariant and regression scope.
+
+
+## Canonical claim-conflict execution-state integrity (Step 196)
+
+Canonical `ClaimConflictResult` records now reject both `usable` and
+`empty` results when `detection_executed=False`.
+
+This is stricter than the provenance/observation/freshness execution rules
+because an `empty` conflict result means conflict detection actually ran and
+found zero candidate conflicts. Downstream confidence can treat that zero
+conflict count as part of a supported result, so an empty result cannot safely
+claim that detection never executed.
+
+Only `unavailable` conflict results may explicitly record
+`detection_executed=False`.
+
+Existing deterministic conflict detection, provenance, freshness, and
+confidence semantics remain unchanged.
+
+See `docs/STEP_196.md` for the exact invariant and regression scope.
