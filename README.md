@@ -573,3 +573,20 @@ rule when `consumption_evaluated` is mapped into the canonical execution
 field.
 
 See `docs/STEP_201.md` for the exact invariant and regression scope.
+
+
+## Canonical evidence-normalization execution-state integrity (Step 202)
+
+Canonical `EvidenceNormalizationResult` records now reject
+`status="completed"` when `normalization_executed=False`.
+
+The immediate downstream `EvidenceNormalizationConsumer` now validates all
+typed or mapping-shaped normalized evidence through
+`EvidenceNormalizationResult.validate()` before classifying it. This prevents
+a raw completed/non-executed mapping from bypassing the canonical contract and
+being treated as usable evidence.
+
+Non-completed statuses keep their existing execution flexibility, while normal
+production normalization continues to record execution as `True`.
+
+See `docs/STEP_202.md` for the exact invariant and regression scope.
