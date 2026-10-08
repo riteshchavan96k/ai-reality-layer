@@ -3,6 +3,10 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from backend.app.reality.freshness_policy import is_positive_finite_number
+from backend.app.reality.reality_entity import (
+    MAX_REALITY_ENTITY_NAME_CHARS,
+    normalize_explicit_entity_name,
+)
 
 from backend.app.reality.source_observation import (
     MAX_SOURCE_OBSERVED_AT_CHARS,
@@ -70,6 +74,10 @@ class EvidenceRealityStateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     task: str = Field(min_length=1, max_length=10_000)
+    entity: str | None = Field(
+        default=None,
+        max_length=MAX_REALITY_ENTITY_NAME_CHARS,
+    )
     documents: list[EvidenceDocumentInput] = Field(
         min_length=1,
         max_length=MAX_SUBMITTED_DOCUMENTS,
@@ -83,6 +91,13 @@ class EvidenceRealityStateRequest(BaseModel):
         if not normalized:
             raise ValueError("task must not be blank")
         return normalized
+
+    @field_validator("entity", mode="before")
+    @classmethod
+    def validate_entity(cls, value: object) -> object:
+        if value is None:
+            return None
+        return normalize_explicit_entity_name(value)
 
     @field_validator("freshness_max_age_seconds", mode="before")
     @classmethod
