@@ -29,6 +29,10 @@ class EvidenceQualityValidationResult:
             raise ValueError("issues must be a list of nonempty strings")
         if not isinstance(self.validation_executed, bool):
             raise ValueError("validation_executed must be a boolean")
+        if self.status == "usable" and not self.validation_executed:
+            raise ValueError(
+                "usable evidence quality requires validation_executed to be True"
+            )
         if self.status == "usable" and not self.usable:
             raise ValueError("usable status requires usable=True")
         if self.status != "usable" and self.usable:
