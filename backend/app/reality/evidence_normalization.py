@@ -33,6 +33,10 @@ class EvidenceNormalizationResult:
             raise ValueError("has_content must match content presence")
         if not isinstance(self.normalization_executed, bool):
             raise ValueError("normalization_executed must be a boolean")
+        if self.status == "completed" and not self.normalization_executed:
+            raise ValueError(
+                "completed evidence normalization requires normalization_executed to be True"
+            )
 
     @classmethod
     def validate(cls, result: object) -> "EvidenceNormalizationResult":
