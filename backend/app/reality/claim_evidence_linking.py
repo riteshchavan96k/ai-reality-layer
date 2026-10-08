@@ -52,6 +52,13 @@ class ClaimEvidenceLinkingResult:
                 raise ValueError(f"{name} must be a non-negative integer")
         if self.linked_claim_count > self.claim_count:
             raise ValueError("linked_claim_count cannot exceed claim_count")
+        actual_linked_claim_count = len(
+            {link.claim_text.casefold() for link in self.links}
+        )
+        if self.linked_claim_count != actual_linked_claim_count:
+            raise ValueError(
+                "linked_claim_count must match distinct linked claims"
+            )
         if not isinstance(self.linking_executed, bool):
             raise ValueError("linking_executed must be a boolean")
         if self.status == "usable" and not self.links:
