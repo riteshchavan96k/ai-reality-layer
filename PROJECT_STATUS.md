@@ -1,3 +1,19 @@
+# Current Status — Step 201
+
+## Step 201 — Canonical Evidence-Normalization Consumption Execution-State Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 201 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** Step 153 established the canonical `EvidenceNormalizationConsumption` gate, but a result could still declare `status="usable"` / `usable=True` while `consumption_executed=False`. The orchestration pipeline gates entry into evidence-quality validation on `evidence_consumption.usable` and does not separately inspect the execution flag, so contradictory positive consumption metadata could authorize downstream evidence processing.
+
+**Implementation:** `EvidenceNormalizationConsumption.__post_init__()` now requires `consumption_executed=True` whenever `status=="usable"`. Mapping-shaped decisions inherit the same invariant through canonical validation/normalization. The legacy `EvidenceNormalizationConsumptionResult` adapter also inherits the guard because `consumption_evaluated` is translated into `consumption_executed`. Rejected decisions remain permitted to record `False` because they fail closed.
+
+**Compatibility and safety:** The production `EvidenceNormalizationConsumer` already emits evaluated/executed results for completed, not-required, invalid, empty, and unknown evidence paths, so normal behavior is unchanged. Step 200 evidence-quality usable-state integrity, Step 199 claim-extraction integrity, Steps 196–198 linking/conflict integrity, Steps 188–195 provenance/observation/freshness integrity, APIs, retrieval behavior, and resource limits remain unchanged. `EvidenceNormalizationResult.normalization_executed` is deliberately not changed in Step 201; that is a separate upstream boundary.
+
+**Regressions:** `backend/tests/test_step201.py` covers direct/mapping/normalizer rejection, legacy-adapter rejection, valid executed usable decisions, non-boolean rejection, rejected/non-executed compatibility, current helper semantics, production consumer completed/not-required/rejected paths, empty completed evidence rejection, status/usability non-regression, and explicit preservation of the upstream normalization-result execution semantics.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 201 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 200
 
 ## Step 200 — Canonical Evidence-Quality Usable-State Integrity
