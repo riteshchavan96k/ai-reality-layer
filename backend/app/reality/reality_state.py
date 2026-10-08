@@ -1,5 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
+
+from backend.app.reality.reality_entity import RealityEntity
 
 
 _ALLOWED_STATUSES = {"supported", "uncertain", "insufficient", "unavailable"}
@@ -29,6 +31,7 @@ class RealityState:
     freshness: dict[str, Any]
     conflicts: dict[str, Any]
     confidence_signals: dict[str, Any]
+    entity: RealityEntity = field(default_factory=RealityEntity.unspecified)
     assembly_method: str = "deterministic_signal_snapshot"
     reason: str | None = None
 
@@ -41,6 +44,7 @@ class RealityState:
             value = getattr(self, name)
             if not isinstance(value, dict):
                 raise ValueError(f"{name} must be a dictionary")
+        object.__setattr__(self, "entity", RealityEntity.validate(self.entity))
         if self.assembly_method != "deterministic_signal_snapshot":
             raise ValueError("invalid assembly method")
         if self.status == "unavailable" and (not isinstance(self.reason, str) or not self.reason.strip()):
@@ -72,6 +76,7 @@ class RealityState:
             freshness=raw_state["freshness"],
             conflicts=raw_state["conflicts"],
             confidence_signals=raw_state["confidence_signals"],
+            entity=RealityEntity.validate(raw_state.get("entity")),
             assembly_method=raw_state["assembly_method"],
             reason=raw_state["reason"],
         )
@@ -80,6 +85,7 @@ class RealityState:
         return {
             "status": self.status,
             "task": self.task,
+            "entity": self.entity.to_dict(),
             "evidence": self.evidence,
             "claims": self.claims,
             "claim_evidence_linking": self.claim_evidence_linking,
