@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from backend.app.reality.reality_entity import RealityEntity
+from backend.app.reality.reality_verification import RealityVerification
 
 
 _ALLOWED_STATUSES = {"supported", "uncertain", "insufficient", "unavailable"}
@@ -34,6 +35,11 @@ class RealityState:
     assembly_method: str = "deterministic_signal_snapshot"
     reason: str | None = None
     entity: RealityEntity = field(default_factory=RealityEntity.unspecified)
+    verification: RealityVerification = field(
+        default_factory=lambda: RealityVerification.not_completed(
+            "verification_metadata_unavailable"
+        )
+    )
 
     def __post_init__(self) -> None:
         if self.status not in _ALLOWED_STATUSES:
@@ -45,6 +51,11 @@ class RealityState:
             if not isinstance(value, dict):
                 raise ValueError(f"{name} must be a dictionary")
         object.__setattr__(self, "entity", RealityEntity.validate(self.entity))
+        object.__setattr__(
+            self,
+            "verification",
+            RealityVerification.validate(self.verification),
+        )
         if self.assembly_method != "deterministic_signal_snapshot":
             raise ValueError("invalid assembly method")
         if self.status == "unavailable" and (not isinstance(self.reason, str) or not self.reason.strip()):
@@ -77,6 +88,9 @@ class RealityState:
             conflicts=raw_state["conflicts"],
             confidence_signals=raw_state["confidence_signals"],
             entity=RealityEntity.validate(raw_state.get("entity")),
+            verification=RealityVerification.validate(
+                raw_state.get("verification")
+            ),
             assembly_method=raw_state["assembly_method"],
             reason=raw_state["reason"],
         )
@@ -86,6 +100,7 @@ class RealityState:
             "status": self.status,
             "task": self.task,
             "entity": self.entity.to_dict(),
+            "verification": self.verification.to_dict(),
             "evidence": self.evidence,
             "claims": self.claims,
             "claim_evidence_linking": self.claim_evidence_linking,
