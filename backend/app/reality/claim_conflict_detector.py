@@ -4,6 +4,7 @@ import re
 from backend.app.reality.claim_conflict import ClaimConflict, ClaimConflictResult
 from backend.app.reality.claim_conflict_normalizer import ClaimConflictResultNormalizer
 from backend.app.reality.claim_extraction import ClaimExtractionResult, EvidenceClaim
+from backend.app.reality.claim_semantic_structure import ClaimSemanticStructure
 
 
 class ClaimConflictDetector:
@@ -76,7 +77,19 @@ class ClaimConflictDetector:
             refs = item.get("source_refs", [])
             if not isinstance(refs, list):
                 raise ValueError("claim source_refs must be a list")
-            claims.append(EvidenceClaim(item.get("text", ""), tuple(refs), item.get("extraction_method", "deterministic_sentence_split")))
+            claims.append(
+                EvidenceClaim(
+                    item.get("text", ""),
+                    tuple(refs),
+                    item.get(
+                        "extraction_method",
+                        "deterministic_sentence_split",
+                    ),
+                    ClaimSemanticStructure.validate(
+                        item.get("semantic_structure")
+                    ),
+                )
+            )
         return ClaimExtractionResult(value.get("status"), tuple(claims), value.get("source_count", 0), value.get("extraction_executed", True), value.get("reason"))
 
 
