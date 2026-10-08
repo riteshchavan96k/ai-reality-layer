@@ -1,3 +1,23 @@
+# Current Status — Step 204
+
+## Step 204 — First-Class Reality Entity Foundation
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 204 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified product gap:** The MVP specification defines Entity as a core object and lists entity in the structured Reality State output, but the live repository through Step 203 had no entity implementation files and Reality State snapshots were task-only. Continuing with lower-impact provider-response invariant cleanup would not close this larger MVP gap.
+
+**Implementation:** Added immutable `RealityEntity` with explicit `specified` / `unspecified` states, normalized bounded names, and identification methods `explicit_input` / `not_provided`. `RealityState` now carries the typed entity and serializes it as a top-level field. Older mapping-shaped Reality States without entity normalize to `unspecified`, and historical positional constructor semantics are preserved. Both retrieval-backed and submitted-evidence builders accept optional explicit entity input.
+
+**API integration:** `RealityStateRequest` and `EvidenceRealityStateRequest` now accept optional bounded entity names, and `RealityStateResponse` exposes a typed `RealityEntityResponse`. Both HTTP handlers pass explicit entity identity through to the canonical snapshot. Omitted entity remains explicit `unspecified`.
+
+**Safety boundary:** Step 204 deliberately performs no entity inference from task text. It adds no regex/heuristic extraction, NER, embeddings, LLM extraction, entity resolution, aliases, entity IDs, type inference, or entity-aware retrieval-query rewriting. A task mentioning Company X without explicit entity input remains `unspecified`, preventing false identity claims.
+
+**Compatibility:** Existing callers may omit entity. Legacy Reality State mappings without the field normalize safely. The Step-180 exact request-field regression is intentionally updated for the new optional field while preserving the rule that direct documents are not accepted by the retrieval endpoint. Existing evidence, claims, linking, provenance, freshness, conflicts, confidence, retrieval and API error semantics are unchanged.
+
+**Regressions:** `backend/tests/test_step204.py` covers the canonical entity contract, invalid/inconsistent values, legacy mapping compatibility, both Reality State construction paths, explicit no-inference behavior, both request models and handlers, typed response/OpenAPI schema, and existing Python builder compatibility.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 204 complete until the entire backend suite passes on the final PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 203
 
 ## Step 203 — Canonical Retrieval-Result Consumption State Integrity
