@@ -61,6 +61,10 @@ class ClaimEvidenceLinkingResult:
             )
         if not isinstance(self.linking_executed, bool):
             raise ValueError("linking_executed must be a boolean")
+        if self.status == "usable" and not self.linking_executed:
+            raise ValueError(
+                "usable claim-evidence linking requires linking_executed to be True"
+            )
         if self.status == "usable" and not self.links:
             raise ValueError("usable claim-evidence linking requires at least one link")
         if self.status == "empty" and self.links:
