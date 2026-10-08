@@ -77,26 +77,37 @@ positive completed-evidence contradiction.
 A dataclass invariant alone would be bypassable if callers supplied a raw
 mapping directly to `EvidenceNormalizationConsumer`.
 
-Step 202 therefore also makes that consumer validate its input through
-`EvidenceNormalizationResult.validate()` before interpreting status, sources,
-or content.
+The consumer has an older compatibility contract, established by Steps 88–89,
+that accepts compact dictionaries containing only status, sources, and content
+and returns structured rejection reasons for malformed source/content shapes.
+
+Step 202 preserves that behavior while closing the execution bypass:
+
+1. existing input-type and source/content checks run first;
+2. a completed or not-required mapping is reconstructed through
+   `EvidenceNormalizationResult.from_mapping()`;
+3. explicit canonical metadata, including `normalization_executed`, is then
+   validated by the canonical result contract;
+4. only after that may the consumer emit a positive consumption decision.
 
 The boundary is now:
 
 ```text
-normalization result
-→ canonical EvidenceNormalizationResult validation
+legacy or canonical normalized-evidence input
+→ compatibility shape checks
+→ canonical EvidenceNormalizationResult reconstruction
 → normalization consumption classification
 → Step-201 canonical consumption validation
 ```
 
-This means a mapping with `status="completed"` and
+A mapping with `status="completed"` and
 `normalization_executed=False` is rejected before it can be classified as
-usable.
+usable, while historical compact mappings without newer metadata remain
+compatible.
 
-The consumer now also accepts an existing canonical
-`EvidenceNormalizationResult` directly because the canonical validator
-already supports typed objects.
+The consumer also accepts an existing canonical
+`EvidenceNormalizationResult` directly by serializing it through the same
+classification path.
 
 ## Production compatibility
 
@@ -119,7 +130,8 @@ The normal orchestration path therefore does not change.
 - non-boolean execution rejection;
 - deliberate preservation of non-completed execution flexibility;
 - consumer rejection of completed/non-executed mappings;
-- consumer enforcement of the complete canonical mapping shape;
+- preservation of legacy compact completed mappings;
+- preservation of legacy invalid-source and invalid-input behavior;
 - consumer acceptance of canonical typed and mapping inputs;
 - not-required downstream compatibility;
 - invalid/unknown downstream rejection;
