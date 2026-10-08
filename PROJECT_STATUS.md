@@ -1,3 +1,19 @@
+# Current Status — Step 203
+
+## Step 203 — Canonical Retrieval-Result Consumption State Integrity
+
+**Status:** Implementation and dedicated regressions are committed on the isolated Step 203 branch. Full GitHub-hosted compilation/regression validation, PR merge, post-merge `main` validation, and final synchronized-status validation are still required before completion may be claimed.
+
+**Verified gap:** Step 151 established canonical retrieval-consumption validation, but the result contract could still authorize downstream processing with `status="usable"` while `consumption_executed=False`, while referring to a `failed` or `blocked` retrieval, or while carrying a rejection reason. A rejected decision could also omit its reason. The orchestration pipeline gates evidence normalization directly on `consumption.usable`, so those contradictory states weaken the final retrieval-to-evidence boundary.
+
+**Implementation:** `RetrievalResultConsumption.__post_init__()` now requires every usable decision to have `consumption_executed=True`, `retrieval_status` of `completed` or `not_required`, and no reason. Rejected decisions must remain non-usable and carry a nonempty reason. Rejected decisions are deliberately allowed to record `consumption_executed=False` because they remain fail-closed. Mapping-shaped decisions inherit the same state matrix through `RetrievalResultConsumption.validate()` and the existing normalizer.
+
+**Compatibility and safety:** The production `RetrievalResultConsumer` already emits exactly these states for completed, not-required, failed, blocked, and empty-completed retrievals, so normal orchestration behavior is unchanged. Step 202 evidence-normalization execution integrity, Step 201 normalization-consumption execution integrity, Step 200 evidence-quality usable-state integrity, Step 199 claim-extraction integrity, Steps 196–198 linking/conflict integrity, Steps 188–195 provenance/observation/freshness integrity, APIs, retrieval execution, provider selection, and resource limits remain unchanged. No ML/DL, LLM reasoning, embeddings/vector search, new providers, persistence, auth, UI, monitoring, or autonomous behavior was introduced.
+
+**Regressions:** `backend/tests/test_step203.py` covers direct/mapping/normalizer execution rejection, failed/blocked positive-state rejection, helper protection, usable reason rejection, rejected missing/blank reason rejection, rejected/non-executed compatibility, valid completed/not-required decisions, non-boolean rejection, production consumer classification, Step-202 normalization compatibility, and preservation of existing status/usability behavior.
+
+**Validation:** Pending full GitHub Actions validation. Do not mark Step 203 complete until the entire backend suite passes on the PR head, the merged `main` implementation commit, and the final synchronized `main` status commit.
+
 # Current Status — Step 202
 
 ## Step 202 — Canonical Evidence-Normalization Execution-State Integrity
