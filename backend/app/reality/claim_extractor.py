@@ -106,6 +106,7 @@ class EvidenceClaimExtractor:
                             dict.fromkeys((*previous.source_refs, *source_refs))
                         ),
                         extraction_method=previous.extraction_method,
+                        semantic_structure=previous.semantic_structure,
                     )
 
         if not claims_by_key:
