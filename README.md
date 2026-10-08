@@ -609,3 +609,29 @@ consumer and prevents contradictory dependency output from authorizing evidence
 normalization.
 
 See `docs/STEP_203.md` for the complete state matrix and regression scope.
+
+
+## First-class Reality Entity foundation (Step 204)
+
+Reality States now include a canonical top-level `entity` object.
+
+Both Reality State endpoints accept an optional explicit entity name. When a
+caller supplies `"entity": "Company X"`, the resulting snapshot records:
+
+```json
+{
+  "status": "specified",
+  "name": "Company X",
+  "identification_method": "explicit_input"
+}
+```
+
+When no entity is supplied, the snapshot records an explicit `unspecified`
+entity rather than trying to infer identity from task text.
+
+This is the foundation for future entity resolution, structured claim subjects,
+persistent entity histories and a Reality Graph. Step 204 does not yet perform
+NER, heuristic parsing, embedding matching, LLM entity extraction or
+entity-aware retrieval rewriting.
+
+See `docs/STEP_204.md` for the complete contract and compatibility rules.
