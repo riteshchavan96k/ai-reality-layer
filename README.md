@@ -732,3 +732,19 @@ change to the external request/response schema or the default
 `unstructured` behavior.
 
 See `docs/STEP_208.md` for the verified bug, fix, and regression tests.
+
+## Semantic structuring method integrity and bounded metadata (Step 209)
+
+The canonical semantic-structure contract now rejects a `structured` claim
+whose `structuring_method` normalizes to the reserved `not_attempted` marker
+(including surrounding whitespace). Adapter-provided metadata is bounded:
+normalized `structuring_method` is at most **256 characters** and normalized
+`unstructured.reason` is at most **1,024 characters**.
+
+These rules apply to typed claims, legacy-compatible mapping reconstruction,
+optional in-process semantic adapter output, and Reality State JSON.
+Invalid adapter output remains explicitly `unstructured` with
+`semantic_structuring_failed` rather than leaking bad metadata.
+The default behavior still performs no ML/LLM inference.
+
+See `docs/STEP_209.md` for exact invariants and regression tests.
