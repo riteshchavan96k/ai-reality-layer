@@ -1,3 +1,17 @@
+# Current Status — Step 208
+
+## Step 208 — Submitted-Evidence Semantic Structuring Integrity
+
+**Status:** Implementation pending complete hosted GitHub Actions validation and merge into `main`. Do not mark complete before feature-branch, merged-`main`, and final status-synchronization checks pass.
+
+**Verified defect:** Step 207 added optional semantic structuring after the extractor's internal deduplication. But `SubmittedEvidenceBundle.extract_claims` used an independent per-document loop and reconstructed cross-document duplicate `EvidenceClaim` objects without `semantic_structure`, silently discarding valid structured results. It also invoked optional semantic adapters on duplicate claims or globally over-budget evidence before discovering the submission's final state.
+
+**Fix:** Delegate submitted-document extraction to a **single** existing `EvidenceClaimExtractor.extract_result(self.to_evidence())` invocation. This retains source-scoped exact text, globally merges casefold duplicates and source references first, enforces the shared 2,000-claim budget before structuring, and preserves the existing `submitted_claim_limit_exceeded` error translation.
+
+**Compatibility:** No new providers, public API fields, source fabrication, entity inference, ML/LLM invocation or truth certification. Existing Step 180/185 contract semantics and Step 207 default `unstructured` behavior remain.
+
+**Validation:** New targeted `backend/tests/test_step208.py` plus complete prior suite required. See `docs/STEP_208.md`.
+
 # Current Status — Step 207
 
 ## Step 207 — Semantic Claim Structuring Execution Boundary
