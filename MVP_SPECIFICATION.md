@@ -220,6 +220,19 @@ retain legacy behavior. The historical Step 218 scorecard is preserved,
 with a separate Step 219 post-gate scorecard in
 `docs/STEP_219_SCORECARD.md`.
 
+
+Step 220 opt-in assurance note: direct developer-submitted evidence
+may require `require_independent_source_text_match=true`, which fails
+closed unless each submitted excerpt appears verbatim in a canonical
+source URI's text independently returned by a server-installed reader.
+The check records auditable per-source results inside the existing
+evidence mapping and never accepts client-controlled verification
+assertions. No reader is configured by default: strict-mode requests
+remain `uncertain` until the operator installs a safely implemented
+provider. A match is not publisher authentication or factual proof.
+The Step 220 simulated-observer scores cannot establish real-world
+source assurance; see `docs/STEP_220.md`.
+
 ## 12. Success Criteria
 
 The MVP should demonstrate that:
