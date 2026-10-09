@@ -1,3 +1,17 @@
+# Current Status — Step 221
+
+## Step 221 — Secure Operator-Allowlisted HTTPS Original-Source Reader
+
+**Status:** Production reader implemented on feature branch, pending GitHub-hosted compilation, full regression tests, retained Step 217/218/220 benchmarks, merge, merged-main and exact final status-commit CI. Do not mark completed early.
+
+**Verified gap:** Step 220's strict independent-source text matching returned `uncertain` for every default request, because it only supported injecting a manually written reader callback. That benchmark used simulated source summaries; there was no operator-configured live HTTPS source capture capability.
+
+**Scope:** Add an optional real `AllowlistedHttpsSourceReader` configured exclusively from backend `ARL_INDEPENDENT_SOURCE_ALLOWED_URLS` (JSON exact HTTPS page array). It rejects non-global/mixed DNS addresses and pins the socket to the checked IP with standard TLS verification/SNI, prevents redirects and proxies, bounds HTTP response bytes, timeouts, MIME/charset and HTML extraction, and records original response SHA256 and UTC capture time in per-source strict evidence. No environment setting means no networking and fail-closed uncertainty. Rejecting unsupported responses is intentional.
+
+**Honest limitations:** No raw webpage retention, authenticated publisher signatures, independent factual truth or semantic entailment. Offline mocked HTTPS/DNS tests cannot substitute for a permitted live-source smoke test; production egress, trusted origin policy, monitoring and independent ground-truth evaluation remain necessary. Existing Step 217–220 benchmark scores remain unchanged by default.
+
+**Acceptance:** New tests must demonstrate allowlist rejection before transport, DNS pinning, TLS validation configuration, private/mixed-IP denial, redirect refusal, bounded bytes, parser limitations, full API-to-reader strict evidence integration, capture audit, unconfigured behavior and no previous feature regression. Hosted feature CI, merged-main CI and final status-sync exact-SHA CI must all pass before reporting Step 221 completed.
+
 # Current Status — Step 220
 
 ## Step 220 — Opt-In Independent Source Text Assurance Boundary
