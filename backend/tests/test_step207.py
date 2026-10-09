@@ -204,7 +204,7 @@ def test_invalid_structurer_configuration_is_rejected():
 
 @pytest.mark.parametrize(
     ("claim_text", "refs"),
-    [("", (SOURCE_A,)), ("Claim.", ["bad"]), ("Claim.", ("",))],
+    [("", (SOURCE_A,)), ("Claim.", []), ("Claim.", ()), ("Claim.", ("",))],
 )
 def test_stage_rejects_invalid_inputs(claim_text, refs):
     with pytest.raises(ValueError):
