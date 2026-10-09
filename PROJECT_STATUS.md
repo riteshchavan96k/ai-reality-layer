@@ -2,13 +2,13 @@
 
 ## Step 211 — Semantic Adapter Claim-Budget Enforcement
 
-**Status:** Implementation pending full GitHub-hosted Python 3.13 backend validation and merge. Do not mark completed before successful PR-head CI, merged-main CI, and the final status-sync commit CI.
+**Status:** Complete. Step 211 was implemented and merged through PR #208 after the complete Python 3.13 backend CI passed on feature head `e2231a015b374fff506af0020ad3bcdbe3acf0c0` (run `37923142202`) and the merged implementation SHA `da5527796079eec922d5073899e2b61cec811042` (run `37923218120`), both with **1,889 tests passed**. The final status-sync commit must also pass the full workflow on its exact `main` SHA.
 
 **Verified correctness gap:** Step 184 applied the 2,000-unique-claim limit only when the generic extractor received `status="completed"`, deliberately keeping historical lower-level `status="usable"` without an optional adapter unrestricted. But Step 207's injected semantic adapters can also process `usable` evidence, causing 2,001+ separate adapter invocations despite the claim-count resource boundary described by Steps 208–210.
 
 **Fix:** Apply the existing unique-claim count limit when evidence is `completed` **or** an optional semantic adapter is configured. Enforce it during candidate extraction before any adapter is invoked. Preserve the historic zero-adapter `usable` behavior and the original `retrieved_claim_limit_exceeded` response; submitted bundles continue translating to `submitted_claim_limit_exceeded`. No partial claim graph or source/claim links are emitted when exceeding the limit.
 
-**Validation plan:** New `backend/tests/test_step211.py` verifies both statuses, exact bounds, no-adapter compatibility, multi-source deduplication, no adapter calls on failure, and real submitted-evidence Reality State behavior. Full historical test suite and GitHub-hosted compile must pass; see `docs/STEP_211.md`.
+**Validation:** New `backend/tests/test_step211.py` covers both statuses, exact claim budget, legacy no-adapter compatibility, multi-source deduplication and preserved lineage, zero adapter calls before rejection, unavailable claim-link/conflict behavior, and full submitted-evidence Reality State output. GitHub-hosted Python 3.13 backend compilation and all **1,889 tests** passed independently on feature head (run `37923142202`) and merged `main` (run `37923218120`); final status-sync CI remains required. See `docs/STEP_211.md`.
 
 **Scope:** Existing claim-extractor resource safeguard only. No model provider, API surface, auth, graph, retrieval, or semantic truth changes.
 
