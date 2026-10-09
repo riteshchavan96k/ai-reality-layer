@@ -66,6 +66,9 @@ no semantic model is configured or automatically invoked.
 Current implementation note: Step 208 ensures submitted multi-document evidence
 performs global claim deduplication before optional structuring, preserving
 structured metadata and all supporting source references.
+Current implementation note: Step 209 validates normalized semantic
+structuring-method identity and bounds adapter-provided method/reason
+metadata to prevent contradictory or oversized canonical claims.
 
 ### Evidence
 
