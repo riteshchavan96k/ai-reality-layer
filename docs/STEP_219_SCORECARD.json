@@ -1,0 +1,188 @@
+{
+  "milestone": 219,
+  "verification_source": {
+    "type": "GitHub-hosted Python 3.13 branch workflow",
+    "run_id": 37996925741,
+    "observed_feature_sha": "0c22178af4e69f74d21d321307b4b34aba6ba68f",
+    "test_count": 2071
+  },
+  "assessment_scope": "Two 48-case offline controlled benchmarks; Step 218 is official historical source-anchored with synthetic interventions, not blinded real-world field accuracy.",
+  "historical_comparison": {
+    "step217": {
+      "prior_false_supports": 16,
+      "prior_cases_requiring_abstention": 40,
+      "current_false_supports": 12,
+      "current_cases_requiring_abstention": 40
+    },
+    "step218": {
+      "prior_false_supports": 16,
+      "prior_cases_requiring_abstention": 40,
+      "current_false_supports": 8,
+      "current_cases_requiring_abstention": 40,
+      "prior_wrong_topic_false_supports": 8,
+      "current_wrong_topic_false_supports": 0,
+      "prior_correct_supports": 8,
+      "current_correct_supports": 8
+    }
+  },
+  "current": {
+    "step217": {
+      "case_count": 48,
+      "counts": {
+        "cases": 48,
+        "correct_abstentions": 28,
+        "correct_supports": 8,
+        "false_supports": 12,
+        "gold_claims": 64,
+        "gold_conflicts": 16,
+        "gold_links": 68,
+        "matched_claims": 64,
+        "matched_conflicts": 8,
+        "matched_links": 68,
+        "predicted_claims": 64,
+        "predicted_conflicts": 8,
+        "predicted_links": 68,
+        "safe_to_support": 8,
+        "should_abstain": 40
+      },
+      "dataset_id": "step217-controlled-v1",
+      "evaluation_clock_utc": "2026-01-01T12:30:00Z",
+      "fixture_type": "offline-controlled-simulated-oracle",
+      "limitations": [
+        "Synthetic hypothetical services, URLs, source text and independent simulated-world truth; not field-measured factual accuracy.",
+        "Source labels are controlled oracles and never passed to the application as evidence.",
+        "All observations are fixed replay times; not a live news or production retrieval evaluation.",
+        "Source citation overlap is not entailment or publisher authentication.",
+        "A false sole report cannot be discredited from one submitted document alone; those cases expose the need for independent verification.",
+        "Full API input/output models are exercised, not the HTTP network transport, deployment, or latency.",
+        "Improvement requires independently captured real-world documents and blinded human annotation."
+      ],
+      "metrics": {
+        "claim_f1": 1,
+        "claim_precision": 1,
+        "claim_recall": 1,
+        "claim_source_f1": 1,
+        "claim_source_precision": 1,
+        "claim_source_recall": 1,
+        "conflict_f1": 0.6666666666666666,
+        "conflict_precision": 1,
+        "conflict_recall": 0.5,
+        "correct_support_rate": 1,
+        "false_support_rate": 0.3,
+        "safe_abstention_rate": 0.7
+      },
+      "scenarios": {
+        "explicit_negation": {
+          "cases": 8,
+          "correct_abstentions": 8,
+          "false_supports": 0,
+          "gold_conflicts": 8,
+          "matched_conflicts": 8
+        },
+        "missing_freshness_policy": {
+          "cases": 8,
+          "correct_abstentions": 8,
+          "false_supports": 0,
+          "gold_conflicts": 0,
+          "matched_conflicts": 0
+        },
+        "outdated_report": {
+          "cases": 8,
+          "correct_abstentions": 8,
+          "false_supports": 0,
+          "gold_conflicts": 0,
+          "matched_conflicts": 0
+        },
+        "paraphrased_disagreement": {
+          "cases": 8,
+          "correct_abstentions": 4,
+          "false_supports": 4,
+          "gold_conflicts": 8,
+          "matched_conflicts": 0
+        },
+        "unverified_false_source": {
+          "cases": 8,
+          "correct_abstentions": 0,
+          "false_supports": 8,
+          "gold_conflicts": 0,
+          "matched_conflicts": 0
+        },
+        "verified_consistent": {
+          "cases": 8,
+          "correct_abstentions": 0,
+          "false_supports": 0,
+          "gold_conflicts": 0,
+          "matched_conflicts": 0
+        }
+      }
+    },
+    "step218": {
+      "case_count": 48,
+      "corpus_type": "real-official-source-anchored-plus-synthetic-adversarial-inputs",
+      "counts": {
+        "cases": 48,
+        "conflict_detected": 8,
+        "conflict_expected": 8,
+        "correct_supports": 8,
+        "false_supports": 8,
+        "safe_abstentions": 32,
+        "safe_to_support": 8,
+        "should_abstain": 40,
+        "wrong_topic_cases": 8,
+        "wrong_topic_false_supports": 0
+      },
+      "dataset_id": "step218-official-release-anchored-v1",
+      "limitations": [
+        "Eight genuine first-party official publisher URLs and assistant-reviewed historical release facts, not blind independently human-annotated sources.",
+        "Statements are reviewer-authored summaries, not original publisher text captures or archived immutable raw snapshots.",
+        "Four scenario families manipulate evidence/timestamps or combine with synthetic data; their inputs are NOT unmodified publisher documents.",
+        "Observed_at values and replay clock are synthetic reproducibility markers, not actual publisher publication or collection times.",
+        "Source URI presence does not authenticate document content; the runner deliberately tests a forged content attack.",
+        "Exact claims and submitted-source attribution are not semantic factual entailment, calibration, or real-world field accuracy.",
+        "The runner does not fetch sources during CI; publisher URLs must be independently rechecked for updates/availability."
+      ],
+      "metrics": {
+        "correct_support_rate": 1,
+        "explicit_conflict_detection_rate": 1,
+        "false_support_rate": 0.2,
+        "irrelevant_evidence_false_support_rate": 0,
+        "safe_abstention_rate": 0.8
+      },
+      "replay_clock_utc": "2026-10-09T18:30:00Z",
+      "review_process": "Assistant reviewed eight public first-party publisher release announcements; independently authored one-sentence date summaries. No second blinded human annotator and no original raw HTML captured.",
+      "scenarios": {
+        "explicit_synthetic_conflict": {
+          "cases": 8,
+          "false_supports": 0,
+          "safe_abstentions": 8
+        },
+        "irrelevant_official_page": {
+          "cases": 8,
+          "false_supports": 0,
+          "safe_abstentions": 8
+        },
+        "no_declared_freshness_policy": {
+          "cases": 8,
+          "false_supports": 0,
+          "safe_abstentions": 8
+        },
+        "publisher_relevant": {
+          "cases": 8,
+          "false_supports": 0,
+          "safe_abstentions": 0
+        },
+        "stale_source_observation": {
+          "cases": 8,
+          "false_supports": 0,
+          "safe_abstentions": 8
+        },
+        "url_content_tampering": {
+          "cases": 8,
+          "false_supports": 8,
+          "safe_abstentions": 0
+        }
+      },
+      "source_count": 8
+    }
+  }
+}

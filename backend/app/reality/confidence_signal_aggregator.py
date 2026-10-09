@@ -2,6 +2,8 @@ from typing import Any
 
 from backend.app.reality.confidence_signal_normalizer import RealityConfidenceSignalResultNormalizer
 from backend.app.reality.confidence_signals import RealityConfidenceSignalResult
+from backend.app.reality.entity_relevance import explicit_entity_link_alignment
+from backend.app.reality.reality_entity import RealityEntity
 
 
 class RealityConfidenceSignalAggregator:
@@ -13,6 +15,8 @@ class RealityConfidenceSignalAggregator:
         linking: dict[str, Any],
         freshness: dict[str, Any],
         conflicts: dict[str, Any],
+        *,
+        entity: RealityEntity | str | dict[str, Any] | None = None,
     ) -> RealityConfidenceSignalResult:
         for value, name in ((evidence_quality, "evidence_quality"), (linking, "linking"), (freshness, "freshness"), (conflicts, "conflicts")):
             if not isinstance(value, dict):
@@ -72,6 +76,22 @@ class RealityConfidenceSignalAggregator:
         else:
             signals.append("freshness_unavailable")
 
+        # Step 219: preserve all legacy direct calls when no entity is
+        # supplied. When a caller explicitly supplies an entity, the
+        # canonical linked claim text must identify that full entity.
+        # This is conservative TEXT alignment, not publisher verification
+        # or semantic entailment. Keep the original coverage/freshness/
+        # conflict signal values even when support is downgraded.
+        named_entity = RealityEntity.validate(entity)
+        unaligned_entity = False
+        if named_entity.status == "specified":
+            unaligned_entity = not explicit_entity_link_alignment(named_entity, linking)
+            signals.append(
+                "explicit_entity_not_aligned_with_all_linked_claims"
+                if unaligned_entity
+                else "explicit_entity_text_alignment_only"
+            )
+
         conflicts_unavailable = conflicts.get("status") == "unavailable"
         if conflicts_count:
             signals.append("candidate_conflicts_present")
@@ -79,6 +99,7 @@ class RealityConfidenceSignalAggregator:
             signals.append("conflict_detection_unavailable")
         uncertain = bool(
             coverage is None
+            or unaligned_entity
             or linking_unavailable
             or conflicts_unavailable
             or conflicts_count
@@ -98,8 +119,10 @@ class RealityConfidenceSignalAggregator:
             )
         )
 
-    def aggregate(self, evidence_quality, linking, freshness, conflicts):
-        return self.aggregate_result(evidence_quality, linking, freshness, conflicts).to_dict()
+    def aggregate(self, evidence_quality, linking, freshness, conflicts, *, entity=None):
+        return self.aggregate_result(
+            evidence_quality, linking, freshness, conflicts, entity=entity
+        ).to_dict()
 
 
 __all__ = ["RealityConfidenceSignalAggregator"]

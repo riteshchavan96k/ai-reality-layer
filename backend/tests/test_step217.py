@@ -60,17 +60,23 @@ def test_end_to_end_runner_returns_auditable_48_case_metrics():
     assert any("not field-measured factual accuracy" in limitation for limitation in report["limitations"])
 
 
-def test_committed_ci_baseline_matches_replayed_product_results():
-    # Future quality improvements must be re-measured and explicitly
-    # re-baselined; do not silently report stale or fabricated percentages.
+def test_step217_historical_pre_entity_gate_scorecard_is_preserved():
+    # The original Step 217 scorecard describes the PRE-Step-219 engine.
+    # Keep it immutable as an honest before/after comparison. Step 219
+    # separately asserts current engine replay against its new scorecard.
     baseline_path = (
         Path(__file__).resolve().parents[2]
         / "docs"
         / "STEP_217_BASELINE.json"
     )
     recorded = json.loads(baseline_path.read_text(encoding="utf-8"))
-    actual = bench.run_baseline(include_cases=False)
-    assert recorded == actual
+    assert recorded["dataset_id"] == "step217-controlled-v1"
+    assert recorded["case_count"] == 48
+    assert recorded["counts"]["false_supports"] == 16
+    assert recorded["counts"]["correct_abstentions"] == 24
+    assert recorded["metrics"]["false_support_rate"] == 0.4
+    assert recorded["metrics"]["safe_abstention_rate"] == 0.6
+
 
 
 def test_all_reported_metrics_are_bounded_without_inventing_performance():

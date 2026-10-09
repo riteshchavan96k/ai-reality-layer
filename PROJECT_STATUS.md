@@ -1,3 +1,17 @@
+# Current Status — Step 219
+
+## Step 219 — Conservative Explicit-Entity Evidence Relevance Gate
+
+**Status:** Narrow relevance gate implemented, actual pre/post quality scorecards recorded, and initial hosted Python 3.13 branch workflow `37996925741` at SHA `0c22178af4e69f74d21d321307b4b34aba6ba68f` passed **2,071 tests** plus both 48-case benchmark runs. Subsequent report-parity regression and documentation commits require a fresh complete feature-head CI pass before merge; independent merged-main and final status-sync workflows are also required.
+
+**Verified product problem:** Step 218's historical official-source-anchored benchmark found **8/8 wrong-topic official evidence cases** classified `supported`, with 16/40 false supports overall among the 40 abstention-required cases. The confidence aggregator did not examine explicit target-entity identity when making a supported/uncertain decision.
+
+**Implementation:** Introduced `backend/app/reality/entity_relevance.py`: every linked claim must mention the full explicit entity (case-insensitive, whitespace-normalized with version/word boundaries). Wired the optional entity gate into both submitted- and retrieved-evidence aggregation. A mismatch downgrades structural confidence to `uncertain`, adding `explicit_entity_not_aligned_with_all_linked_claims` without changing original source-link/freshness/conflict counts. Direct calls and API inputs with no explicit entity retain their historical behavior. A text match is only a **weak necessary condition**, never verified semantic relevance or source authenticity.
+
+**Measured results:** `docs/STEP_219_SCORECARD.json` records exact GitHub-hosted new-pipeline replay scores. Step 218 wrong-topic official evidence incorrect support dropped **8/8 → 0/8**; false support on all 40 abstention-required publisher-anchored cases declined **16/40 (40%) → 8/40 (20%)** while relevant cases remained **8/8 supported**. The other **8/8 forged same-URL contents remain wrongly supported**. On Step 217's fictional corpus false support decreased **16/40 → 12/40 (30%)** because four paraphrased disagreements now fail strict entity repetition; **semantic conflict recall stayed 8/16 (50%)**. Both historical baseline JSON artifacts are preserved; current Step 219 parity tests require recorded fresh scores on both benchmarks. See `docs/STEP_219_SCORECARD.md`. These findings are controlled, not field-accuracy proof.
+
+**Honest limitations:** This does not prevent false source statements that include the exact entity, malicious URL-content association, publisher forgery, unsupported semantic inferences, or ambiguity from coreference and aliases. New strict matching can reduce legitimate support. Both problems demand independently evaluated future work; no model/provider/deployment change is part of this milestone.
+
 # Current Status — Step 218
 
 ## Step 218 — Official-Publisher-Anchored Reality State Quality Evaluation

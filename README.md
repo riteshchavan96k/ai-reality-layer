@@ -932,3 +932,25 @@ Original publishers are cited in `docs/STEP_218.md`; **no automatic
 URL-to-content authenticity verification, raw capture, independent
 blinded human annotation, field accuracy or live retrieval is claimed**.
 See `docs/STEP_218_BASELINE.md` for the actual observed results.
+
+## Conservative explicit-entity evidence relevance (Step 219)
+
+The Step 218 quality replay revealed eight of eight **wrong-topic
+official-source** cases incorrectly marked `supported`. Step 219
+introduces a narrow production gate: if the caller provides an explicit
+`entity`, **every linked claim must contain that entity's full textual
+identity** before Reality State status can be `supported`. Matching
+is Unicode case-insensitive with whole-identifier and version-suffix
+boundaries. Nonmatching cases become `uncertain` with
+`explicit_entity_not_aligned_with_all_linked_claims`.
+
+Both the developer-submitted and retrieval-backed Reality State paths
+enforce the gate. Callers without an explicit entity keep historical
+behavior. The `explicit_entity_text_alignment_only` signal means
+**literal name matching only**: it is not a claim of semantic entailment,
+real URL-content authentication or factual correctness. Step 218's
+historical 40% false-support baseline is **preserved** and a separately
+versioned Step 219 scorecard documents measured improvement and
+remaining failures.
+
+See `docs/STEP_219.md` and `docs/STEP_219_SCORECARD.md`.
