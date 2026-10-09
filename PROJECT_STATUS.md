@@ -2,13 +2,13 @@
 
 ## Step 213 — Canonical Source-Provenance Identity Coherence
 
-**Status:** Pending full GitHub-hosted verification and merge. Do not claim complete until feature-branch CI, merged-main CI and final status-sync CI succeed on their exact commits.
+**Status:** Complete, with implementation merged through PR #210. The complete Python 3.13 hosted backend workflow passed on feature head `d21d921c41424f4dfc06837788a0c0fa3225b6a2` (run `37927761763`) and merged `main` commit `58f6910f8b0b1266f166661947e51702eba6048e` (run `37927856333`), both with **1,929 tests passed**. The final status-sync commit must itself pass the complete workflow on its exact `main` SHA.
 
 **Verified gap:** Step 212 aligned URI identities produced by the retrieval, extraction, provenance and observation builders. However, direct `SourceProvenance` construction and mapping deserialization still accepted a `source_ref` that differed from its `uri`, including padded identifiers. `SourceProvenanceResult` also allowed duplicate source IDs or source references despite downstream temporal observation association by source ID and evidence linking by source reference.
 
 **Fix:** Enforce exact canonical URI/reference equality and trimmed URI identity within each typed `SourceProvenance` record, plus unique source IDs and unique references within each canonical `SourceProvenanceResult`. These same checks apply to mapping validation/normalization and protect downstream consumers. Preserve existing legitimate direct fixture IDs and the production builder's actual SHA-256 generation without claiming independently verified URL authenticity.
 
-**Validation requirement:** New `backend/tests/test_step213.py` covers direct types, mappings, duplicates, observation gates and actual end-to-end submitted Reality State. Full historical Python 3.13 backend compilation and pytest required. See `docs/STEP_213.md`.
+**Validation:** `backend/tests/test_step213.py` covers direct types, mapping normalization, duplicate IDs and references, invalid-record observation rejection, legacy fixture compatibility and an end-to-end submitted Reality State. Full backend compilation and all **1,929 tests passed** on the feature branch (run `37927761763`) and independently on merged `main` (run `37927856333`); final status-sync CI is required. See `docs/STEP_213.md`.
 
 **Scope:** Small invariant correction to `backend/app/reality/source_provenance.py`. No new AI, ML, LLM/Hugging Face model, API, database, entity resolution, or speculative feature.
 
