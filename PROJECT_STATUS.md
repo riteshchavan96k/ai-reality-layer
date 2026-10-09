@@ -2,13 +2,13 @@
 
 ## Step 216 — Canonical Conflict Identity Integrity
 
-**Status:** Implementation pending complete GitHub-hosted test validation and merge. Do not mark complete until feature-branch, merged-main and final status-sync full workflow runs pass.
+**Status:** Complete, pending the final status-sync commit's own successful full CI. Step 216 merged through PR #213 after the GitHub-hosted Python 3.13 backend workflow passed on corrected feature head `fc077e85dbeaa777b6acca4e242c9fad7b16f3cf` (run `37931331615`) and independently on merged main SHA `167adf7743115150475574112d99d17aa3fee6af` (run `37931414724`), both with **1,992 tests passed**.
 
 **Verified gap:** The deterministic conflict detector already deduplicates unordered case-insensitive pairs of candidate claim texts, but direct typed or mapping-deserialized `ClaimConflictResult` values could contain the same pair repeatedly, inflating `conflict_count` passed to confidence aggregation. Canonical `ClaimConflict` also accepted whitespace-padded source references, inconsistent with Steps 212–215.
 
 **Fix:** Require trimmed canonical source refs in each conflict record and uniqueness of unordered, case-insensitive claim-text pairs within each result. Preserve the existing explicit-negation detector, its claim/source extraction, legitimate distinct pairs, and the complete API schema.
 
-**Validation requirement:** New `backend/tests/test_step216.py` includes typed and mapping-contract rejection, reversal/case/provenance duplicates, legacy compatibility, detector behavior, confidence count propagation, and end-to-end submitted Reality State. Run the entire hosted Python 3.13 backend compilation and pytest suite. See `docs/STEP_216.md`.
+**Validation:** New `backend/tests/test_step216.py` verifies canonical refs, reversed/case-alias claim-pair duplicates, typed and mapping-shaped input, detector behavior, downstream confidence count, and submitted-evidence Reality State. The first feature-head run (`37931215625`) exposed eight test-helper keyword mistakes (8 failed, 1,984 passed); these were corrected with no production-code change. The corrected branch workflow (`37931331615`) and merged-main workflow (`37931414724`) each passed full Python 3.13 compilation and **1,992 tests**. The final status-sync commit must pass its own hosted CI. See `docs/STEP_216.md`.
 
 **Out of scope:** No new AI/ML/LLM/Hugging Face integration, new model, source verification, semantic contradiction inference, API, database, or unrelated feature.
 
