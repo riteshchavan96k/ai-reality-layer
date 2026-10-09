@@ -2,13 +2,13 @@
 
 ## Step 214 — Per-Source Observation and Freshness Integrity
 
-**Status:** Implementation pending full GitHub-hosted validation and merge. Do not mark complete before feature-branch CI, merged-main CI, and final status-sync CI pass.
+**Status:** Complete, subject to final status-sync CI. Step 214 was implemented and merged through PR #211 after full GitHub-hosted Python 3.13 compilation and pytest passed on feature head `3718068e3448643837dfe071703017b85f1aa66d` (run `37928613633`) and on merged `main` SHA `c1c83c17a533bc9c3119306a1adb8f90765ff926` (run `37928714844`), both with **1,946 tests passed**. Final documentation-sync commit must pass the complete workflow on its exact `main` SHA.
 
 **Verified issue:** Step 213 enforced unique provenance source IDs. But direct or mapping-shaped `SourceObservationResult` and `SourceFreshnessResult` still accepted repeated records for the same source ID in one result. This could make one source appear as several observations or conflicting fresh/stale assessments with formally consistent source counts, affecting downstream Reality State freshness signals.
 
 **Fix:** Reject duplicate source IDs within canonical observation and freshness results, using the already present result constructors and validators. Existing observation builders and freshness evaluator naturally produce one record per provenance source and need no new service or API. Valid distinct sources, timestamps, existing freshness rules, empty and unavailable results all remain compatible.
 
-**Validation plan:** New `backend/tests/test_step214.py` tests typed constructors, mapping normalization, duplicate and conflicting states, downstream evaluator rejection, valid provenance→observation→freshness processing, and end-to-end submitted Reality State behavior. Run the full Python 3.13 backend compilation and pytest suite. See `docs/STEP_214.md`.
+**Validation:** New `backend/tests/test_step214.py` covers typed constructors, mapping normalization, duplicate and conflicting states, fail-closed downstream evaluation, correct unique-source freshness counts, and complete submitted Reality State compatibility. Hosted backend compilation and **1,946 tests passed** on feature head (run `37928613633`) and independently on merged `main` (run `37928714844`). Final status-sync workflow must succeed. See `docs/STEP_214.md`.
 
 **Exclusions:** No new model, Hugging Face integration, temporal persistence, graph, API field, or unrelated component.
 
