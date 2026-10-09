@@ -109,6 +109,14 @@ def solve(request: SolveRequest):
 def reality_state_from_evidence(request: EvidenceRealityStateRequest):
     """Build a canonical Reality State from caller-supplied source-scoped evidence."""
     documents = [document.model_dump() for document in request.documents]
+    if request.require_independent_source_text_match:
+        return build_reality_state_from_evidence(
+            request.task,
+            documents,
+            freshness_max_age_seconds=request.freshness_max_age_seconds,
+            entity=request.entity,
+            require_independent_source_text_match=True,
+        )
     if request.entity is None:
         return build_reality_state_from_evidence(
             request.task,
