@@ -34,18 +34,24 @@ When `true`, for **each** submitted source document:
    public request cannot supply a reader, matching results or hashes.
 2. The reader must return a mapping with the **exact** same URI and a
    nonempty separately obtained `content` string, at most 200,000 chars.
-3. The **entire submitted excerpt** (trimmed per existing rules) must
+3. Before invoking any reader, strict mode rejects non-HTTPS
+   source URIs, IP-literal hosts, obvious localhost/private naming,
+   embedded credentials, fragment identifiers, non-default ports,
+   and control characters. This blocks common unsafe URL shapes but
+   **cannot** prevent DNS rebinding, redirects or SSRF in the installed
+   reader. It is not a safe arbitrary URL-fetching implementation.
+4. The **entire submitted excerpt** (trimmed per existing rules) must
    appear contiguously in the reader-observed text. Merely repeating an
    entity, sharing a URL, or supplying a SHA256 hash cannot pass.
-4. A matching source receives `exact_text_observed` and a SHA256 of the
+5. A matching source receives `exact_text_observed` and a SHA256 of the
    **reader-returned content**, not caller-provided content. This digest
    makes the local reader-returned bytes auditable; the hash alone does
    not authenticate a publisher.
-5. All sources must match for the aggregate `exact_text_observed`.
+6. All sources must match for the aggregate `exact_text_observed`.
    Otherwise `unverified` forces overall `uncertain`, even when link
    coverage, freshness, entity alignment and conflict count would
    otherwise imply `supported`.
-6. No configured reader, provider exceptions, invalid response,
+7. No configured reader, provider exceptions, invalid response,
    wrong URI, oversized bytes, or missing excerpt **fail closed**.
    Raw provider exceptions are not exposed in the public response.
 
