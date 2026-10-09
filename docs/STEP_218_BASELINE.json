@@ -1,0 +1,68 @@
+{
+  "case_count": 48,
+  "corpus_type": "real-official-source-anchored-plus-synthetic-adversarial-inputs",
+  "counts": {
+    "cases": 48,
+    "conflict_detected": 8,
+    "conflict_expected": 8,
+    "correct_supports": 8,
+    "false_supports": 16,
+    "safe_abstentions": 24,
+    "safe_to_support": 8,
+    "should_abstain": 40,
+    "wrong_topic_cases": 8,
+    "wrong_topic_false_supports": 8
+  },
+  "dataset_id": "step218-official-release-anchored-v1",
+  "limitations": [
+    "Eight genuine first-party official publisher URLs and assistant-reviewed historical release facts, not blind independently human-annotated sources.",
+    "Statements are reviewer-authored summaries, not original publisher text captures or archived immutable raw snapshots.",
+    "Four scenario families manipulate evidence/timestamps or combine with synthetic data; their inputs are NOT unmodified publisher documents.",
+    "Observed_at values and replay clock are synthetic reproducibility markers, not actual publisher publication or collection times.",
+    "Source URI presence does not authenticate document content; the runner deliberately tests a forged content attack.",
+    "Exact claims and submitted-source attribution are not semantic factual entailment, calibration, or real-world field accuracy.",
+    "The runner does not fetch sources during CI; publisher URLs must be independently rechecked for updates/availability."
+  ],
+  "metrics": {
+    "correct_support_rate": 1,
+    "explicit_conflict_detection_rate": 1,
+    "false_support_rate": 0.4,
+    "irrelevant_evidence_false_support_rate": 1,
+    "safe_abstention_rate": 0.6
+  },
+  "replay_clock_utc": "2026-10-09T18:30:00Z",
+  "review_process": "Assistant reviewed eight public first-party publisher release announcements; independently authored one-sentence date summaries. No second blinded human annotator and no original raw HTML captured.",
+  "scenarios": {
+    "explicit_synthetic_conflict": {
+      "cases": 8,
+      "false_supports": 0,
+      "safe_abstentions": 8
+    },
+    "irrelevant_official_page": {
+      "cases": 8,
+      "false_supports": 8,
+      "safe_abstentions": 0
+    },
+    "no_declared_freshness_policy": {
+      "cases": 8,
+      "false_supports": 0,
+      "safe_abstentions": 8
+    },
+    "publisher_relevant": {
+      "cases": 8,
+      "false_supports": 0,
+      "safe_abstentions": 0
+    },
+    "stale_source_observation": {
+      "cases": 8,
+      "false_supports": 0,
+      "safe_abstentions": 8
+    },
+    "url_content_tampering": {
+      "cases": 8,
+      "false_supports": 8,
+      "safe_abstentions": 0
+    }
+  },
+  "source_count": 8
+}
