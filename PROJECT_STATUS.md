@@ -1,3 +1,17 @@
+# Current Status — Step 216
+
+## Step 216 — Canonical Conflict Identity Integrity
+
+**Status:** Implementation pending complete GitHub-hosted test validation and merge. Do not mark complete until feature-branch, merged-main and final status-sync full workflow runs pass.
+
+**Verified gap:** The deterministic conflict detector already deduplicates unordered case-insensitive pairs of candidate claim texts, but direct typed or mapping-deserialized `ClaimConflictResult` values could contain the same pair repeatedly, inflating `conflict_count` passed to confidence aggregation. Canonical `ClaimConflict` also accepted whitespace-padded source references, inconsistent with Steps 212–215.
+
+**Fix:** Require trimmed canonical source refs in each conflict record and uniqueness of unordered, case-insensitive claim-text pairs within each result. Preserve the existing explicit-negation detector, its claim/source extraction, legitimate distinct pairs, and the complete API schema.
+
+**Validation requirement:** New `backend/tests/test_step216.py` includes typed and mapping-contract rejection, reversal/case/provenance duplicates, legacy compatibility, detector behavior, confidence count propagation, and end-to-end submitted Reality State. Run the entire hosted Python 3.13 backend compilation and pytest suite. See `docs/STEP_216.md`.
+
+**Out of scope:** No new AI/ML/LLM/Hugging Face integration, new model, source verification, semantic contradiction inference, API, database, or unrelated feature.
+
 # Current Status — Step 215
 
 ## Step 215 — Canonical Claim–Evidence Link Identity Integrity

@@ -123,6 +123,13 @@ Information about how current the evidence is.
 
 A disagreement between claims or evidence.
 
+Current implementation note: Step 216 requires canonical conflict records
+to use trimmed source references and prevents repeated unordered,
+case-insensitive claim pairs in direct and mapping-shaped results. This
+keeps candidate conflict counts from being inflated. The detector remains
+restricted to explicit deterministic negation, not semantic contradiction
+verification.
+
 ### Confidence
 
 An assessment of how strongly available evidence supports a claim.
