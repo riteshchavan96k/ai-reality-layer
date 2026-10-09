@@ -1,3 +1,15 @@
+# Current Status — Step 210
+
+## Step 210 — Bounded Optional Semantic Structuring Input
+
+**Status:** Pending full GitHub-hosted backend validation and merge into `main`. Do not claim completion until PR head, merged implementation, and final status-sync commit pass full CI.
+
+**Verified problem:** An accepted 50,000-character source document can contain one very long sentence. After Step 209, metadata was bounded, but optional semantic structuring still received unbounded (relative to model context) candidate claim text up to the full document limit. A future expensive NLP/ML/LLM adapter would process the entire sentence without an inference-specific input guard.
+
+**Fix:** Restrict **configured optional semantic adapter** input to 10,000 characters per candidate claim, checked after existing source-scoped deduplication and global claim budget. Overlong claims keep complete original text and source references, with `unstructured` / `semantic_structuring_input_too_long` and **no** adapter call. No truncation, loss of evidence, new models, or API changes. The unconfigured default remains `semantic_structuring_not_attempted` regardless of length.
+
+**Validation:** New `backend/tests/test_step210.py` with direct adapter, extraction, multi-source submitted evidence, and end-to-end Reality State cases; full historical suite required. See `docs/STEP_210.md`.
+
 # Current Status — Step 209
 
 ## Step 209 — Semantic Structure Method Integrity and Metadata Bounds
