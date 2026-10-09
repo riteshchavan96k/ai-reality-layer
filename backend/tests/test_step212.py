@@ -2,8 +2,6 @@
 
 import hashlib
 import json
-from datetime import datetime, timezone
-
 import pytest
 
 from backend.app.orchestrator.orchestrator import build_reality_state
@@ -270,7 +268,7 @@ def test_configured_http_full_reality_state_has_matching_claim_link_and_provenan
         "backend.app.reality.http_retrieval_provider.urlopen",
         lambda request, timeout: Response(),
     )
-    state = build_reality_state("What is the status of Company X?")
+    state = build_reality_state("What is the current status of Company X?")
     assert state["evidence"]["status"] == "completed"
     assert [source["uri"] for source in state["evidence"]["sources"]] == [A, B]
     assert [source["uri"] for source in state["source_provenance"]["sources"]] == [
