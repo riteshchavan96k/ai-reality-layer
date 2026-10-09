@@ -1,3 +1,17 @@
+# Current Status — Step 212
+
+## Step 212 — Canonical Source-URI Identity Integrity
+
+**Status:** Pending full GitHub-hosted regression verification and merge. Do not claim complete until branch CI, merged-`main` CI and final status-sync commit CI all succeed.
+
+**Verified correctness defect:** Retrieved source URI strings could retain surrounding whitespace through HTTP and provider-neutral evidence normalization, claim extraction, and SHA-256 provenance identity, while the claim/evidence linker already trimmed references. This could break agreement between linked source refs and provenance source refs, fabricate two identities for padded aliases, or cause observation matching inconsistencies.
+
+**Fix:** Canonicalize source URLs by trimming only surrounding whitespace before source-URI duplicate validation, claim attribution, and provenance hashing. Update low-level observation matching to use the same canonical key and reject aliases that would collide. Preserve significant URL characters, exact source text, old failure contracts, and the direct submitted-evidence path, which already canonicalized URIs.
+
+**Validation requirement:** New `backend/tests/test_step212.py` tests all modified boundaries and end-to-end configured HTTP retrieval. Full Python 3.13 backend compile and pytest suite must pass on feature branch, merged `main`, and final status update. See `docs/STEP_212.md`.
+
+**Scope exclusions:** No inference, ML, LLM, Hugging Face, URL redirect resolution, publisher authenticity check, graph/database/API changes, or unrelated features.
+
 # Current Status — Step 211
 
 ## Step 211 — Semantic Adapter Claim-Budget Enforcement
