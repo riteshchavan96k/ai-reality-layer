@@ -1,0 +1,1797 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "step217-controlled-v1",
+  "provenance": "Author-defined controlled hypothetical service-status documents. All entities, original-sounding URLs, and world oracle labels are simulated and not externally corroborated.",
+  "evaluation_clock_utc": "2026-01-01T12:30:00Z",
+  "benchmark_scope": "Evidence attribution, deterministic claim extraction, source-observation age, basic conflict handling and false-supported outputs under an independent synthetic oracle. Not a factual-world accuracy benchmark.",
+  "cases": [
+    {
+      "id": "01-orchid-api-verified_consistent",
+      "domain": "orchid-api",
+      "scenario": "verified_consistent",
+      "entity": "Orchid API",
+      "task": "What is the recorded current status of Orchid API?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/orchid-api/verified_consistent/a",
+          "title": "CONTROLLED FIXTURE — Orchid API report A",
+          "content": "Orchid API version 2.4 is deployed.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/orchid-api/verified_consistent/b",
+          "title": "CONTROLLED FIXTURE — Orchid API report B",
+          "content": "Orchid API version 2.4 is deployed.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Orchid API version 2.4 is deployed.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Orchid API version 2.4 is deployed.",
+            "source_refs": [
+              "https://fixtures.example.test/orchid-api/verified_consistent/a",
+              "https://fixtures.example.test/orchid-api/verified_consistent/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": false,
+        "justification": "Controlled oracle agrees with the available fresh reported claim; expected structural support (not publisher authentication)."
+      }
+    },
+    {
+      "id": "02-orchid-api-unverified_false_source",
+      "domain": "orchid-api",
+      "scenario": "unverified_false_source",
+      "entity": "Orchid API",
+      "task": "What is the recorded current status of Orchid API?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/orchid-api/unverified_false_source/a",
+          "title": "CONTROLLED FIXTURE — Orchid API report A",
+          "content": "Not Orchid API version 2.4 is deployed.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Orchid API version 2.4 is deployed.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Not Orchid API version 2.4 is deployed.",
+            "source_refs": [
+              "https://fixtures.example.test/orchid-api/unverified_false_source/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Controlled world oracle records positive, but sole submitted document claims the opposite. A URI and recent timestamp do not verify truth."
+      }
+    },
+    {
+      "id": "03-orchid-api-explicit_negation",
+      "domain": "orchid-api",
+      "scenario": "explicit_negation",
+      "entity": "Orchid API",
+      "task": "What is the recorded current status of Orchid API?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/orchid-api/explicit_negation/a",
+          "title": "CONTROLLED FIXTURE — Orchid API report A",
+          "content": "Orchid API version 2.4 is deployed.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/orchid-api/explicit_negation/b",
+          "title": "CONTROLLED FIXTURE — Orchid API report B",
+          "content": "Not Orchid API version 2.4 is deployed.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Orchid API version 2.4 is deployed.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Orchid API version 2.4 is deployed.",
+            "source_refs": [
+              "https://fixtures.example.test/orchid-api/explicit_negation/a"
+            ]
+          },
+          {
+            "text": "Not Orchid API version 2.4 is deployed.",
+            "source_refs": [
+              "https://fixtures.example.test/orchid-api/explicit_negation/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Orchid API version 2.4 is deployed.",
+            "Not Orchid API version 2.4 is deployed."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Opposing exact-negation source statements demand uncertainty and detection of the disagreement."
+      }
+    },
+    {
+      "id": "04-orchid-api-outdated_report",
+      "domain": "orchid-api",
+      "scenario": "outdated_report",
+      "entity": "Orchid API",
+      "task": "What is the recorded current status of Orchid API?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/orchid-api/outdated_report/a",
+          "title": "CONTROLLED FIXTURE — Orchid API report A",
+          "content": "Orchid API version 2.4 is deployed.",
+          "observed_at": "2026-01-01T08:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Orchid API version 2.4 is deployed.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Orchid API version 2.4 is deployed.",
+            "source_refs": [
+              "https://fixtures.example.test/orchid-api/outdated_report/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Observation is 4.5 hours old; declared one-hour policy must not mark the source fresh."
+      }
+    },
+    {
+      "id": "05-orchid-api-paraphrased_disagreement",
+      "domain": "orchid-api",
+      "scenario": "paraphrased_disagreement",
+      "entity": "Orchid API",
+      "task": "What is the recorded current status of Orchid API?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/orchid-api/paraphrased_disagreement/a",
+          "title": "CONTROLLED FIXTURE — Orchid API report A",
+          "content": "Orchid API version 2.4 is deployed.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/orchid-api/paraphrased_disagreement/b",
+          "title": "CONTROLLED FIXTURE — Orchid API report B",
+          "content": "The Orchid API 2.4 release has not reached production.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Orchid API version 2.4 is deployed.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Orchid API version 2.4 is deployed.",
+            "source_refs": [
+              "https://fixtures.example.test/orchid-api/paraphrased_disagreement/a"
+            ]
+          },
+          {
+            "text": "The Orchid API 2.4 release has not reached production.",
+            "source_refs": [
+              "https://fixtures.example.test/orchid-api/paraphrased_disagreement/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Orchid API version 2.4 is deployed.",
+            "The Orchid API 2.4 release has not reached production."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Sources express a substantive disagreement without the detector's leading not/no/never token pattern."
+      }
+    },
+    {
+      "id": "06-orchid-api-missing_freshness_policy",
+      "domain": "orchid-api",
+      "scenario": "missing_freshness_policy",
+      "entity": "Orchid API",
+      "task": "What is the recorded current status of Orchid API?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/orchid-api/missing_freshness_policy/a",
+          "title": "CONTROLLED FIXTURE — Orchid API report A",
+          "content": "Orchid API version 2.4 is deployed.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": null,
+      "gold": {
+        "world_reference_claim": "Orchid API version 2.4 is deployed.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Orchid API version 2.4 is deployed.",
+            "source_refs": [
+              "https://fixtures.example.test/orchid-api/missing_freshness_policy/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Recent observed_at alone is not proof of freshness; no explicit policy was supplied."
+      }
+    },
+    {
+      "id": "07-cedar-search-verified_consistent",
+      "domain": "cedar-search",
+      "scenario": "verified_consistent",
+      "entity": "Cedar Search",
+      "task": "What is the recorded current status of Cedar Search?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/cedar-search/verified_consistent/a",
+          "title": "CONTROLLED FIXTURE — Cedar Search report A",
+          "content": "Cedar Search is operational.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Cedar Search is operational.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Cedar Search is operational.",
+            "source_refs": [
+              "https://fixtures.example.test/cedar-search/verified_consistent/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": false,
+        "justification": "Controlled oracle agrees with the available fresh reported claim; expected structural support (not publisher authentication)."
+      }
+    },
+    {
+      "id": "08-cedar-search-unverified_false_source",
+      "domain": "cedar-search",
+      "scenario": "unverified_false_source",
+      "entity": "Cedar Search",
+      "task": "What is the recorded current status of Cedar Search?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/cedar-search/unverified_false_source/a",
+          "title": "CONTROLLED FIXTURE — Cedar Search report A",
+          "content": "Not Cedar Search is operational.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Cedar Search is operational.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Not Cedar Search is operational.",
+            "source_refs": [
+              "https://fixtures.example.test/cedar-search/unverified_false_source/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Controlled world oracle records positive, but sole submitted document claims the opposite. A URI and recent timestamp do not verify truth."
+      }
+    },
+    {
+      "id": "09-cedar-search-explicit_negation",
+      "domain": "cedar-search",
+      "scenario": "explicit_negation",
+      "entity": "Cedar Search",
+      "task": "What is the recorded current status of Cedar Search?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/cedar-search/explicit_negation/a",
+          "title": "CONTROLLED FIXTURE — Cedar Search report A",
+          "content": "Cedar Search is operational.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/cedar-search/explicit_negation/b",
+          "title": "CONTROLLED FIXTURE — Cedar Search report B",
+          "content": "Not Cedar Search is operational.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Cedar Search is operational.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Cedar Search is operational.",
+            "source_refs": [
+              "https://fixtures.example.test/cedar-search/explicit_negation/a"
+            ]
+          },
+          {
+            "text": "Not Cedar Search is operational.",
+            "source_refs": [
+              "https://fixtures.example.test/cedar-search/explicit_negation/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Cedar Search is operational.",
+            "Not Cedar Search is operational."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Opposing exact-negation source statements demand uncertainty and detection of the disagreement."
+      }
+    },
+    {
+      "id": "10-cedar-search-outdated_report",
+      "domain": "cedar-search",
+      "scenario": "outdated_report",
+      "entity": "Cedar Search",
+      "task": "What is the recorded current status of Cedar Search?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/cedar-search/outdated_report/a",
+          "title": "CONTROLLED FIXTURE — Cedar Search report A",
+          "content": "Cedar Search is operational.",
+          "observed_at": "2026-01-01T08:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Cedar Search is operational.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Cedar Search is operational.",
+            "source_refs": [
+              "https://fixtures.example.test/cedar-search/outdated_report/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Observation is 4.5 hours old; declared one-hour policy must not mark the source fresh."
+      }
+    },
+    {
+      "id": "11-cedar-search-paraphrased_disagreement",
+      "domain": "cedar-search",
+      "scenario": "paraphrased_disagreement",
+      "entity": "Cedar Search",
+      "task": "What is the recorded current status of Cedar Search?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/cedar-search/paraphrased_disagreement/a",
+          "title": "CONTROLLED FIXTURE — Cedar Search report A",
+          "content": "Cedar Search is operational.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/cedar-search/paraphrased_disagreement/b",
+          "title": "CONTROLLED FIXTURE — Cedar Search report B",
+          "content": "Users cannot access Cedar Search at present.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Cedar Search is operational.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Cedar Search is operational.",
+            "source_refs": [
+              "https://fixtures.example.test/cedar-search/paraphrased_disagreement/a"
+            ]
+          },
+          {
+            "text": "Users cannot access Cedar Search at present.",
+            "source_refs": [
+              "https://fixtures.example.test/cedar-search/paraphrased_disagreement/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Cedar Search is operational.",
+            "Users cannot access Cedar Search at present."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Sources express a substantive disagreement without the detector's leading not/no/never token pattern."
+      }
+    },
+    {
+      "id": "12-cedar-search-missing_freshness_policy",
+      "domain": "cedar-search",
+      "scenario": "missing_freshness_policy",
+      "entity": "Cedar Search",
+      "task": "What is the recorded current status of Cedar Search?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/cedar-search/missing_freshness_policy/a",
+          "title": "CONTROLLED FIXTURE — Cedar Search report A",
+          "content": "Cedar Search is operational.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": null,
+      "gold": {
+        "world_reference_claim": "Cedar Search is operational.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Cedar Search is operational.",
+            "source_refs": [
+              "https://fixtures.example.test/cedar-search/missing_freshness_policy/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Recent observed_at alone is not proof of freshness; no explicit policy was supplied."
+      }
+    },
+    {
+      "id": "13-beacon-gateway-verified_consistent",
+      "domain": "beacon-gateway",
+      "scenario": "verified_consistent",
+      "entity": "Beacon Gateway",
+      "task": "What is the recorded current status of Beacon Gateway?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/beacon-gateway/verified_consistent/a",
+          "title": "CONTROLLED FIXTURE — Beacon Gateway report A",
+          "content": "Beacon Gateway maintenance is scheduled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/beacon-gateway/verified_consistent/b",
+          "title": "CONTROLLED FIXTURE — Beacon Gateway report B",
+          "content": "Beacon Gateway maintenance is scheduled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Beacon Gateway maintenance is scheduled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Beacon Gateway maintenance is scheduled.",
+            "source_refs": [
+              "https://fixtures.example.test/beacon-gateway/verified_consistent/a",
+              "https://fixtures.example.test/beacon-gateway/verified_consistent/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": false,
+        "justification": "Controlled oracle agrees with the available fresh reported claim; expected structural support (not publisher authentication)."
+      }
+    },
+    {
+      "id": "14-beacon-gateway-unverified_false_source",
+      "domain": "beacon-gateway",
+      "scenario": "unverified_false_source",
+      "entity": "Beacon Gateway",
+      "task": "What is the recorded current status of Beacon Gateway?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/beacon-gateway/unverified_false_source/a",
+          "title": "CONTROLLED FIXTURE — Beacon Gateway report A",
+          "content": "Not Beacon Gateway maintenance is scheduled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Beacon Gateway maintenance is scheduled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Not Beacon Gateway maintenance is scheduled.",
+            "source_refs": [
+              "https://fixtures.example.test/beacon-gateway/unverified_false_source/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Controlled world oracle records positive, but sole submitted document claims the opposite. A URI and recent timestamp do not verify truth."
+      }
+    },
+    {
+      "id": "15-beacon-gateway-explicit_negation",
+      "domain": "beacon-gateway",
+      "scenario": "explicit_negation",
+      "entity": "Beacon Gateway",
+      "task": "What is the recorded current status of Beacon Gateway?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/beacon-gateway/explicit_negation/a",
+          "title": "CONTROLLED FIXTURE — Beacon Gateway report A",
+          "content": "Beacon Gateway maintenance is scheduled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/beacon-gateway/explicit_negation/b",
+          "title": "CONTROLLED FIXTURE — Beacon Gateway report B",
+          "content": "Not Beacon Gateway maintenance is scheduled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Beacon Gateway maintenance is scheduled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Beacon Gateway maintenance is scheduled.",
+            "source_refs": [
+              "https://fixtures.example.test/beacon-gateway/explicit_negation/a"
+            ]
+          },
+          {
+            "text": "Not Beacon Gateway maintenance is scheduled.",
+            "source_refs": [
+              "https://fixtures.example.test/beacon-gateway/explicit_negation/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Beacon Gateway maintenance is scheduled.",
+            "Not Beacon Gateway maintenance is scheduled."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Opposing exact-negation source statements demand uncertainty and detection of the disagreement."
+      }
+    },
+    {
+      "id": "16-beacon-gateway-outdated_report",
+      "domain": "beacon-gateway",
+      "scenario": "outdated_report",
+      "entity": "Beacon Gateway",
+      "task": "What is the recorded current status of Beacon Gateway?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/beacon-gateway/outdated_report/a",
+          "title": "CONTROLLED FIXTURE — Beacon Gateway report A",
+          "content": "Beacon Gateway maintenance is scheduled.",
+          "observed_at": "2026-01-01T08:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Beacon Gateway maintenance is scheduled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Beacon Gateway maintenance is scheduled.",
+            "source_refs": [
+              "https://fixtures.example.test/beacon-gateway/outdated_report/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Observation is 4.5 hours old; declared one-hour policy must not mark the source fresh."
+      }
+    },
+    {
+      "id": "17-beacon-gateway-paraphrased_disagreement",
+      "domain": "beacon-gateway",
+      "scenario": "paraphrased_disagreement",
+      "entity": "Beacon Gateway",
+      "task": "What is the recorded current status of Beacon Gateway?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/beacon-gateway/paraphrased_disagreement/a",
+          "title": "CONTROLLED FIXTURE — Beacon Gateway report A",
+          "content": "Beacon Gateway maintenance is scheduled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/beacon-gateway/paraphrased_disagreement/b",
+          "title": "CONTROLLED FIXTURE — Beacon Gateway report B",
+          "content": "No maintenance window has been planned for Beacon Gateway.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Beacon Gateway maintenance is scheduled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Beacon Gateway maintenance is scheduled.",
+            "source_refs": [
+              "https://fixtures.example.test/beacon-gateway/paraphrased_disagreement/a"
+            ]
+          },
+          {
+            "text": "No maintenance window has been planned for Beacon Gateway.",
+            "source_refs": [
+              "https://fixtures.example.test/beacon-gateway/paraphrased_disagreement/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Beacon Gateway maintenance is scheduled.",
+            "No maintenance window has been planned for Beacon Gateway."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Sources express a substantive disagreement without the detector's leading not/no/never token pattern."
+      }
+    },
+    {
+      "id": "18-beacon-gateway-missing_freshness_policy",
+      "domain": "beacon-gateway",
+      "scenario": "missing_freshness_policy",
+      "entity": "Beacon Gateway",
+      "task": "What is the recorded current status of Beacon Gateway?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/beacon-gateway/missing_freshness_policy/a",
+          "title": "CONTROLLED FIXTURE — Beacon Gateway report A",
+          "content": "Beacon Gateway maintenance is scheduled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": null,
+      "gold": {
+        "world_reference_claim": "Beacon Gateway maintenance is scheduled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Beacon Gateway maintenance is scheduled.",
+            "source_refs": [
+              "https://fixtures.example.test/beacon-gateway/missing_freshness_policy/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Recent observed_at alone is not proof of freshness; no explicit policy was supplied."
+      }
+    },
+    {
+      "id": "19-fable-auth-verified_consistent",
+      "domain": "fable-auth",
+      "scenario": "verified_consistent",
+      "entity": "Fable Auth",
+      "task": "What is the recorded current status of Fable Auth?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/fable-auth/verified_consistent/a",
+          "title": "CONTROLLED FIXTURE — Fable Auth report A",
+          "content": "Fable Auth login is enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Fable Auth login is enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Fable Auth login is enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/fable-auth/verified_consistent/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": false,
+        "justification": "Controlled oracle agrees with the available fresh reported claim; expected structural support (not publisher authentication)."
+      }
+    },
+    {
+      "id": "20-fable-auth-unverified_false_source",
+      "domain": "fable-auth",
+      "scenario": "unverified_false_source",
+      "entity": "Fable Auth",
+      "task": "What is the recorded current status of Fable Auth?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/fable-auth/unverified_false_source/a",
+          "title": "CONTROLLED FIXTURE — Fable Auth report A",
+          "content": "Not Fable Auth login is enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Fable Auth login is enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Not Fable Auth login is enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/fable-auth/unverified_false_source/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Controlled world oracle records positive, but sole submitted document claims the opposite. A URI and recent timestamp do not verify truth."
+      }
+    },
+    {
+      "id": "21-fable-auth-explicit_negation",
+      "domain": "fable-auth",
+      "scenario": "explicit_negation",
+      "entity": "Fable Auth",
+      "task": "What is the recorded current status of Fable Auth?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/fable-auth/explicit_negation/a",
+          "title": "CONTROLLED FIXTURE — Fable Auth report A",
+          "content": "Fable Auth login is enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/fable-auth/explicit_negation/b",
+          "title": "CONTROLLED FIXTURE — Fable Auth report B",
+          "content": "Not Fable Auth login is enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Fable Auth login is enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Fable Auth login is enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/fable-auth/explicit_negation/a"
+            ]
+          },
+          {
+            "text": "Not Fable Auth login is enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/fable-auth/explicit_negation/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Fable Auth login is enabled.",
+            "Not Fable Auth login is enabled."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Opposing exact-negation source statements demand uncertainty and detection of the disagreement."
+      }
+    },
+    {
+      "id": "22-fable-auth-outdated_report",
+      "domain": "fable-auth",
+      "scenario": "outdated_report",
+      "entity": "Fable Auth",
+      "task": "What is the recorded current status of Fable Auth?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/fable-auth/outdated_report/a",
+          "title": "CONTROLLED FIXTURE — Fable Auth report A",
+          "content": "Fable Auth login is enabled.",
+          "observed_at": "2026-01-01T08:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Fable Auth login is enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Fable Auth login is enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/fable-auth/outdated_report/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Observation is 4.5 hours old; declared one-hour policy must not mark the source fresh."
+      }
+    },
+    {
+      "id": "23-fable-auth-paraphrased_disagreement",
+      "domain": "fable-auth",
+      "scenario": "paraphrased_disagreement",
+      "entity": "Fable Auth",
+      "task": "What is the recorded current status of Fable Auth?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/fable-auth/paraphrased_disagreement/a",
+          "title": "CONTROLLED FIXTURE — Fable Auth report A",
+          "content": "Fable Auth login is enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/fable-auth/paraphrased_disagreement/b",
+          "title": "CONTROLLED FIXTURE — Fable Auth report B",
+          "content": "Authentication sign-in is unavailable on Fable Auth.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Fable Auth login is enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Fable Auth login is enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/fable-auth/paraphrased_disagreement/a"
+            ]
+          },
+          {
+            "text": "Authentication sign-in is unavailable on Fable Auth.",
+            "source_refs": [
+              "https://fixtures.example.test/fable-auth/paraphrased_disagreement/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Fable Auth login is enabled.",
+            "Authentication sign-in is unavailable on Fable Auth."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Sources express a substantive disagreement without the detector's leading not/no/never token pattern."
+      }
+    },
+    {
+      "id": "24-fable-auth-missing_freshness_policy",
+      "domain": "fable-auth",
+      "scenario": "missing_freshness_policy",
+      "entity": "Fable Auth",
+      "task": "What is the recorded current status of Fable Auth?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/fable-auth/missing_freshness_policy/a",
+          "title": "CONTROLLED FIXTURE — Fable Auth report A",
+          "content": "Fable Auth login is enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": null,
+      "gold": {
+        "world_reference_claim": "Fable Auth login is enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Fable Auth login is enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/fable-auth/missing_freshness_policy/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Recent observed_at alone is not proof of freshness; no explicit policy was supplied."
+      }
+    },
+    {
+      "id": "25-atlas-cdn-verified_consistent",
+      "domain": "atlas-cdn",
+      "scenario": "verified_consistent",
+      "entity": "Atlas CDN",
+      "task": "What is the recorded current status of Atlas CDN?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/atlas-cdn/verified_consistent/a",
+          "title": "CONTROLLED FIXTURE — Atlas CDN report A",
+          "content": "Atlas CDN west region is available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/atlas-cdn/verified_consistent/b",
+          "title": "CONTROLLED FIXTURE — Atlas CDN report B",
+          "content": "Atlas CDN west region is available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Atlas CDN west region is available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Atlas CDN west region is available.",
+            "source_refs": [
+              "https://fixtures.example.test/atlas-cdn/verified_consistent/a",
+              "https://fixtures.example.test/atlas-cdn/verified_consistent/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": false,
+        "justification": "Controlled oracle agrees with the available fresh reported claim; expected structural support (not publisher authentication)."
+      }
+    },
+    {
+      "id": "26-atlas-cdn-unverified_false_source",
+      "domain": "atlas-cdn",
+      "scenario": "unverified_false_source",
+      "entity": "Atlas CDN",
+      "task": "What is the recorded current status of Atlas CDN?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/atlas-cdn/unverified_false_source/a",
+          "title": "CONTROLLED FIXTURE — Atlas CDN report A",
+          "content": "Not Atlas CDN west region is available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Atlas CDN west region is available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Not Atlas CDN west region is available.",
+            "source_refs": [
+              "https://fixtures.example.test/atlas-cdn/unverified_false_source/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Controlled world oracle records positive, but sole submitted document claims the opposite. A URI and recent timestamp do not verify truth."
+      }
+    },
+    {
+      "id": "27-atlas-cdn-explicit_negation",
+      "domain": "atlas-cdn",
+      "scenario": "explicit_negation",
+      "entity": "Atlas CDN",
+      "task": "What is the recorded current status of Atlas CDN?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/atlas-cdn/explicit_negation/a",
+          "title": "CONTROLLED FIXTURE — Atlas CDN report A",
+          "content": "Atlas CDN west region is available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/atlas-cdn/explicit_negation/b",
+          "title": "CONTROLLED FIXTURE — Atlas CDN report B",
+          "content": "Not Atlas CDN west region is available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Atlas CDN west region is available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Atlas CDN west region is available.",
+            "source_refs": [
+              "https://fixtures.example.test/atlas-cdn/explicit_negation/a"
+            ]
+          },
+          {
+            "text": "Not Atlas CDN west region is available.",
+            "source_refs": [
+              "https://fixtures.example.test/atlas-cdn/explicit_negation/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Atlas CDN west region is available.",
+            "Not Atlas CDN west region is available."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Opposing exact-negation source statements demand uncertainty and detection of the disagreement."
+      }
+    },
+    {
+      "id": "28-atlas-cdn-outdated_report",
+      "domain": "atlas-cdn",
+      "scenario": "outdated_report",
+      "entity": "Atlas CDN",
+      "task": "What is the recorded current status of Atlas CDN?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/atlas-cdn/outdated_report/a",
+          "title": "CONTROLLED FIXTURE — Atlas CDN report A",
+          "content": "Atlas CDN west region is available.",
+          "observed_at": "2026-01-01T08:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Atlas CDN west region is available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Atlas CDN west region is available.",
+            "source_refs": [
+              "https://fixtures.example.test/atlas-cdn/outdated_report/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Observation is 4.5 hours old; declared one-hour policy must not mark the source fresh."
+      }
+    },
+    {
+      "id": "29-atlas-cdn-paraphrased_disagreement",
+      "domain": "atlas-cdn",
+      "scenario": "paraphrased_disagreement",
+      "entity": "Atlas CDN",
+      "task": "What is the recorded current status of Atlas CDN?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/atlas-cdn/paraphrased_disagreement/a",
+          "title": "CONTROLLED FIXTURE — Atlas CDN report A",
+          "content": "Atlas CDN west region is available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/atlas-cdn/paraphrased_disagreement/b",
+          "title": "CONTROLLED FIXTURE — Atlas CDN report B",
+          "content": "The west edge region of Atlas CDN is down.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Atlas CDN west region is available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Atlas CDN west region is available.",
+            "source_refs": [
+              "https://fixtures.example.test/atlas-cdn/paraphrased_disagreement/a"
+            ]
+          },
+          {
+            "text": "The west edge region of Atlas CDN is down.",
+            "source_refs": [
+              "https://fixtures.example.test/atlas-cdn/paraphrased_disagreement/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Atlas CDN west region is available.",
+            "The west edge region of Atlas CDN is down."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Sources express a substantive disagreement without the detector's leading not/no/never token pattern."
+      }
+    },
+    {
+      "id": "30-atlas-cdn-missing_freshness_policy",
+      "domain": "atlas-cdn",
+      "scenario": "missing_freshness_policy",
+      "entity": "Atlas CDN",
+      "task": "What is the recorded current status of Atlas CDN?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/atlas-cdn/missing_freshness_policy/a",
+          "title": "CONTROLLED FIXTURE — Atlas CDN report A",
+          "content": "Atlas CDN west region is available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": null,
+      "gold": {
+        "world_reference_claim": "Atlas CDN west region is available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Atlas CDN west region is available.",
+            "source_refs": [
+              "https://fixtures.example.test/atlas-cdn/missing_freshness_policy/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Recent observed_at alone is not proof of freshness; no explicit policy was supplied."
+      }
+    },
+    {
+      "id": "31-nimbus-queue-verified_consistent",
+      "domain": "nimbus-queue",
+      "scenario": "verified_consistent",
+      "entity": "Nimbus Queue",
+      "task": "What is the recorded current status of Nimbus Queue?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/nimbus-queue/verified_consistent/a",
+          "title": "CONTROLLED FIXTURE — Nimbus Queue report A",
+          "content": "Nimbus Queue retries are enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Nimbus Queue retries are enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Nimbus Queue retries are enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/nimbus-queue/verified_consistent/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": false,
+        "justification": "Controlled oracle agrees with the available fresh reported claim; expected structural support (not publisher authentication)."
+      }
+    },
+    {
+      "id": "32-nimbus-queue-unverified_false_source",
+      "domain": "nimbus-queue",
+      "scenario": "unverified_false_source",
+      "entity": "Nimbus Queue",
+      "task": "What is the recorded current status of Nimbus Queue?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/nimbus-queue/unverified_false_source/a",
+          "title": "CONTROLLED FIXTURE — Nimbus Queue report A",
+          "content": "Not Nimbus Queue retries are enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Nimbus Queue retries are enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Not Nimbus Queue retries are enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/nimbus-queue/unverified_false_source/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Controlled world oracle records positive, but sole submitted document claims the opposite. A URI and recent timestamp do not verify truth."
+      }
+    },
+    {
+      "id": "33-nimbus-queue-explicit_negation",
+      "domain": "nimbus-queue",
+      "scenario": "explicit_negation",
+      "entity": "Nimbus Queue",
+      "task": "What is the recorded current status of Nimbus Queue?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/nimbus-queue/explicit_negation/a",
+          "title": "CONTROLLED FIXTURE — Nimbus Queue report A",
+          "content": "Nimbus Queue retries are enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/nimbus-queue/explicit_negation/b",
+          "title": "CONTROLLED FIXTURE — Nimbus Queue report B",
+          "content": "Not Nimbus Queue retries are enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Nimbus Queue retries are enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Nimbus Queue retries are enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/nimbus-queue/explicit_negation/a"
+            ]
+          },
+          {
+            "text": "Not Nimbus Queue retries are enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/nimbus-queue/explicit_negation/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Nimbus Queue retries are enabled.",
+            "Not Nimbus Queue retries are enabled."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Opposing exact-negation source statements demand uncertainty and detection of the disagreement."
+      }
+    },
+    {
+      "id": "34-nimbus-queue-outdated_report",
+      "domain": "nimbus-queue",
+      "scenario": "outdated_report",
+      "entity": "Nimbus Queue",
+      "task": "What is the recorded current status of Nimbus Queue?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/nimbus-queue/outdated_report/a",
+          "title": "CONTROLLED FIXTURE — Nimbus Queue report A",
+          "content": "Nimbus Queue retries are enabled.",
+          "observed_at": "2026-01-01T08:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Nimbus Queue retries are enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Nimbus Queue retries are enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/nimbus-queue/outdated_report/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Observation is 4.5 hours old; declared one-hour policy must not mark the source fresh."
+      }
+    },
+    {
+      "id": "35-nimbus-queue-paraphrased_disagreement",
+      "domain": "nimbus-queue",
+      "scenario": "paraphrased_disagreement",
+      "entity": "Nimbus Queue",
+      "task": "What is the recorded current status of Nimbus Queue?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/nimbus-queue/paraphrased_disagreement/a",
+          "title": "CONTROLLED FIXTURE — Nimbus Queue report A",
+          "content": "Nimbus Queue retries are enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/nimbus-queue/paraphrased_disagreement/b",
+          "title": "CONTROLLED FIXTURE — Nimbus Queue report B",
+          "content": "Retries remain disabled on Nimbus Queue.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Nimbus Queue retries are enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Nimbus Queue retries are enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/nimbus-queue/paraphrased_disagreement/a"
+            ]
+          },
+          {
+            "text": "Retries remain disabled on Nimbus Queue.",
+            "source_refs": [
+              "https://fixtures.example.test/nimbus-queue/paraphrased_disagreement/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Nimbus Queue retries are enabled.",
+            "Retries remain disabled on Nimbus Queue."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Sources express a substantive disagreement without the detector's leading not/no/never token pattern."
+      }
+    },
+    {
+      "id": "36-nimbus-queue-missing_freshness_policy",
+      "domain": "nimbus-queue",
+      "scenario": "missing_freshness_policy",
+      "entity": "Nimbus Queue",
+      "task": "What is the recorded current status of Nimbus Queue?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/nimbus-queue/missing_freshness_policy/a",
+          "title": "CONTROLLED FIXTURE — Nimbus Queue report A",
+          "content": "Nimbus Queue retries are enabled.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": null,
+      "gold": {
+        "world_reference_claim": "Nimbus Queue retries are enabled.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Nimbus Queue retries are enabled.",
+            "source_refs": [
+              "https://fixtures.example.test/nimbus-queue/missing_freshness_policy/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Recent observed_at alone is not proof of freshness; no explicit policy was supplied."
+      }
+    },
+    {
+      "id": "37-willow-storage-verified_consistent",
+      "domain": "willow-storage",
+      "scenario": "verified_consistent",
+      "entity": "Willow Storage",
+      "task": "What is the recorded current status of Willow Storage?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/willow-storage/verified_consistent/a",
+          "title": "CONTROLLED FIXTURE — Willow Storage report A",
+          "content": "Willow Storage snapshots are complete.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/willow-storage/verified_consistent/b",
+          "title": "CONTROLLED FIXTURE — Willow Storage report B",
+          "content": "Willow Storage snapshots are complete.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Willow Storage snapshots are complete.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Willow Storage snapshots are complete.",
+            "source_refs": [
+              "https://fixtures.example.test/willow-storage/verified_consistent/a",
+              "https://fixtures.example.test/willow-storage/verified_consistent/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": false,
+        "justification": "Controlled oracle agrees with the available fresh reported claim; expected structural support (not publisher authentication)."
+      }
+    },
+    {
+      "id": "38-willow-storage-unverified_false_source",
+      "domain": "willow-storage",
+      "scenario": "unverified_false_source",
+      "entity": "Willow Storage",
+      "task": "What is the recorded current status of Willow Storage?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/willow-storage/unverified_false_source/a",
+          "title": "CONTROLLED FIXTURE — Willow Storage report A",
+          "content": "Not Willow Storage snapshots are complete.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Willow Storage snapshots are complete.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Not Willow Storage snapshots are complete.",
+            "source_refs": [
+              "https://fixtures.example.test/willow-storage/unverified_false_source/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Controlled world oracle records positive, but sole submitted document claims the opposite. A URI and recent timestamp do not verify truth."
+      }
+    },
+    {
+      "id": "39-willow-storage-explicit_negation",
+      "domain": "willow-storage",
+      "scenario": "explicit_negation",
+      "entity": "Willow Storage",
+      "task": "What is the recorded current status of Willow Storage?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/willow-storage/explicit_negation/a",
+          "title": "CONTROLLED FIXTURE — Willow Storage report A",
+          "content": "Willow Storage snapshots are complete.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/willow-storage/explicit_negation/b",
+          "title": "CONTROLLED FIXTURE — Willow Storage report B",
+          "content": "Not Willow Storage snapshots are complete.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Willow Storage snapshots are complete.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Willow Storage snapshots are complete.",
+            "source_refs": [
+              "https://fixtures.example.test/willow-storage/explicit_negation/a"
+            ]
+          },
+          {
+            "text": "Not Willow Storage snapshots are complete.",
+            "source_refs": [
+              "https://fixtures.example.test/willow-storage/explicit_negation/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Willow Storage snapshots are complete.",
+            "Not Willow Storage snapshots are complete."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Opposing exact-negation source statements demand uncertainty and detection of the disagreement."
+      }
+    },
+    {
+      "id": "40-willow-storage-outdated_report",
+      "domain": "willow-storage",
+      "scenario": "outdated_report",
+      "entity": "Willow Storage",
+      "task": "What is the recorded current status of Willow Storage?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/willow-storage/outdated_report/a",
+          "title": "CONTROLLED FIXTURE — Willow Storage report A",
+          "content": "Willow Storage snapshots are complete.",
+          "observed_at": "2026-01-01T08:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Willow Storage snapshots are complete.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Willow Storage snapshots are complete.",
+            "source_refs": [
+              "https://fixtures.example.test/willow-storage/outdated_report/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Observation is 4.5 hours old; declared one-hour policy must not mark the source fresh."
+      }
+    },
+    {
+      "id": "41-willow-storage-paraphrased_disagreement",
+      "domain": "willow-storage",
+      "scenario": "paraphrased_disagreement",
+      "entity": "Willow Storage",
+      "task": "What is the recorded current status of Willow Storage?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/willow-storage/paraphrased_disagreement/a",
+          "title": "CONTROLLED FIXTURE — Willow Storage report A",
+          "content": "Willow Storage snapshots are complete.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/willow-storage/paraphrased_disagreement/b",
+          "title": "CONTROLLED FIXTURE — Willow Storage report B",
+          "content": "The snapshot job for Willow Storage has not finished.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Willow Storage snapshots are complete.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Willow Storage snapshots are complete.",
+            "source_refs": [
+              "https://fixtures.example.test/willow-storage/paraphrased_disagreement/a"
+            ]
+          },
+          {
+            "text": "The snapshot job for Willow Storage has not finished.",
+            "source_refs": [
+              "https://fixtures.example.test/willow-storage/paraphrased_disagreement/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Willow Storage snapshots are complete.",
+            "The snapshot job for Willow Storage has not finished."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Sources express a substantive disagreement without the detector's leading not/no/never token pattern."
+      }
+    },
+    {
+      "id": "42-willow-storage-missing_freshness_policy",
+      "domain": "willow-storage",
+      "scenario": "missing_freshness_policy",
+      "entity": "Willow Storage",
+      "task": "What is the recorded current status of Willow Storage?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/willow-storage/missing_freshness_policy/a",
+          "title": "CONTROLLED FIXTURE — Willow Storage report A",
+          "content": "Willow Storage snapshots are complete.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": null,
+      "gold": {
+        "world_reference_claim": "Willow Storage snapshots are complete.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Willow Storage snapshots are complete.",
+            "source_refs": [
+              "https://fixtures.example.test/willow-storage/missing_freshness_policy/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Recent observed_at alone is not proof of freshness; no explicit policy was supplied."
+      }
+    },
+    {
+      "id": "43-quartz-billing-verified_consistent",
+      "domain": "quartz-billing",
+      "scenario": "verified_consistent",
+      "entity": "Quartz Billing",
+      "task": "What is the recorded current status of Quartz Billing?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/quartz-billing/verified_consistent/a",
+          "title": "CONTROLLED FIXTURE — Quartz Billing report A",
+          "content": "Quartz Billing exports are available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Quartz Billing exports are available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Quartz Billing exports are available.",
+            "source_refs": [
+              "https://fixtures.example.test/quartz-billing/verified_consistent/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": false,
+        "justification": "Controlled oracle agrees with the available fresh reported claim; expected structural support (not publisher authentication)."
+      }
+    },
+    {
+      "id": "44-quartz-billing-unverified_false_source",
+      "domain": "quartz-billing",
+      "scenario": "unverified_false_source",
+      "entity": "Quartz Billing",
+      "task": "What is the recorded current status of Quartz Billing?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/quartz-billing/unverified_false_source/a",
+          "title": "CONTROLLED FIXTURE — Quartz Billing report A",
+          "content": "Not Quartz Billing exports are available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Quartz Billing exports are available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Not Quartz Billing exports are available.",
+            "source_refs": [
+              "https://fixtures.example.test/quartz-billing/unverified_false_source/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Controlled world oracle records positive, but sole submitted document claims the opposite. A URI and recent timestamp do not verify truth."
+      }
+    },
+    {
+      "id": "45-quartz-billing-explicit_negation",
+      "domain": "quartz-billing",
+      "scenario": "explicit_negation",
+      "entity": "Quartz Billing",
+      "task": "What is the recorded current status of Quartz Billing?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/quartz-billing/explicit_negation/a",
+          "title": "CONTROLLED FIXTURE — Quartz Billing report A",
+          "content": "Quartz Billing exports are available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/quartz-billing/explicit_negation/b",
+          "title": "CONTROLLED FIXTURE — Quartz Billing report B",
+          "content": "Not Quartz Billing exports are available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Quartz Billing exports are available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Quartz Billing exports are available.",
+            "source_refs": [
+              "https://fixtures.example.test/quartz-billing/explicit_negation/a"
+            ]
+          },
+          {
+            "text": "Not Quartz Billing exports are available.",
+            "source_refs": [
+              "https://fixtures.example.test/quartz-billing/explicit_negation/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Quartz Billing exports are available.",
+            "Not Quartz Billing exports are available."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Opposing exact-negation source statements demand uncertainty and detection of the disagreement."
+      }
+    },
+    {
+      "id": "46-quartz-billing-outdated_report",
+      "domain": "quartz-billing",
+      "scenario": "outdated_report",
+      "entity": "Quartz Billing",
+      "task": "What is the recorded current status of Quartz Billing?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/quartz-billing/outdated_report/a",
+          "title": "CONTROLLED FIXTURE — Quartz Billing report A",
+          "content": "Quartz Billing exports are available.",
+          "observed_at": "2026-01-01T08:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Quartz Billing exports are available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Quartz Billing exports are available.",
+            "source_refs": [
+              "https://fixtures.example.test/quartz-billing/outdated_report/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Observation is 4.5 hours old; declared one-hour policy must not mark the source fresh."
+      }
+    },
+    {
+      "id": "47-quartz-billing-paraphrased_disagreement",
+      "domain": "quartz-billing",
+      "scenario": "paraphrased_disagreement",
+      "entity": "Quartz Billing",
+      "task": "What is the recorded current status of Quartz Billing?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/quartz-billing/paraphrased_disagreement/a",
+          "title": "CONTROLLED FIXTURE — Quartz Billing report A",
+          "content": "Quartz Billing exports are available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        },
+        {
+          "uri": "https://fixtures.example.test/quartz-billing/paraphrased_disagreement/b",
+          "title": "CONTROLLED FIXTURE — Quartz Billing report B",
+          "content": "Customers cannot generate exports with Quartz Billing.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": 3600,
+      "gold": {
+        "world_reference_claim": "Quartz Billing exports are available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Quartz Billing exports are available.",
+            "source_refs": [
+              "https://fixtures.example.test/quartz-billing/paraphrased_disagreement/a"
+            ]
+          },
+          {
+            "text": "Customers cannot generate exports with Quartz Billing.",
+            "source_refs": [
+              "https://fixtures.example.test/quartz-billing/paraphrased_disagreement/b"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [
+          [
+            "Quartz Billing exports are available.",
+            "Customers cannot generate exports with Quartz Billing."
+          ]
+        ],
+        "should_abstain": true,
+        "justification": "Sources express a substantive disagreement without the detector's leading not/no/never token pattern."
+      }
+    },
+    {
+      "id": "48-quartz-billing-missing_freshness_policy",
+      "domain": "quartz-billing",
+      "scenario": "missing_freshness_policy",
+      "entity": "Quartz Billing",
+      "task": "What is the recorded current status of Quartz Billing?",
+      "documents": [
+        {
+          "uri": "https://fixtures.example.test/quartz-billing/missing_freshness_policy/a",
+          "title": "CONTROLLED FIXTURE — Quartz Billing report A",
+          "content": "Quartz Billing exports are available.",
+          "observed_at": "2026-01-01T12:00:00Z"
+        }
+      ],
+      "freshness_max_age_seconds": null,
+      "gold": {
+        "world_reference_claim": "Quartz Billing exports are available.",
+        "world_reference_is_simulated": true,
+        "expected_claims": [
+          {
+            "text": "Quartz Billing exports are available.",
+            "source_refs": [
+              "https://fixtures.example.test/quartz-billing/missing_freshness_policy/a"
+            ]
+          }
+        ],
+        "expected_conflict_pairs": [],
+        "should_abstain": true,
+        "justification": "Recent observed_at alone is not proof of freshness; no explicit policy was supplied."
+      }
+    }
+  ]
+}
