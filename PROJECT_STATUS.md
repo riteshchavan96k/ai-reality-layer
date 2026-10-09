@@ -1,3 +1,17 @@
+# Current Status — Step 220
+
+## Step 220 — Opt-In Independent Source Text Assurance Boundary
+
+**Status:** Implementation awaiting CI validation, measured scorecard, merge, independent main CI, and final status-sync workflow. Do not mark complete until all have succeeded.
+
+**Verified gap:** Step 219 improved wrong-topic official source support (8/8 to 0/8 errors), but **8/8 source-content forgeries under genuine publisher URLs** remained incorrectly `supported`. A URL and source identifier are not proof that submitted text was actually present at the original source.
+
+**Implementation:** Added `IndependentSourceTextAssurance` with an optional, server-installed source reader. The opt-in strict submitted-evidence API parameter `require_independent_source_text_match` requires the *whole submitted excerpt* to occur in separately reader-observed text with an exact URI identity and bounded source content; all source documents must pass. Missing reader, failed quote comparison, wrong URI, invalid response, exception and oversized body are fail-closed `uncertain` cases, with audited per-source reasons. Direct calls without opting in keep legacy behavior. Existing relevance, freshness and conflict gates remain required.
+
+**Assurance limits:** This does **not** implement a publisher-authenticated network reader or independently verify world facts. An arbitrary backend reader could be misconfigured; do not infer publisher authentication from exact text or SHA256. The default deployment intentionally has no reader. Step 220's controlled 48-case benchmark uses **simulated operator-side reference summaries**, not captured publisher HTML, to test the conditional assurance policy, plus a no-reader fail-closed path. Before claiming production verification, source retrieval and trust must be independently implemented and audited.
+
+**Validation gate:** New Step 220 regression cases cover API strict type, multi-source alignment, failures, mismatch, spoofed URL, no observer, conservative confidence, compatibility and limitation disclosures. Hosted CI must run full Python 3.13 compile, all pytest, original Step 217/218 metrics and the new simulated strict-mode benchmark. Commit actual observed scores and re-check against replay, merge and verify main, then independently validate final status-sync SHA.
+
 # Current Status — Step 219
 
 ## Step 219 — Conservative Explicit-Entity Evidence Relevance Gate
