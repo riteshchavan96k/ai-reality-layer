@@ -290,3 +290,34 @@ def test_benchmark_does_not_depend_on_network_access(monkeypatch):
         raise AssertionError("offline benchmark unexpectedly used the network")
     monkeypatch.setattr("urllib.request.urlopen", blocked)
     assert step220_benchmark.run_baseline()["case_count"] == 48
+
+@pytest.mark.parametrize("unsafe", [
+    "http://publisher.example.test/releases",
+    "https://127.0.0.1/releases",
+    "https://192.168.1.10/releases",
+    "https://[::1]/releases",
+    "https://localhost/releases",
+    "https://device.local/releases",
+    "https://hostname.internal/releases",
+    "https://user:secret@publisher.example.test/releases",
+    "https://publisher.example.test:8443/releases",
+    "https://publisher.example.test/releases#fragment",
+    "https://publisher.example.test/releases\\x00",
+])
+def test_unsafe_source_urls_rejected_before_observer_is_invoked(unsafe):
+    attempts = []
+    def reader(uri):
+        attempts.append(uri)
+        return {"uri": uri, "content": TRUE_TEXT}
+    state = _state(reader=reader, documents=[_doc(uri=unsafe)])
+    assert attempts == []
+    assert state["status"] == "uncertain"
+    assert _assurance(state)["sources"][0]["reason"] == "unsafe_source_uri_for_observer"
+
+
+def test_explicit_default_https_port_is_allowed_but_never_assures_a_publisher():
+    uri = "https://publisher.example.test:443/releases"
+    state = _state(reader=_reader(uri=uri), documents=[_doc(uri=uri)])
+    assert state["status"] == "supported"
+    assert _assurance(state)["publisher_authenticated"] is False
+
