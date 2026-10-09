@@ -2,13 +2,13 @@
 
 ## Step 215 — Canonical Claim–Evidence Link Identity Integrity
 
-**Status:** Implementation pending full GitHub-hosted CI and merge. Do not mark complete until feature-head, merged-main, and final status-sync full backend CI pass.
+**Status:** Complete, subject to the final documentation-sync commit's own full CI. PR #212 was merged after the Python 3.13 backend compile and complete pytest suite passed on feature head `db6d1b9a4c7502c18c5b6cb0ddd9fa6382bfe1ae` (run `37929809891`) and independently on merged `main` SHA `9cdeaa8ca69cc6b8d14487cc82fd4694279dc743` (run `37929931541`), both with **1,967 tests passed**.
 
 **Verified gap:** The production claim/evidence linker already deduplicates links by `(claim_text.casefold(), source_ref)` and uses canonical trimmed source references. But the canonical `ClaimEvidenceLink` type still permitted padded source identities, and directly constructed or mapping-deserialized `ClaimEvidenceLinkingResult` could include repeated claim/source relationships. Those duplicates could inflate reported `link_count` without violating the existing distinct-`linked_claim_count` check.
 
 **Targeted correction:** Require canonical trimmed source refs in link records, and unique casefolded-claim/source-ref pairs in link results. The checks apply to direct and deserialized contracts without changing production linking, source IDs, API shape, confidence calculation, or valid multi-source support.
 
-**Validation required:** `backend/tests/test_step215.py` includes direct and mapping input validation, exact duplicate and case-alias rejection, legitimate multi-source relationships, source-provenance agreement, and end-to-end submitted Reality State. Full Python 3.13 hosted compile and pytest required. See `docs/STEP_215.md`.
+**Validation:** New `backend/tests/test_step215.py` covers canonical refs, pair uniqueness including claim case aliases and method aliases, valid distinct-source links, provenance cross-checks, and end-to-end submitted Reality State. The full hosted Python 3.13 compilation and pytest suite passed **1,967 tests** on feature head (run `37929809891`) and independently on merged main (run `37929931541`). The final status-sync commit requires its own full hosted workflow. See `docs/STEP_215.md`.
 
 **Excluded:** No ML/LLM inference, new provider, URL verification, truth-certification, knowledge graph, database or unrelated milestone.
 
