@@ -60,6 +60,19 @@ def test_end_to_end_runner_returns_auditable_48_case_metrics():
     assert any("not field-measured factual accuracy" in limitation for limitation in report["limitations"])
 
 
+def test_committed_ci_baseline_matches_replayed_product_results():
+    # Future quality improvements must be re-measured and explicitly
+    # re-baselined; do not silently report stale or fabricated percentages.
+    baseline_path = (
+        Path(__file__).resolve().parents[2]
+        / "docs"
+        / "STEP_217_BASELINE.json"
+    )
+    recorded = json.loads(baseline_path.read_text(encoding="utf-8"))
+    actual = bench.run_baseline(include_cases=False)
+    assert recorded == actual
+
+
 def test_all_reported_metrics_are_bounded_without_inventing_performance():
     report = bench.run_baseline(include_cases=False)
     assert "cases" not in report
