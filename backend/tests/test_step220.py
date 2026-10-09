@@ -302,7 +302,7 @@ def test_benchmark_does_not_depend_on_network_access(monkeypatch):
     "https://user:secret@publisher.example.test/releases",
     "https://publisher.example.test:8443/releases",
     "https://publisher.example.test/releases#fragment",
-    "https://publisher.example.test/releases\\x00",
+    "https://publisher.example.test/releases\x00",
 ])
 def test_unsafe_source_urls_rejected_before_observer_is_invoked(unsafe):
     attempts = []
