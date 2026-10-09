@@ -49,7 +49,7 @@ def _mapping(conflicts, claim_count=2):
 ])
 @pytest.mark.parametrize("which", ["source_refs_a", "source_refs_b"])
 def test_direct_conflict_rejects_noncanonical_padded_ref(ref, which):
-    kwargs = {which: (ref,)}
+    kwargs = {"refs_a" if which == "source_refs_a" else "refs_b": (ref,)}
     with pytest.raises(ValueError, match="must contain canonical source references"):
         _conflict(**kwargs)
 
