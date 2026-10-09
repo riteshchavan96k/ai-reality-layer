@@ -109,6 +109,10 @@ class SourceFreshnessResult:
             raise ValueError("source_count must be a non-negative integer")
         if self.source_count != len(self.assessments):
             raise ValueError("source_count must match the number of assessments")
+        # Fresh/stale/unknown counts must represent distinct sources, not
+        # multiple copies (possibly with conflicting states) of one source.
+        if len({item.source_id for item in self.assessments}) != len(self.assessments):
+            raise ValueError("source freshness source_ids must be unique")
 
         for value, name in (
             (self.fresh_count, "fresh_count"),
