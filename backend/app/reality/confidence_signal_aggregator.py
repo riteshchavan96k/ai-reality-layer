@@ -17,6 +17,7 @@ class RealityConfidenceSignalAggregator:
         conflicts: dict[str, Any],
         *,
         entity: RealityEntity | str | dict[str, Any] | None = None,
+        independent_source_text_status: str | None = None,
     ) -> RealityConfidenceSignalResult:
         for value, name in ((evidence_quality, "evidence_quality"), (linking, "linking"), (freshness, "freshness"), (conflicts, "conflicts")):
             if not isinstance(value, dict):
@@ -92,6 +93,15 @@ class RealityConfidenceSignalAggregator:
                 else "explicit_entity_text_alignment_only"
             )
 
+        if independent_source_text_status is not None:
+            if independent_source_text_status not in {"exact_text_observed", "unverified"}:
+                raise ValueError("independent source text status is invalid")
+            signals.append(
+                "independent_source_exact_text_observed"
+                if independent_source_text_status == "exact_text_observed"
+                else "independent_source_text_unverified"
+            )
+
         conflicts_unavailable = conflicts.get("status") == "unavailable"
         if conflicts_count:
             signals.append("candidate_conflicts_present")
@@ -100,6 +110,7 @@ class RealityConfidenceSignalAggregator:
         uncertain = bool(
             coverage is None
             or unaligned_entity
+            or independent_source_text_status == "unverified"
             or linking_unavailable
             or conflicts_unavailable
             or conflicts_count
@@ -119,9 +130,10 @@ class RealityConfidenceSignalAggregator:
             )
         )
 
-    def aggregate(self, evidence_quality, linking, freshness, conflicts, *, entity=None):
+    def aggregate(self, evidence_quality, linking, freshness, conflicts, *, entity=None, independent_source_text_status=None):
         return self.aggregate_result(
-            evidence_quality, linking, freshness, conflicts, entity=entity
+            evidence_quality, linking, freshness, conflicts, entity=entity,
+            independent_source_text_status=independent_source_text_status,
         ).to_dict()
 
 
