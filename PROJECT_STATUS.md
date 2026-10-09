@@ -1,3 +1,17 @@
+# Current Status — Step 220
+
+## Step 220 — Opt-In Independent Source Text Assurance Boundary
+
+**Status:** Opt-in source-text checker implemented and measured in hosted branch workflow [37999041855](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/37999041855) at SHA `6fd1e4774367895ad870fb5c4cf4c4f1d86260f7`: Python 3.13 compilation, **2,099 tests**, historical Step 217/218 replays, and new Step 220 48-case simulated reader replay all passed. New scorecard-parity regression and documentation commits require a final branch-head CI run, followed by independent merged-main and exact final status-sync CI before completion.
+
+**Verified gap:** Step 219 improved wrong-topic official source support (8/8 to 0/8 errors), but **8/8 source-content forgeries under genuine publisher URLs** remained incorrectly `supported`. A URL and source identifier are not proof that submitted text was actually present at the original source.
+
+**Implementation:** Added `IndependentSourceTextAssurance` with an optional, server-installed source reader. The opt-in strict submitted-evidence API parameter `require_independent_source_text_match` requires the *whole submitted excerpt* to occur in separately reader-observed text with an exact URI identity and bounded source content; all source documents must pass. Missing reader, failed quote comparison, wrong URI, invalid response, exception and oversized body are fail-closed `uncertain` cases, with audited per-source reasons. Direct calls without opting in keep legacy behavior. Existing relevance, freshness and conflict gates remain required.
+
+**Assurance limits:** This does **not** implement a publisher-authenticated network reader or independently verify world facts. An arbitrary backend reader could be misconfigured; do not infer publisher authentication from exact text or SHA256. The default deployment intentionally has no reader. Step 220's controlled 48-case benchmark uses **simulated operator-side reference summaries**, not captured publisher HTML, to test the conditional assurance policy, plus a no-reader fail-closed path. Before claiming production verification, source retrieval and trust must be independently implemented and audited.
+
+**Observed strict-mode simulated-reader results:** On 48 controlled Step 218 cases, the operator-curated backend reader independently returns a fixture source summary rather than echoing the submitted adversarial claim. The strict gate resulted in **0/40 unsafe supported** outcomes and retained **8/8 correctly supported** on exactly matching fixture source summaries. With **no reader** (the production prototype default), **0/8 legitimate cases** are supported because strict mode fails closed. The results are **conditional on a synthetic reader**, not authenticated live-world publisher content or evidence of field accuracy. Actual hosted scorecard is in `docs/STEP_220_SCORECARD.json`, analyzed in `docs/STEP_220_SCORECARD.md`. A new regression requires the published JSON to match fresh benchmark replay. Historical Step 217/218 baselines and Step 219 results remain unchanged.
+
 # Current Status — Step 219
 
 ## Step 219 — Conservative Explicit-Entity Evidence Relevance Gate

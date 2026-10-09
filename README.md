@@ -954,3 +954,32 @@ versioned Step 219 scorecard documents measured improvement and
 remaining failures.
 
 See `docs/STEP_219.md` and `docs/STEP_219_SCORECARD.md`.
+
+## Opt-in backend-observed source text assurance (Step 220)
+
+The default submitted-evidence endpoint treats submitted URLs and claims
+as **unverified reported evidence**. Step 220 adds the opt-in flag
+`require_independent_source_text_match: true` to require the **entire
+submitted excerpt** to occur in text independently returned by a
+**server-installed** reader, matched to the exact canonical source URI.
+
+When no independent reader is configured (the prototype default), or
+when any observed URI/body/quote comparison fails, the status becomes
+`uncertain` and `evidence.independent_source_text_assurance` explains
+why. Only a backend-owned configured reader can produce
+`exact_text_observed`; no client-provided hash or attestation can do so.
+Other confidence/freshness/entity constraints remain in force.
+
+A separately measured Step 220 **simulated observer** benchmark tests
+this gate on Step 218's 48 scenarios without pretending that
+reviewer-written summaries are original publisher text. The simulated
+reader is **not** a configured production publisher fetcher.
+
+```bash
+python -m backend.app.evaluation.independent_source_assurance_benchmark
+```
+
+Text presence is **not source/publisher authentication, entailment,
+world truth, or independent corroboration**. A genuine, hardened
+source reader must still be implemented and deployed by the backend
+operator. See `docs/STEP_220.md` and `docs/STEP_220_SCORECARD.md`.

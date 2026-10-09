@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
 
 from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
@@ -8,6 +8,7 @@ from backend.app.reality.claim_evidence_linker import ClaimEvidenceLinker
 from backend.app.reality.claim_extractor import EvidenceClaimExtractor
 from backend.app.reality.claim_conflict_detector import ClaimConflictDetector
 from backend.app.reality.confidence_signal_aggregator import RealityConfidenceSignalAggregator
+from backend.app.reality.independent_source_text_assurance import IndependentSourceTextAssurance
 from backend.app.reality.reality_state_builder import RealityStateBuilder
 from backend.app.reality.evidence_normalization_consumer import EvidenceNormalizationConsumer
 from backend.app.reality.evidence_normalization_consumption_normalizer import (
@@ -104,6 +105,10 @@ class OrchestrationDependencies:
     grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumption_result_normalizer: GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResultNormalizer
     grounded_result_builder: GroundedResultEnvelopeBuilder
     provider_executor: ProviderInvocationExecutor
+    # Installed only by backend code; never sourced from untrusted API input.
+    independent_source_text_assurance: IndependentSourceTextAssurance = field(
+        default_factory=IndependentSourceTextAssurance
+    )
 
     @classmethod
     def default(cls) -> "OrchestrationDependencies":

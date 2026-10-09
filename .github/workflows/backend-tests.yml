@@ -55,3 +55,6 @@ jobs:
 
       - name: Run Step 218 official-publisher-anchored quality replay
         run: python -m backend.app.evaluation.official_source_quality_benchmark --summary-only
+
+      - name: Run Step 220 opt-in independent source text assurance replay
+        run: python -m backend.app.evaluation.independent_source_assurance_benchmark
