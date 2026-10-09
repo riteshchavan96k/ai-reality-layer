@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator, model_validator
 
 from backend.app.reality.freshness_policy import is_positive_finite_number
 from backend.app.reality.reality_entity import (
@@ -83,6 +83,7 @@ class EvidenceRealityStateRequest(BaseModel):
         max_length=MAX_SUBMITTED_DOCUMENTS,
     )
     freshness_max_age_seconds: float | int | None = None
+    require_independent_source_text_match: StrictBool = False
 
     @field_validator("task")
     @classmethod
