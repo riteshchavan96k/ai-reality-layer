@@ -858,3 +858,19 @@ link states remain unchanged.
 
 These checks establish structural consistency only—not independent
 source authenticity or factual truth. See `docs/STEP_215.md`.
+
+## Canonical candidate-conflict identity integrity (Step 216)
+
+The canonical `ClaimConflictResult` now rejects repeated unordered,
+case-insensitive claim-text pairs. Direct or mapping-shaped results
+cannot treat reversed or differently capitalized copies of one candidate
+contradiction as separate conflicts and inflate `conflict_count`.
+`ClaimConflict` also requires trimmed source references, agreeing with
+the existing canonical provenance and claim–evidence link rules.
+
+The production detector already deduplicates these pairs; its
+**explicit-negation-only** logic and all public API fields remain
+unchanged. This is structural consistency, not general semantic
+conflict recognition or independent factual verification.
+
+See `docs/STEP_216.md` for details and regression coverage.
