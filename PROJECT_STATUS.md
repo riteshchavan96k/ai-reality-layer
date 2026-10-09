@@ -2,7 +2,7 @@
 
 ## Step 207 — Semantic Claim Structuring Execution Boundary
 
-**Status:** Pending complete GitHub-hosted validation and merge into `main`. Do not claim this step is complete until the full regression workflow passes and the merge is verified.
+**Status:** Complete. Implemented and merged into `main` through PR #204 after full Python 3.13 backend compilation and regression validation succeeded on both the feature head and the merged implementation commit. Final status-synchronization commit must also pass the complete hosted workflow on its own `main` SHA.
 
 **Verified gap:** Step 206 established the `ClaimSemanticStructure` contract but no optional provider-neutral execution mechanism could invoke a future trusted semantic structurer between deterministic candidate extraction and the semantic contract.
 
@@ -13,6 +13,8 @@
 **Validation plan:** Dedicated `backend/tests/test_step207.py` tests default behavior, valid typed/mapping output, abstention, invalid and missing output, exception isolation, cross-source deduplication, preservation of lineage, early rejection of malformed configuration/inputs, and end-to-end submitted evidence construction. Full historical suite must pass on PR head and merged `main`.
 
 **Safety boundary:** A schema-valid triple is not proof of correct semantic parsing or factual truth. No regex triple inference, Hugging Face, NLP models, LLMs, embeddings, network inference, entity resolution, semantic conflict analysis, database migrations, or API interface changes are introduced.
+
+**GitHub verification:** PR #204 feature head `310ebf42f97d79a76170762e206eed5c618a5a8e` passed run `37917776399` (1,834 tests). The PR merged as `31339caa020ac956e0beeb82ef7badb7b31d019e`, and independent post-merge `main` workflow run `37917845522` passed complete compilation and 1,834 tests on that exact merge commit.
 
 See `docs/STEP_207.md`.
 
