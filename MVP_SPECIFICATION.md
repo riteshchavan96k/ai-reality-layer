@@ -69,6 +69,9 @@ structured metadata and all supporting source references.
 Current implementation note: Step 209 validates normalized semantic
 structuring-method identity and bounds adapter-provided method/reason
 metadata to prevent contradictory or oversized canonical claims.
+Current implementation note: Step 210 caps **optional semantic adapter input**
+at 10,000 claim-text characters; longer claims remain fully attributed and
+unstructured without calling the adapter. The default no-model path is unchanged.
 
 ### Evidence
 
