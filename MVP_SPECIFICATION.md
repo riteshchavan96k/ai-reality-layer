@@ -79,6 +79,13 @@ legacy `usable` extraction without an adapter remains backward compatible.
 
 ### Evidence
 
+Current implementation note: Step 215 requires canonical claim–evidence
+link source references to be trimmed and rejects repeated case-insensitive
+claim/source pairs in typed and mapping-shaped link results. A claim may
+still have multiple genuine distinct source references; no new claims or
+independent source authenticity are inferred from this structure.
+
+
 Information supporting or challenging a claim.
 
 ### Source

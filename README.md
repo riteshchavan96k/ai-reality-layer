@@ -840,3 +840,21 @@ same source in **different snapshots** remain possible; this is not a
 history store.
 
 See `docs/STEP_214.md` for the verified gap and regression coverage.
+
+## Canonical claim–evidence link identity integrity (Step 215)
+
+The canonical `ClaimEvidenceLink` contract now requires a trimmed
+`source_ref`, matching Steps 212–213 source provenance identity. The
+`ClaimEvidenceLinkingResult` contract rejects duplicate
+`(claim_text.casefold(), source_ref)` pairs, matching the existing
+production linker's deduplication rules. Direct typed and mapping-shaped
+inputs therefore cannot inflate `link_count` by repeating an identical
+claim–source relationship.
+
+One claim may still have distinct links to multiple sources, and one
+source may support multiple distinct claims. Existing API output,
+`linked_claim_count`, normal linking behavior, and unsupported/empty
+link states remain unchanged.
+
+These checks establish structural consistency only—not independent
+source authenticity or factual truth. See `docs/STEP_215.md`.

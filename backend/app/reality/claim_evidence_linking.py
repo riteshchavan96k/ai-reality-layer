@@ -16,6 +16,10 @@ class ClaimEvidenceLink:
             raise ValueError("claim_text must be a non-empty string")
         if not isinstance(self.source_ref, str) or not self.source_ref.strip():
             raise ValueError("source_ref must be a non-empty string")
+        # Step 212/213 provenance identities use exactly trimmed source URIs.
+        # Direct typed/mapping links cannot introduce a padded alias.
+        if self.source_ref != self.source_ref.strip():
+            raise ValueError("source_ref must be a canonical source reference")
         if self.relationship != "derived_from":
             raise ValueError("relationship must be derived_from")
         if not isinstance(self.linking_method, str) or not self.linking_method.strip():
@@ -47,6 +51,13 @@ class ClaimEvidenceLinkingResult:
             raise ValueError("status must be usable, empty, or unavailable")
         if not isinstance(self.links, tuple) or any(not isinstance(link, ClaimEvidenceLink) for link in self.links):
             raise ValueError("links must be a tuple of ClaimEvidenceLink values")
+        # The production linker deduplicates by casefolded claim text and
+        # canonical source_ref. Enforce that same relation identity for
+        # independently constructed/deserialized canonical results: a
+        # repeated relationship is not another supporting source.
+        link_keys = {(link.claim_text.casefold(), link.source_ref) for link in self.links}
+        if len(link_keys) != len(self.links):
+            raise ValueError("claim-evidence links must have unique claim-source pairs")
         for value, name in ((self.claim_count, "claim_count"), (self.linked_claim_count, "linked_claim_count"), (self.source_count, "source_count")):
             if not isinstance(value, int) or value < 0:
                 raise ValueError(f"{name} must be a non-negative integer")

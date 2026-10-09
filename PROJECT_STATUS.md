@@ -1,3 +1,17 @@
+# Current Status — Step 215
+
+## Step 215 — Canonical Claim–Evidence Link Identity Integrity
+
+**Status:** Implementation pending full GitHub-hosted CI and merge. Do not mark complete until feature-head, merged-main, and final status-sync full backend CI pass.
+
+**Verified gap:** The production claim/evidence linker already deduplicates links by `(claim_text.casefold(), source_ref)` and uses canonical trimmed source references. But the canonical `ClaimEvidenceLink` type still permitted padded source identities, and directly constructed or mapping-deserialized `ClaimEvidenceLinkingResult` could include repeated claim/source relationships. Those duplicates could inflate reported `link_count` without violating the existing distinct-`linked_claim_count` check.
+
+**Targeted correction:** Require canonical trimmed source refs in link records, and unique casefolded-claim/source-ref pairs in link results. The checks apply to direct and deserialized contracts without changing production linking, source IDs, API shape, confidence calculation, or valid multi-source support.
+
+**Validation required:** `backend/tests/test_step215.py` includes direct and mapping input validation, exact duplicate and case-alias rejection, legitimate multi-source relationships, source-provenance agreement, and end-to-end submitted Reality State. Full Python 3.13 hosted compile and pytest required. See `docs/STEP_215.md`.
+
+**Excluded:** No ML/LLM inference, new provider, URL verification, truth-certification, knowledge graph, database or unrelated milestone.
+
 # Current Status — Step 214
 
 ## Step 214 — Per-Source Observation and Freshness Integrity
