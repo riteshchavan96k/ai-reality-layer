@@ -69,7 +69,8 @@ class HttpRetrievalProvider:
             if uri is not None:
                 if not isinstance(uri, str) or not uri.strip():
                     return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="invalid_source_uri")
-                parsed = urlparse(uri)
+                normalized_uri = uri.strip()
+                parsed = urlparse(normalized_uri)
                 if parsed.scheme not in {"http", "https"} or not parsed.netloc:
                     return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="invalid_source_uri")
             if title is not None and not isinstance(title, str):
@@ -77,6 +78,10 @@ class HttpRetrievalProvider:
             if uri is None and title is None:
                 return RetrievalProviderResponse(status="failed", provider=self.provider_name, reason="source_missing_provenance")
             normalized_source = dict(source)
+            if uri is not None:
+                # Downstream claim links and provenance hashes must use the
+                # same identity. Do not retain padded provider URI aliases.
+                normalized_source["uri"] = normalized_uri
             if "observed_at" in source:
                 try:
                     normalized_source["observed_at"] = (

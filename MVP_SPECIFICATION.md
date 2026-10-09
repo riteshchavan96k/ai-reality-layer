@@ -85,6 +85,12 @@ Information supporting or challenging a claim.
 
 Origin of the evidence.
 
+Current implementation note: Step 212 uses consistently trimmed source-URI
+identities for retrieval evidence, extracted claims, provenance hashing,
+evidence links, and observation matching. Whitespace-alias duplicates are
+rejected rather than counted as separate evidence sources. This does not
+certify publisher authenticity or factual correctness.
+
 ### Provenance
 
 The relationship between claim, evidence, and source.

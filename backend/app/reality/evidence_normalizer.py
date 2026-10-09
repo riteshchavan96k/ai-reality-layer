@@ -49,7 +49,10 @@ class RetrievalEvidenceNormalizer:
 
             normalized_source: dict[str, Any] = {
                 "title": str(title) if title is not None else None,
-                "uri": str(uri) if uri is not None else None,
+                "uri": (
+                    uri.strip() if isinstance(uri, str)
+                    else str(uri) if uri is not None else None
+                ),
             }
             # Never discard the per-source payload before claim extraction.
             if "content" in source:

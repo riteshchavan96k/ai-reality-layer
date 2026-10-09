@@ -788,3 +788,20 @@ claims, as established by Steps 184–185. No default model execution,
 public API, provider, or other resource limit is changed.
 
 See `docs/STEP_211.md` for the exact state matrix and tests.
+
+## Canonical retrieved-source identity (Step 212)
+
+Source URLs now have **leading and trailing whitespace trimmed consistently**
+across configured HTTP retrieval, provider-neutral evidence normalization,
+candidate claims, source provenance SHA-256 identity, and source observation
+matching. Claim-to-evidence links therefore use the same URI identity as
+their provenance records.
+
+Whitespace variants of the same URL are rejected as duplicates before
+claim extraction at the retrieval boundary, rather than being counted as
+independent publishers or evidence sources. Submitted-evidence URIs were
+already trimmed and retain their prior behavior.
+
+This step does **not** lowercase addresses, follow redirects, merge distinct
+URLs, or verify that a publisher is authentic. No AI model or new API is added.
+See `docs/STEP_212.md` for implementation details and test cases.

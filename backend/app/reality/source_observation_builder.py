@@ -76,7 +76,13 @@ class SourceObservationBuilder:
         if provenance.status != "usable":
             return self.build_result(provenance)
 
-        by_uri = {source.get("uri"): source for source in sources}
+        # Match the canonical URI identity emitted by the provenance
+        # builder; reject alias collisions rather than silently overwriting.
+        by_uri = {
+            source["uri"].strip() if isinstance(source.get("uri"), str)
+            else source.get("uri"): source
+            for source in sources
+        }
         if (
             len(by_uri) != len(sources)
             or set(by_uri) != {source.uri for source in provenance.sources}
