@@ -1,0 +1,624 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "step218-official-release-anchored-v1",
+  "source_review_date": "2026-10-10",
+  "source_review_process": "Assistant reviewed eight public first-party publisher release announcements; independently authored one-sentence date summaries. No second blinded human annotator and no original raw HTML captured.",
+  "source_format": "Each claim is a new, independently worded summary of an official release-date fact, not a quotation or immutable copy of source text. Cite publisher pages; do not claim an authenticated source-content snapshot.",
+  "corpus_type": "real-official-source-anchored-plus-synthetic-adversarial-inputs",
+  "replay_clock_utc": "2026-10-09T18:30:00Z",
+  "replay_time_is_synthetic": true,
+  "recent_observation_utc": "2026-10-09T18:00:00Z",
+  "old_observation_utc": "2026-10-09T13:00:00Z",
+  "anchors": [
+    {
+      "id": "python-313",
+      "entity": "Python 3.13.0",
+      "statement": "Python 3.13.0 was released on October 7, 2024.",
+      "release_date": "2024-10-07",
+      "uri": "https://www.python.org/downloads/release/python-3130/",
+      "publisher": "Python.org",
+      "review_annotation": "Historical release date corroborated by the linked official publisher page. Sentence authored for evaluation, not a verbatim source capture.",
+      "reviewed_by": "assistant_source_review_not_independent_human"
+    },
+    {
+      "id": "python-312",
+      "entity": "Python 3.12.0",
+      "statement": "Python 3.12.0 was released on October 2, 2023.",
+      "release_date": "2023-10-02",
+      "uri": "https://www.python.org/downloads/release/python-3120/",
+      "publisher": "Python.org",
+      "review_annotation": "Historical release date corroborated by the linked official publisher page. Sentence authored for evaluation, not a verbatim source capture.",
+      "reviewed_by": "assistant_source_review_not_independent_human"
+    },
+    {
+      "id": "node-24",
+      "entity": "Node.js 24.0.0",
+      "statement": "Node.js 24.0.0 was released on May 6, 2025.",
+      "release_date": "2025-05-06",
+      "uri": "https://nodejs.org/en/blog/release/v24.0.0",
+      "publisher": "Node.js",
+      "review_annotation": "Historical release date corroborated by the linked official publisher page. Sentence authored for evaluation, not a verbatim source capture.",
+      "reviewed_by": "assistant_source_review_not_independent_human"
+    },
+    {
+      "id": "node-22",
+      "entity": "Node.js 22.0.0",
+      "statement": "Node.js 22.0.0 was released on April 24, 2024.",
+      "release_date": "2024-04-24",
+      "uri": "https://nodejs.org/en/blog/release/v22.0.0",
+      "publisher": "Node.js",
+      "review_annotation": "Historical release date corroborated by the linked official publisher page. Sentence authored for evaluation, not a verbatim source capture.",
+      "reviewed_by": "assistant_source_review_not_independent_human"
+    },
+    {
+      "id": "go-124",
+      "entity": "Go 1.24",
+      "statement": "Go 1.24 was released on February 11, 2025.",
+      "release_date": "2025-02-11",
+      "uri": "https://go.dev/blog/go1.24",
+      "publisher": "Go",
+      "review_annotation": "Historical release date corroborated by the linked official publisher page. Sentence authored for evaluation, not a verbatim source capture.",
+      "reviewed_by": "assistant_source_review_not_independent_human"
+    },
+    {
+      "id": "go-125",
+      "entity": "Go 1.25",
+      "statement": "Go 1.25 was released on August 12, 2025.",
+      "release_date": "2025-08-12",
+      "uri": "https://go.dev/blog/go1.25",
+      "publisher": "Go",
+      "review_annotation": "Historical release date corroborated by the linked official publisher page. Sentence authored for evaluation, not a verbatim source capture.",
+      "reviewed_by": "assistant_source_review_not_independent_human"
+    },
+    {
+      "id": "rust-185",
+      "entity": "Rust 1.85.0",
+      "statement": "Rust 1.85.0 was released on February 20, 2025.",
+      "release_date": "2025-02-20",
+      "uri": "https://blog.rust-lang.org/2025/02/20/Rust-1.85.0.html",
+      "publisher": "Rust",
+      "review_annotation": "Historical release date corroborated by the linked official publisher page. Sentence authored for evaluation, not a verbatim source capture.",
+      "reviewed_by": "assistant_source_review_not_independent_human"
+    },
+    {
+      "id": "kubernetes-134",
+      "entity": "Kubernetes v1.34",
+      "statement": "Kubernetes v1.34 was released on August 27, 2025.",
+      "release_date": "2025-08-27",
+      "uri": "https://kubernetes.io/blog/2025/08/27/kubernetes-v1-34-release/",
+      "publisher": "Kubernetes",
+      "review_annotation": "Historical release date corroborated by the linked official publisher page. Sentence authored for evaluation, not a verbatim source capture.",
+      "reviewed_by": "assistant_source_review_not_independent_human"
+    }
+  ],
+  "cases": [
+    {
+      "id": "01-python-313-publisher_relevant",
+      "anchor_id": "python-313",
+      "scenario": "publisher_relevant",
+      "oracle": {
+        "should_abstain": false,
+        "reason": "Publisher release page describes the same historical version and date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "02-python-313-url_content_tampering",
+      "anchor_id": "python-313",
+      "scenario": "url_content_tampering",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Synthetic test substitutes the opposite statement under the genuine URL. URI alone does not certify supplied content.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "03-python-313-irrelevant_official_page",
+      "anchor_id": "python-313",
+      "scenario": "irrelevant_official_page",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Genuine publisher page about a different release does not answer the requested release's date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "04-python-313-explicit_synthetic_conflict",
+      "anchor_id": "python-313",
+      "scenario": "explicit_synthetic_conflict",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Reviewer paraphrase from the official page is contradicted by an explicitly synthetic second document.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "05-python-313-stale_source_observation",
+      "anchor_id": "python-313",
+      "scenario": "stale_source_observation",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay uses a deliberately older observation time outside its configured 1-hour window.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "06-python-313-no_declared_freshness_policy",
+      "anchor_id": "python-313",
+      "scenario": "no_declared_freshness_policy",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay supplies observation metadata but no explicit freshness policy.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "07-python-312-publisher_relevant",
+      "anchor_id": "python-312",
+      "scenario": "publisher_relevant",
+      "oracle": {
+        "should_abstain": false,
+        "reason": "Publisher release page describes the same historical version and date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "08-python-312-url_content_tampering",
+      "anchor_id": "python-312",
+      "scenario": "url_content_tampering",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Synthetic test substitutes the opposite statement under the genuine URL. URI alone does not certify supplied content.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "09-python-312-irrelevant_official_page",
+      "anchor_id": "python-312",
+      "scenario": "irrelevant_official_page",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Genuine publisher page about a different release does not answer the requested release's date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "10-python-312-explicit_synthetic_conflict",
+      "anchor_id": "python-312",
+      "scenario": "explicit_synthetic_conflict",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Reviewer paraphrase from the official page is contradicted by an explicitly synthetic second document.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "11-python-312-stale_source_observation",
+      "anchor_id": "python-312",
+      "scenario": "stale_source_observation",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay uses a deliberately older observation time outside its configured 1-hour window.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "12-python-312-no_declared_freshness_policy",
+      "anchor_id": "python-312",
+      "scenario": "no_declared_freshness_policy",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay supplies observation metadata but no explicit freshness policy.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "13-node-24-publisher_relevant",
+      "anchor_id": "node-24",
+      "scenario": "publisher_relevant",
+      "oracle": {
+        "should_abstain": false,
+        "reason": "Publisher release page describes the same historical version and date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "14-node-24-url_content_tampering",
+      "anchor_id": "node-24",
+      "scenario": "url_content_tampering",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Synthetic test substitutes the opposite statement under the genuine URL. URI alone does not certify supplied content.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "15-node-24-irrelevant_official_page",
+      "anchor_id": "node-24",
+      "scenario": "irrelevant_official_page",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Genuine publisher page about a different release does not answer the requested release's date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "16-node-24-explicit_synthetic_conflict",
+      "anchor_id": "node-24",
+      "scenario": "explicit_synthetic_conflict",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Reviewer paraphrase from the official page is contradicted by an explicitly synthetic second document.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "17-node-24-stale_source_observation",
+      "anchor_id": "node-24",
+      "scenario": "stale_source_observation",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay uses a deliberately older observation time outside its configured 1-hour window.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "18-node-24-no_declared_freshness_policy",
+      "anchor_id": "node-24",
+      "scenario": "no_declared_freshness_policy",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay supplies observation metadata but no explicit freshness policy.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "19-node-22-publisher_relevant",
+      "anchor_id": "node-22",
+      "scenario": "publisher_relevant",
+      "oracle": {
+        "should_abstain": false,
+        "reason": "Publisher release page describes the same historical version and date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "20-node-22-url_content_tampering",
+      "anchor_id": "node-22",
+      "scenario": "url_content_tampering",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Synthetic test substitutes the opposite statement under the genuine URL. URI alone does not certify supplied content.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "21-node-22-irrelevant_official_page",
+      "anchor_id": "node-22",
+      "scenario": "irrelevant_official_page",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Genuine publisher page about a different release does not answer the requested release's date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "22-node-22-explicit_synthetic_conflict",
+      "anchor_id": "node-22",
+      "scenario": "explicit_synthetic_conflict",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Reviewer paraphrase from the official page is contradicted by an explicitly synthetic second document.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "23-node-22-stale_source_observation",
+      "anchor_id": "node-22",
+      "scenario": "stale_source_observation",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay uses a deliberately older observation time outside its configured 1-hour window.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "24-node-22-no_declared_freshness_policy",
+      "anchor_id": "node-22",
+      "scenario": "no_declared_freshness_policy",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay supplies observation metadata but no explicit freshness policy.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "25-go-124-publisher_relevant",
+      "anchor_id": "go-124",
+      "scenario": "publisher_relevant",
+      "oracle": {
+        "should_abstain": false,
+        "reason": "Publisher release page describes the same historical version and date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "26-go-124-url_content_tampering",
+      "anchor_id": "go-124",
+      "scenario": "url_content_tampering",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Synthetic test substitutes the opposite statement under the genuine URL. URI alone does not certify supplied content.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "27-go-124-irrelevant_official_page",
+      "anchor_id": "go-124",
+      "scenario": "irrelevant_official_page",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Genuine publisher page about a different release does not answer the requested release's date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "28-go-124-explicit_synthetic_conflict",
+      "anchor_id": "go-124",
+      "scenario": "explicit_synthetic_conflict",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Reviewer paraphrase from the official page is contradicted by an explicitly synthetic second document.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "29-go-124-stale_source_observation",
+      "anchor_id": "go-124",
+      "scenario": "stale_source_observation",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay uses a deliberately older observation time outside its configured 1-hour window.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "30-go-124-no_declared_freshness_policy",
+      "anchor_id": "go-124",
+      "scenario": "no_declared_freshness_policy",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay supplies observation metadata but no explicit freshness policy.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "31-go-125-publisher_relevant",
+      "anchor_id": "go-125",
+      "scenario": "publisher_relevant",
+      "oracle": {
+        "should_abstain": false,
+        "reason": "Publisher release page describes the same historical version and date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "32-go-125-url_content_tampering",
+      "anchor_id": "go-125",
+      "scenario": "url_content_tampering",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Synthetic test substitutes the opposite statement under the genuine URL. URI alone does not certify supplied content.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "33-go-125-irrelevant_official_page",
+      "anchor_id": "go-125",
+      "scenario": "irrelevant_official_page",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Genuine publisher page about a different release does not answer the requested release's date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "34-go-125-explicit_synthetic_conflict",
+      "anchor_id": "go-125",
+      "scenario": "explicit_synthetic_conflict",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Reviewer paraphrase from the official page is contradicted by an explicitly synthetic second document.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "35-go-125-stale_source_observation",
+      "anchor_id": "go-125",
+      "scenario": "stale_source_observation",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay uses a deliberately older observation time outside its configured 1-hour window.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "36-go-125-no_declared_freshness_policy",
+      "anchor_id": "go-125",
+      "scenario": "no_declared_freshness_policy",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay supplies observation metadata but no explicit freshness policy.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "37-rust-185-publisher_relevant",
+      "anchor_id": "rust-185",
+      "scenario": "publisher_relevant",
+      "oracle": {
+        "should_abstain": false,
+        "reason": "Publisher release page describes the same historical version and date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "38-rust-185-url_content_tampering",
+      "anchor_id": "rust-185",
+      "scenario": "url_content_tampering",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Synthetic test substitutes the opposite statement under the genuine URL. URI alone does not certify supplied content.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "39-rust-185-irrelevant_official_page",
+      "anchor_id": "rust-185",
+      "scenario": "irrelevant_official_page",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Genuine publisher page about a different release does not answer the requested release's date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "40-rust-185-explicit_synthetic_conflict",
+      "anchor_id": "rust-185",
+      "scenario": "explicit_synthetic_conflict",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Reviewer paraphrase from the official page is contradicted by an explicitly synthetic second document.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "41-rust-185-stale_source_observation",
+      "anchor_id": "rust-185",
+      "scenario": "stale_source_observation",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay uses a deliberately older observation time outside its configured 1-hour window.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "42-rust-185-no_declared_freshness_policy",
+      "anchor_id": "rust-185",
+      "scenario": "no_declared_freshness_policy",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay supplies observation metadata but no explicit freshness policy.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "43-kubernetes-134-publisher_relevant",
+      "anchor_id": "kubernetes-134",
+      "scenario": "publisher_relevant",
+      "oracle": {
+        "should_abstain": false,
+        "reason": "Publisher release page describes the same historical version and date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "44-kubernetes-134-url_content_tampering",
+      "anchor_id": "kubernetes-134",
+      "scenario": "url_content_tampering",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Synthetic test substitutes the opposite statement under the genuine URL. URI alone does not certify supplied content.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "45-kubernetes-134-irrelevant_official_page",
+      "anchor_id": "kubernetes-134",
+      "scenario": "irrelevant_official_page",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Genuine publisher page about a different release does not answer the requested release's date.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "46-kubernetes-134-explicit_synthetic_conflict",
+      "anchor_id": "kubernetes-134",
+      "scenario": "explicit_synthetic_conflict",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Reviewer paraphrase from the official page is contradicted by an explicitly synthetic second document.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "47-kubernetes-134-stale_source_observation",
+      "anchor_id": "kubernetes-134",
+      "scenario": "stale_source_observation",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay uses a deliberately older observation time outside its configured 1-hour window.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    },
+    {
+      "id": "48-kubernetes-134-no_declared_freshness_policy",
+      "anchor_id": "kubernetes-134",
+      "scenario": "no_declared_freshness_policy",
+      "oracle": {
+        "should_abstain": true,
+        "reason": "Replay supplies observation metadata but no explicit freshness policy.",
+        "reference_source_type": "official_publisher_page_or_explicitly_synthetic_mutation",
+        "label_authority": "assistant-reviewed historical fact plus controlled intervention; no blinded human verification"
+      }
+    }
+  ]
+}

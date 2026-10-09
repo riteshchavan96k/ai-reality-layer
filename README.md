@@ -905,3 +905,30 @@ baseline does **not** change the production API or imply field accuracy.
 Independently captured real-source evidence and blinded annotation are
 still necessary before claiming real-world performance. See
 `docs/STEP_217.md` and `docs/STEP_217_BASELINE.md`.
+
+## Official-publisher-anchored historical evidence quality replay (Step 218)
+
+Step 218 builds on, but does **not replace**, the Step 217 fictional baseline.
+The new `backend/app/evaluation/official_source_quality_benchmark.py`
+replays **48 cases grounded in eight manually checked official
+historical software-release announcement pages** from Python, Node.js,
+Go, Rust and Kubernetes. The short release-date descriptions are
+reviewer-written summaries, **not raw archived publisher text**.
+
+Each publisher anchor is tested for correct relevance, synthetic
+URL-content tampering, wrong-topic official evidence, synthetic
+explicit contradiction, old observation metadata and missing freshness
+policy. The benchmark reports wrong-topic support, general false
+support and abstention while keeping **all** human/assistant-generated
+gold labels out of the production pipeline.
+
+```bash
+python -m backend.app.evaluation.official_source_quality_benchmark --summary-only
+python -m backend.app.evaluation.official_source_quality_benchmark --output /tmp/step218-cases.json
+```
+
+The runner is fully offline, with simulated observation times.
+Original publishers are cited in `docs/STEP_218.md`; **no automatic
+URL-to-content authenticity verification, raw capture, independent
+blinded human annotation, field accuracy or live retrieval is claimed**.
+See `docs/STEP_218_BASELINE.md` for the actual observed results.

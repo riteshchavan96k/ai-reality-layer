@@ -52,3 +52,6 @@ jobs:
 
       - name: Run Step 217 controlled Reality State quality baseline
         run: python -m backend.app.evaluation.reality_state_quality_benchmark --summary-only
+
+      - name: Run Step 218 official-publisher-anchored quality replay
+        run: python -m backend.app.evaluation.official_source_quality_benchmark --summary-only

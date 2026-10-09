@@ -1,3 +1,17 @@
+# Current Status — Step 218
+
+## Step 218 — Official-Publisher-Anchored Reality State Quality Evaluation
+
+**Status:** Actual baseline recorded after first successful branch workflow; pending final feature-head CI, PR merge, independent merged-main CI, and final status-sync exact-SHA CI. Initial hosted run `37989769535` at branch SHA `baf156d059f11ba1b573e8acdd0ef222ac7b0834` passed compilation, **2,034 tests**, and both Step 217 and Step 218 benchmarks. A later regression requires committed Step 218 scores to match actual replay; final feature head must still pass.
+
+**Why this step:** Step 217's 48 fictional cases revealed **16/40 false `supported` outputs** and **8/16 candidate conflicts detected**. The next measurable product step is to test the same Reality State logic against historical facts manually checked on **eight actual first-party software-release pages**, while separately injecting clearly labeled adversarial and irrelevant evidence.
+
+**Implementation scope:** New offline `backend/app/evaluation/official_source_quality_benchmark.py` and `backend/evaluation_fixtures/step218_official_anchored_v1.json`: eight first-party publisher URLs, one reviewer-authored release-date summary each, and six replay scenarios per anchor (correct/relevant, synthetically forged same URL, wrong-topic real URL, explicit synthetic contradiction, stale observation, no freshness policy). `backend/tests/test_step218.py` verifies corpus integrity, independent oracle exclusion, adversarial inputs, scoring, replay, and absence of external runtime network. The hosted CI executes both Steps 217 and 218 quality summaries after complete compilation and pytest.
+
+**Assurance limitation:** Publisher pages were publicly checked by the assistant, but source summaries are *not* immutable captures of original page text, source bytes are not independently authenticated by the API, and no independent blinded human annotation is claimed. Observation times are simulated deterministic replay values. The dataset is *partly genuine historical facts and partly explicitly fabricated challenge inputs*, not independently validated real-world field performance. No production confidence policy, LLM/ML model, retrieval provider, or public API is changed.
+
+**Observed publisher-anchored controlled replay:** **48 cases** across eight manually checked real publisher release-date pages. The actual Step 218 baseline measured **16/40 false `supported` outputs (40%)** for cases requiring abstention, including **8/8 forged-content-under-official-URL** and **8/8 wrong-topic authentic official-source** cases. The eight explicit synthetic contradiction cases were detected; eight stale-observation and eight no-policy cases remained conservative. Eight relevant source-anchored summaries were structurally supported. These are author-written paraphrases and synthetic manipulations, **not original page snapshots or real-world field performance**. Baseline JSON from hosted CI is in `docs/STEP_218_BASELINE.json`, with root-cause analysis in `docs/STEP_218_BASELINE.md`. A new parity regression protects the recorded scores against stale replay values; feature-head and main CI remain required.
+
 # Current Status — Step 217
 
 ## Step 217 — Reality State Ground-Truth Quality Baseline
