@@ -1,3 +1,17 @@
+# Current Status — Step 217
+
+## Step 217 — Reality State Ground-Truth Quality Baseline
+
+**Status:** Implementation pending full GitHub-hosted test validation, observed scorecard, and merge. Do not mark complete until branch CI, merged-main CI, and final documentation/status-sync CI succeed on their exact commit SHAs.
+
+**Real product gap:** The existing orchestration benchmark only tests execution structure, while a fully linked and freshly observed but misleading claim may still receive a Reality State `supported` status. Passing historical internal contracts does not establish evidence-level or factual correctness.
+
+**Targeted work:** Add a separate 48-case labeled benchmark comprising eight fictional services and six independently annotated scenario families per service, with labels never passed into product inputs. Use the real submitted-evidence pipeline with fixed replay time, validate actual request/response contracts, measure extraction and claim/source pair precision/recall, explicit versus paraphrased conflict recall, false-support frequency, and safe abstention. Add fail-loud dataset-integrity and metric tests, run the quality scorecard on each backend CI build, and commit observed results.
+
+**Critical disclosure:** The corpus deliberately uses **simulated independent-world oracles**, hypothetical service updates and clearly fictional `fixtures.example.test` URLs. It is a controlled reproduction tool, not independently authenticated real-world evaluation. The product-quality goal is not met just because the benchmark runner passes. A blinded human-annotated real-source corpus remains a necessary next-phase gate.
+
+**Validation plan:** `backend/tests/test_step217.py` verifies corpus schema and coverage, corrupted labels, independent oracle separation, reproducible metrics and genuine FastAPI evidence endpoint compatibility. CI runs all backend tests plus `python -m backend.app.evaluation.reality_state_quality_benchmark --summary-only`. See `docs/STEP_217.md` and the observed `docs/STEP_217_BASELINE.md`.
+
 # Current Status — Step 216
 
 ## Step 216 — Canonical Conflict Identity Integrity
