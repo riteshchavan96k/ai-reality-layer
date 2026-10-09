@@ -63,15 +63,25 @@ def build_reality_state_from_evidence(
     freshness_max_age_seconds: float | int | None = None,
     dependencies: OrchestrationDependencies | None = None,
     entity: str | None = None,
+    require_independent_source_text_match: bool = False,
 ) -> dict:
     """Build a canonical Reality State from caller-supplied source-scoped evidence."""
     if not isinstance(task, str) or not task.strip():
         raise ValueError("task must be a non-empty string")
 
+    if type(require_independent_source_text_match) is not bool:
+        raise ValueError("require_independent_source_text_match must be boolean")
     services = dependencies or OrchestrationDependencies.default()
     bundle = SubmittedEvidenceBundle.from_mappings(documents)
     bundle.validate_freshness_policy(freshness_max_age_seconds)
     evidence = bundle.to_evidence()
+    text_assurance = None
+    if require_independent_source_text_match:
+        # The reader is injected solely through backend dependencies.
+        # Caller-provided source URLs, bodies, timestamps and hashes are
+        # not independent observations of publisher content.
+        text_assurance = services.independent_source_text_assurance.check(bundle)
+        evidence["independent_source_text_assurance"] = text_assurance
 
     raw_quality_result = services.evidence_quality_validator.validate_result(
         evidence
@@ -97,6 +107,8 @@ def build_reality_state_from_evidence(
     # Only an explicit entity activates the conservative text-alignment
     # gate; no-entity callers retain historical confidence behavior.
     entity_kwargs = {"entity": entity} if entity is not None else {}
+    if text_assurance is not None:
+        entity_kwargs["independent_source_text_status"] = text_assurance["status"]
     confidence = services.confidence_signal_aggregator.aggregate_result(
         quality_result.to_dict(),
         linking.to_dict(),
