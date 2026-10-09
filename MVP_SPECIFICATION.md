@@ -72,6 +72,10 @@ metadata to prevent contradictory or oversized canonical claims.
 Current implementation note: Step 210 caps **optional semantic adapter input**
 at 10,000 claim-text characters; longer claims remain fully attributed and
 unstructured without calling the adapter. The default no-model path is unchanged.
+Current implementation note: Step 211 closes the optional-semantic-adapter
+claim-count budget bypass for lower-level `usable` evidence. With an injected
+adapter, at most 2,000 unique claims can proceed to optional structuring;
+legacy `usable` extraction without an adapter remains backward compatible.
 
 ### Evidence
 

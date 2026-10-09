@@ -768,3 +768,23 @@ add or activate any NLP, Hugging Face, ML, or LLM model.
 
 See `docs/STEP_210.md` for the verified resource gap, exact behavior,
 and validation coverage.
+
+## Optional semantic-adapter claim-budget integrity (Step 211)
+
+`EvidenceClaimExtractor` now enforces the existing **2,000 unique
+candidate-claim limit** before invoking any **configured optional semantic
+structurer** for both `completed` and `usable` evidence. The `usable`
+path previously bypassed that invocation budget and could execute a
+configured adapter 2,001+ times.
+
+At the first over-budget unique claim, extraction returns
+`unavailable` / `retrieved_claim_limit_exceeded` with zero claims,
+zero adapter calls and no partial claim graph. The submitted-evidence
+bundle retains its existing `submitted_claim_limit_exceeded` translation.
+
+**Compatibility:** The older generic `usable` extractor path *without*
+an injected semantic adapter intentionally still accepts more than 2,000
+claims, as established by Steps 184–185. No default model execution,
+public API, provider, or other resource limit is changed.
+
+See `docs/STEP_211.md` for the exact state matrix and tests.
