@@ -31,7 +31,7 @@ product-quality targets are already met.
   that are never passed into the product.
 - `backend/tests/test_step217.py`: replay, dataset validation,
   independent-label tests, fail-loud invalid input, honest metric
-  accounting, and actual HTTP API compatibility checks.
+  accounting, and actual FastAPI handler compatibility checks (without HTTP transport).
 - The existing backend GitHub Actions workflow now prints a
   `--summary-only` quality report on each successful backend build.
   Quality failures appear as scored results; **CI does not conceal them
