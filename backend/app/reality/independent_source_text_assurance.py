@@ -8,6 +8,8 @@ not original publisher authorship, semantic entailment or truth.
 
 from collections.abc import Callable, Mapping
 from hashlib import sha256
+from ipaddress import ip_address
+from urllib.parse import urlsplit
 from typing import Any
 
 from backend.app.reality.submitted_evidence import SubmittedEvidenceBundle
@@ -15,6 +17,43 @@ from backend.app.reality.submitted_evidence import SubmittedEvidenceBundle
 
 MAX_INDEPENDENT_SOURCE_TEXT_CHARS = 200_000
 SourceTextReader = Callable[[str], Mapping[str, Any]]
+
+
+def _safe_observer_source_uri(uri: str) -> bool:
+    """Reject obvious unsafe URI shapes *before* calling a server reader.
+
+    This is a minimal defense in depth, NOT an SSRF-safe URL fetcher:
+    the installed reader must still enforce origin allowlists, redirects,
+    DNS resolution, IP pinning, TLS and proxy rules independently.
+    """
+    if not isinstance(uri, str) or any(ord(ch) < 32 or ord(ch) == 127 for ch in uri):
+        return False
+    try:
+        parsed = urlsplit(uri)
+        if (
+            parsed.scheme != "https"
+            or not parsed.hostname
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.fragment
+            or parsed.port not in (None, 443)
+        ):
+            return False
+        hostname = parsed.hostname.rstrip(".").casefold()
+        if (
+            hostname in {"localhost", "localhost.localdomain"}
+            or hostname.endswith((".localhost", ".local", ".internal"))
+        ):
+            return False
+        try:
+            ip_address(hostname)
+        except ValueError:
+            # Named origins are only *candidates*. Their resolved addresses
+            # must be rechecked and bound to the connection by the reader.
+            return True
+        return False
+    except ValueError:
+        return False
 
 
 class IndependentSourceTextAssurance:
@@ -39,7 +78,9 @@ class IndependentSourceTextAssurance:
                 "reason": "independent_reader_unconfigured",
                 "observer_content_sha256": None,
             }
-            if self._reader is not None:
+            if not _safe_observer_source_uri(doc.uri):
+                outcome["reason"] = "unsafe_source_uri_for_observer"
+            elif self._reader is not None:
                 try:
                     observed = self._reader(doc.uri)
                     if not isinstance(observed, Mapping):
