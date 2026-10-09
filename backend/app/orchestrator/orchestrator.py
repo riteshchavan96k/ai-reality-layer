@@ -94,11 +94,15 @@ def build_reality_state_from_evidence(
         observation,
         max_age_seconds=freshness_max_age_seconds,
     )
+    # Only an explicit entity activates the conservative text-alignment
+    # gate; no-entity callers retain historical confidence behavior.
+    entity_kwargs = {"entity": entity} if entity is not None else {}
     confidence = services.confidence_signal_aggregator.aggregate_result(
         quality_result.to_dict(),
         linking.to_dict(),
         freshness.to_dict(),
         conflicts.to_dict(),
+        **entity_kwargs,
     )
     reality_state = services.reality_state_builder.build_result(
         task,
