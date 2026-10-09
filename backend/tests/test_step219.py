@@ -5,6 +5,11 @@ or authentication of submitted URL content. Benchmarks must remain honest.
 """
 
 from dataclasses import replace
+import json
+from pathlib import Path
+
+from backend.app.evaluation import reality_state_quality_benchmark as step217_benchmark
+from backend.app.evaluation import official_source_quality_benchmark as step218_benchmark
 from datetime import datetime, timezone
 
 import pytest
@@ -264,3 +269,29 @@ def test_entity_alignment_is_not_factual_truth_verification():
     unrelated_false_report = "Python 3.13.0 was released on January 1, 2000."
     assert explicit_entity_link_alignment(TARGET, _links(unrelated_false_report))
     assert _confidence(unrelated_false_report).status == "supported"
+
+def test_committed_step219_scores_match_fresh_product_replay():
+    # Historical Steps 217/218 scorecards must stay unchanged; the new
+    # measured product behavior has its OWN independently replayed artifact.
+    path = Path(__file__).resolve().parents[2] / "docs" / "STEP_219_SCORECARD.json"
+    observed = json.loads(path.read_text(encoding="utf-8"))
+    assert observed["milestone"] == 219
+    assert observed["current"]["step217"] == step217_benchmark.run_baseline(
+        include_cases=False
+    )
+    assert observed["current"]["step218"] == step218_benchmark.run_baseline(
+        include_cases=False
+    )
+
+
+def test_step219_improvement_does_not_claim_publisher_authenticity():
+    path = Path(__file__).resolve().parents[2] / "docs" / "STEP_219_SCORECARD.json"
+    scored = json.loads(path.read_text(encoding="utf-8"))
+    before = scored["historical_comparison"]["step218"]
+    after = scored["current"]["step218"]
+    assert before["prior_wrong_topic_false_supports"] == 8
+    assert after["counts"]["wrong_topic_false_supports"] == 0
+    assert after["counts"]["correct_supports"] == 8
+    # Eight source-content forgeries still pass the name-only relevance gate.
+    assert after["scenarios"]["url_content_tampering"]["false_supports"] == 8
+    assert after["metrics"]["false_support_rate"] > 0.0
