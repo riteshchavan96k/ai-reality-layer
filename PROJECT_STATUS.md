@@ -2,13 +2,13 @@
 
 ## Step 209 — Semantic Structure Method Integrity and Metadata Bounds
 
-**Status:** Pending complete GitHub-hosted full-suite validation and merge. Do not claim completion until checks pass on the feature head, merged `main`, and the final status-sync commit.
+**Status:** Complete. Implemented and merged through PR #206 after the complete GitHub-hosted Python 3.13 backend workflow passed on the feature branch and on the merged implementation commit. Final status-sync commit is subject to the same full workflow on its exact `main` SHA before definitive completion is claimed.
 
 **Verified correctness gap:** Step 206 normalized a `structured` claim's `structuring_method` only *after* checking that it was not the reserved `not_attempted` marker. Padded values such as `" not_attempted "` therefore produced contradictory canonical `structured` claims. The method string and unstructured reason were also unbounded despite existing bounded semantic fields and unique-claim limits.
 
 **Fix:** Check the normalized method *before* accepting a structured claim. Restrict method metadata to 256 normalized characters and unstructured reasons to 1,024 normalized characters, preserving existing source lineage, output shape, ordinary valid method/reason strings, and exact default `unstructured` semantics.
 
-**Validation requirement:** New targeted `backend/tests/test_step209.py` plus the entire historic suite on pull-request head, merged `main` and final status-sync commit. See `docs/STEP_209.md`.
+**Validation:** Full GitHub-hosted backend compilation and pytest succeeded with **1,865 passed** on feature branch head `f42caf791e8daae3599b2274ade0be6d97c29a01` (Actions run `37919860833`) and again on merged implementation SHA `25f2403fdd6a6caf752590159b4da2ae0beaeb53` (Actions run `37919936927`). Final documentation-sync commit remains to be verified. See `docs/STEP_209.md`.
 
 **Scope:** Canonical `ClaimSemanticStructure` integrity only. No AI model, provider, network inference, entity resolution, new API, database, or semantic truth-certification changes.
 
