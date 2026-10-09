@@ -5,10 +5,7 @@ from dataclasses import replace
 import pytest
 
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
-from backend.app.orchestrator.orchestrator import (
-    build_reality_state,
-    build_reality_state_from_evidence,
-)
+from backend.app.orchestrator.orchestrator import build_reality_state_from_evidence
 from backend.app.reality.claim_extractor import EvidenceClaimExtractor
 from backend.app.reality.claim_semantic_structure import ClaimSemanticStructure
 from backend.app.reality.claim_semantic_structurer import (
