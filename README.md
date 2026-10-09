@@ -748,3 +748,23 @@ Invalid adapter output remains explicitly `unstructured` with
 The default behavior still performs no ML/LLM inference.
 
 See `docs/STEP_209.md` for exact invariants and regression tests.
+
+## Optional semantic-adapter input bound (Step 210)
+
+Candidate claims still preserve the complete source evidence, but the
+**optional configured semantic structurer** is not invoked for a candidate
+claim exceeding **10,000 characters**. Its claim remains in the Reality
+State, with all source references and explicit semantic result
+`unstructured` / `semantic_structuring_input_too_long`.
+
+The bound is checked *after* cross-source claim deduplication and existing
+global claim limits and *before* calling an injected adapter. In-bounds
+claims remain eligible for structuring. No text is silently truncated.
+
+The default no-model extractor retains the original
+`semantic_structuring_not_attempted` reason even for long claims. This is
+a character bound, not a model-specific context/token budget and does not
+add or activate any NLP, Hugging Face, ML, or LLM model.
+
+See `docs/STEP_210.md` for the verified resource gap, exact behavior,
+and validation coverage.
