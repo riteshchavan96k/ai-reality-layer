@@ -182,17 +182,22 @@ def test_cli_can_write_summary_json_without_fabricated_success(tmp_path, capsys)
     assert "false_supports" in saved["counts"]
 
 
-def test_committed_official_source_scorecard_matches_actual_product_replay():
-    # A regression that changes product predictions MUST update the observed
-    # scorecard explicitly; never leave convenient but stale numbers behind.
+def test_step218_pre_relevance_gate_recorded_baseline_is_preserved():
+    # Step 218 measured the PRE-Step-219 engine. It is historical evidence;
+    # intentionally do not rewrite its failure counts when the product
+    # changes. Step 219 has its own current-replay scorecard/parity test.
     baseline = (
         Path(__file__).resolve().parents[2]
         / "docs"
         / "STEP_218_BASELINE.json"
     )
     recorded = json.loads(baseline.read_text(encoding="utf-8"))
-    replayed = bench.run_baseline(include_cases=False)
-    assert recorded == replayed
+    assert recorded["dataset_id"] == bench.DATASET_ID
+    assert recorded["case_count"] == 48
+    assert recorded["counts"]["false_supports"] == 16
+    assert recorded["counts"]["wrong_topic_false_supports"] == 8
+    assert recorded["metrics"]["false_support_rate"] == 0.4
+    assert recorded["metrics"]["irrelevant_evidence_false_support_rate"] == 1.0
 
 
 def test_metrics_are_derived_from_denominators_not_arbitrary_scores():
