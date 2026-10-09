@@ -805,3 +805,22 @@ already trimmed and retain their prior behavior.
 This step does **not** lowercase addresses, follow redirects, merge distinct
 URLs, or verify that a publisher is authentic. No AI model or new API is added.
 See `docs/STEP_212.md` for implementation details and test cases.
+
+## Canonical source-provenance identity coherence (Step 213)
+
+The typed and mapping-shaped `SourceProvenance` contracts now require
+**`source_ref` and `uri` to identify the same canonical, whitespace-trimmed
+URL**. A `SourceProvenanceResult` must also have **unique source IDs and
+source references** across its records.
+
+This closes the low-level path that could reintroduce contradictory or
+duplicate identities after the Step 212 retrieval normalization boundary.
+The normal builder already emits coherent SHA-256 source identities and
+needs no new logic. Historical direct typed fixture IDs remain compatible,
+and output schemas do not change.
+
+This validates **internal source identity consistency**, not source
+authenticity or the factual truth of evidence.
+
+See `docs/STEP_213.md` for acceptance cases, error handling, and
+regression tests.
