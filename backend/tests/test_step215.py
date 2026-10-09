@@ -171,17 +171,19 @@ def test_default_linker_already_deduplicates_claims_and_trims_known_sources():
 def test_provenance_refs_and_link_refs_match_after_canonicalization():
     evidence = {
         "status": "usable",
-        "sources": [{"uri": " " + A + " "}, {"uri": B + " "}],
-        "content": CLAIM,
+        "sources": [
+            {"uri": " " + A + " ", "content": CLAIM},
+            {"uri": B + " ", "content": CLAIM},
+        ],
+        "content": CLAIM + "\\n\\n" + CLAIM,
     }
     provenance = SourceProvenanceBuilder().build_result(evidence)
     claims = EvidenceClaimExtractor().extract_result(evidence)
     linking = ClaimEvidenceLinker().link_result(claims, evidence)
-    assert linking.status == "empty" or linking.status == "usable"
-    if linking.status == "usable":
-        assert {link.source_ref for link in linking.links} <= {
-            source.source_ref for source in provenance.sources
-        }
+    assert linking.status == "usable"
+    assert {link.source_ref for link in linking.links} == {
+        source.source_ref for source in provenance.sources
+    } == {A, B}
 
 
 def test_empty_and_unavailable_link_states_remain_compatible():
