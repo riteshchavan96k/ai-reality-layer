@@ -2,7 +2,7 @@
 
 ## Step 220 — Opt-In Independent Source Text Assurance Boundary
 
-**Status:** Opt-in source-text checker implemented and measured in hosted branch workflow [37999041855](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/37999041855) at SHA `6fd1e4774367895ad870fb5c4cf4c4f1d86260f7`: Python 3.13 compilation, **2,099 tests**, historical Step 217/218 replays, and new Step 220 48-case simulated reader replay all passed. New scorecard-parity regression and documentation commits require a final branch-head CI run, followed by independent merged-main and exact final status-sync CI before completion.
+**Status:** Engineering implementation **merged** through [PR #217](https://github.com/riteshchavan96k/ai-reality-layer/pull/217), with full Python 3.13 compilation, **2,114 tests**, and all three Step 217/218/220 benchmark replays passing on final feature branch SHA `ada7af59fcfe7a30c287c5ea50958f3a30ff5215` ([CI 37999479649](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/37999479649)) and independently on merged main SHA `48c842d6621a25fbd645ebdaee41de0176df6776` ([CI 37999551191](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/37999551191)). The last project-status synchronization commit must itself pass full backend and three quality workflow steps on its exact current main SHA before the milestone is finally marked complete.
 
 **Verified gap:** Step 219 improved wrong-topic official source support (8/8 to 0/8 errors), but **8/8 source-content forgeries under genuine publisher URLs** remained incorrectly `supported`. A URL and source identifier are not proof that submitted text was actually present at the original source.
 
