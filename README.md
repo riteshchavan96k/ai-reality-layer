@@ -715,3 +715,20 @@ no model-selection input to external API callers.
 
 See `docs/STEP_207.md` for integration, failure behavior, and regression
 details.
+
+## Submitted-evidence semantic structuring integrity (Step 208)
+
+Source-scoped developer-submitted evidence now uses **one global candidate-claim
+extraction pass** before the optional Step-207 semantic structurer executes.
+Previously, duplicate claims across documents were merged after per-document
+semantic structuring, which could silently discard valid structured metadata.
+The corrected path deduplicates first, preserves complete `source_refs`, and
+calls an injected semantic adapter only once per unique claim.
+
+The preexisting **2,000 unique candidate claims** limit is checked before
+optional model execution. An over-limit bundle still yields
+`submitted_claim_limit_exceeded` with no partial claim graph. There is no
+change to the external request/response schema or the default
+`unstructured` behavior.
+
+See `docs/STEP_208.md` for the verified bug, fix, and regression tests.
