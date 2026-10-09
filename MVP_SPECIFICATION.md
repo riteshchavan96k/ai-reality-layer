@@ -199,6 +199,16 @@ credibility, generalization, or production readiness. The full suite
 continues to measure software correctness separately. See
 `docs/STEP_217.md` and `docs/STEP_217_BASELINE.md`.
 
+Current evaluation note (Step 218): the offline quality evaluation now
+also uses eight real official publisher historical-release pages as
+manual reference anchors for 48 scenarios. Summaries are original
+reviewer-authored paraphrases, NOT immutable original page captures;
+several scenarios intentionally change content, introduce synthetic
+conflicts, or use an unrelated genuine official URL. Confidence and
+source-relevance failures are visible in the committed scorecard.
+This does not constitute field accuracy or independent source-content
+authentication. See `docs/STEP_218.md`.
+
 ## 12. Success Criteria
 
 The MVP should demonstrate that:
