@@ -209,6 +209,17 @@ source-relevance failures are visible in the committed scorecard.
 This does not constitute field accuracy or independent source-content
 authentication. See `docs/STEP_218.md`.
 
+Current implementation note (Step 219): an explicitly provided `entity`
+now activates a conservative whole-identifier match for every linked
+claim before Reality State can be marked `supported`. Missing textual
+alignment downgrades to `uncertain`, preserving original freshness,
+conflict and link counts. The check does not verify publisher content,
+semantic entailment or independent factual truth; a forged claim that
+mentions the entity can still pass. Callers with no explicit entity
+retain legacy behavior. The historical Step 218 scorecard is preserved,
+with a separate Step 219 post-gate scorecard in
+`docs/STEP_219_SCORECARD.md`.
+
 ## 12. Success Criteria
 
 The MVP should demonstrate that:
