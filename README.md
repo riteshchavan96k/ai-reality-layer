@@ -983,3 +983,23 @@ Text presence is **not source/publisher authentication, entailment,
 world truth, or independent corroboration**. A genuine, hardened
 source reader must still be implemented and deployed by the backend
 operator. See `docs/STEP_220.md` and `docs/STEP_220_SCORECARD.md`.
+
+## Real allowlisted HTTPS source reading (Step 221)
+
+Strict evidence mode can now use real, independently obtained source
+text when a **backend operator** sets
+`ARL_INDEPENDENT_SOURCE_ALLOWED_URLS` to a JSON array of exact HTTPS URLs.
+No setting means no reader and a fail-closed `uncertain` result.
+
+The reader resolves and validates publicly routable addresses, pins
+the TCP connection to the checked IP, uses standard verified TLS/SNI,
+rejects redirects and unsupported responses, bounds received bytes,
+and extracts visible HTML/plain text. Successful strict comparison
+records a digest of retrieved original HTTP body bytes and a
+server-observed UTC timestamp. No API caller can extend the URL allowlist.
+
+This is a real network-capable reader but **not an independently audited
+publisher-authenticity service**. CI uses fake transports, not live site
+capture. Source text presence does not prove factual truth or entailment.
+See `docs/STEP_221.md` for configuration, safeguards, constraints and
+the explicit need for a permitted real-network smoke test.
