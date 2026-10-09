@@ -326,11 +326,21 @@ class OrchestrationPipeline:
             max_age_seconds=freshness_window,
         )
         state.analysis["reality_source_freshness"] = source_freshness.to_dict()
+        # Mirror the submitted-evidence path: explicitly selected entity
+        # needs claim-text alignment, otherwise legacy flows are unchanged.
+        reality_entity = state.analysis.get("reality_entity")
+        entity_kwargs = (
+            {"entity": reality_entity}
+            if isinstance(reality_entity, dict)
+            and reality_entity.get("status") == "specified"
+            else {}
+        )
         confidence_signals = self.dependencies.confidence_signal_aggregator.aggregate_result(
             state.evidence_quality,
             claim_evidence_linking.to_dict(),
             source_freshness.to_dict(),
             claim_conflicts.to_dict(),
+            **entity_kwargs,
         )
         state.analysis["reality_confidence_signals"] = confidence_signals.to_dict()
         context.trace.record(
