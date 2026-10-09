@@ -1,3 +1,17 @@
+# Current Status — Step 211
+
+## Step 211 — Semantic Adapter Claim-Budget Enforcement
+
+**Status:** Implementation pending full GitHub-hosted Python 3.13 backend validation and merge. Do not mark completed before successful PR-head CI, merged-main CI, and the final status-sync commit CI.
+
+**Verified correctness gap:** Step 184 applied the 2,000-unique-claim limit only when the generic extractor received `status="completed"`, deliberately keeping historical lower-level `status="usable"` without an optional adapter unrestricted. But Step 207's injected semantic adapters can also process `usable` evidence, causing 2,001+ separate adapter invocations despite the claim-count resource boundary described by Steps 208–210.
+
+**Fix:** Apply the existing unique-claim count limit when evidence is `completed` **or** an optional semantic adapter is configured. Enforce it during candidate extraction before any adapter is invoked. Preserve the historic zero-adapter `usable` behavior and the original `retrieved_claim_limit_exceeded` response; submitted bundles continue translating to `submitted_claim_limit_exceeded`. No partial claim graph or source/claim links are emitted when exceeding the limit.
+
+**Validation plan:** New `backend/tests/test_step211.py` verifies both statuses, exact bounds, no-adapter compatibility, multi-source deduplication, no adapter calls on failure, and real submitted-evidence Reality State behavior. Full historical test suite and GitHub-hosted compile must pass; see `docs/STEP_211.md`.
+
+**Scope:** Existing claim-extractor resource safeguard only. No model provider, API surface, auth, graph, retrieval, or semantic truth changes.
+
 # Current Status — Step 210
 
 ## Step 210 — Bounded Optional Semantic Structuring Input
