@@ -233,6 +233,19 @@ provider. A match is not publisher authentication or factual proof.
 The Step 220 simulated-observer scores cannot establish real-world
 source assurance; see `docs/STEP_220.md`.
 
+
+Step 221 source-observer note: a server operator can now enable genuine
+HTTPS page retrieval for strict evidence checks via exact-URL JSON
+allowlist in `ARL_INDEPENDENT_SOURCE_ALLOWED_URLS`. By default it is
+disabled. The reader validates global DNS destinations and pins the
+TLS connection to a checked address, rejects redirects and oversized
+or unsupported responses, and returns SHA256 of original captured
+response bytes and UTC observation time for auditable matched sources.
+It does **not** establish publisher signature/authorship, truth or
+semantic relevance, and raw source pages are not durably archived.
+Network behavior is tested offline with fake transports; real site
+acceptance testing is still needed. See `docs/STEP_221.md`.
+
 ## 12. Success Criteria
 
 The MVP should demonstrate that:
