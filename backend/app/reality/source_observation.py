@@ -86,6 +86,11 @@ class SourceObservationResult:
             raise ValueError("source_count must be a non-negative integer")
         if self.source_count != len(self.observations):
             raise ValueError("source_count must match the number of observations")
+        # Each result represents one observation per canonical source. A
+        # duplicate source_id would incorrectly count one source repeatedly
+        # and could pass ambiguous timestamps into freshness assessment.
+        if len({item.source_id for item in self.observations}) != len(self.observations):
+            raise ValueError("source observation source_ids must be unique")
         if not isinstance(self.observation_executed, bool):
             raise ValueError("observation_executed must be a boolean")
         if self.status == "usable" and not self.observation_executed:
