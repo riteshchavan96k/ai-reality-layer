@@ -175,7 +175,7 @@ def test_provenance_refs_and_link_refs_match_after_canonicalization():
             {"uri": " " + A + " ", "content": CLAIM},
             {"uri": B + " ", "content": CLAIM},
         ],
-        "content": CLAIM + "\\n\\n" + CLAIM,
+        "content": CLAIM + "\n\n" + CLAIM,
     }
     provenance = SourceProvenanceBuilder().build_result(evidence)
     claims = EvidenceClaimExtractor().extract_result(evidence)
