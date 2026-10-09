@@ -2,7 +2,7 @@
 
 ## Step 219 — Conservative Explicit-Entity Evidence Relevance Gate
 
-**Status:** Narrow relevance gate implemented, actual pre/post quality scorecards recorded, and initial hosted Python 3.13 branch workflow `37996925741` at SHA `0c22178af4e69f74d21d321307b4b34aba6ba68f` passed **2,071 tests** plus both 48-case benchmark runs. Subsequent report-parity regression and documentation commits require a fresh complete feature-head CI pass before merge; independent merged-main and final status-sync workflows are also required.
+**Status:** Implemented and merged as a narrowly scoped relevance safeguard through [PR #216](https://github.com/riteshchavan96k/ai-reality-layer/pull/216). Full Python 3.13 compilation, **2,073 tests**, and both Step 217 and Step 218 evaluation replays succeeded on final feature SHA `1e11396c6874a7baadf9c1b178d34acc3e183cf1` ([run 37997122486](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/37997122486)) and independently on merged main SHA `6b6241731d58539ffdaa3550f45cb344227fdc47` ([run 37997212566](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/37997212566)). The final project-status synchronization commit must itself pass full CI on its exact main SHA before Step 219 is marked completed.
 
 **Verified product problem:** Step 218's historical official-source-anchored benchmark found **8/8 wrong-topic official evidence cases** classified `supported`, with 16/40 false supports overall among the 40 abstention-required cases. The confidence aggregator did not examine explicit target-entity identity when making a supported/uncertain decision.
 
