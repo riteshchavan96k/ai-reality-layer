@@ -1,3 +1,17 @@
+# Current Status — Step 218
+
+## Step 218 — Official-Publisher-Anchored Reality State Quality Evaluation
+
+**Status:** In implementation / verification. Do not mark complete until the new 48-case benchmark and full hosted Python 3.13 suite pass on feature head, merged-main and final status-sync commits, with actual recorded scorecard.
+
+**Why this step:** Step 217's 48 fictional cases revealed **16/40 false `supported` outputs** and **8/16 candidate conflicts detected**. The next measurable product step is to test the same Reality State logic against historical facts manually checked on **eight actual first-party software-release pages**, while separately injecting clearly labeled adversarial and irrelevant evidence.
+
+**Implementation scope:** New offline `backend/app/evaluation/official_source_quality_benchmark.py` and `backend/evaluation_fixtures/step218_official_anchored_v1.json`: eight first-party publisher URLs, one reviewer-authored release-date summary each, and six replay scenarios per anchor (correct/relevant, synthetically forged same URL, wrong-topic real URL, explicit synthetic contradiction, stale observation, no freshness policy). `backend/tests/test_step218.py` verifies corpus integrity, independent oracle exclusion, adversarial inputs, scoring, replay, and absence of external runtime network. The hosted CI executes both Steps 217 and 218 quality summaries after complete compilation and pytest.
+
+**Assurance limitation:** Publisher pages were publicly checked by the assistant, but source summaries are *not* immutable captures of original page text, source bytes are not independently authenticated by the API, and no independent blinded human annotation is claimed. Observation times are simulated deterministic replay values. The dataset is *partly genuine historical facts and partly explicitly fabricated challenge inputs*, not independently validated real-world field performance. No production confidence policy, LLM/ML model, retrieval provider, or public API is changed.
+
+**Acceptance:** Preserve measured failures transparently in `docs/STEP_218_BASELINE.json` and `docs/STEP_218_BASELINE.md`, pass all backend tests and two benchmark runs on feature head, merged `main`, and final status-sync SHA, then explicitly identify next data-driven action.
+
 # Current Status — Step 217
 
 ## Step 217 — Reality State Ground-Truth Quality Baseline
