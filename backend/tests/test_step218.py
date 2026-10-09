@@ -133,7 +133,7 @@ def test_scorecard_contains_no_false_real_world_accuracy_claim():
     assert report["corpus_type"] == "real-official-source-anchored-plus-synthetic-adversarial-inputs"
     assert any("not blind independently" in x for x in report["limitations"])
     assert any("not original publisher text captures" in x for x in report["limitations"])
-    assert any("do not fetch" in x for x in report["limitations"])
+    assert any("does not fetch" in x for x in report["limitations"])
     assert "cases" not in report
     for score in report["metrics"].values():
         assert score is None or 0 <= score <= 1
