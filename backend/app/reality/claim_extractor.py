@@ -54,9 +54,12 @@ class EvidenceClaimExtractor:
                 ClaimExtractionResult.empty_result()
             )
 
-        uris = [source.get("uri") for source in sources]
-        if any(not isinstance(uri, str) or not uri.strip() for uri in uris):
+        raw_uris = [source.get("uri") for source in sources]
+        if any(not isinstance(uri, str) or not uri.strip() for uri in raw_uris):
             return self._unavailable("missing_source_attribution", source_count)
+        # Treat whitespace-padded aliases as one source identity before
+        # constructing claims or passing references to semantic adapters.
+        uris = [uri.strip() for uri in raw_uris]
         if len(set(uris)) != source_count:
             return self._unavailable("duplicate_source_attribution", source_count)
 
@@ -74,8 +77,8 @@ class EvidenceClaimExtractor:
             if content is not None and content.strip() != combined:
                 return self._unavailable("inconsistent_source_scoped_content", source_count)
             segments = [
-                (source["content"], (source["uri"],))
-                for source in sources
+                (source["content"], (uri,))
+                for source, uri in zip(sources, uris)
             ]
         elif source_count == 1:
             if not content or not content.strip():
@@ -83,7 +86,7 @@ class EvidenceClaimExtractor:
                     ClaimExtractionResult.empty_result(source_count=1)
                 )
             # A single URI is unambiguous and remains backward compatible.
-            segments = [(content, (sources[0]["uri"],))]
+            segments = [(content, (uris[0],))]
         else:
             if not content or not content.strip():
                 return ClaimExtractionResultNormalizer.normalize(
