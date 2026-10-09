@@ -45,7 +45,7 @@ class ClaimSemanticStructuringStage:
     ) -> ClaimSemanticStructure:
         if not isinstance(claim_text, str) or not claim_text.strip():
             raise ValueError("semantic structuring requires non-empty claim text")
-        if not isinstance(source_refs, tuple) or any(
+        if not isinstance(source_refs, tuple) or not source_refs or any(
             not isinstance(ref, str) or not ref.strip() for ref in source_refs
         ):
             raise ValueError("semantic structuring requires valid source references")
