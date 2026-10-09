@@ -63,6 +63,9 @@ attempt semantic structuring and therefore emits `unstructured`; automatic
 semantic claim extraction remains future work. Step 207 adds an optional
 provider-neutral structuring execution boundary with a fail-closed default;
 no semantic model is configured or automatically invoked.
+Current implementation note: Step 208 ensures submitted multi-document evidence
+performs global claim deduplication before optional structuring, preserving
+structured metadata and all supporting source references.
 
 ### Evidence
 
