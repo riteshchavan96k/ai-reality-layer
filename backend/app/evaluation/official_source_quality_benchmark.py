@@ -60,7 +60,7 @@ def load_dataset(path: Path = DATASET_PATH) -> dict[str, Any]:
     _require(dataset.get("dataset_id") == DATASET_ID, "dataset ID mismatch")
     _require(dataset.get("schema_version") == "1.0", "schema version mismatch")
     _require(dataset.get("replay_time_is_synthetic") is True, "synthetic time disclosure missing")
-    _require("not a verbatim" in str(dataset.get("source_format", "")).lower(), "paraphrase disclosure missing")
+    _require("not a quotation" in str(dataset.get("source_format", "")).lower(), "paraphrase disclosure missing")
     _require("no second blinded human annotator" in str(dataset.get("source_review_process", "")).lower(), "independent review disclosure missing")
     for key in ("replay_clock_utc", "recent_observation_utc", "old_observation_utc"):
         value = datetime.fromisoformat(dataset[key].replace("Z", "+00:00"))
