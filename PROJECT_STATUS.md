@@ -1,3 +1,17 @@
+# Current Status — Step 217
+
+## Step 217 — Reality State Ground-Truth Quality Baseline
+
+**Status:** Observed controlled quality scorecard published; pending final feature-head full CI, PR merge, independent merged-main full CI and final status-sync exact-SHA CI. Initial successful hosted feature run `37983616718` at SHA `55156e492b7682d20be45acc2f8894e561e31d75` passed **2,011 tests** and executed the 48-case baseline. The final dataset/report parity regression was added afterward and must pass on the next feature head.
+
+**Real product gap:** The existing orchestration benchmark only tests execution structure, while a fully linked and freshly observed but misleading claim may still receive a Reality State `supported` status. Passing historical internal contracts does not establish evidence-level or factual correctness.
+
+**Targeted work:** Add a separate 48-case labeled benchmark comprising eight fictional services and six independently annotated scenario families per service, with labels never passed into product inputs. Use the real submitted-evidence pipeline with fixed replay time, validate actual request/response contracts, measure extraction and claim/source pair precision/recall, explicit versus paraphrased conflict recall, false-support frequency, and safe abstention. Add fail-loud dataset-integrity and metric tests, run the quality scorecard on each backend CI build, and commit observed results.
+
+**Critical disclosure:** The corpus deliberately uses **simulated independent-world oracles**, hypothetical service updates and clearly fictional `fixtures.example.test` URLs. It is a controlled reproduction tool, not independently authenticated real-world evaluation. The product-quality goal is not met just because the benchmark runner passes. A blinded human-annotated real-source corpus remains a necessary next-phase gate.
+
+**Observed controlled-baseline results:** 48 scenarios (eight fictional services × six categories); 64/64 exact candidate claim matches, 68/68 exact claim/source pair matches, 8/16 detected candidate conflicts (**50% recall**), and **16/40 false `supported` outcomes (40%)** among independent simulated-oracle cases requiring abstention: all eight paraphrased disagreements and all eight false sole-source reports were classified `supported`. These are **not real-world quality metrics**. The baseline is preserved in `docs/STEP_217_BASELINE.json` and analyzed in `docs/STEP_217_BASELINE.md`; a regression asserts the committed metrics equal fresh pipeline replay. Full branch/merge/final documentation CI is still required.
+
 # Current Status — Step 216
 
 ## Step 216 — Canonical Conflict Identity Integrity

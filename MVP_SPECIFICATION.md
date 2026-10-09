@@ -190,6 +190,15 @@ event timestamp, or certificate of factual truth.
 
 AI Reality Layer is intended to operate above raw retrieval and below AI application reasoning by converting information into structured, evidence-backed reality states.
 
+Current evaluation note (Step 217): a fixed 48-case controlled synthetic
+Reality State quality dataset and separate runner now measure text/source
+attribution, candidate-conflict detection, false structural support, and
+safe abstention. The oracle facts and URLs are explicitly **simulated**;
+results cannot substantiate external factual accuracy, publisher
+credibility, generalization, or production readiness. The full suite
+continues to measure software correctness separately. See
+`docs/STEP_217.md` and `docs/STEP_217_BASELINE.md`.
+
 ## 12. Success Criteria
 
 The MVP should demonstrate that:

@@ -49,3 +49,6 @@ jobs:
 
       - name: Run complete backend regression suite
         run: python -m pytest
+
+      - name: Run Step 217 controlled Reality State quality baseline
+        run: python -m backend.app.evaluation.reality_state_quality_benchmark --summary-only

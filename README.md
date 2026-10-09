@@ -874,3 +874,34 @@ unchanged. This is structural consistency, not general semantic
 conflict recognition or independent factual verification.
 
 See `docs/STEP_216.md` for details and regression coverage.
+
+## Measured Reality State quality baseline (Step 217)
+
+The old `backend/app/evaluation/benchmark.py` remains an **orchestration
+structure** benchmark. Step 217 introduces a **separate evidence-quality
+baseline** at `backend/app/evaluation/reality_state_quality_benchmark.py`.
+
+It evaluates 48 clearly labeled **controlled hypothetical** service-status
+cases spanning true-looking evidence, deliberately misleading source
+statements, exact negation, semantic paraphrase disagreement, stale
+observations, and absent freshness policy. All URLs are under
+`fixtures.example.test`. **These are simulated reference-world labels,
+not independently verified real-world statements**.
+
+The fixed oracle is never passed to the production processing pipeline.
+The runner measures claim text and source matching, detected conflict
+pairs, false `supported` status on cases requiring abstention, and
+safe abstention, including a per-scenario breakdown. It preserves
+negative quality results rather than redefining `supported` as
+factual truth.
+
+```bash
+python -m backend.app.evaluation.reality_state_quality_benchmark --summary-only
+python -m backend.app.evaluation.reality_state_quality_benchmark --output /tmp/step217-full.json
+```
+
+GitHub Actions executes the quality summary after full `pytest`. This
+baseline does **not** change the production API or imply field accuracy.
+Independently captured real-source evidence and blinded annotation are
+still necessary before claiming real-world performance. See
+`docs/STEP_217.md` and `docs/STEP_217_BASELINE.md`.
