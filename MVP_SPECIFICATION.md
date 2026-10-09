@@ -60,7 +60,9 @@ Current implementation note: Step 206 adds a canonical claim semantic-structure
 slot with validated `structured` subject/predicate/object and explicit
 `unstructured` states. The current deterministic sentence extractor does not
 attempt semantic structuring and therefore emits `unstructured`; automatic
-semantic claim extraction remains future work.
+semantic claim extraction remains future work. Step 207 adds an optional
+provider-neutral structuring execution boundary with a fail-closed default;
+no semantic model is configured or automatically invoked.
 
 ### Evidence
 
