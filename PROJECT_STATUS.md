@@ -1,3 +1,17 @@
+# Current Status — Step 209
+
+## Step 209 — Semantic Structure Method Integrity and Metadata Bounds
+
+**Status:** Pending complete GitHub-hosted full-suite validation and merge. Do not claim completion until checks pass on the feature head, merged `main`, and the final status-sync commit.
+
+**Verified correctness gap:** Step 206 normalized a `structured` claim's `structuring_method` only *after* checking that it was not the reserved `not_attempted` marker. Padded values such as `" not_attempted "` therefore produced contradictory canonical `structured` claims. The method string and unstructured reason were also unbounded despite existing bounded semantic fields and unique-claim limits.
+
+**Fix:** Check the normalized method *before* accepting a structured claim. Restrict method metadata to 256 normalized characters and unstructured reasons to 1,024 normalized characters, preserving existing source lineage, output shape, ordinary valid method/reason strings, and exact default `unstructured` semantics.
+
+**Validation requirement:** New targeted `backend/tests/test_step209.py` plus the entire historic suite on pull-request head, merged `main` and final status-sync commit. See `docs/STEP_209.md`.
+
+**Scope:** Canonical `ClaimSemanticStructure` integrity only. No AI model, provider, network inference, entity resolution, new API, database, or semantic truth-certification changes.
+
 # Current Status — Step 208
 
 ## Step 208 — Submitted-Evidence Semantic Structuring Integrity
