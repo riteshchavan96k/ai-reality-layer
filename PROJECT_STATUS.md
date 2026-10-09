@@ -2,13 +2,13 @@
 
 ## Step 212 — Canonical Source-URI Identity Integrity
 
-**Status:** Pending full GitHub-hosted regression verification and merge. Do not claim complete until branch CI, merged-`main` CI and final status-sync commit CI all succeed.
+**Status:** Complete, subject to the final documentation-sync commit's own hosted verification. PR #209 merged after full Python 3.13 backend compilation and pytest passed on feature branch head `6fff108a11dacfc31ea80693cd4d356852b082a2` (run `37924504483`) and on merged `main` SHA `ab03057a7459e8e8dfa0eae3a1d6396df590513b` (run `37924588316`), both with **1,907 tests passed**.
 
 **Verified correctness defect:** Retrieved source URI strings could retain surrounding whitespace through HTTP and provider-neutral evidence normalization, claim extraction, and SHA-256 provenance identity, while the claim/evidence linker already trimmed references. This could break agreement between linked source refs and provenance source refs, fabricate two identities for padded aliases, or cause observation matching inconsistencies.
 
 **Fix:** Canonicalize source URLs by trimming only surrounding whitespace before source-URI duplicate validation, claim attribution, and provenance hashing. Update low-level observation matching to use the same canonical key and reject aliases that would collide. Preserve significant URL characters, exact source text, old failure contracts, and the direct submitted-evidence path, which already canonicalized URIs.
 
-**Validation requirement:** New `backend/tests/test_step212.py` tests all modified boundaries and end-to-end configured HTTP retrieval. Full Python 3.13 backend compile and pytest suite must pass on feature branch, merged `main`, and final status update. See `docs/STEP_212.md`.
+**Validation:** The new `backend/tests/test_step212.py` covers URI normalization, alias collisions, claim attribution, semantic adapter lineage, stable hashes, observation matching, and complete configured HTTP retrieval to Reality State. The first feature run (`37924420785`) found one integration-test query-selection failure (1 failed, 1,906 passed); the query was corrected to the existing retrieval-triggering form without changing product behavior. Re-run `37924504483` passed **1,907 tests**, and independent merged-`main` run `37924588316` also passed **1,907 tests**. Final status-sync CI remains required. See `docs/STEP_212.md`.
 
 **Scope exclusions:** No inference, ML, LLM, Hugging Face, URL redirect resolution, publisher authenticity check, graph/database/API changes, or unrelated features.
 
