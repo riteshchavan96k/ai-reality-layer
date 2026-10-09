@@ -1,0 +1,47 @@
+{
+  "case_count": 48,
+  "corpus_type": "operator-curated-simulated-observer-text-not-publisher-authenticated",
+  "counts": {
+    "abstain_required": 40,
+    "all_source_text_observed_cases": 32,
+    "cases": 48,
+    "legitimate_cases": 8,
+    "legitimate_supported": 8
+  },
+  "dataset_id": "step220-curated-observer-replay-v1",
+  "limitations": [
+    "Simulated server-controlled reader uses fixed reviewer-authored source statements from the Step 218 dataset; not actual publisher captures.",
+    "Independent from submitted/forged case documents, but not independently validated by a second human or publisher cryptography.",
+    "A real deployment MUST install a trusted, securely operated and bounded source reader. None is configured by default.",
+    "Exact substring observation does not establish semantic truth, source authorship or cross-source corroboration.",
+    "The fail-closed unconfigured mode intentionally abstains on legitimate cases as well as forged cases.",
+    "Original historical Step 217/218 results and Step 219 scorecards remain unchanged in this opt-in replay."
+  ],
+  "metrics": {
+    "false_support_rate": 0,
+    "legitimate_support_rate": 1,
+    "unconfigured_legitimate_support_rate": 0
+  },
+  "scenarios": {
+    "explicit_synthetic_conflict": {
+      "cases": 8
+    },
+    "irrelevant_official_page": {
+      "cases": 8
+    },
+    "no_declared_freshness_policy": {
+      "cases": 8
+    },
+    "publisher_relevant": {
+      "cases": 8,
+      "legitimate_supported": 8
+    },
+    "stale_source_observation": {
+      "cases": 8
+    },
+    "url_content_tampering": {
+      "cases": 8
+    }
+  },
+  "source_dataset_id": "step218-official-release-anchored-v1"
+}
