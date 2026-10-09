@@ -2,7 +2,7 @@
 
 ## Step 208 — Submitted-Evidence Semantic Structuring Integrity
 
-**Status:** Implementation pending complete hosted GitHub Actions validation and merge into `main`. Do not mark complete before feature-branch, merged-`main`, and final status-synchronization checks pass.
+**Status:** Complete. The implementation was merged through PR #205 after the full GitHub-hosted Python 3.13 backend suite succeeded on the feature branch and again on the merged `main` implementation commit. The final status-synchronization commit requires its own successful hosted full-suite run to close the verification loop.
 
 **Verified defect:** Step 207 added optional semantic structuring after the extractor's internal deduplication. But `SubmittedEvidenceBundle.extract_claims` used an independent per-document loop and reconstructed cross-document duplicate `EvidenceClaim` objects without `semantic_structure`, silently discarding valid structured results. It also invoked optional semantic adapters on duplicate claims or globally over-budget evidence before discovering the submission's final state.
 
@@ -10,7 +10,7 @@
 
 **Compatibility:** No new providers, public API fields, source fabrication, entity inference, ML/LLM invocation or truth certification. Existing Step 180/185 contract semantics and Step 207 default `unstructured` behavior remain.
 
-**Validation:** New targeted `backend/tests/test_step208.py` plus complete prior suite required. See `docs/STEP_208.md`.
+**Validation:** Full hosted backend compile and pytest suite passed **1,845 tests** on feature branch head `d7e7a0849d2a317595505283cbc50420f2f620f6` (run `37919090554`), and again on merged implementation commit `31c3d3544efe3f02428ee6385a902b7543338a3c` (run `37919159834`). See `docs/STEP_208.md`.
 
 # Current Status — Step 207
 
