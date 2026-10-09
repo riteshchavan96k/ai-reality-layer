@@ -690,3 +690,28 @@ Reality Entity to every claim automatically, and does not change linking,
 conflict, freshness or confidence behavior.
 
 See `docs/STEP_206.md` for the complete semantic and compatibility boundary.
+
+## Optional semantic claim structuring boundary (Step 207)
+
+The candidate-claim extractor now includes a **provider-neutral semantic
+structuring boundary**. By default it still does **not** infer subject,
+predicate, or object. Existing Reality State responses remain unchanged
+(`semantic_structure.status = "unstructured"` and
+`reason = "semantic_structuring_not_attempted"`).
+
+A trusted in-process adapter can be injected through
+`EvidenceClaimExtractor(semantic_structurer=...)` using the existing
+`OrchestrationDependencies` composition mechanism. Each adapter receives
+the claim text and its *complete, deduplicated source reference tuple*, and
+its output must pass the Step-206 semantic-structure contract.
+
+Invalid or failing adapters cannot create a structured claim: they yield
+explicit `unstructured` results with a failure reason. An adapter returning
+`None` is separately marked `semantic_structuring_no_result`.
+
+The boundary validates data integrity, **not semantic accuracy or factual
+truth**. Step 207 adds no actual Hugging Face, ML, or LLM model and exposes
+no model-selection input to external API callers.
+
+See `docs/STEP_207.md` for integration, failure behavior, and regression
+details.

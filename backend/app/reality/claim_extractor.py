@@ -2,6 +2,10 @@ import re
 from typing import Any
 
 from backend.app.reality.claim_extraction import ClaimExtractionResult, EvidenceClaim
+from backend.app.reality.claim_semantic_structurer import (
+    ClaimSemanticStructurer,
+    ClaimSemanticStructuringStage,
+)
 from backend.app.reality.claim_extraction_normalizer import ClaimExtractionResultNormalizer
 from backend.app.reality.retrieval_input_bounds import MAX_RETRIEVED_CLAIMS
 
@@ -10,6 +14,13 @@ class EvidenceClaimExtractor:
     """Extract deterministic candidate claims from normalized evidence content."""
 
     _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+|\n+")
+
+    def __init__(
+        self, semantic_structurer: ClaimSemanticStructurer | None = None
+    ) -> None:
+        self._semantic_structuring = ClaimSemanticStructuringStage(
+            semantic_structurer
+        )
 
     def extract_result(self, evidence: dict[str, Any]) -> ClaimExtractionResult:
         if not isinstance(evidence, dict):
@@ -113,10 +124,21 @@ class EvidenceClaimExtractor:
             return ClaimExtractionResultNormalizer.normalize(
                 ClaimExtractionResult.empty_result(source_count=source_count)
             )
-        return ClaimExtractionResultNormalizer.normalize(
-            ClaimExtractionResult.usable_result(
-                tuple(claims_by_key.values()), source_count=source_count
+        # Structure only after deduplication, so the optional adapter sees the
+        # complete source lineage and is invoked once per distinct claim.
+        claims = tuple(
+            EvidenceClaim(
+                text=claim.text,
+                source_refs=claim.source_refs,
+                extraction_method=claim.extraction_method,
+                semantic_structure=self._semantic_structuring.structure_claim(
+                    claim.text, claim.source_refs
+                ),
             )
+            for claim in claims_by_key.values()
+        )
+        return ClaimExtractionResultNormalizer.normalize(
+            ClaimExtractionResult.usable_result(claims, source_count=source_count)
         )
 
     @staticmethod

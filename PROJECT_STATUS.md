@@ -1,3 +1,21 @@
+# Current Status — Step 207
+
+## Step 207 — Semantic Claim Structuring Execution Boundary
+
+**Status:** Pending complete GitHub-hosted validation and merge into `main`. Do not claim this step is complete until the full regression workflow passes and the merge is verified.
+
+**Verified gap:** Step 206 established the `ClaimSemanticStructure` contract but no optional provider-neutral execution mechanism could invoke a future trusted semantic structurer between deterministic candidate extraction and the semantic contract.
+
+**Implementation:** Added `ClaimSemanticStructurer` protocol, an explicit no-attempt default adapter, and `ClaimSemanticStructuringStage`. It validates proposed canonical semantic structures and safely converts invalid output, no output, or provider exceptions to explicit unstructured reasons. `EvidenceClaimExtractor` invokes the stage only after source-scoped candidate deduplication, preserving complete source refs, claim text, and extraction method.
+
+**Current production semantics:** The zero-argument default extractor still performs deterministic sentence splitting only. No semantic model runs. Current default claims remain `unstructured` with reason `semantic_structuring_not_attempted`. Valid in-process trusted adapters can be supplied through the existing dependency composition boundary; external API callers cannot enable arbitrary models.
+
+**Validation plan:** Dedicated `backend/tests/test_step207.py` tests default behavior, valid typed/mapping output, abstention, invalid and missing output, exception isolation, cross-source deduplication, preservation of lineage, early rejection of malformed configuration/inputs, and end-to-end submitted evidence construction. Full historical suite must pass on PR head and merged `main`.
+
+**Safety boundary:** A schema-valid triple is not proof of correct semantic parsing or factual truth. No regex triple inference, Hugging Face, NLP models, LLMs, embeddings, network inference, entity resolution, semantic conflict analysis, database migrations, or API interface changes are introduced.
+
+See `docs/STEP_207.md`.
+
 # Current Status — Step 206
 
 ## Step 206 — Canonical Structured Claim Representation Foundation
