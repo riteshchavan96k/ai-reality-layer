@@ -4,10 +4,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable, Iterable, Mapping
 from urllib.parse import urlparse
 
-from backend.app.reality.claim_extraction import (
-    ClaimExtractionResult,
-    EvidenceClaim,
-)
+from backend.app.reality.claim_extraction import ClaimExtractionResult
 from backend.app.reality.claim_extractor import EvidenceClaimExtractor
 from backend.app.reality.retrieval_input_bounds import MAX_RETRIEVED_CLAIMS
 from backend.app.reality.freshness_policy import is_positive_finite_number
@@ -247,73 +244,30 @@ class SubmittedEvidenceBundle:
         self,
         extractor: EvidenceClaimExtractor,
     ) -> ClaimExtractionResult:
-        """Extract per-source claims, merging exact duplicates across sources."""
+        """Extract once from the complete, source-scoped submitted evidence.
+
+        A single extraction ensures that duplicate claims across documents
+        merge their source refs *before* optional semantic structuring.
+        It also enforces the global claim budget before any adapter executes.
+        """
         if not isinstance(extractor, EvidenceClaimExtractor):
             raise ValueError("extractor must be an EvidenceClaimExtractor")
 
-        claims_by_key: dict[str, EvidenceClaim] = {}
-        ordered_keys: list[str] = []
+        # to_evidence() preserves each validated source's exact document
+        # content and uses the canonical combined-content representation.
+        # The shared extractor already deduplicates globally and applies
+        # MAX_RETRIEVED_CLAIMS == MAX_SUBMITTED_CLAIMS before structuring.
+        result = extractor.extract_result(self.to_evidence())
 
-        for document in self.documents:
-            result = extractor.extract_result(
-                {
-                    "status": "completed",
-                    "sources": [document.source_dict()],
-                    "content": document.content,
-                }
+        if (
+            result.status == "unavailable"
+            and result.reason == "retrieved_claim_limit_exceeded"
+        ):
+            return ClaimExtractionResult.unavailable_result(
+                "submitted_claim_limit_exceeded",
+                source_count=len(self.documents),
             )
-            if result.status == "unavailable":
-                reason = result.reason or "claim_extraction_unavailable"
-                # The extractor's Step 184 budget protects each completed
-                # source document. Translate it to the submitted-evidence
-                # surface instead of exposing a misleading retrieval reason.
-                if reason == "retrieved_claim_limit_exceeded":
-                    reason = "submitted_claim_limit_exceeded"
-                return ClaimExtractionResult.unavailable_result(
-                    reason,
-                    source_count=len(self.documents),
-                )
-
-            for claim in result.claims:
-                key = claim.text.casefold()
-                existing = claims_by_key.get(key)
-                if existing is None:
-                    # The per-document limit alone is insufficient: 20 valid
-                    # documents can each introduce new candidate claims.
-                    # Reject globally without returning a partial claim graph.
-                    if len(claims_by_key) >= MAX_SUBMITTED_CLAIMS:
-                        return ClaimExtractionResult.unavailable_result(
-                            "submitted_claim_limit_exceeded",
-                            source_count=len(self.documents),
-                        )
-                    claims_by_key[key] = claim
-                    ordered_keys.append(key)
-                    continue
-
-                merged_refs = tuple(
-                    dict.fromkeys(
-                        (*existing.source_refs, *claim.source_refs)
-                    )
-                )
-                claims_by_key[key] = EvidenceClaim(
-                    text=existing.text,
-                    source_refs=merged_refs,
-                    extraction_method=existing.extraction_method,
-                )
-
-        claims = tuple(
-            claims_by_key[key]
-            for key in ordered_keys
-        )
-        if not claims:
-            return ClaimExtractionResult.empty_result(
-                source_count=len(self.documents)
-            )
-        return ClaimExtractionResult.usable_result(
-            claims,
-            source_count=len(self.documents),
-        )
-
+        return result
 
 __all__ = [
     "MAX_SUBMITTED_CONTENT_CHARS",
