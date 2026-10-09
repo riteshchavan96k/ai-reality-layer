@@ -34,6 +34,9 @@ class SourceProvenanceBuilder:
             if not isinstance(uri, str) or not uri.strip():
                 raise ValueError("each usable evidence source must include a non-empty uri")
 
+            # Use the same trimmed URI identity as claim extraction and
+            # evidence linking, including for direct low-level callers.
+            uri = uri.strip()
             source_ref = uri
             if source_ref in seen_refs:
                 continue
