@@ -20,6 +20,13 @@ class SourceProvenance:
         ):
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"{name} must be a non-empty string")
+        # Step 212 makes URI identity canonical at ingestion; direct typed
+        # construction and mapping deserialization must not reintroduce
+        # padded aliases or contradictory claim-link/provenance references.
+        if self.uri != self.uri.strip() or self.source_ref != self.uri:
+            raise ValueError(
+                "source_ref and uri must match the canonical source URI"
+            )
         if self.title is not None and not isinstance(self.title, str):
             raise ValueError("title must be a string or None")
         if self.identity_method != "sha256_uri":
@@ -54,6 +61,13 @@ class SourceProvenanceResult:
             raise ValueError("source_count must be a non-negative integer")
         if self.source_count != len(self.sources):
             raise ValueError("source_count must match the number of sources")
+        # A single source identity cannot appear as multiple independent
+        # provenance records: downstream observations are keyed by source_id,
+        # while evidence links use source_ref. Both keys must be unambiguous.
+        if len({source.source_id for source in self.sources}) != len(self.sources):
+            raise ValueError("source provenance source_ids must be unique")
+        if len({source.source_ref for source in self.sources}) != len(self.sources):
+            raise ValueError("source provenance source_refs must be unique")
         if not isinstance(self.provenance_executed, bool):
             raise ValueError("provenance_executed must be a boolean")
         if self.status == "usable" and not self.provenance_executed:

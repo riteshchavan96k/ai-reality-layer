@@ -1,3 +1,17 @@
+# Current Status — Step 213
+
+## Step 213 — Canonical Source-Provenance Identity Coherence
+
+**Status:** Pending full GitHub-hosted verification and merge. Do not claim complete until feature-branch CI, merged-main CI and final status-sync CI succeed on their exact commits.
+
+**Verified gap:** Step 212 aligned URI identities produced by the retrieval, extraction, provenance and observation builders. However, direct `SourceProvenance` construction and mapping deserialization still accepted a `source_ref` that differed from its `uri`, including padded identifiers. `SourceProvenanceResult` also allowed duplicate source IDs or source references despite downstream temporal observation association by source ID and evidence linking by source reference.
+
+**Fix:** Enforce exact canonical URI/reference equality and trimmed URI identity within each typed `SourceProvenance` record, plus unique source IDs and unique references within each canonical `SourceProvenanceResult`. These same checks apply to mapping validation/normalization and protect downstream consumers. Preserve existing legitimate direct fixture IDs and the production builder's actual SHA-256 generation without claiming independently verified URL authenticity.
+
+**Validation requirement:** New `backend/tests/test_step213.py` covers direct types, mappings, duplicates, observation gates and actual end-to-end submitted Reality State. Full historical Python 3.13 backend compilation and pytest required. See `docs/STEP_213.md`.
+
+**Scope:** Small invariant correction to `backend/app/reality/source_provenance.py`. No new AI, ML, LLM/Hugging Face model, API, database, entity resolution, or speculative feature.
+
 # Current Status — Step 212
 
 ## Step 212 — Canonical Source-URI Identity Integrity

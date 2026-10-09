@@ -95,6 +95,12 @@ certify publisher authenticity or factual correctness.
 
 The relationship between claim, evidence, and source.
 
+Current implementation note: Step 213 requires canonical source-provenance
+records to use the exact same trimmed `source_ref` and `uri`, and
+requires unique source IDs and references within a provenance result.
+This prevents contradictory identities in directly supplied canonical
+contracts but does not authenticate publishers or prove source claims.
+
 ### Freshness
 
 Information about how current the evidence is.
