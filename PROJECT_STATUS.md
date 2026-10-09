@@ -2,7 +2,7 @@
 
 ## Step 221 — Secure Operator-Allowlisted HTTPS Original-Source Reader
 
-**Status:** Production reader implemented on feature branch, pending GitHub-hosted compilation, full regression tests, retained Step 217/218/220 benchmarks, merge, merged-main and exact final status-commit CI. Do not mark completed early.
+**Status:** Implemented and merged as a **restricted, operator-controlled HTTPS source observation capability** through [PR #218](https://github.com/riteshchavan96k/ai-reality-layer/pull/218). Python 3.13 compilation, **2,175 regression tests**, and unchanged Step 217/218/220 quality replay workflows passed on feature SHA `c24ab37c9fdb0178b5933124162260a886073b56` ([CI 38000787224](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38000787224)) and independently on merged main SHA `32893a4bbc20a720a6ba2f35be5ef868deeb9716` ([CI 38000889136](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38000889136)). Final status synchronization commit must also pass full hosted CI on its exact current main SHA before marking Step 221 complete.
 
 **Verified gap:** Step 220's strict independent-source text matching returned `uncertain` for every default request, because it only supported injecting a manually written reader callback. That benchmark used simulated source summaries; there was no operator-configured live HTTPS source capture capability.
 
