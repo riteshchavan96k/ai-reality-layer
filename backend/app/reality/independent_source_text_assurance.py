@@ -7,8 +7,10 @@ not original publisher authorship, semantic entailment or truth.
 """
 
 from collections.abc import Callable, Mapping
+from datetime import datetime, timezone
 from hashlib import sha256
 from ipaddress import ip_address
+import re
 from urllib.parse import urlsplit
 from typing import Any
 
@@ -77,6 +79,8 @@ class IndependentSourceTextAssurance:
                 "status": "unverified",
                 "reason": "independent_reader_unconfigured",
                 "observer_content_sha256": None,
+                "capture_sha256": None,
+                "capture_observed_at": None,
             }
             if not _safe_observer_source_uri(doc.uri):
                 outcome["reason"] = "unsafe_source_uri_for_observer"
@@ -96,13 +100,43 @@ class IndependentSourceTextAssurance:
                         elif doc.content.strip() not in body:
                             outcome["reason"] = "submitted_text_not_in_observed_content"
                         else:
-                            outcome["status"] = "exact_text_observed"
-                            outcome["reason"] = None
-                            # Identifies reader-supplied comparison content;
-                            # an untrusted digest alone proves no provenance.
-                            outcome["observer_content_sha256"] = sha256(
-                                body.encode("utf-8")
-                            ).hexdigest()
+                            # Step 221: capture metadata is optional for
+                            # previous operator readers, but if supplied it
+                            # must be a consistent pair and must be valid.
+                            raw_digest = observed.get("capture_sha256")
+                            raw_time = observed.get("capture_observed_at")
+                            if (raw_digest is None) != (raw_time is None):
+                                outcome["reason"] = "invalid_observer_capture_metadata"
+                            elif raw_digest is not None and (
+                                not isinstance(raw_digest, str)
+                                or re.fullmatch(r"[0-9a-f]{64}", raw_digest) is None
+                            ):
+                                outcome["reason"] = "invalid_observer_capture_metadata"
+                            elif raw_time is not None and (
+                                not isinstance(raw_time, str)
+                                or not raw_time.endswith("Z")
+                            ):
+                                outcome["reason"] = "invalid_observer_capture_metadata"
+                            else:
+                                try:
+                                    if raw_time is not None:
+                                        parsed_time = datetime.fromisoformat(
+                                            raw_time.replace("Z", "+00:00")
+                                        )
+                                        if parsed_time.tzinfo is None:
+                                            raise ValueError("naive capture timestamp")
+                                except ValueError:
+                                    outcome["reason"] = "invalid_observer_capture_metadata"
+                                else:
+                                    outcome["status"] = "exact_text_observed"
+                                    outcome["reason"] = None
+                                    # Raw byte SHA comes from the server-owned
+                                    # reader, not the submitted body/URL.
+                                    outcome["capture_sha256"] = raw_digest
+                                    outcome["capture_observed_at"] = raw_time
+                                    outcome["observer_content_sha256"] = sha256(
+                                        body.encode("utf-8")
+                                    ).hexdigest()
                 except Exception:
                     # Never disclose exceptions from a backend-configured
                     # provider in a public response.

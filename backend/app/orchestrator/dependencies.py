@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 import os
+import json
 
 from backend.app.controls.human_in_the_loop import HumanApprovalPolicy
 from backend.app.models.provider_invocation_executor import ProviderInvocationExecutor
@@ -8,6 +9,7 @@ from backend.app.reality.claim_evidence_linker import ClaimEvidenceLinker
 from backend.app.reality.claim_extractor import EvidenceClaimExtractor
 from backend.app.reality.claim_conflict_detector import ClaimConflictDetector
 from backend.app.reality.confidence_signal_aggregator import RealityConfidenceSignalAggregator
+from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttpsSourceReader
 from backend.app.reality.independent_source_text_assurance import IndependentSourceTextAssurance
 from backend.app.reality.reality_state_builder import RealityStateBuilder
 from backend.app.reality.evidence_normalization_consumer import EvidenceNormalizationConsumer
@@ -113,6 +115,27 @@ class OrchestrationDependencies:
     @classmethod
     def default(cls) -> "OrchestrationDependencies":
         """Build the production-default dependency graph for the prototype."""
+        # Step 221: operator-approved, EXACT HTTPS source URL allowlist.
+        # No environment configuration => no network reader. Public
+        # requests cannot set or extend this list.
+        raw_source_allowlist = os.getenv(
+            "ARL_INDEPENDENT_SOURCE_ALLOWED_URLS", ""
+        ).strip()
+        source_assurance = IndependentSourceTextAssurance()
+        if raw_source_allowlist:
+            try:
+                configured_urls = json.loads(raw_source_allowlist)
+            except json.JSONDecodeError as exc:
+                raise ValueError(
+                    "ARL_INDEPENDENT_SOURCE_ALLOWED_URLS must be a JSON URL array"
+                ) from exc
+            if not isinstance(configured_urls, list):
+                raise ValueError(
+                    "ARL_INDEPENDENT_SOURCE_ALLOWED_URLS must be a JSON URL array"
+                )
+            source_assurance = IndependentSourceTextAssurance(
+                AllowlistedHttpsSourceReader(configured_urls)
+            )
         retrieval_provider_executor = RetrievalProviderExecutor()
         retrieval_provider_registry = RetrievalProviderRegistry(
             providers={},
@@ -194,4 +217,5 @@ class OrchestrationDependencies:
             grounding_execution_authorization_consumption_decision_result_consumption_result_decision_result_consumption_result_normalizer=GroundingExecutionAuthorizationConsumptionDecisionResultConsumptionResultDecisionResultConsumptionResultNormalizer(),
             grounded_result_builder=GroundedResultEnvelopeBuilder(),
             provider_executor=ProviderInvocationExecutor(),
+            independent_source_text_assurance=source_assurance,
         )
