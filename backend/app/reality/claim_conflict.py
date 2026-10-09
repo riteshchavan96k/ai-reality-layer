@@ -19,6 +19,10 @@ class ClaimConflict:
         for refs, name in ((self.source_refs_a, "source_refs_a"), (self.source_refs_b, "source_refs_b")):
             if not isinstance(refs, tuple) or any(not isinstance(ref, str) or not ref.strip() for ref in refs):
                 raise ValueError(f"{name} must be a tuple of non-empty strings")
+            # Claim attribution must use the exact trimmed source identity
+            # emitted by the canonical provenance and linking boundaries.
+            if any(ref != ref.strip() for ref in refs):
+                raise ValueError(f"{name} must contain canonical source references")
         if self.claim_a.casefold() == self.claim_b.casefold():
             raise ValueError("conflicting claims must be distinct")
         if self.conflict_method != "explicit_negation_pair":
@@ -50,6 +54,15 @@ class ClaimConflictResult:
             raise ValueError("conflict_count must be a non-negative integer")
         if self.conflict_count != len(self.conflicts):
             raise ValueError("conflict_count must match conflicts")
+        # Mirror the production detector's unordered, case-insensitive
+        # identity: swapped operands, casing, or provenance variations do
+        # not constitute additional independent candidate conflicts.
+        conflict_keys = {
+            tuple(sorted((item.claim_a.casefold(), item.claim_b.casefold())))
+            for item in self.conflicts
+        }
+        if len(conflict_keys) != len(self.conflicts):
+            raise ValueError("claim conflicts must have unique claim pairs")
         if not isinstance(self.detection_executed, bool):
             raise ValueError("detection_executed must be a boolean")
         if self.status in {"usable", "empty"} and not self.detection_executed:
