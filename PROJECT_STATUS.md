@@ -2,13 +2,13 @@
 
 ## Step 210 — Bounded Optional Semantic Structuring Input
 
-**Status:** Pending full GitHub-hosted backend validation and merge into `main`. Do not claim completion until PR head, merged implementation, and final status-sync commit pass full CI.
+**Status:** Complete. Step 210 was implemented and merged through PR #207 after the complete Python 3.13 backend CI succeeded on feature head `0c00563a467691315b6153795026e9293f7962b5` (run `37920834974`) and the merged implementation SHA `8f7a7d537ea2a8e2b1367eb75a448e71f586afc0` (run `37920900074`), both with **1,879 tests passed**. The final documentation-sync commit must also pass the full workflow on its exact `main` SHA.
 
 **Verified problem:** An accepted 50,000-character source document can contain one very long sentence. After Step 209, metadata was bounded, but optional semantic structuring still received unbounded (relative to model context) candidate claim text up to the full document limit. A future expensive NLP/ML/LLM adapter would process the entire sentence without an inference-specific input guard.
 
 **Fix:** Restrict **configured optional semantic adapter** input to 10,000 characters per candidate claim, checked after existing source-scoped deduplication and global claim budget. Overlong claims keep complete original text and source references, with `unstructured` / `semantic_structuring_input_too_long` and **no** adapter call. No truncation, loss of evidence, new models, or API changes. The unconfigured default remains `semantic_structuring_not_attempted` regardless of length.
 
-**Validation:** New `backend/tests/test_step210.py` with direct adapter, extraction, multi-source submitted evidence, and end-to-end Reality State cases; full historical suite required. See `docs/STEP_210.md`.
+**Validation:** The full GitHub-hosted compile and pytest suite passed **1,879 tests** on the Step 210 feature branch (`37920834974`) and independently on merged `main` (`37920900074`); final status-sync CI is required. New `backend/tests/test_step210.py` covers the exact boundary, oversized-claim abstention, unchanged default semantics, source preservation, mixed claims, cross-source deduplication, and real submitted-evidence Reality State output. See `docs/STEP_210.md`.
 
 # Current Status — Step 209
 
