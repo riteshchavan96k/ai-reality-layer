@@ -4,6 +4,9 @@ from typing import Any
 
 
 MAX_CLAIM_SEMANTIC_FIELD_CHARS = 10_000
+# Adapter-reported metadata must not allow unbounded Reality State responses.
+MAX_CLAIM_STRUCTURING_METHOD_CHARS = 256
+MAX_CLAIM_SEMANTIC_REASON_CHARS = 1_024
 
 
 def _normalize_semantic_field(value: object, field_name: str) -> str:
@@ -50,10 +53,22 @@ class ClaimSemanticStructure:
             if (
                 not isinstance(self.structuring_method, str)
                 or not self.structuring_method.strip()
-                or self.structuring_method == "not_attempted"
             ):
                 raise ValueError(
                     "structured claim requires a non-empty structuring method"
+                )
+            # Normalize before comparing the reserved sentinel. Otherwise
+            # " not_attempted " could become a forbidden canonical method
+            # after passing validation as an allegedly structured claim.
+            normalized_method = self.structuring_method.strip()
+            if normalized_method == "not_attempted":
+                raise ValueError(
+                    "structured claim requires a non-empty structuring method"
+                )
+            if len(normalized_method) > MAX_CLAIM_STRUCTURING_METHOD_CHARS:
+                raise ValueError(
+                    "claim structuring method must not exceed "
+                    f"{MAX_CLAIM_STRUCTURING_METHOD_CHARS} characters"
                 )
             if self.reason is not None:
                 raise ValueError(
@@ -65,7 +80,7 @@ class ClaimSemanticStructure:
             object.__setattr__(
                 self,
                 "structuring_method",
-                self.structuring_method.strip(),
+                normalized_method,
             )
             return
 
@@ -87,7 +102,13 @@ class ClaimSemanticStructure:
             raise ValueError(
                 "unstructured claim requires a non-empty reason"
             )
-        object.__setattr__(self, "reason", self.reason.strip())
+        normalized_reason = self.reason.strip()
+        if len(normalized_reason) > MAX_CLAIM_SEMANTIC_REASON_CHARS:
+            raise ValueError(
+                "claim semantic reason must not exceed "
+                f"{MAX_CLAIM_SEMANTIC_REASON_CHARS} characters"
+            )
+        object.__setattr__(self, "reason", normalized_reason)
 
     @classmethod
     def structured(
@@ -171,4 +192,6 @@ class ClaimSemanticStructure:
 __all__ = [
     "ClaimSemanticStructure",
     "MAX_CLAIM_SEMANTIC_FIELD_CHARS",
+    "MAX_CLAIM_STRUCTURING_METHOD_CHARS",
+    "MAX_CLAIM_SEMANTIC_REASON_CHARS",
 ]
