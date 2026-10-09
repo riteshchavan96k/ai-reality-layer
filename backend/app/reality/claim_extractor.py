@@ -18,6 +18,10 @@ class EvidenceClaimExtractor:
     def __init__(
         self, semantic_structurer: ClaimSemanticStructurer | None = None
     ) -> None:
+        # The legacy usable/no-adapter path deliberately permits more than
+        # the retrieval claim budget. A configured semantic adapter must not
+        # inherit that unbounded invocation count.
+        self._semantic_adapter_configured = semantic_structurer is not None
         self._semantic_structuring = ClaimSemanticStructuringStage(
             semantic_structurer
         )
@@ -97,11 +101,16 @@ class EvidenceClaimExtractor:
                 key = sentence.casefold()
                 previous = claims_by_key.get(key)
                 if previous is None:
-                    # The retrieved-evidence path is untrusted, even when its
-                    # source count and text length fit the configured bounds.
-                    # Bound the claim graph before downstream linking.
+                    # Enforce the retrieved claim budget as before. The
+                    # legacy usable/no-adapter extractor remains compatible,
+                    # but optional inference must never bypass the same cap
+                    # when callers supply status="usable" directly.
+                    # Check before *any* adapter calls or partial claim output.
                     if (
-                        evidence.get("status") == "completed"
+                        (
+                            evidence.get("status") == "completed"
+                            or self._semantic_adapter_configured
+                        )
                         and len(claims_by_key) >= MAX_RETRIEVED_CLAIMS
                     ):
                         return self._unavailable(
