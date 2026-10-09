@@ -824,3 +824,19 @@ authenticity or the factual truth of evidence.
 
 See `docs/STEP_213.md` for acceptance cases, error handling, and
 regression tests.
+
+## Unique source observations and freshness assessments (Step 214)
+
+Canonical `SourceObservationResult` and `SourceFreshnessResult` records now
+require **each source ID to appear at most once per result**. This prevents
+duplicate observations or contradictory fresh/stale assessments from being
+counted as multiple independent sources in a single Reality State snapshot.
+
+The checks apply to direct typed construction and mapping deserialization,
+and prevent duplicate observation input from reaching freshness evaluation.
+Existing source IDs, timestamps, age-window policies, output schemas and
+empty/unavailable outcomes remain unchanged. Multiple observations of the
+same source in **different snapshots** remain possible; this is not a
+history store.
+
+See `docs/STEP_214.md` for the verified gap and regression coverage.
