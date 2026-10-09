@@ -10,7 +10,7 @@
 
 **Critical disclosure:** The corpus deliberately uses **simulated independent-world oracles**, hypothetical service updates and clearly fictional `fixtures.example.test` URLs. It is a controlled reproduction tool, not independently authenticated real-world evaluation. The product-quality goal is not met just because the benchmark runner passes. A blinded human-annotated real-source corpus remains a necessary next-phase gate.
 
-**Validation plan:** `backend/tests/test_step217.py` verifies corpus schema and coverage, corrupted labels, independent oracle separation, reproducible metrics and genuine FastAPI evidence endpoint compatibility. CI runs all backend tests plus `python -m backend.app.evaluation.reality_state_quality_benchmark --summary-only`. See `docs/STEP_217.md` and the observed `docs/STEP_217_BASELINE.md`.
+**Validation plan:** `backend/tests/test_step217.py` verifies corpus schema and coverage, corrupted labels, independent oracle separation, reproducible metrics and compatibility with the existing FastAPI evidence route handler (without network transport). CI runs all backend tests plus `python -m backend.app.evaluation.reality_state_quality_benchmark --summary-only`. See `docs/STEP_217.md` and the observed `docs/STEP_217_BASELINE.md`.
 
 # Current Status — Step 216
 
