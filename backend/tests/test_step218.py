@@ -182,6 +182,19 @@ def test_cli_can_write_summary_json_without_fabricated_success(tmp_path, capsys)
     assert "false_supports" in saved["counts"]
 
 
+def test_committed_official_source_scorecard_matches_actual_product_replay():
+    # A regression that changes product predictions MUST update the observed
+    # scorecard explicitly; never leave convenient but stale numbers behind.
+    baseline = (
+        Path(__file__).resolve().parents[2]
+        / "docs"
+        / "STEP_218_BASELINE.json"
+    )
+    recorded = json.loads(baseline.read_text(encoding="utf-8"))
+    replayed = bench.run_baseline(include_cases=False)
+    assert recorded == replayed
+
+
 def test_metrics_are_derived_from_denominators_not_arbitrary_scores():
     assert bench._ratio(1, 2) == .5
     assert bench._ratio(0, 0) is None
