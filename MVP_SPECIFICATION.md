@@ -103,6 +103,13 @@ contracts but does not authenticate publishers or prove source claims.
 
 ### Freshness
 
+Current implementation note: Step 214 requires one observation and
+one freshness assessment per source ID **within each Reality State result**.
+Direct and mapping-shaped temporal contracts reject duplicated source IDs,
+preventing the same source from inflating fresh/stale/unknown counts. This
+is not a temporal history store and does not authenticate source contents.
+
+
 Information about how current the evidence is.
 
 ### Conflict
