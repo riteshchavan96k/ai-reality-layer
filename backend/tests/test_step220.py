@@ -1,6 +1,10 @@
 """Step 220: backend-only independent exact-text observer and strict support gate."""
 
 from dataclasses import replace
+import json
+from pathlib import Path
+
+from backend.app.evaluation import independent_source_assurance_benchmark as step220_benchmark
 from datetime import datetime, timezone
 from hashlib import sha256
 
@@ -257,3 +261,32 @@ def test_direct_aggregator_rejects_unrecognized_assurance_status():
             {"status": "empty", "conflict_count": 0},
             independent_source_text_status="source_authenticated",
         )
+
+
+def test_committed_step220_scorecard_equals_replayed_current_strict_pipeline():
+    path = Path(__file__).resolve().parents[2] / "docs" / "STEP_220_SCORECARD.json"
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    replayed = step220_benchmark.run_baseline()
+    assert saved == replayed
+
+
+def test_step220_benchmark_records_legitimate_abstention_tradeoff_honestly():
+    scored = step220_benchmark.run_baseline()
+    assert scored["case_count"] == 48
+    assert scored["counts"]["abstain_required"] == 40
+    assert scored["counts"]["legitimate_cases"] == 8
+    assert scored["counts"]["legitimate_supported"] == 8
+    assert scored["metrics"]["false_support_rate"] == 0
+    assert scored["metrics"]["legitimate_support_rate"] == 1
+    # Without a trusted operator reader, the product correctly avoids
+    # unsupported promotion, but cannot support even benign snippets.
+    assert scored["metrics"]["unconfigured_legitimate_support_rate"] == 0
+    assert "not-publisher-authenticated" in scored["corpus_type"]
+    assert any("not actual publisher captures" in item for item in scored["limitations"])
+
+
+def test_benchmark_does_not_depend_on_network_access(monkeypatch):
+    def blocked(*args, **kwargs):
+        raise AssertionError("offline benchmark unexpectedly used the network")
+    monkeypatch.setattr("urllib.request.urlopen", blocked)
+    assert step220_benchmark.run_baseline()["case_count"] == 48
