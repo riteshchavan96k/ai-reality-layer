@@ -26,6 +26,7 @@ CASES = (
     ("template", "<template>" + FORGED + "</template>", False),
     ("iframe-fallback", "<iframe>" + FORGED + "</iframe>", False),
     ("closed-details", "<details><summary>More</summary>" + FORGED + "</details>", False),
+    ("hidden-removal-word-stitch", "<p>Python 3.13.0 was released on <span hidden>NOT</span>January 1, 1900.</p>", False),
     ("visible-inline", "<p>" + TRUE.replace("October", "<b>October</b>") + "</p>", True),
 )
 
