@@ -160,6 +160,10 @@ class _VisibleHtmlText(HTMLParser):
         suppressed = tag in self._HIDDEN or self._has_hiding_attributes(
             tag, attrs
         )
+        # Do not silently stitch visible words from opposite sides of an
+        # excluded subtree into a seemingly publisher-observed statement.
+        if suppressed and self._suppressed == 0:
+            self._boundary()
         self._stack.append((tag, suppressed))
         if suppressed:
             self._suppressed += 1
@@ -172,15 +176,29 @@ class _VisibleHtmlText(HTMLParser):
             if self._stack[index][0] == tag:
                 removed = self._stack[index:]
                 self._stack = self._stack[:index]
+                old_suppression = self._suppressed
                 self._suppressed -= sum(flag for _, flag in removed)
+                if old_suppression > 0 and self._suppressed == 0:
+                    self._boundary()
                 return
+
+    def _boundary(self) -> None:
+        if self.parts and self.parts[-1] != "\\n":
+            self.parts.append("\\n")
 
     def handle_data(self, data: str) -> None:
         if self._suppressed == 0:
             self.parts.append(data)
 
     def text(self) -> str:
-        return " ".join(" ".join(self.parts).split())
+        # Preserve excluded-subtree boundaries as newlines. Generic global
+        # whitespace collapsing would manufacture quoted sentences by
+        # joining text around hidden DOM regions.
+        lines = " ".join(self.parts).split("\\n")
+        return "\\n".join(
+            normalized for line in lines
+            if (normalized := " ".join(line.split()))
+        )
 
 
 def _decode_observed_content(raw: bytes, content_type: str) -> str:
