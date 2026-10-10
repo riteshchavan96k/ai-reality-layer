@@ -175,3 +175,18 @@ def test_plain_text_is_not_mislabeled_as_browser_rendered_markup():
 def test_hidden_attribute_on_visible_parent_does_not_leak_nested_text():
     html = "<p hidden><strong>" + FORGED + "</strong></p><p>" + GENUINE + "</p>"
     assert _decode_observed_content(html.encode(), "text/html") == GENUINE
+
+
+def test_removed_hidden_negation_cannot_stitch_false_publisher_quote():
+    # Without an explicit separator, dropping the hidden "NOT" would build
+    # FORGED from adjacent visible text that the source never stated.
+    html = (
+        "<p>Python 3.13.0 was released on "
+        "<span style='display:none'>NOT</span>"
+        "January 1, 1900.</p>"
+    )
+    rendered = _decode_observed_content(html.encode(), "text/html")
+    assert FORGED not in rendered
+    assert "NOT" not in rendered
+    assert "\\n" not in rendered  # literal backslash-n is not the separator
+    assert "\n" in rendered
