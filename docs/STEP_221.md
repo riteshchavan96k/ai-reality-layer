@@ -96,6 +96,12 @@ source smoke test remains necessary before operational deployment.
 No new ML/LLM model, knowledge graph, fact-checker, or semantic inference
 is claimed.
 
+## Hosted closure verification
+
+The final post-merge status synchronization commit `faf17773c0ff31956b367afac2414015841ff1cb` was independently verified on `main`: [GitHub Actions run 38000965084](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38000965084) concluded **success**. The job log reports **2,175 tests passed**, Python 3.13 backend compilation completed successfully, and the unchanged Step 217, Step 218, and Step 220 quality replays completed successfully. The feature and merged-main runs are [38000787224](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38000787224) and [38000889136](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38000889136), respectively, both successful. This closes Step 221's *engineering verification* gate. Any subsequent documentation-only closure commit must itself pass its exact-main-SHA CI before current-main green status is asserted.
+
+This acceptance does **not** certify live publisher TLS operation, deployment-specific network controls, independently authenticated publisher authorship, semantic entailment, or factual product reliability. A permission-checked live-source smoke test and original-capture evaluation remain outside the demonstrated Step 221 evidence.
+
 ## Completion evidence
 
 Completion requires full Python 3.13 compilation, all pytest tests,
