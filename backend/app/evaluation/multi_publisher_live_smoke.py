@@ -68,10 +68,20 @@ def _check_receipt(source: dict[str, str], capture: Any) -> dict[str, str]:
         raise SmokeGateError("publisher_content_unavailable_" + source["id"])
     for i, anchor in enumerate(source["anchors"]):
         if anchor not in content:
-            # Only fixed, reviewer-declared source IDs and anchor indices are
-            # printed. NEVER serialize response content or URLs from errors.
+            # Probe ONLY fixed, reviewed snippets using booleans. Never
+            # print original publisher body, other page contents or secrets.
+            candidates = (
+                "example.com and example.org",
+                "They are not available for registration or transfer.",
+                "These domains may be used as illustrative examples",
+                "maintained for documentation purposes.",
+                "a number of domains such as",
+                "documentation purposes.",
+            ) if source["id"] == "iana-reserved-domains" else ()
+            flags = "".join("1" if s in content else "0" for s in candidates)
             raise SmokeGateError(
-                "publisher_content_anchor_drift_" + source["id"] + "_anchor_" + str(i)
+                "publisher_content_anchor_drift_" + source["id"]
+                + "_anchor_" + str(i) + "_fixed_candidates_" + flags
             )
     digest = capture.get("capture_sha256")
     observed = capture.get("capture_observed_at")
