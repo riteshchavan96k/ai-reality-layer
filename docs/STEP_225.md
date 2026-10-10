@@ -94,5 +94,11 @@ measure generalization or production readiness.
 
 ## Verified hosted evidence
 
-Pending final feature SHA, independently merged main and exact-status-sync
-hosted verification; no green result will be claimed in advance.
+Step 225 was implemented through [PR #226](https://github.com/riteshchavan96k/ai-reality-layer/pull/226).
+
+- Final feature head `a74bd488539ade2abf2df98d48ae8cac67b80718`: [backend CI 38084927193](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38084927193) successful (**2,289 tests passed**, compilation and all Steps 217/218/220/223/224/225 replays); [real publisher HTTPS CI 38084927096](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38084927096) successful.
+- Independently merged `main` SHA `3f1846577312d30d990a4d174d4a267ce78cdad5`: [backend CI 38084991634](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38084991634) successful (**2,289 tests**) and [genuine HTTPS CI 38084991610](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38084991610) successful.
+- Synthetic Step 225 structural replay: **16/16 expected outcomes**, comprising 12 forged cross-block examples rejected and 4 legitimate inline excerpts preserved. These are policy fixture results, not population-level publisher performance or factual truth.
+- The final status-documentation synchronization commit must independently pass both hosted workflows on its exact resulting current `main` SHA before Step 225 is declared complete.
+
+There is no claim that preserving DOM structural boundaries establishes semantic entailment, original-source authorship, general browser rendering, or production reliability.
