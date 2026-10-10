@@ -106,4 +106,11 @@ on synthetic fixtures alone.
 
 ## Verified evidence
 
-Pending final hosted feature/merge/status-sync verification.
+The Step 224 feature landed through [PR #224](https://github.com/riteshchavan96k/ai-reality-layer/pull/224).
+
+- Final feature SHA `bdbb6eb3ab5992b53ddb4c892a68f59c9124b371`: [full Python 3.13 backend CI 38083419289](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38083419289) completed successfully, **2,264 tests passed**, historical Steps 217/218/220/223 and new Step 224 synthetic benchmark passed. The synthetic benchmark measured **11/11 expected parser decisions**, **0/10 hidden-text false exposures** and **1/1 visible-quote preservation**, which are not generalizable population estimates. [Actual publisher HTTPS canary 38083419509](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38083419509) also passed under exact URL allowlisting, DNS-pinned TLS, capture and timestamp checks.
+- Independently merged `main` SHA `54630c8dd9044003d877f82d70c8b05eca39994b`: [backend CI 38083487147](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38083487147) again passed **2,264 tests** and all historical/new benchmark stages; [genuine HTTPS CI 38083487187](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38083487187) also passed.
+- Prior to closure, a legacy Step 221 test expecting fabricated quote-continuity across removed `script`/`style` contents was intentionally corrected to expect a newline barrier instead of reverting the safer behavior. This is an **explicit security-motivated behavior change**, not an unnoticed compatibility regression.
+- The final documentation-only status synchronization commit must itself pass BOTH hosted workflows on its exact resulting `main` SHA before Step 224 is reported completed.
+
+These are verified results for a **conservative DOM text-extraction boundary**. No real browser rendering, independently authenticated publisher signature, semantic inference, immutable source archive or world-fact correctness is established.
