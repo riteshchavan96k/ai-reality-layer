@@ -18,6 +18,7 @@ from html.parser import HTMLParser
 import http.client
 from ipaddress import ip_address
 import math
+import re
 import socket
 import ssl
 import zlib
@@ -85,26 +86,91 @@ class _PinnedHttpsConnection(http.client.HTTPSConnection):
 
 
 class _VisibleHtmlText(HTMLParser):
-    _HIDDEN = frozenset({"script", "style", "head", "noscript", "svg"})
+    """Conservative structural text extraction, NOT browser visibility.
+
+    Discard common hidden DOM descendants before exact-text comparison. This
+    does not execute CSS, JavaScript or a full HTML layout engine; visibility
+    claims must not be inferred from a successful excerpt match.
+    """
+
+    _HIDDEN = frozenset({
+        "script", "style", "head", "noscript", "svg", "template",
+        "iframe", "object", "canvas",
+    })
+    _VOID = frozenset({
+        "area", "base", "br", "col", "embed", "hr", "img", "input",
+        "link", "meta", "param", "source", "track", "wbr",
+    })
+    _MAX_NESTING = 256
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        self._hidden_stack: list[str] = []
+        self._stack: list[tuple[str, bool]] = []
+        self._suppressed = 0
         self.parts: list[str] = []
 
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag in self._HIDDEN:
-            self._hidden_stack.append(tag)
+    @staticmethod
+    def _has_hiding_attributes(
+        tag: str, attrs: list[tuple[str, str | None]]
+    ) -> bool:
+        attributes = dict(attrs)
+        if "hidden" in attributes or "inert" in attributes:
+            return True
+        if (attributes.get("aria-hidden") or "").strip().casefold() == "true":
+            return True
+        # A closed <details> element's body is not reliably exposed to a
+        # reader. Conservatively omit the entire element, including summary.
+        if tag == "details" and "open" not in attributes:
+            return True
+        style = attributes.get("style")
+        if style is not None:
+            # CSS comments may be placed between tokens; remove them before
+            # checking simple inline declarations. We do not parse external
+            # stylesheets, CSS variables or JavaScript-driven visibility.
+            clean = re.sub(r"/\*.*?\*/", "", style, flags=re.DOTALL)
+            for declaration in clean.split(";"):
+                name, sep, value = declaration.partition(":")
+                if not sep:
+                    continue
+                prop = name.strip().casefold()
+                setting = re.sub(
+                    r"\s*!\s*important\s*$", "", value, flags=re.IGNORECASE
+                ).strip().casefold()
+                if (
+                    (prop == "display" and setting == "none")
+                    or (prop == "visibility" and setting in {"hidden", "collapse"})
+                    or (prop == "content-visibility" and setting == "hidden")
+                ):
+                    return True
+        return False
+
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        if tag in self._VOID:
+            return
+        if len(self._stack) >= self._MAX_NESTING:
+            raise ValueError("source HTML nesting exceeds safety bound")
+        suppressed = tag in self._HIDDEN or self._has_hiding_attributes(
+            tag, attrs
+        )
+        self._stack.append((tag, suppressed))
+        if suppressed:
+            self._suppressed += 1
 
     def handle_endtag(self, tag: str) -> None:
-        if tag in self._HIDDEN and tag in self._hidden_stack:
-            # Malformed HTML cannot make script/style text look verified.
-            while self._hidden_stack:
-                if self._hidden_stack.pop() == tag:
-                    break
+        # Unwind to the matching opening tag. If markup is malformed and
+        # closes a parent early, keep the whole discarded subtree excluded;
+        # stray end tags cannot reveal hidden text.
+        for index in range(len(self._stack) - 1, -1, -1):
+            if self._stack[index][0] == tag:
+                removed = self._stack[index:]
+                self._stack = self._stack[:index]
+                self._suppressed -= sum(flag for _, flag in removed)
+                return
 
     def handle_data(self, data: str) -> None:
-        if not self._hidden_stack:
+        if self._suppressed == 0:
             self.parts.append(data)
 
     def text(self) -> str:
