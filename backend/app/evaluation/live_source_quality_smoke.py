@@ -188,9 +188,35 @@ def main(argv: list[str] | None = None) -> int:
             args.output.write_text(serialized, encoding="utf-8")
         print(serialized, end="")
         return 0
-    except Exception:
-        # Fail closed with no potentially sensitive transport traceback/body.
-        print("Step 222 live publisher smoke failed; see controlled test diagnostics.")
+    except Exception as exc:
+        # Print only backend-authored fixed reasons, never raw network errors.
+        safe_reasons = frozenset({
+            "live capture did not preserve source identity",
+            "live page did not contain both independently declared anchors",
+            "live response did not include a valid raw-byte digest",
+            "live response lacks a UTC observation time",
+            "capture time must be timezone-aware",
+            "capture time is outside the five-minute live observation window",
+            "live strict Reality State endpoint did not return HTTP 200",
+            "live strict Reality State response is invalid",
+            "strict response omitted source assurance",
+            "strict response had invalid per-source audit",
+            "live Reality State diverged from conservative oracle",
+            "positive assurance did not retain a capture digest",
+            "positive assurance did not retain capture time",
+            "failed assurance must not claim successful capture",
+            "operator-configured HTTPS reader is required",
+            "live smoke requires exactly the fixed publisher URL allowlist",
+            "source HTTP response was not 200",
+            "source response exceeds byte limit",
+            "compressed source responses not supported",
+            "unsupported source media type",
+            "unsupported source character encoding",
+            "source DNS returned a non-global address",
+            "invalid or oversized observed source text",
+        })
+        reason = str(exc) if str(exc) in safe_reasons else type(exc).__name__
+        print("Step 222 live publisher smoke failed: " + reason)
         return 1
 
 
