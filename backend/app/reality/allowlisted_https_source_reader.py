@@ -113,26 +113,32 @@ class _VisibleHtmlText(HTMLParser):
     def _has_hiding_attributes(
         tag: str, attrs: list[tuple[str, str | None]]
     ) -> bool:
-        attributes = dict(attrs)
-        if "hidden" in attributes or "inert" in attributes:
+        # Never collapse duplicated HTML attributes into a dict: some
+        # browsers prioritize the FIRST occurrence, and a forged second
+        # attribute could otherwise undo a hidden declaration here.
+        if any(name in {"hidden", "inert"} for name, _ in attrs):
             return True
-        if (attributes.get("aria-hidden") or "").strip().casefold() == "true":
+        if any(
+            name == "aria-hidden" and (value or "").strip().casefold() == "true"
+            for name, value in attrs
+        ):
             return True
         # A closed <details> element's body is not reliably exposed to a
         # reader. Conservatively omit the entire element, including summary.
-        if tag == "details" and "open" not in attributes:
+        if tag == "details" and not any(name == "open" for name, _ in attrs):
             return True
-        style = attributes.get("style")
-        if style is not None:
+        for name, style in attrs:
+            if name != "style" or style is None:
+                continue
             # CSS comments may be placed between tokens; remove them before
             # checking simple inline declarations. We do not parse external
             # stylesheets, CSS variables or JavaScript-driven visibility.
             clean = re.sub(r"/\*.*?\*/", "", style, flags=re.DOTALL)
             for declaration in clean.split(";"):
-                name, sep, value = declaration.partition(":")
+                property_name, sep, value = declaration.partition(":")
                 if not sep:
                     continue
-                prop = name.strip().casefold()
+                prop = property_name.strip().casefold()
                 setting = re.sub(
                     r"\s*!\s*important\s*$", "", value, flags=re.IGNORECASE
                 ).strip().casefold()
