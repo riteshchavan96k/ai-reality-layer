@@ -131,7 +131,21 @@ and should not be treated as solved by exact-text assurance.
 
 ## Hosted CI evidence and final acceptance
 
-**Pending** final feature-head backend/full benchmark + both real HTTPS
-workflows, independent merged-main reruns, and final documentation sync
-verified on its exact final main SHA. Mark complete only after all these
-checks genuinely pass.
+Step 226 source-backed engineering implementation merged through
+[PR #228](https://github.com/riteshchavan96k/ai-reality-layer/pull/228).
+
+- Final feature SHA `476200aa8336883aa8a14557f7024b387e083e62`:
+  [Python 3.13 backend 38086166054](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38086166054) passed compilation, **2,307 tests**, Steps 217/218/220/223/224/225 replays;
+  [original Python.org live run 38086166011](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38086166011) passed;
+  [new original Python.org + IANA live run 38086166083](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38086166083) passed two actual independent HTTPS publisher captures and **six API quality cases**.
+- Independently merged `main` SHA `a763632002fe3e761cb0179276c35e67e6ed7178`:
+  [backend 38086240943](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38086240943) passed **2,307 tests** and every replay;
+  [original source HTTPS 38086240972](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38086240972) passed;
+  [two-publisher HTTPS 38086240949](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38086240949) passed.
+- The **narrow six-case live result** was 3/3 legitimate scenarios classified supported and 0/3 forged scenarios classified supported, including one mixed-document attack refused. Each source was checked against a current DNS/TLS/HTTPS response, source-specific SHA256 and UTC observation audit, with no raw response bytes in the report.
+- Earlier attempts failed closed against the original overlong IANA excerpt because the conservative Step 225 HTML reader kept a structural boundary. Final accepted IANA wording is a *shorter actually contiguous original-source excerpt* plus separate contextual anchors; no hidden or cross-block text was stitched.
+- Final documentation-only status sync commit must separately pass all **three** CI workflows on the exact resulting current `main` SHA before declaring Step 226 complete.
+
+These measured observations test a small fixed approval scope, **not**
+statistically representative field reliability, semantic entailment,
+cryptographic publisher authenticity, or real-world factual accuracy.
