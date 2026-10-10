@@ -52,11 +52,12 @@ class SourceObservation:
             "submitted_evidence_observation",
             "submitted_evidence_ingestion",
             "retrieval_provider_observation",
+            "independent_source_capture",
         }:
             raise ValueError(
                 "observation_method must be retrieval_observation, "
                 "submitted_evidence_observation, submitted_evidence_ingestion, "
-                "or retrieval_provider_observation"
+                "retrieval_provider_observation, or independent_source_capture"
             )
 
     def to_dict(self) -> dict[str, Any]:
