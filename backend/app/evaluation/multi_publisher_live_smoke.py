@@ -164,7 +164,6 @@ def _case(
     observations = result.get("source_observation", {}).get("observations", [])
     if not isinstance(observations, list):
         raise SmokeGateError("invalid_capture_observation_provenance")
-    times = []
     for source, authentic in selections:
         audit = by_uri[source["url"]]
         if authentic:
@@ -179,20 +178,52 @@ def _case(
             when = audit.get("capture_observed_at")
             if not isinstance(when, str) or not when.endswith("Z"):
                 raise SmokeGateError("valid_excerpt_missing_capture_time")
-            times.append(when)
         elif (
             audit.get("status") != "unverified"
             or audit.get("reason") != "submitted_text_not_in_observed_content"
             or audit.get("capture_sha256") is not None
         ):
             raise SmokeGateError("forged_excerpt_wrong_source_audit")
-    if len(selections) == 1 and selections[0][1]:
+    if all(authentic for _, authentic in selections):
+        # Verify *every* live positive capture and exact canonical source ID,
+        # not merely global supported status and a count of matched URLs.
+        provenance = result.get("source_provenance", {}).get("sources", [])
         if (
-            len(observations) != 1
-            or observations[0].get("observation_method") != "independent_source_capture"
-            or observations[0].get("observed_at") != times[0]
+            not isinstance(provenance, list)
+            or len(provenance) != len(selections)
+            or len(observations) != len(selections)
         ):
             raise SmokeGateError("invalid_capture_observation_provenance")
+        source_ids: dict[str, str] = {}
+        for record in provenance:
+            if (
+                not isinstance(record, dict)
+                or not isinstance(record.get("uri"), str)
+                or not isinstance(record.get("source_id"), str)
+                or record["uri"] in source_ids
+            ):
+                raise SmokeGateError("invalid_capture_observation_provenance")
+            source_ids[record["uri"]] = record["source_id"]
+        observed_by_id = {}
+        for record in observations:
+            if (
+                not isinstance(record, dict)
+                or not isinstance(record.get("source_id"), str)
+                or record["source_id"] in observed_by_id
+            ):
+                raise SmokeGateError("invalid_capture_observation_provenance")
+            observed_by_id[record["source_id"]] = record
+        if set(source_ids) != set(expected):
+            raise SmokeGateError("invalid_capture_observation_provenance")
+        for source, _ in selections:
+            row = by_uri[source["url"]]
+            observed = observed_by_id.get(source_ids[source["url"]])
+            if (
+                not isinstance(observed, dict)
+                or observed.get("observation_method") != "independent_source_capture"
+                or observed.get("observed_at") != row.get("capture_observed_at")
+            ):
+                raise SmokeGateError("invalid_capture_observation_provenance")
     return {
         "scenario_id": key,
         "source_ids": [source["id"] for source, _ in selections],
