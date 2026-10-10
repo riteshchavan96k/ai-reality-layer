@@ -63,8 +63,12 @@ time an underlying claim became true, or the freshness of the world fact.
   five independently specified, deliberately *synthetic* timestamp scenarios
   with asserted expected outcomes; included in the standard Python 3.13
   `Backend tests` CI workflow. This is not a live publisher benchmark.
-- Existing `.github/workflows/step222-live-source-smoke.yml` remains the
-  actual live HTTPS/TLS publisher canary and must continue passing.
+- The existing `.github/workflows/step222-live-source-smoke.yml` remains
+  the actual live HTTPS/TLS publisher canary, now strengthened to submit a
+  deliberately old **2024 client observation timestamp** for the authentic
+  page excerpt and require canonical observation provenance to equal the
+  independent **current HTTPS capture timestamp**. The forged same-URL
+  rejection test remains unchanged and must continue passing.
 
 ## Five-scenario synthetic replay acceptance
 
