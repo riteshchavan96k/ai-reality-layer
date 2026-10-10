@@ -19,12 +19,18 @@ evaluation, source archiving, or deployment approval.
   `ARL_INDEPENDENT_SOURCE_ALLOWED_URLS` JSON array, containing **only this URL**.
 - The tool has **no arbitrary URL parameter**, runs with no network by default,
   and requires an explicit `--live` flag.
-- The Step 221 reader enforces URL equality, global-only DNS results, pinned
+- The source reader enforces URL equality, global-only DNS results, pinned
   TCP, TLS certificate + hostname verification, redirect denial, no proxy,
-  a five-second socket timeout, 256 KB maximum response body, and UTF-8 HTML/
-  plain-text restrictions. Do not interpret this as formally audited SSRF safety.
+  a five-second socket timeout, a 256 KB bound on both wire bytes and decoded
+  bytes, and UTF-8 HTML/plain-text restrictions. Do not interpret this as formally audited SSRF safety.
 - The published CI workflow has no tokens/secrets or user-provided endpoint,
   and emits only validation decisions, capture UTC times and digests.
+- Step 222 adds strictly bounded **single-member gzip decoding** because the
+  real publisher response used compressed transfer encoding despite the
+  client's `Accept-Encoding: identity`. Deflate, Brotli, concatenated gzip,
+  invalid checksum, truncated data, decoded size amplification beyond the
+  bound, and other encodings remain fail-closed. Source SHA256 is computed
+  over the original on-wire response body, not decompressed text.
 - Original publisher HTML/text is **not stored**, and returned errors never
   print raw body or backend transport credentials.
 
@@ -89,5 +95,8 @@ human factual annotation, multi-publisher generalization, or live deployment.
 
 ## Hosted evidence
 
-Populate after genuine feature-branch and merged-main GitHub Actions success.
-Do not claim successful live retrieval from mock tests or web search alone.
+Feature-branch SHA `9e9b0ac051553e5f93adbcd673a2d5347364a6e4` passed:
+- [Python 3.13 backend CI 38079874619](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38079874619): **2,191 tests passed**, compile successful, Step 217/218/220 replays passed.
+- [Real HTTPS publisher canary CI 38079874635](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38079874635): real DNS/TLS/GET and strict FastAPI request path succeeded, **1/1 legitimate excerpt structurally supported; 0/1 forged excerpt supported**; digest-only artifact `step222-live-https-audit` uploaded with 30-day retention. Original wire-body SHA256 and observation time visible in restricted CI log/artifact; no HTML archived. Earlier live canary runs failed closed because the publisher sent compressed content until bounded gzip support was implemented. No weakening of URI allowlisting, TLS, redirects or output bounds was necessary.
+
+These are **one-publisher, two-scenario observations**; no real-world population error rate is estimated. Reconfirm final-feature-head and independently merged-main workflows after completing these documentation changes. Do not claim successful live retrieval from mocked tests or web search alone.
