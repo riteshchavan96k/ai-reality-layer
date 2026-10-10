@@ -18,6 +18,7 @@ from html.parser import HTMLParser
 import http.client
 from ipaddress import ip_address
 import math
+import re
 import socket
 import ssl
 import zlib
@@ -85,30 +86,119 @@ class _PinnedHttpsConnection(http.client.HTTPSConnection):
 
 
 class _VisibleHtmlText(HTMLParser):
-    _HIDDEN = frozenset({"script", "style", "head", "noscript", "svg"})
+    """Conservative structural text extraction, NOT browser visibility.
+
+    Discard common hidden DOM descendants before exact-text comparison. This
+    does not execute CSS, JavaScript or a full HTML layout engine; visibility
+    claims must not be inferred from a successful excerpt match.
+    """
+
+    _HIDDEN = frozenset({
+        "script", "style", "head", "noscript", "svg", "template",
+        "iframe", "object", "canvas",
+    })
+    _VOID = frozenset({
+        "area", "base", "br", "col", "embed", "hr", "img", "input",
+        "link", "meta", "param", "source", "track", "wbr",
+    })
+    _MAX_NESTING = 256
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        self._hidden_stack: list[str] = []
+        self._stack: list[tuple[str, bool]] = []
+        self._suppressed = 0
         self.parts: list[str] = []
 
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag in self._HIDDEN:
-            self._hidden_stack.append(tag)
+    @staticmethod
+    def _has_hiding_attributes(
+        tag: str, attrs: list[tuple[str, str | None]]
+    ) -> bool:
+        # Never collapse duplicated HTML attributes into a dict: some
+        # browsers prioritize the FIRST occurrence, and a forged second
+        # attribute could otherwise undo a hidden declaration here.
+        if any(name in {"hidden", "inert"} for name, _ in attrs):
+            return True
+        if any(
+            name == "aria-hidden" and (value or "").strip().casefold() == "true"
+            for name, value in attrs
+        ):
+            return True
+        # A closed <details> element's body is not reliably exposed to a
+        # reader. Conservatively omit the entire element, including summary.
+        if tag == "details" and not any(name == "open" for name, _ in attrs):
+            return True
+        for name, style in attrs:
+            if name != "style" or style is None:
+                continue
+            # CSS comments may be placed between tokens; remove them before
+            # checking simple inline declarations. We do not parse external
+            # stylesheets, CSS variables or JavaScript-driven visibility.
+            clean = re.sub(r"/\*.*?\*/", "", style, flags=re.DOTALL)
+            for declaration in clean.split(";"):
+                property_name, sep, value = declaration.partition(":")
+                if not sep:
+                    continue
+                prop = property_name.strip().casefold()
+                setting = re.sub(
+                    r"\s*!\s*important\s*$", "", value, flags=re.IGNORECASE
+                ).strip().casefold()
+                if (
+                    (prop == "display" and setting == "none")
+                    or (prop == "visibility" and setting in {"hidden", "collapse"})
+                    or (prop == "content-visibility" and setting == "hidden")
+                ):
+                    return True
+        return False
+
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        if tag in self._VOID:
+            return
+        if len(self._stack) >= self._MAX_NESTING:
+            raise ValueError("source HTML nesting exceeds safety bound")
+        suppressed = tag in self._HIDDEN or self._has_hiding_attributes(
+            tag, attrs
+        )
+        # Do not silently stitch visible words from opposite sides of an
+        # excluded subtree into a seemingly publisher-observed statement.
+        if suppressed and self._suppressed == 0:
+            self._boundary()
+        self._stack.append((tag, suppressed))
+        if suppressed:
+            self._suppressed += 1
 
     def handle_endtag(self, tag: str) -> None:
-        if tag in self._HIDDEN and tag in self._hidden_stack:
-            # Malformed HTML cannot make script/style text look verified.
-            while self._hidden_stack:
-                if self._hidden_stack.pop() == tag:
-                    break
+        # Unwind to the matching opening tag. If markup is malformed and
+        # closes a parent early, keep the whole discarded subtree excluded;
+        # stray end tags cannot reveal hidden text.
+        for index in range(len(self._stack) - 1, -1, -1):
+            if self._stack[index][0] == tag:
+                removed = self._stack[index:]
+                self._stack = self._stack[:index]
+                old_suppression = self._suppressed
+                self._suppressed -= sum(flag for _, flag in removed)
+                if old_suppression > 0 and self._suppressed == 0:
+                    self._boundary()
+                return
+
+    def _boundary(self) -> None:
+        if self.parts and self.parts[-1] != "\n":
+            self.parts.append("\n")
 
     def handle_data(self, data: str) -> None:
-        if not self._hidden_stack:
+        if self._suppressed == 0:
             self.parts.append(data)
 
     def text(self) -> str:
-        return " ".join(" ".join(self.parts).split())
+        # Preserve excluded-subtree boundaries as newlines. Generic global
+        # whitespace collapsing would manufacture quoted sentences by
+        # joining text around hidden DOM regions.
+        lines = " ".join(self.parts).split("\n")
+        return "\n".join(
+            normalized for line in lines
+            if (normalized := " ".join(line.split()))
+        )
 
 
 def _decode_observed_content(raw: bytes, content_type: str) -> str:

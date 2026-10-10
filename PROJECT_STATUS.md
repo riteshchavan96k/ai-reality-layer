@@ -1,3 +1,15 @@
+# Current Status — Step 224
+
+## Step 224 — Conservative HTML Visibility Filtering for Exact Source Evidence
+
+**Status:** Implementation on [PR #224](https://github.com/riteshchavan96k/ai-reality-layer/pull/224); **pending complete final feature-branch, merged-main, and status-sync hosted CI**. Starting checkpoint Step 223 `1538c8005316bbd982838affb127863fa95f1b2e` passed backend and real HTTPS publisher runs.
+
+**Verified correctness/security gap:** The current HTMLParser in the original-source HTTPS reader skipped scripts and selected tags, but still admitted claims inside common hidden DOM elements including `hidden`, `aria-hidden=true`, inline `display:none`, `<template>`, and closed details. Such claims could satisfy strict exact-source-text assurance despite not being normally exposed to readers.
+
+**Scope:** Conservatively suppress common hidden descendants, account for duplicated hiding attributes, nested/void/malformed HTML and bound maximum nesting. Preserve legitimate inline formatting, exact operator allowlisting, DNS/IP-pinned TLS, redirects, body and gzip bounds, capture SHA and UTC freshness provenance. Add fake-transport HTTP/Reality State adversarial regression tests, a synthetic labeled parser benchmark, and keep genuine live HTTPS publisher CI green.
+
+**Honest limitations:** `HTMLParser` cannot prove real browser visibility, apply external CSS or scripts, independently verify source authorship, semantic support or world-fact truth. Synthetic fixture zero false exposure is not a population accuracy estimate. [Full technical record](docs/STEP_224.md).
+
 # Current Status — Step 223
 
 ## Step 223 — Server-Observed Source Freshness Integrity

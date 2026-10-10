@@ -61,3 +61,6 @@ jobs:
     
       - name: Run Step 223 server-observed freshness spoof replay
         run: python -m backend.app.evaluation.capture_freshness_benchmark
+
+      - name: Run Step 224 synthetic hidden-HTML evidence visibility benchmark
+        run: python -m backend.app.evaluation.html_visibility_quality_benchmark
