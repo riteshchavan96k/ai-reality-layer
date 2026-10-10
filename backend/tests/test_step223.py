@@ -232,3 +232,14 @@ def test_capture_is_observation_time_not_publisher_publication_date():
     assert result["source_observation"]["observations"][0]["observed_at"] == FRESH
     assert "October 7, 2024" in result["evidence"]["content"]
     assert result["evidence"]["independent_source_text_assurance"]["semantic_support_verified"] is False
+
+
+def test_step223_synthetic_timestamp_spoof_quality_replay():
+    from backend.app.evaluation.capture_freshness_benchmark import run_benchmark
+    report = run_benchmark()
+    assert report["dataset_id"] == "step223-backend-capture-timestamp-adversarial-v1"
+    assert report["corpus_type"].startswith("backend-injected-synthetic")
+    assert report["case_count"] == 5
+    assert report["correct_count"] == 5
+    assert report["client_spoofed_fresh_supported_count"] == 0
+    assert report["server_recent_capture_supported_count"] == 2
