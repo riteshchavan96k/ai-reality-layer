@@ -1,3 +1,17 @@
+# Current Status — Step 222
+
+## Step 222 — Real Publisher HTTPS Observation and End-to-End Quality Smoke
+
+**Status:** Feature implementation **awaiting final feature-head CI, merge, merged-main and final status-sync verification**. This is a narrowly scoped live original-source integration milestone, not production fact-checking certification. See [docs/STEP_222.md](docs/STEP_222.md).
+
+**Verified gap:** Step 221's IP-pinned TLS reader was exercised only against mock transports; there was no measured actual hosted HTTPS publisher capture. The live Python Software Foundation historical Python 3.13.0 release page additionally returned compressed content despite the identity-request header. Silently accepting compressed bytes, dropping limits, or bypassing TLS would have been unsafe.
+
+**Implementation:** Fixed, explicit operator-only `--live` publisher canary (no arbitrary URLs; disabled by default), real GitHub-hosted TCP/TLS/HTTP response, independently declared positive and same-URL forged excerpts via the existing FastAPI strict Reality State endpoint, digest/UTC audit with no raw HTML archived. Added fail-closed single-member gzip support with bounded wire and decoded bytes, checksum/truncation/trailing-member enforcement. All existing origin allowlisting, DNS checks, certificate validation, redirects and timeouts are preserved.
+
+**First verified feature-run evidence:** `9e9b0ac051553e5f93adbcd673a2d5347364a6e4` passed Python 3.13 compilation, **2,191 tests**, and unchanged Steps 217, 218 and 220 replay workflows ([CI 38079874619](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38079874619)); independently, the real HTTPS source canary succeeded against the actual approved publisher page ([live CI 38079874635](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38079874635)), recording **1/1 legitimate excerpt structurally supported** and **0/1 forged same-URL excerpts supported**. Those are two cases from ONE publisher, not generalizable factual accuracy.
+
+**Critical limitations:** No publisher-signed attestation, no semantic entailment, no archived original raw page, no multi-publisher or blinded human oracle dataset, no production deployment. The canary may fail closed when network/site content changes. All strict text observation is still not proof of objective truth. Do not claim full Step 222 completion until both workflows pass on final feature SHA and exact current merged/main/status-sync SHAs.
+
 # Current Status — Step 221
 
 ## Step 221 — Secure Operator-Allowlisted HTTPS Original-Source Reader

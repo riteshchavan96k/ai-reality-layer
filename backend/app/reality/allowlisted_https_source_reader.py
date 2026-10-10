@@ -20,6 +20,7 @@ from ipaddress import ip_address
 import math
 import socket
 import ssl
+import zlib
 from typing import Any, Callable, Iterable
 from urllib.parse import urlsplit
 
@@ -132,6 +133,27 @@ def _decode_observed_content(raw: bytes, content_type: str) -> str:
     return content
 
 
+def _bounded_gzip_decode(body: bytes, *, limit: int) -> bytes:
+    """Decode a *single* gzip stream with a hard decoded-byte ceiling.
+
+    Never accept gzip bombs, partial streams, trailing bytes, extra members or
+    invalid checksums. SHA256 audit remains over original HTTP response bytes.
+    """
+    try:
+        decoder = zlib.decompressobj(wbits=16 + zlib.MAX_WBITS)
+        decoded = decoder.decompress(body, limit + 1)
+        if len(decoded) > limit or decoder.unconsumed_tail:
+            raise ValueError("decoded source response exceeds byte limit")
+        decoded += decoder.flush(limit + 1 - len(decoded))
+        if len(decoded) > limit:
+            raise ValueError("decoded source response exceeds byte limit")
+        if not decoder.eof or decoder.unused_data:
+            raise ValueError("invalid or incomplete gzip source response")
+        return decoded
+    except zlib.error as exc:
+        raise ValueError("invalid or incomplete gzip source response") from exc
+
+
 class AllowlistedHttpsSourceReader:
     """A real HTTPS reader, off unless exact URLs are configured by operator."""
 
@@ -218,8 +240,10 @@ class AllowlistedHttpsSourceReader:
             # second, unchecked destination.
             if response.status != 200:
                 raise ValueError("source HTTP response was not 200")
-            if response.getheader("Content-Encoding", "identity").lower() != "identity":
-                raise ValueError("compressed source responses not supported")
+            encoding = response.getheader("Content-Encoding", "identity").strip().lower()
+            if encoding not in {"identity", "gzip"}:
+                label = encoding if encoding in {"br", "deflate", "zstd"} else "other"
+                raise ValueError("unsupported source content encoding: " + label)
             declared_length = response.getheader("Content-Length")
             if declared_length is not None:
                 if not declared_length.isdecimal():
@@ -238,7 +262,11 @@ class AllowlistedHttpsSourceReader:
         observed = self._clock()
         if not isinstance(observed, datetime) or observed.tzinfo is None:
             raise ValueError("reader clock must be timezone-aware")
-        rendered = _decode_observed_content(raw, content_type)
+        decoded_bytes = (
+            _bounded_gzip_decode(raw, limit=self._max_bytes)
+            if encoding == "gzip" else raw
+        )
+        rendered = _decode_observed_content(decoded_bytes, content_type)
         return {
             "uri": uri,
             "content": rendered,

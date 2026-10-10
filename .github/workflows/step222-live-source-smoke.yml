@@ -1,0 +1,57 @@
+name: Step 222 real publisher HTTPS canary
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step222-publisher-canary-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publisher-live-smoke:
+    name: Operator-pinned public publisher HTTPS source and Reality State API
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      # Exact single publisher URL: checked by reader and canary.
+      # No arbitrary URL, proxy, secrets, tokens or caller-controlled input.
+      ARL_INDEPENDENT_SOURCE_ALLOWED_URLS: '["https://www.python.org/downloads/release/python-3130/"]'
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      - name: Install backend development dependencies
+        run: python -m pip install -r backend/requirements-dev.txt
+
+      - name: Real source HTTPS capture and strict API acceptance/rejection
+        run: python -m backend.app.evaluation.live_source_quality_smoke --live --output "$RUNNER_TEMP/step222-live-audit.json"
+
+      - name: Upload digest-only source audit
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: step222-live-https-audit
+          path: ${{ runner.temp }}/step222-live-audit.json
+          if-no-files-found: error
+          retention-days: 30
