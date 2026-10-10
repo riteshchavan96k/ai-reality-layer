@@ -1,3 +1,15 @@
+# Current Status — Step 226
+
+## Step 226 — Multi-Publisher Real HTTPS Evidence Evaluation
+
+**Status:** Implementation in [PR #228](https://github.com/riteshchavan96k/ai-reality-layer/pull/228), **pending final feature-head, merged-main and status-sync hosted CI**. Starting Step 225 main commit `49d0659115b9752ecb52ef360ac77d46439a94a0` passed full backend and real Python.org live canary. See [docs/STEP_226.md](docs/STEP_226.md).
+
+**Verified product gap:** Prior real HTTPS assurance only tested the one fixed Python.org historical publisher page. That did not demonstrate independently hosted second publisher content, two-source exact-URI/capture identity, or mixed-source fail-closed handling when only one of the submitted excerpts was forged.
+
+**Scoped implementation:** Keep existing source-reader security and source-text structural integrity unchanged; add a separately approved `www.iana.org` official reserved-domains page beside Python.org, with distinct publisher hostnames and **six fixed real HTTPS/strict FastAPI scenarios**: one positive and one forged per publisher; both positives together; and mixed positive+forged refusal. Require SHA256 original-byte captures, UTC time, source-specific audit, and canonical observation lineage, with no client time or arbitrary URL. Opt-in network only; GitHub-hosted separate dual-publisher CI with digest-only audit; fake network regression tests remain explicitly separate.
+
+**Honest measurement boundary:** 3/3 expected positive supported and 0/3 forged supported in fixed scenarios would be **a narrow engineering acceptance score**, not human-annotated field factual accuracy. IANA's original HTML needs a shorter genuinely contiguous named-example excerpt than an attempted cross-block concatenation, preserving Step 225's structural quote boundary. Genuine multi-publisher publication truth, semantic entailment, cryptographic publisher authorship, archives, and production readiness are NOT established by this work. Do not mark completed until all three hosted workflows pass final feature, merged main and exact status-sync main SHA.
+
 # Current Status — Step 225
 
 ## Step 225 — Structural Quote Boundaries for Independently Observed Source Text
