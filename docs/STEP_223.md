@@ -112,6 +112,10 @@ timestamps.
 
 ## Final evidence
 
-Pending successful feature-branch hosted regression and Step 222 live workflows,
-PR merge, successful independently merged-main workflows, and exact final
-status-commit workflows. Do not mark completed before the gates pass.
+Step 223 engineering changes merged via [PR #222](https://github.com/riteshchavan96k/ai-reality-layer/pull/222).
+
+- Final feature head `d2dd5062840c31f53edcb552fce2faed7a58878d`: [full backend CI 38082233411](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38082233411) passed compilation, **2,207 tests**, historical 217/218/220 replays and all **5/5** synthetic Step 223 timestamp-spoof scenarios; [genuine HTTPS CI 38082233402](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38082233402) passed and required a current server capture to override the 2024 caller timestamp for the original publisher page.
+- Independent merged-`main` SHA `6305f95d3821750b6de2e3850df600da7b5e0511`: [backend CI 38082301186](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38082301186) passed **2,207 tests** and all four benchmark workflows; [live HTTPS CI 38082301189](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38082301189) succeeded.
+- The final documentation-only status synchronization commit must itself pass BOTH hosted workflows on its exact `main` SHA before reporting that Step 223 is complete on current `main`.
+
+These results demonstrate a narrowly scoped, tested **source-observation-time trust correction**, not evidence of world-fact accuracy or publisher-signed timestamps.

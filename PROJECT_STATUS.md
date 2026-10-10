@@ -2,7 +2,7 @@
 
 ## Step 223 — Server-Observed Source Freshness Integrity
 
-**Status:** Feature-branch implementation under hosted verification; **NOT YET COMPLETE**. The preceding independently live-tested checkpoint is Step 222 at `47c90383145fbda9ff94526966cd8291f99b7c0d`. See [docs/STEP_223.md](docs/STEP_223.md).
+**Status:** ✅ **Scoped engineering implementation merged and independently verified**, subject to success of this final status-documentation commit on its exact current `main` SHA. Step 223 merged through [PR #222](https://github.com/riteshchavan96k/ai-reality-layer/pull/222). Final feature SHA `d2dd5062840c31f53edcb552fce2faed7a58878d` passed Python 3.13 full [CI 38082233411](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38082233411) (2,207 tests, historical Step 217/218/220 and new Step 223 replay) and [real publisher CI 38082233402](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38082233402). Merged main SHA `6305f95d3821750b6de2e3850df600da7b5e0511` independently passed [full backend CI 38082301186](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38082301186) (2,207 tests) and [genuine HTTPS canary CI 38082301189](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38082301189). See [docs/STEP_223.md](docs/STEP_223.md).
 
 **Verified correctness gap:** The strict submitted-evidence pipeline compared original publisher bytes through Step 222's HTTPS reader, but still calculated source-observation freshness from caller-provided `observed_at`, ignoring authoritative backend `capture_observed_at` for the canonical freshness signal.
 
@@ -10,7 +10,7 @@
 
 **Evaluation:** Add adversarial tests for fresh-server/old-client, stale-server/fresh-client, missing/invalid timestamp, source ID matching, non-strict parity and existing HTTP request routing. Include a **5-case simulated backend-reader freshness benchmark** in the hosted full-suite workflow; this measures deterministic policy outcomes, not real-world semantic correctness. Continue Step 217/218/220 baseline replays and real Step 222 HTTPS CI unchanged except the stricter timestamp-provenance oracle.
 
-**Honest limits:** A fresh page observation is not a fresh fact, historical publication date, semantic entailment, publisher signature, immutable archive or production deployment. Full feature and merged-main + exact status-sync CI needed before any Step 223 completion mark.
+**Honest limits:** A fresh page observation is not a fresh fact, historical publication date, semantic entailment, publisher signature, immutable archive or production deployment. Feature and merged-main CI both passed, with exact final status-sync SHA CI still required before announcing a completed Step 223 checkpoint.
 
 # Current Status — Step 222
 
