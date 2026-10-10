@@ -77,6 +77,14 @@ def _check_receipt(source: dict[str, str], capture: Any) -> dict[str, str]:
                 "maintained for documentation purposes.",
                 "a number of domains such as",
                 "documentation purposes.",
+                "a number of domains such as example.com and example.org",
+                "number of domains such as example.com and example.org",
+                "example.com and example.org are maintained",
+                "example.org are maintained",
+                "example.org are",
+                "example.org\\nare maintained",
+                "are maintained for documentation purposes.",
+                "example.com and example.org are",
             ) if source["id"] == "iana-reserved-domains" else ()
             flags = "".join("1" if s in content else "0" for s in candidates)
             raise SmokeGateError(
