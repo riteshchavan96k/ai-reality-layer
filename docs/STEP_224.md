@@ -31,6 +31,9 @@ excludes descendants inside common non-readable HTML elements:
   Open details may preserve actual readable content.
 - Repeated/ambiguous attributes cannot override earlier hidden
   declarations; any recognized hiding attribute suppresses the subtree.
+- Excluded subtrees leave newline quote boundaries, so discarding a hidden
+  negation cannot accidentally join surrounding visible words into a forged
+  sentence that was never present as a continuous observed excerpt.
 
 The parser tracks suppressed subtrees, handles common HTML void elements
 without trapping subsequent legitimate content, and caps nesting at 256
@@ -52,7 +55,7 @@ computed over response bytes, not a reconstructed "visible" page.
   HTML void/self-closing/malformed nesting checks, gzip interaction, and
   plain-text non-HTML parity.
 - `backend/app/evaluation/html_visibility_quality_benchmark.py`:
-  a deliberately **synthetic** ten-case fixture battery (9 hidden-text,
+  a deliberately **synthetic** eleven-case fixture battery (10 concealed-text,
   1 visible-text case), with expected classifications and explicit
   accuracy-nonclaims.
 - The full Python 3.13 workflow invokes this benchmark alongside preserved
