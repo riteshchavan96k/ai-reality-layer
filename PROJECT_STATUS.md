@@ -1,3 +1,17 @@
+# Current Status — Step 223
+
+## Step 223 — Server-Observed Source Freshness Integrity
+
+**Status:** Feature-branch implementation under hosted verification; **NOT YET COMPLETE**. The preceding independently live-tested checkpoint is Step 222 at `47c90383145fbda9ff94526966cd8291f99b7c0d`. See [docs/STEP_223.md](docs/STEP_223.md).
+
+**Verified correctness gap:** The strict submitted-evidence pipeline compared original publisher bytes through Step 222's HTTPS reader, but still calculated source-observation freshness from caller-provided `observed_at`, ignoring authoritative backend `capture_observed_at` for the canonical freshness signal.
+
+**Scoped fix:** For matched backend captures, bind exact per-source identity and independently observed capture UTC time to the canonical source-observation and freshness evaluation. Accept omitted client observation timestamp in strict requests only; if neither backend capture nor a reported time is available, abstain rather than treating ingestion as fresh. Maintain historical legacy-reader timestamp semantics (without pretending those readers are independently authenticated). Strengthen the existing genuine HTTPS canary to challenge the caller timestamp with an old submitted date.
+
+**Evaluation:** Add adversarial tests for fresh-server/old-client, stale-server/fresh-client, missing/invalid timestamp, source ID matching, non-strict parity and existing HTTP request routing. Include a **5-case simulated backend-reader freshness benchmark** in the hosted full-suite workflow; this measures deterministic policy outcomes, not real-world semantic correctness. Continue Step 217/218/220 baseline replays and real Step 222 HTTPS CI unchanged except the stricter timestamp-provenance oracle.
+
+**Honest limits:** A fresh page observation is not a fresh fact, historical publication date, semantic entailment, publisher signature, immutable archive or production deployment. Full feature and merged-main + exact status-sync CI needed before any Step 223 completion mark.
+
 # Current Status — Step 222
 
 ## Step 222 — Real Publisher HTTPS Observation and End-to-End Quality Smoke
