@@ -126,7 +126,10 @@ class EvidenceRealityStateRequest(BaseModel):
                 raise ValueError(
                     "freshness_max_age_seconds must be a positive number"
                 )
-            if any(
+            # Strict mode may use server-observed capture times instead of
+            # client-supplied timestamps. The service must fail closed if
+            # neither a trusted capture nor a reported time is available.
+            if not self.require_independent_source_text_match and any(
                 document.observed_at is None
                 for document in self.documents
             ):

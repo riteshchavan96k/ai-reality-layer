@@ -58,3 +58,6 @@ jobs:
 
       - name: Run Step 220 opt-in independent source text assurance replay
         run: python -m backend.app.evaluation.independent_source_assurance_benchmark
+    
+      - name: Run Step 223 server-observed freshness spoof replay
+        run: python -m backend.app.evaluation.capture_freshness_benchmark

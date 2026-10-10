@@ -174,6 +174,8 @@ class SubmittedEvidenceBundle:
     def validate_freshness_policy(
         self,
         max_age_seconds: float | int | None,
+        *,
+        allow_missing_observations: bool = False,
     ) -> None:
         if max_age_seconds is None:
             return
@@ -181,7 +183,11 @@ class SubmittedEvidenceBundle:
             raise ValueError(
                 "freshness_max_age_seconds must be a positive number or None"
             )
-        if any(document.observed_at is None for document in self.documents):
+        if not isinstance(allow_missing_observations, bool):
+            raise ValueError("allow_missing_observations must be boolean")
+        if not allow_missing_observations and any(
+            document.observed_at is None for document in self.documents
+        ):
             raise ValueError(
                 "freshness_max_age_seconds requires observed_at for every document"
             )
