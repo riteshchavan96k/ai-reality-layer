@@ -130,3 +130,55 @@ def test_positive_capture_metadata_and_source_failure_labels_are_not_trust_flags
     assert len(report["capture"]["capture_sha256"]) == 64
     assert report["real_world_factual_accuracy_established"] is False
     assert report["corpus_type"] == "live_original_https_page_not_publisher_authenticated"
+
+
+def test_reader_accepts_single_bounded_gzip_html_and_hashes_wire_bytes():
+    import gzip
+    from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttpsSourceReader
+
+    html = b"<html><body><p>This is the stable release of Python 3.13.0</p></body></html>"
+    wire = gzip.compress(html)
+    class Response:
+        status = 200
+        def getheader(self, key, default=None):
+            return {
+                "Content-Type": "text/html; charset=utf-8",
+                "Content-Encoding": "gzip",
+                "Content-Length": str(len(wire)),
+            }.get(key, default)
+        def read(self, count):
+            return wire[:count]
+    class Connection:
+        def __init__(self, *args, **kwargs):
+            pass
+        def request(self, *args, **kwargs):
+            pass
+        def getresponse(self):
+            return Response()
+        def close(self):
+            pass
+    reader = AllowlistedHttpsSourceReader(
+        [smoke.PUBLISHER_URL], connection_factory=Connection,
+    )
+    observed = reader(smoke.PUBLISHER_URL)
+    assert observed["content"] == smoke.EXPECTED_EXCERPT
+    assert observed["capture_sha256"] == sha256(wire).hexdigest()
+
+
+def test_bounded_gzip_decoder_rejects_bombs_truncation_and_extra_members():
+    import gzip
+    from backend.app.reality.allowlisted_https_source_reader import _bounded_gzip_decode
+
+    raw = b"source evidence text"
+    wire = gzip.compress(raw)
+    assert _bounded_gzip_decode(wire, limit=len(raw)) == raw
+    with pytest.raises(ValueError, match="exceeds byte limit"):
+        _bounded_gzip_decode(gzip.compress(b"X" * 100000), limit=100)
+    with pytest.raises(ValueError, match="invalid or incomplete"):
+        _bounded_gzip_decode(wire[:-3], limit=1000)
+    with pytest.raises(ValueError, match="invalid or incomplete"):
+        _bounded_gzip_decode(wire + gzip.compress(b"second"), limit=1000)
+    with pytest.raises(ValueError, match="invalid or incomplete"):
+        _bounded_gzip_decode(wire + b"trailing", limit=1000)
+    with pytest.raises(ValueError, match="invalid or incomplete"):
+        _bounded_gzip_decode(b"not gzip", limit=1000)
