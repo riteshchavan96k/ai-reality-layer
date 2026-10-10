@@ -41,14 +41,15 @@ PUBLISHERS = (
         "host": "www.iana.org",
         "entity": "example.com",
         "task": "What does IANA say about example.com and example.org?",
-        "positive": (
-            "a number of domains such as example.com and example.org "
-            "are maintained for documentation purposes."
-        ),
+        # The live HTML extraction separates the named-example passage
+        # from the subsequent maintenance-purpose passage. Do NOT reconstruct
+        # them into a single observed quote (Step 225 trust boundary).
+        "positive": "a number of domains such as example.com and example.org",
         "forged": "example.com and example.org are available for registration or transfer.",
         "anchors": (
             "IANA-managed Reserved Domains",
-            "a number of domains such as example.com and example.org are maintained for documentation purposes.",
+            "a number of domains such as example.com and example.org",
+            "are maintained for documentation purposes.",
         ),
     },
 )
@@ -68,28 +69,11 @@ def _check_receipt(source: dict[str, str], capture: Any) -> dict[str, str]:
         raise SmokeGateError("publisher_content_unavailable_" + source["id"])
     for i, anchor in enumerate(source["anchors"]):
         if anchor not in content:
-            # Probe ONLY fixed, reviewed snippets using booleans. Never
-            # print original publisher body, other page contents or secrets.
-            candidates = (
-                "example.com and example.org",
-                "They are not available for registration or transfer.",
-                "These domains may be used as illustrative examples",
-                "maintained for documentation purposes.",
-                "a number of domains such as",
-                "documentation purposes.",
-                "a number of domains such as example.com and example.org",
-                "number of domains such as example.com and example.org",
-                "example.com and example.org are maintained",
-                "example.org are maintained",
-                "example.org are",
-                "example.org\\nare maintained",
-                "are maintained for documentation purposes.",
-                "example.com and example.org are",
-            ) if source["id"] == "iana-reserved-domains" else ()
-            flags = "".join("1" if s in content else "0" for s in candidates)
+            # Only the fixed publisher ID and predefined anchor index can be
+            # logged; never raw page HTML, transport data, or user content.
             raise SmokeGateError(
                 "publisher_content_anchor_drift_" + source["id"]
-                + "_anchor_" + str(i) + "_fixed_candidates_" + flags
+                + "_anchor_" + str(i)
             )
     digest = capture.get("capture_sha256")
     observed = capture.get("capture_observed_at")
