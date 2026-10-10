@@ -43,6 +43,8 @@ HIDDEN_VARIANTS = (
     "<div inert>" + FORGED + "</div>",
     "<div style='display:none'>" + FORGED + "</div>",
     "<div style='display : /* comment */ none !important'>" + FORGED + "</div>",
+    "<div style='display:none' style='color:green'>" + FORGED + "</div>",
+    "<div aria-hidden='true' aria-hidden='false'>" + FORGED + "</div>",
     "<section style='VISIBILITY: HIDDEN'>" + FORGED + "</section>",
     "<div style='visibility: collapse'>" + FORGED + "</div>",
     "<article style='content-visibility:hidden'>" + FORGED + "</article>",
