@@ -2,13 +2,13 @@
 
 ## Step 225 — Structural Quote Boundaries for Independently Observed Source Text
 
-**Status:** Feature implementation awaiting full CI and merge. Starting main SHA `e68c0a0ec2809a9dc738f28b8884666a6aca4444` had both Step 224 full backend and real HTTPS canary green. See [docs/STEP_225.md](docs/STEP_225.md).
+**Status:** ✅ **Scoped engineering implementation merged and independently verified**, pending CI on the final documentation-only status synchronization commit. [PR #226](https://github.com/riteshchavan96k/ai-reality-layer/pull/226) merged Step 225 implementation. Final feature head `a74bd488539ade2abf2df98d48ae8cac67b80718` passed [Python 3.13 backend CI 38084927193](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38084927193) (**2,289 tests**, all Step 217/218/220/223/224/225 replays) and [genuine publisher HTTPS CI 38084927096](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38084927096). Independently, merged-main SHA `3f1846577312d30d990a4d174d4a267ce78cdad5` passed [full backend CI 38084991634](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38084991634) (**2,289 tests**) and [real HTTPS CI 38084991610](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38084991610). Both must pass once more on the exact merged final status-commit main SHA before calling the current checkpoint fully verified. See [docs/STEP_225.md](docs/STEP_225.md).
 
 **Verified correctness gap:** After Step 224's hidden-HTML subtree filtering, the publisher HTML extraction still concatenated text from distinct visible paragraphs, table cells/rows and list items with spaces. This could manufacture one forged continuous excerpt accepted by strict exact-text assurance, despite its parts never occurring together as a single publisher quote.
 
 **Implementation:** Conservatively preserve newline quote boundaries between ordinary HTML structural blocks and explicit line breaks, while retaining legitimate inline formatting, Step 224 hidden exclusions and Step 221–223 network/DNS/TLS/capture protections. Add adversarial strict API and parser tests plus a 16-case synthetic policy replay (12 cross-block and 4 honest inline control examples), retaining all earlier benchmarks and actual live publisher canary.
 
-**Limits:** Synthetically demonstrated quote-contiguity behavior is not browser rendering, semantic entailment, cryptographic publisher proof or general factual accuracy. Multi-block quotations may conservatively fail, and this is deliberate. **Do not mark Step 225 complete until exact final feature, merged main, and final status-sync backend and genuine HTTPS workflows succeed.**
+**Limits:** Synthetically demonstrated quote-contiguity behavior is not browser rendering, semantic entailment, cryptographic publisher proof or general factual accuracy. Multi-block quotations may conservatively fail, and this is deliberate. Feature-head and independently merged-main backend and genuine HTTPS workflows have succeeded. **Exact final status-sync main SHA CI remains a completion gate**.
 
 # Current Status — Step 224
 
