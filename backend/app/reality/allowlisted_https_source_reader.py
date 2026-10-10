@@ -183,8 +183,8 @@ class _VisibleHtmlText(HTMLParser):
                 return
 
     def _boundary(self) -> None:
-        if self.parts and self.parts[-1] != "\\n":
-            self.parts.append("\\n")
+        if self.parts and self.parts[-1] != "\n":
+            self.parts.append("\n")
 
     def handle_data(self, data: str) -> None:
         if self._suppressed == 0:
@@ -194,8 +194,8 @@ class _VisibleHtmlText(HTMLParser):
         # Preserve excluded-subtree boundaries as newlines. Generic global
         # whitespace collapsing would manufacture quoted sentences by
         # joining text around hidden DOM regions.
-        lines = " ".join(self.parts).split("\\n")
-        return "\\n".join(
+        lines = " ".join(self.parts).split("\n")
+        return "\n".join(
             normalized for line in lines
             if (normalized := " ".join(line.split()))
         )
