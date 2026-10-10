@@ -13,6 +13,9 @@ from backend.app.execution.outcome_memory import DEFAULT_OUTCOME_MEMORY, Outcome
 from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMemory
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 from backend.app.reality.submitted_evidence import SubmittedEvidenceBundle
+from backend.app.reality.independent_capture_freshness import (
+    bind_server_capture_observations,
+)
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.orchestrator.pipeline import OrchestrationPipeline
 from backend.app.orchestrator.result_normalizer import (
@@ -73,7 +76,10 @@ def build_reality_state_from_evidence(
         raise ValueError("require_independent_source_text_match must be boolean")
     services = dependencies or OrchestrationDependencies.default()
     bundle = SubmittedEvidenceBundle.from_mappings(documents)
-    bundle.validate_freshness_policy(freshness_max_age_seconds)
+    bundle.validate_freshness_policy(
+        freshness_max_age_seconds,
+        allow_missing_observations=require_independent_source_text_match,
+    )
     evidence = bundle.to_evidence()
     text_assurance = None
     if require_independent_source_text_match:
@@ -100,6 +106,13 @@ def build_reality_state_from_evidence(
     conflicts = services.claim_conflict_detector.detect_result(claim_result)
     provenance = services.source_provenance_builder.build_result(evidence)
     observation = bundle.build_observations(provenance)
+    if text_assurance is not None:
+        # A backend-observed capture supersedes any caller-reported time.
+        # Legacy backend readers without capture retain reported timestamps;
+        # missing both means freshness is unavailable, not ingestion-fresh.
+        observation = bind_server_capture_observations(
+            bundle, provenance, observation, text_assurance
+        )
     freshness = services.source_freshness_evaluator.evaluate_result(
         observation,
         max_age_seconds=freshness_max_age_seconds,
