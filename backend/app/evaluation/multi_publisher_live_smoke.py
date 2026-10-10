@@ -64,10 +64,15 @@ def _check_receipt(source: dict[str, str], capture: Any) -> dict[str, str]:
     if not isinstance(capture, dict) or capture.get("uri") != source["url"]:
         raise SmokeGateError("publisher_source_uri_mismatch")
     content = capture.get("content")
-    if not isinstance(content, str) or any(
-        anchor not in content for anchor in source["anchors"]
-    ):
-        raise SmokeGateError("publisher_content_anchor_drift")
+    if not isinstance(content, str):
+        raise SmokeGateError("publisher_content_unavailable_" + source["id"])
+    for i, anchor in enumerate(source["anchors"]):
+        if anchor not in content:
+            # Only fixed, reviewer-declared source IDs and anchor indices are
+            # printed. NEVER serialize response content or URLs from errors.
+            raise SmokeGateError(
+                "publisher_content_anchor_drift_" + source["id"] + "_anchor_" + str(i)
+            )
     digest = capture.get("capture_sha256")
     observed = capture.get("capture_observed_at")
     if not isinstance(digest, str) or not SHA256_PATTERN.fullmatch(digest):
