@@ -319,7 +319,7 @@ def test_html_parser_recombines_visible_text_without_hidden_script_or_head():
     )
     # Step 224: source text on opposite sides of removed script/style
     # elements must not be stitched into a fabricated contiguous quote.
-    assert text == "Alpha Beta\\n& gamma"
+    assert text == "Alpha Beta\n& gamma"
 
 
 @pytest.mark.parametrize("metadata", [
