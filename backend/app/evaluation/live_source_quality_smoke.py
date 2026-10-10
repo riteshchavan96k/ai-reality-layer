@@ -27,6 +27,8 @@ PUBLISHER_URL = "https://www.python.org/downloads/release/python-3130/"
 EXPECTED_EXCERPT = "This is the stable release of Python 3.13.0"
 HISTORICAL_DATE_TEXT = "Release date: Oct. 7, 2024"
 FORGED_EXCERPT = "Python 3.13.0 was released on January 1, 1900."
+# Fixed deliberately stale client timestamp; server capture MUST supersede it.
+STALE_CLIENT_OBSERVED_AT = "2024-10-07T00:00:00Z"
 ENTITY = "Python 3.13.0"
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 
@@ -106,6 +108,13 @@ def _check_state(
             raise RuntimeError("positive assurance did not retain a capture digest")
         if not item.get("capture_observed_at"):
             raise RuntimeError("positive assurance did not retain capture time")
+        observations = result.get("source_observation", {}).get("observations", [])
+        if (
+            not isinstance(observations, list) or len(observations) != 1
+            or observations[0].get("observation_method") != "independent_source_capture"
+            or observations[0].get("observed_at") != item["capture_observed_at"]
+        ):
+            raise RuntimeError("live capture observation provenance incorrect")
     else:
         if item.get("capture_sha256") is not None:
             raise RuntimeError("failed assurance must not claim successful capture")
@@ -133,7 +142,7 @@ def run_live_smoke() -> dict[str, Any]:
 
     capture_audit = _checked_capture(reader(PUBLISHER_URL))
     with TestClient(app) as client:
-        positive = _post_state(client, EXPECTED_EXCERPT, capture_audit["capture_observed_at"])
+        positive = _post_state(client, EXPECTED_EXCERPT, STALE_CLIENT_OBSERVED_AT)
         forged = _post_state(client, FORGED_EXCERPT, capture_audit["capture_observed_at"])
 
     legitimate = _check_state(
@@ -204,6 +213,7 @@ def main(argv: list[str] | None = None) -> int:
             "live Reality State diverged from conservative oracle",
             "positive assurance did not retain a capture digest",
             "positive assurance did not retain capture time",
+            "live capture observation provenance incorrect",
             "failed assurance must not claim successful capture",
             "operator-configured HTTPS reader is required",
             "live smoke requires exactly the fixed publisher URL allowlist",
