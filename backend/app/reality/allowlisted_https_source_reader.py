@@ -101,6 +101,18 @@ class _VisibleHtmlText(HTMLParser):
         "area", "base", "br", "col", "embed", "hr", "img", "input",
         "link", "meta", "param", "source", "track", "wbr",
     })
+    # Text from distinct structural units must never become one continuous
+    # quote just because the extraction strips HTML tags. Conservative
+    # boundaries may reject multi-paragraph submissions (fail closed).
+    _BLOCK = frozenset({
+        "address", "article", "aside", "blockquote", "caption", "dd",
+        "details", "dialog", "div", "dl", "dt", "fieldset", "figcaption",
+        "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5",
+        "h6", "header", "hgroup", "legend", "li", "main", "nav",
+        "ol", "p", "pre", "section", "summary", "table", "tbody",
+        "td", "tfoot", "th", "thead", "tr", "ul",
+    })
+    _BLOCK_BREAK_VOID = frozenset({"br", "hr"})
     _MAX_NESTING = 256
 
     def __init__(self) -> None:
@@ -154,6 +166,8 @@ class _VisibleHtmlText(HTMLParser):
         self, tag: str, attrs: list[tuple[str, str | None]]
     ) -> None:
         if tag in self._VOID:
+            if tag in self._BLOCK_BREAK_VOID and self._suppressed == 0:
+                self._boundary()
             return
         if len(self._stack) >= self._MAX_NESTING:
             raise ValueError("source HTML nesting exceeds safety bound")
@@ -162,7 +176,7 @@ class _VisibleHtmlText(HTMLParser):
         )
         # Do not silently stitch visible words from opposite sides of an
         # excluded subtree into a seemingly publisher-observed statement.
-        if suppressed and self._suppressed == 0:
+        if (suppressed or tag in self._BLOCK) and self._suppressed == 0:
             self._boundary()
         self._stack.append((tag, suppressed))
         if suppressed:
@@ -178,7 +192,10 @@ class _VisibleHtmlText(HTMLParser):
                 self._stack = self._stack[:index]
                 old_suppression = self._suppressed
                 self._suppressed -= sum(flag for _, flag in removed)
-                if old_suppression > 0 and self._suppressed == 0:
+                if self._suppressed == 0 and (
+                    old_suppression > 0
+                    or any(open_tag in self._BLOCK for open_tag, _ in removed)
+                ):
                     self._boundary()
                 return
 

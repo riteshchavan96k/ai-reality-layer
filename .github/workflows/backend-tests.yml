@@ -64,3 +64,6 @@ jobs:
 
       - name: Run Step 224 synthetic hidden-HTML evidence visibility benchmark
         run: python -m backend.app.evaluation.html_visibility_quality_benchmark
+
+      - name: Run Step 225 source structural quote boundary replay
+        run: python -m backend.app.evaluation.structural_quote_benchmark
