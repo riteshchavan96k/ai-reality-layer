@@ -1,0 +1,55 @@
+name: Step 226 two-publisher genuine HTTPS quality canary
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step226-live-two-publisher-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publisher-multi-live:
+    name: Approved Python.org + IANA DNS/TLS/HTTPS and strict Reality State
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      # Exact fixed URLs only, with independent HTTPS hostnames.
+      # No arbitrary request URLs, secrets, bearer headers, cookies, proxies.
+      ARL_INDEPENDENT_SOURCE_ALLOWED_URLS: '["https://www.python.org/downloads/release/python-3130/","https://www.iana.org/domains/reserved"]'
+
+    steps:
+      - name: Checkout exact feature or main SHA
+        uses: actions/checkout@v7
+
+      - name: Install Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      - name: Install backend development dependencies
+        run: python -m pip install -r backend/requirements-dev.txt
+
+      - name: Collect approved real HTTPS publisher evidence and strict six-case scorecard
+        run: python -m backend.app.evaluation.multi_publisher_live_smoke --live --output "$RUNNER_TEMP/step226-two-publisher-live-audit.json"
+
+      - name: Upload digest-and-classification only audit
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: step226-two-publisher-audit
+          path: ${{ runner.temp }}/step226-two-publisher-live-audit.json
+          if-no-files-found: error
+          retention-days: 30
