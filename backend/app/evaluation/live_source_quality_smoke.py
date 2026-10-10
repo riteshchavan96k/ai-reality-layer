@@ -28,7 +28,7 @@ EXPECTED_EXCERPT = "This is the stable release of Python 3.13.0"
 HISTORICAL_DATE_TEXT = "Release date: Oct. 7, 2024"
 FORGED_EXCERPT = "Python 3.13.0 was released on January 1, 1900."
 ENTITY = "Python 3.13.0"
-SHA256_PATTERN = re.compile(r"[0-9a-f]{64}\\Z")
+SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 
 
 def _request(excerpt: str, observed_at: str) -> dict[str, Any]:
