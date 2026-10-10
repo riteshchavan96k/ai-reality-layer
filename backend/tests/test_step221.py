@@ -317,7 +317,9 @@ def test_html_parser_recombines_visible_text_without_hidden_script_or_head():
         b"<script>deception</script><style>bad</style> &amp; gamma</body></html>",
         "text/html; charset=utf-8",
     )
-    assert text == "Alpha Beta & gamma"
+    # Step 224: source text on opposite sides of removed script/style
+    # elements must not be stitched into a fabricated contiguous quote.
+    assert text == "Alpha Beta\\n& gamma"
 
 
 @pytest.mark.parametrize("metadata", [
