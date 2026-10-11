@@ -1,3 +1,9 @@
+# Current Status — Step 229 (under verification)
+
+## Step 229 — Bounded Independent Original-Source Counterstatement Guard
+
+**Status:** IN PROGRESS. Starting from the verified Step 228 final `main` SHA `39cda7748a239e9ced057594db47eb1196d05e17` (2,371 backend tests and four hosted CI checks successful). Source-backed gap: the Step 228 claim-mode whole-unit check accepts an excerpt without checking other *complete* units in the same independently retrieved original source for explicit counterstatements. Step 229 adds a backend-only finite-grammar scan of the already fetched full source and downgrades claim alignment when that source contains another directly opposing assertion. No extra network fetches, general semantic reasoning, publisher authentication or production truth claims. See [docs/STEP_229.md](docs/STEP_229.md). **Do not mark complete until independently verified feature and exact final `main` CI.**
+
 # Current Status — Step 228 (engineering verified; final status sync pending)
 
 ## Step 228 — Original-Source Context Integrity for Claim Alignment
