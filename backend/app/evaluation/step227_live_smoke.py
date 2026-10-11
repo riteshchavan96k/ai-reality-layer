@@ -65,6 +65,7 @@ def run_live_smoke() -> dict:
                 or not isinstance(audit, list) or len(audit) != 1
                 or audit[0].get("source_ref") != PUBLISHER_URL
                 or audit[0].get("assertion_context_status") != "unique_standalone_unit"
+                or audit[0].get("source_counterstatement_status") != "no_bounded_counterstatement_observed"
                 or not audit[0].get("capture_sha256")
                 or not audit[0].get("capture_observed_at")
                 or not isinstance(observed, list) or len(observed) != 1
