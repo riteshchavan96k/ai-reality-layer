@@ -149,3 +149,13 @@ Step 226 source-backed engineering implementation merged through
 These measured observations test a small fixed approval scope, **not**
 statistically representative field reliability, semantic entailment,
 cryptographic publisher authenticity, or real-world factual accuracy.
+
+## Final exact-main-SHA acceptance closure (verified 2026-10-11)
+
+The documentation-only Step 226 closure [PR #229](https://github.com/riteshchavan96k/ai-reality-layer/pull/229) was merged at `cb24105e292c67694f75879fdc9048fa9b41b199` (2026-10-10 21:07:07 UTC). Its **own** three `push` workflow runs have been inspected through GitHub Actions' workflow-run records, job steps and logs (not merely copied from the earlier feature-branch scorecard):
+
+- [Backend tests run 38086389765](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38086389765): `head_sha=cb24105e292c67694f75879fdc9048fa9b41b199`, completed/success; Python 3.13 compilation, all legacy Step 217/218/220/223/224/225 replays and **2,307 tests passed** (`2307 passed in 7.06s`).
+- [Original publisher HTTPS run 38086389737](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38086389737): same exact SHA, completed/success; real approved Python.org HTTPS capture and positive/forged API canary plus audit upload succeeded.
+- [Two-publisher HTTPS run 38086389744](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38086389744): same exact SHA, completed/success; Python.org and IANA real HTTPS captures, six strict API cases, audit upload; job log confirms **3/3 authentic supported, 0/3 forged supported and 3 conservative refusals**.
+
+**Step 226 narrowly scoped engineering milestone is complete on that exact reviewed main SHA.** This audit record does not certify any later commit automatically; any new `main` SHA needs its own status checks before it is called green. The fixed source texts and two publisher sites are not a field-validity or semantic-entailment study, and they do not justify production factual-reliability claims. No Step 227 change is included.
