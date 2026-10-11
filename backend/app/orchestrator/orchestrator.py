@@ -141,6 +141,8 @@ def build_reality_state_from_evidence(
     entity_kwargs = {"entity": entity} if entity is not None else {}
     if text_assurance is not None:
         entity_kwargs["independent_source_text_status"] = text_assurance["status"]
+    if claim_alignment is not None:
+        entity_kwargs["claim_alignment_status"] = claim_alignment["status"]
     confidence = services.confidence_signal_aggregator.aggregate_result(
         quality_result.to_dict(),
         linking.to_dict(),
