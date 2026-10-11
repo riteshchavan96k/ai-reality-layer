@@ -70,3 +70,6 @@ jobs:
 
       - name: Run Step 227 conservative atomic claim alignment policy replay
         run: python -m backend.app.evaluation.claim_alignment_benchmark
+
+      - name: Run Step 228 independently observed source-unit integrity replay
+        run: python -m backend.app.evaluation.observed_context_benchmark

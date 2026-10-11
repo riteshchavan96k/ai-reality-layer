@@ -11,6 +11,7 @@ from hashlib import sha256
 
 from backend.app.reality.claim_assertion_alignment import evaluate_claim_alignment
 from backend.app.reality.submitted_evidence import SubmittedEvidenceBundle
+from backend.app.reality.independent_source_text_assurance import IndependentSourceTextAssurance
 
 
 URI = "https://publisher.example.test/atomic-assertion"
@@ -41,15 +42,14 @@ def run() -> dict:
         bundle = SubmittedEvidenceBundle.from_mappings([{
             "uri": URI, "content": observed,
         }])
-        receipt = {
-            "status": "exact_text_observed",
-            "sources": [{
-                "source_ref": URI,
-                "status": "exact_text_observed",
+        receipt = IndependentSourceTextAssurance(
+            lambda uri: {
+                "uri": uri,
+                "content": observed,
                 "capture_sha256": sha256(observed.encode()).hexdigest(),
                 "capture_observed_at": "2026-10-11T00:00:00Z",
-            }],
-        }
+            }
+        ).check(bundle, require_unique_standalone_unit=True)
         actual = evaluate_claim_alignment(CLAIM, bundle, receipt)
         if actual["status"] != expected:
             raise AssertionError(f"claim_alignment_policy_mismatch_{case_id}")

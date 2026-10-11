@@ -100,7 +100,9 @@ def build_reality_state_from_evidence(
         # The reader is injected solely through backend dependencies.
         # Caller-provided source URLs, bodies, timestamps and hashes are
         # not independent observations of publisher content.
-        text_assurance = services.independent_source_text_assurance.check(bundle)
+        text_assurance = services.independent_source_text_assurance.check(
+            bundle, require_unique_standalone_unit=require_claim_alignment
+        )
         evidence["independent_source_text_assurance"] = text_assurance
 
     claim_alignment = None

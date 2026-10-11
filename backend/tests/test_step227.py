@@ -100,7 +100,10 @@ def test_genuine_one_source_finite_grammar_alignment_preserves_structural_status
 ])
 def test_independently_observed_atomic_quote_cases(claim, quote, expected):
     s = make_state(claim, quote)
-    assert s["evidence"]["independent_source_text_assurance"]["status"] == "exact_text_observed"
+    # Step 228 requires one complete original-source unit for claim mode;
+    # a multi-line excerpt is intentionally no longer independently accepted.
+    expected_assurance = "unverified" if "\n" in quote else "exact_text_observed"
+    assert s["evidence"]["independent_source_text_assurance"]["status"] == expected_assurance
     assert s["evidence"]["claim_alignment"]["status"] == expected
     assert s["status"] == ("supported" if expected == "aligned" else "uncertain")
 

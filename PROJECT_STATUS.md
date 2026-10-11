@@ -1,3 +1,9 @@
+# Current Status — Step 228 (under verification)
+
+## Step 228 — Original-Source Context Integrity for Claim Alignment
+
+**Status:** NOT COMPLETE. The verified predecessor is Step 227 final `main` SHA `f8287c13e95c4fec017bf709d59d1ab9d20fed7c` with four successful hosted workflows. Step 228 addresses a source-backed correctness defect: the Step 227 parser could treat a cherry-picked quote as independent claim support even if it occurred inside a longer original-source sentence reporting/negating it. This change uses the *existing independent source observation* to demand one complete unique structural text unit before the optional claim-alignment route can return `aligned`, preserving the old default and strict text-presence behaviors. See [docs/STEP_228.md](docs/STEP_228.md). No arbitrary semantic truth, original-author cryptography, statistically representative field accuracy or production readiness is established. Final feature and independently merged-main CI verification are mandatory.
+
 # Current Status — Step 227 (merged and engineering-verified)
 
 ## Step 227 — Bounded Atomic Claim Alignment and Contradiction Guard
