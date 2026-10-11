@@ -13,6 +13,7 @@ from backend.app.execution.outcome_memory import DEFAULT_OUTCOME_MEMORY, Outcome
 from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMemory
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 from backend.app.reality.submitted_evidence import SubmittedEvidenceBundle
+from backend.app.reality.claim_assertion_alignment import evaluate_claim_alignment, MAX_ATOMIC_CLAIM_CHARS
 from backend.app.reality.independent_capture_freshness import (
     bind_server_capture_observations,
 )
