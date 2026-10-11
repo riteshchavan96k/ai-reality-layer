@@ -84,9 +84,14 @@ class IndependentSourceTextAssurance:
             raise ValueError("independent source reader must be callable or None")
         self._reader = reader
 
-    def check(self, bundle: SubmittedEvidenceBundle) -> dict[str, Any]:
+    def check(
+        self, bundle: SubmittedEvidenceBundle, *,
+        require_unique_standalone_unit: bool = False,
+    ) -> dict[str, Any]:
         if not isinstance(bundle, SubmittedEvidenceBundle):
             raise ValueError("bundle must be a SubmittedEvidenceBundle")
+        if type(require_unique_standalone_unit) is not bool:
+            raise ValueError("require_unique_standalone_unit must be boolean")
 
         # Each source gets an auditable decision. Never accept flags provided
         # by the API caller or invent observed bytes when unconfigured.
@@ -100,6 +105,8 @@ class IndependentSourceTextAssurance:
                 "capture_sha256": None,
                 "capture_observed_at": None,
             }
+            if require_unique_standalone_unit:
+                outcome["assertion_context_status"] = "unverified"
             if not _safe_observer_source_uri(doc.uri):
                 outcome["reason"] = "unsafe_source_uri_for_observer"
             elif self._reader is not None:
@@ -117,6 +124,13 @@ class IndependentSourceTextAssurance:
                             outcome["reason"] = "observer_content_over_limit"
                         elif doc.content.strip() not in body:
                             outcome["reason"] = "submitted_text_not_in_observed_content"
+                        elif (
+                            require_unique_standalone_unit
+                            and not _unique_standalone_source_unit(
+                                body, doc.content
+                            )
+                        ):
+                            outcome["reason"] = "excerpt_not_unique_standalone_source_unit"
                         else:
                             # Step 221: capture metadata is optional for
                             # previous operator readers, but if supplied it
@@ -148,6 +162,8 @@ class IndependentSourceTextAssurance:
                                 else:
                                     outcome["status"] = "exact_text_observed"
                                     outcome["reason"] = None
+                                    if require_unique_standalone_unit:
+                                        outcome["assertion_context_status"] = "unique_standalone_unit"
                                     # Raw byte SHA comes from the server-owned
                                     # reader, not the submitted body/URL.
                                     outcome["capture_sha256"] = raw_digest
