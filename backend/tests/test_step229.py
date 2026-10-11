@@ -69,8 +69,6 @@ def _state(excerpt=SOURCE_RELEASE, observed=None, claim=None, *, claim_mode=True
     NEGATED_RELEASE + "\n" + SOURCE_RELEASE,
     SOURCE_RELEASE + "\n" + DIFFERENT_DATE,
     DIFFERENT_DATE + "\n" + SOURCE_RELEASE,
-    SOURCE_RELEASE + "\nIt is false that " + SOURCE_RELEASE,
-    SOURCE_RELEASE + "\nIt is untrue that " + SOURCE_RELEASE,
     "Header.\n" + SOURCE_RELEASE + "\n" + NEGATED_RELEASE + "\nFootnote.",
     SOURCE_RELEASE + "\nOther fact.\n" + NEGATED_RELEASE,
 ])
@@ -84,6 +82,16 @@ def test_cross_unit_counterstatement_refuses_claim_support(observed):
     assert audit["sources"][0]["source_counterstatement_status"] == "counterstatement_observed"
     assert audit["sources"][0]["capture_sha256"] is None
     assert audit["sources"][0]["capture_observed_at"] is None
+    assert result["evidence"]["claim_alignment"]["status"] == "insufficient"
+
+
+@pytest.mark.parametrize("prefix", ["It is false that ", "It is untrue that "])
+def test_repeated_excerpt_in_denial_is_already_refused_by_step228(prefix):
+    result = _state(observed=SOURCE_RELEASE + "\n" + prefix + SOURCE_RELEASE)
+    row = result["evidence"]["independent_source_text_assurance"]["sources"][0]
+    assert result["status"] == "uncertain"
+    assert row["reason"] == "excerpt_not_unique_standalone_source_unit"
+    assert row["source_counterstatement_status"] == "unverified"
     assert result["evidence"]["claim_alignment"]["status"] == "insufficient"
 
 
