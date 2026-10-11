@@ -58,6 +58,24 @@ def _safe_observer_source_uri(uri: str) -> bool:
         return False
 
 
+def _unique_standalone_source_unit(body: str, excerpt: str) -> bool:
+    """Claim mode: exactly one complete independently observed text unit.
+
+    HTML reader newline boundaries conservatively represent paragraphs,
+    headings, list items and cells; plain text requires a whole line.
+    A substring of a longer unit (or duplicates in different contexts)
+    must not be elevated to a claim assertion. This is *not* semantic truth.
+    """
+    if not isinstance(body, str) or not isinstance(excerpt, str):
+        return False
+    exact = excerpt.strip()
+    if not exact or "\\n" in exact or "\\r" in exact:
+        return False
+    if body.count(exact) != 1:
+        return False
+    return any(line.strip() == exact for line in body.split("\\n"))
+
+
 class IndependentSourceTextAssurance:
     """Compare a complete supplied excerpt to a separately read document."""
 
