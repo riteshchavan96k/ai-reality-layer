@@ -36,4 +36,16 @@ Accept only when new adversarial tests and replay, all historical tests/replays,
 
 ## Verification status
 
-Implementation in progress. Do not infer successful tests or milestone completion before checking hosted CI.
+## Verified independently merged implementation CI
+
+The source-backed Step 228 feature [PR #233](https://github.com/riteshchavan96k/ai-reality-layer/pull/233) merged into `main` as commit `aa2284b71056010a2b89ec1a2c8dc35d14868221`. All four workflows succeeded on **that exact commit**, verified from GitHub workflow records, job steps, and logs:
+
+- [Full Python 3.13 backend CI 38166648475](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38166648475): **2,371 tests passed**, compilation and all older replays; 16/16 Step 227 policy outcomes and 13/13 Step 228 original-source context outcomes. The **13 synthetic Step 228 cases** contain three legitimate standalone units preserved and ten embedded/duplicated forged contexts abstained, 0/10 incorrectly aligned. These are hand-authored fixtures, **not** a population semantic/factual accuracy study.
+- [Original publisher real HTTPS 38166648364](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38166648364): success, existing Step 222 canary unchanged.
+- [Original Python.org + IANA two-publisher real HTTPS 38166648400](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38166648400): success, 3/3 authentic and 0/3 forged structurally supported in the six predefined cases.
+- [Step 227 real original-source claim canary 38166648447](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38166648447): success, fixed genuinely retrieved Python.org release heading retained `unique_standalone_unit` evidence metadata and supported one limited positive proposition; its directly negated proposition was downgraded. No raw source HTML emitted.
+
+An earlier feature-branch backend run correctly failed on a historical fixture that still expected a multi-line client excerpt to count as valid claim-mode source assurance. The fixture was updated to **expect fail-closed behavior**, without weakening the new check. The final feature head and merged main then passed all four checks.
+
+**Engineering implementation acceptance is verified on `aa2284b...`.** The final *documentation-only* status synchronization still needs four successful workflows on its independently merged final `main` commit before marking that new HEAD fully green. Step 228 does not solve cross-paragraph refutation, real human reading context, publisher-authored truth, semantic inference or production accuracy.
+
