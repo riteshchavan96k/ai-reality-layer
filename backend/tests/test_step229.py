@@ -230,3 +230,44 @@ def test_scanner_is_bound_to_tiny_structured_grammar_not_claimed_general_semanti
     assert not has_bounded_source_counterstatement(
         SOURCE_RELEASE + "\nThe evidence requires further investigation.", SOURCE_RELEASE
     )
+
+
+def test_two_publishers_one_source_counterstatement_prevents_all_source_support():
+    second_uri = "https://www.iana.org/domains/reserved"
+    documents = [
+        {"uri": URL, "content": SOURCE_RELEASE},
+        {"uri": second_uri, "content": SOURCE_RELEASE},
+    ]
+    bodies = {
+        URL: SOURCE_RELEASE,
+        second_uri: SOURCE_RELEASE + "\n" + NEGATED_RELEASE,
+    }
+    def read(uri):
+        body = bodies[uri]
+        return {
+            "uri": uri, "content": body,
+            "capture_sha256": sha256(body.encode()).hexdigest(),
+            "capture_observed_at": NOW.isoformat().replace("+00:00", "Z"),
+        }
+    deps = replace(
+        OrchestrationDependencies.default(),
+        independent_source_text_assurance=IndependentSourceTextAssurance(read),
+        source_freshness_evaluator=SourceFreshnessEvaluator(clock=lambda: NOW),
+    )
+    state = build_reality_state_from_evidence(
+        "Check corroboration",
+        documents,
+        entity="Python 3.13.0",
+        freshness_max_age_seconds=3600,
+        require_independent_source_text_match=True,
+        require_claim_alignment=True,
+        claim_text=SOURCE_RELEASE,
+        dependencies=deps,
+    )
+    assert state["status"] == "uncertain"
+    source_audits = state["evidence"]["independent_source_text_assurance"]["sources"]
+    assert source_audits[0]["status"] == "exact_text_observed"
+    assert source_audits[0]["source_counterstatement_status"] == "no_bounded_counterstatement_observed"
+    assert source_audits[1]["status"] == "unverified"
+    assert source_audits[1]["source_counterstatement_status"] == "counterstatement_observed"
+    assert state["evidence"]["claim_alignment"]["status"] == "insufficient"
