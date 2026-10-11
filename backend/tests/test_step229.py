@@ -42,6 +42,7 @@ def _reader(source_text):
         "content": source_text,
         "capture_sha256": sha256(source_text.encode()).hexdigest(),
         "capture_observed_at": NOW.isoformat().replace("+00:00", "Z"),
+        "observed_quote_unit_sha256": [],
     }
 
 
@@ -248,6 +249,7 @@ def test_two_publishers_one_source_counterstatement_prevents_all_source_support(
             "uri": uri, "content": body,
             "capture_sha256": sha256(body.encode()).hexdigest(),
             "capture_observed_at": NOW.isoformat().replace("+00:00", "Z"),
+            "observed_quote_unit_sha256": [],
         }
     deps = replace(
         OrchestrationDependencies.default(),
