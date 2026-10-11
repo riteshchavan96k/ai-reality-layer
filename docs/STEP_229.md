@@ -41,4 +41,14 @@ Mandatory acceptance: review exact feature diff; pass **all backend tests and al
 
 ## Verified status
 
-Implementation and hosted CI verification pending. Keep this section current with exact run evidence.
+### Independently verified feature-merged main
+
+Step 229 implementation [PR #235](https://github.com/riteshchavan96k/ai-reality-layer/pull/235) merged as `main` commit `fca91e4525e4f50624f95a0df137e281ce189c85`. We inspected the hosted workflow records and job logs **for this exact SHA**, with all four completed/successful:
+
+- [Full Python 3.13 backend 38167957918](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38167957918): **2,398 tests passed**, compilation plus every historical replay and the new Step 229 fixed 14-case replay. The Step 229 replay had six new explicit source-wide counterstatements rejected, two repeated-denial cases refused by the existing Step 228 uniqueness guard, and zero non-aligned contexts upgraded to support; the six other benign cases retained bounded alignment. One separate two-publisher integration test verifies that a second independently observed counterstatement cannot be overridden by a clean first source.
+- [Original Python.org HTTPS 38167957899](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38167957899): passed real independently approved HTTPS source capture and strict API.
+- [Two-publisher genuine HTTPS 38167957907](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38167957907): passed Python.org + IANA DNS/TLS/HTTPS, 3/3 positive and 0/3 forged structurally accepted in the original six predefined cases.
+- [Step 227 live original-source claim gate 38167957903](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38167957903): succeeded real Python.org positive stable-release alignment and its negation refusal; strengthened backend-issued `source_counterstatement_status=no_bounded_counterstatement_observed` was required.
+
+**The scoped engineering implementation is verified on this feature-merged `main` SHA.** The final documentation-only closure must itself pass all four hosted workflows on its own merged `main` SHA before Step 229's final acceptance checkmark. Synthetic counterstatement examples are NOT independent field validation; "no bounded counterstatement observed" does NOT prove a document is logically consistent or true.
+
