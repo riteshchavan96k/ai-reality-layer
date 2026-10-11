@@ -41,4 +41,10 @@ The Step 227 implementation is accepted only after complete Python 3.13 tests an
 
 ## Status
 
-Implementation and CI verification pending. Update this section only with exact observed commit/run evidence.
+Feature-head `0510545e461827410bb9574527c34aa2520746fe` passed all three hosted PR workflows on 2026-10-11:
+
+- [Python 3.13 backend run 38165100130](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38165100130) **2,337 tests passed**, compilation and historical+Step 227 policy replays. The synthetic Step 227 replay recorded 16/16 expected outcomes, including 0/15 adverse/unrelated cases incorrectly aligned (not a generalization estimate).
+- [Original Python.org live HTTPS run 38165100145](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38165100145) successful.
+- [Two-publisher genuine HTTPS run 38165100121](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38165100121) successful, preserving 3/3 authentic accepted and 0/3 forged accepted among the original six fixed scenarios.
+
+**Feature tests verified; independently merged-main exact-SHA CI remains a mandatory completion gate.** No claim that the new atomic alignment policy has been field-validated on real-world human-annotated claim/evidence pairs.
