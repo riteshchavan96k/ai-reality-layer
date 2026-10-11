@@ -1,3 +1,9 @@
+# Current Status — Step 230 (under verification)
+
+## Step 230 — HTML Quotation-Origin Integrity for Strict Source Claim Alignment
+
+**Status:** NOT COMPLETE. Verified starting point Step 229 final `main` `ac11ac547fbe245e2bcd618e726d480177ab0ae5`, 2,398 passing tests, four successful hosted original-source/claim canaries. Source-backed bug: original HTML `blockquote` and `q` are flattened into the same text as nonquoted statements; Steps 228–229 only understand the flattened units. Step 230 preserves quotation-origin digests from the real original-source reader and refuses quote-labeled or metadata-unverified excerpts in opt-in claim alignment, without changing other strict/default requests or network security. See [docs/STEP_230.md](docs/STEP_230.md) for scope, synthetic quality gate, live CI and remaining limitations. No factual truth or universal semantic verification is claimed.
+
 # Current Status — Step 229 (merged implementation verified; final sync pending)
 
 ## Step 229 — Bounded Independent Original-Source Counterstatement Guard
