@@ -77,6 +77,17 @@ def build_reality_state_from_evidence(
 
     if type(require_independent_source_text_match) is not bool:
         raise ValueError("require_independent_source_text_match must be boolean")
+    if type(require_claim_alignment) is not bool:
+        raise ValueError("require_claim_alignment must be boolean")
+    if require_claim_alignment:
+        if not require_independent_source_text_match:
+            raise ValueError("claim alignment requires independent source text matching")
+        if not isinstance(claim_text, str) or not claim_text.strip():
+            raise ValueError("claim alignment requires claim_text")
+        if len(claim_text) > MAX_ATOMIC_CLAIM_CHARS:
+            raise ValueError("claim_text is too long")
+    elif claim_text is not None:
+        raise ValueError("claim_text requires require_claim_alignment=true")
     services = dependencies or OrchestrationDependencies.default()
     bundle = SubmittedEvidenceBundle.from_mappings(documents)
     bundle.validate_freshness_policy(
