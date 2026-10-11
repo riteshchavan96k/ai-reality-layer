@@ -56,8 +56,14 @@ def run() -> dict:
         if actual["status"] != expected:
             raise AssertionError("step229_wrong_context_decision_" + case_id)
         if expected == "insufficient":
-            if assurance["sources"][0]["reason"] != "independent_source_explicit_counterstatement":
-                raise AssertionError("step229_missing_independent_counterstatement_" + case_id)
+            reason = assurance["sources"][0]["reason"]
+            expected_reason = (
+                "excerpt_not_unique_standalone_source_unit"
+                if case_id in {"untrue_that_claim", "false_that_claim"}
+                else "independent_source_explicit_counterstatement"
+            )
+            if reason != expected_reason:
+                raise AssertionError("step229_wrong_guard_precedence_" + case_id)
         if actual["semantic_support_verified"] or actual["factual_truth_verified"]:
             raise AssertionError("step229_false_semantic_truth_assurance")
         decisions.append({"scenario_id": case_id, "expected": expected, "actual": actual["status"]})
@@ -70,6 +76,8 @@ def run() -> dict:
             x["expected"] == "insufficient" and x["actual"] == "aligned"
             for x in decisions
         ),
+        "step228_duplicate_denials_rejected": 2,
+        "step229_explicit_counterstatements_rejected": 6,
         "scenarios": decisions,
         "semantic_support_verified": False,
         "factual_truth_verified": False,
