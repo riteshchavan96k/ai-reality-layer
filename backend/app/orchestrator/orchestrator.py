@@ -68,6 +68,8 @@ def build_reality_state_from_evidence(
     dependencies: OrchestrationDependencies | None = None,
     entity: str | None = None,
     require_independent_source_text_match: bool = False,
+    require_claim_alignment: bool = False,
+    claim_text: str | None = None,
 ) -> dict:
     """Build a canonical Reality State from caller-supplied source-scoped evidence."""
     if not isinstance(task, str) or not task.strip():
