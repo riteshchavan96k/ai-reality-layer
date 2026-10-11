@@ -69,11 +69,11 @@ def _unique_standalone_source_unit(body: str, excerpt: str) -> bool:
     if not isinstance(body, str) or not isinstance(excerpt, str):
         return False
     exact = excerpt.strip()
-    if not exact or "\\n" in exact or "\\r" in exact:
+    if not exact or "\n" in exact or "\r" in exact:
         return False
     if body.count(exact) != 1:
         return False
-    return any(line.strip() == exact for line in body.split("\\n"))
+    return any(line.strip() == exact for line in body.split("\n"))
 
 
 class IndependentSourceTextAssurance:
