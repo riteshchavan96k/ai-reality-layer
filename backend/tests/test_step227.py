@@ -227,3 +227,28 @@ def test_only_exact_bounded_original_declaration_maps_to_claim(fabricated):
     assert _parse_atomic(fabricated) != _parse_atomic(
         "Python 3.13.0 is a stable release."
     )
+
+
+def test_step227_live_cli_remains_network_disabled_without_live_flag(monkeypatch):
+    from backend.app.evaluation import step227_live_smoke
+    from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttpsSourceReader
+    monkeypatch.setenv("ARL_INDEPENDENT_SOURCE_ALLOWED_URLS", json.dumps([URL]))
+    calls = []
+    monkeypatch.setattr(
+        AllowlistedHttpsSourceReader, "__call__", lambda self, uri: calls.append(uri)
+    )
+    with pytest.raises(SystemExit):
+        step227_live_smoke.main([])
+    assert calls == []
+
+
+def test_step227_live_canary_requires_exact_fixed_allowlist_before_network(monkeypatch):
+    from backend.app.evaluation import step227_live_smoke
+    from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttpsSourceReader
+    monkeypatch.setenv("ARL_INDEPENDENT_SOURCE_ALLOWED_URLS", json.dumps([URL, URL2]))
+    calls = []
+    monkeypatch.setattr(
+        AllowlistedHttpsSourceReader, "__call__", lambda self, uri: calls.append(uri)
+    )
+    assert step227_live_smoke.main(["--live"]) == 1
+    assert calls == []
