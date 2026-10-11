@@ -37,6 +37,10 @@ _PROPERTY = re.compile(
     r"(?P<value>[A-Za-z][A-Za-z0-9_. -]{0,90})\.",
     re.IGNORECASE,
 )
+_STABLE_RELEASE_DECLARATION = re.compile(
+    r"This is the stable release of (?P<subject>[A-Za-z][A-Za-z0-9_. -]{0,100})",
+    re.IGNORECASE,
+)
 _DISALLOWED_QUOTES = frozenset("'\"\u2018\u2019\u201c\u201d\u00ab\u00bb\u0060")
 
 
@@ -55,6 +59,12 @@ def _parse_atomic(text: str) -> tuple[str, str, str, bool] | None:
     ):
         return None
     clean = " ".join(text.strip().split())
+    original_release = _STABLE_RELEASE_DECLARATION.fullmatch(clean)
+    if original_release:
+        subject = _norm(original_release.group("subject"))
+        if not re.search(r"\b(?:not|no|is|was|said|says|states|that)\b", subject):
+            return subject, "is", "a stable release", False
+        return None
     match = _RELEASE.fullmatch(clean)
     method = "release_date" if match else "copular_property"
     if match is None:
