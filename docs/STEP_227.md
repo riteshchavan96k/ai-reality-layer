@@ -15,6 +15,13 @@ The existing optional `ClaimSemanticStructuringStage` defaults to *not attempted
 - Result is attached at `evidence.claim_alignment` with per-source decision and `semantic_support_verified=false`, `factual_truth_verified=false`. A positive result means **bounded textual assertion alignment only**. An unconfigured reader always abstains.
 - Quote marks, reporting/rumor/hedging vocabulary, multiple sentences, different predicates/entities, unparseable language, missing timestamps/digests and excerpts with embedded newlines fail closed. These heuristics cannot detect every misleading context.
 
+
+## Genuine Step 227 original-source API canary
+
+A separate, network-disabled-by-default harness `backend/app/evaluation/step227_live_smoke.py` and workflow `.github/workflows/step227-live-claim.yml` use the fixed reviewed Python.org historical release page under the exact operator-controlled HTTPS URL allowlist. An explicit `--live` is required. This demonstrates original byte-digest and server-observation provenance through two separate live FastAPI strict-mode requests. The reviewer-predeclared actual publisher excerpt `This is the stable release of Python 3.13.0` must align with `Python 3.13.0 is a stable release.`, while the direct negation must abstain. This is one bounded real publisher paraphrase, **not** a general semantic inference model or publication-truth proof.
+
+The existing Step 222 and Step 226 genuine publisher workflows remain unchanged.
+
 ## Live quality boundary
 
 Step 227 changes no HTTP reader, DNS/IP allowlist, certificate or redirect behavior, and does not introduce a network call, external model, LLM dependency, arbitrary URL or model authority. It processes only source-scoped excerpts already matched by existing strict mode.
@@ -37,7 +44,7 @@ python -m backend.app.evaluation.structural_quote_benchmark
 
 The new replay uses 16 deliberately handwritten scenarios, **one positive** and 15 adversarial/unrelated examples. Passing these cases is a policy regression test; do not infer statistical generalization, recall, accuracy, real publisher annotation or real-language inference. Unit/in-process FastAPI tests use injected fake source readers; preserve genuine original Python.org and two-publisher original HTTPS separate workflows.
 
-The Step 227 implementation is accepted only after complete Python 3.13 tests and all historical+new replays on feature head, successful genuine single- and two-publisher HTTPS CI, feature PR merge, then all three again on exact final merged-main SHA. Do not mark completion from documentation, mocked observation, a green subset, or PR CI alone.
+The Step 227 implementation is accepted only after complete Python 3.13 tests and all historical+new replays on feature head, successful genuine single- and two-publisher HTTPS CI, feature PR merge, then all four workflows (including the new Step 227 original-source claim canary) again on exact final merged-main SHA. Do not mark completion from documentation, mocked observation, a green subset, or PR CI alone.
 
 ## Status
 
@@ -47,4 +54,4 @@ Feature-head `0510545e461827410bb9574527c34aa2520746fe` passed all three hosted 
 - [Original Python.org live HTTPS run 38165100145](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38165100145) successful.
 - [Two-publisher genuine HTTPS run 38165100121](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38165100121) successful, preserving 3/3 authentic accepted and 0/3 forged accepted among the original six fixed scenarios.
 
-**Feature tests verified; independently merged-main exact-SHA CI remains a mandatory completion gate.** No claim that the new atomic alignment policy has been field-validated on real-world human-annotated claim/evidence pairs.
+**Feature tests verified for an earlier head; the new Step 227 live HTTPS workflow and independently merged-main exact-SHA CI remain mandatory completion gates.** No claim that the new atomic alignment policy has been field-validated on real-world human-annotated claim/evidence pairs.
