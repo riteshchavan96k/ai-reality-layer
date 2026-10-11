@@ -13,6 +13,7 @@ from backend.app.execution.outcome_memory import DEFAULT_OUTCOME_MEMORY, Outcome
 from backend.app.execution.persistent_outcome_memory import PersistentOutcomeMemory
 from backend.app.reality.retrieval_engine import RealityRetrievalEngine
 from backend.app.reality.submitted_evidence import SubmittedEvidenceBundle
+from backend.app.reality.claim_assertion_alignment import evaluate_claim_alignment, MAX_ATOMIC_CLAIM_CHARS
 from backend.app.reality.independent_capture_freshness import (
     bind_server_capture_observations,
 )
@@ -67,6 +68,8 @@ def build_reality_state_from_evidence(
     dependencies: OrchestrationDependencies | None = None,
     entity: str | None = None,
     require_independent_source_text_match: bool = False,
+    require_claim_alignment: bool = False,
+    claim_text: str | None = None,
 ) -> dict:
     """Build a canonical Reality State from caller-supplied source-scoped evidence."""
     if not isinstance(task, str) or not task.strip():
@@ -74,6 +77,17 @@ def build_reality_state_from_evidence(
 
     if type(require_independent_source_text_match) is not bool:
         raise ValueError("require_independent_source_text_match must be boolean")
+    if type(require_claim_alignment) is not bool:
+        raise ValueError("require_claim_alignment must be boolean")
+    if require_claim_alignment:
+        if not require_independent_source_text_match:
+            raise ValueError("claim alignment requires independent source text matching")
+        if not isinstance(claim_text, str) or not claim_text.strip():
+            raise ValueError("claim alignment requires claim_text")
+        if len(claim_text) > MAX_ATOMIC_CLAIM_CHARS:
+            raise ValueError("claim_text is too long")
+    elif claim_text is not None:
+        raise ValueError("claim_text requires require_claim_alignment=true")
     services = dependencies or OrchestrationDependencies.default()
     bundle = SubmittedEvidenceBundle.from_mappings(documents)
     bundle.validate_freshness_policy(
@@ -88,6 +102,11 @@ def build_reality_state_from_evidence(
         # not independent observations of publisher content.
         text_assurance = services.independent_source_text_assurance.check(bundle)
         evidence["independent_source_text_assurance"] = text_assurance
+
+    claim_alignment = None
+    if require_claim_alignment:
+        claim_alignment = evaluate_claim_alignment(claim_text, bundle, text_assurance)
+        evidence["claim_alignment"] = claim_alignment
 
     raw_quality_result = services.evidence_quality_validator.validate_result(
         evidence
@@ -122,6 +141,8 @@ def build_reality_state_from_evidence(
     entity_kwargs = {"entity": entity} if entity is not None else {}
     if text_assurance is not None:
         entity_kwargs["independent_source_text_status"] = text_assurance["status"]
+    if claim_alignment is not None:
+        entity_kwargs["claim_alignment_status"] = claim_alignment["status"]
     confidence = services.confidence_signal_aggregator.aggregate_result(
         quality_result.to_dict(),
         linking.to_dict(),

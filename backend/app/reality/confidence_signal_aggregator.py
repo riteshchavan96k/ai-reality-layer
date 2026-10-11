@@ -18,6 +18,7 @@ class RealityConfidenceSignalAggregator:
         *,
         entity: RealityEntity | str | dict[str, Any] | None = None,
         independent_source_text_status: str | None = None,
+        claim_alignment_status: str | None = None,
     ) -> RealityConfidenceSignalResult:
         for value, name in ((evidence_quality, "evidence_quality"), (linking, "linking"), (freshness, "freshness"), (conflicts, "conflicts")):
             if not isinstance(value, dict):
@@ -102,6 +103,16 @@ class RealityConfidenceSignalAggregator:
                 else "independent_source_text_unverified"
             )
 
+        if claim_alignment_status is not None:
+            if claim_alignment_status not in {
+                "aligned", "contradicted", "conflicting", "insufficient"
+            }:
+                raise ValueError("claim alignment status is invalid")
+            signals.append(
+                "explicit_atomic_claim_text_aligned_only"
+                if claim_alignment_status == "aligned"
+                else "explicit_atomic_claim_not_aligned"
+            )
         conflicts_unavailable = conflicts.get("status") == "unavailable"
         if conflicts_count:
             signals.append("candidate_conflicts_present")
@@ -111,6 +122,7 @@ class RealityConfidenceSignalAggregator:
             coverage is None
             or unaligned_entity
             or independent_source_text_status == "unverified"
+            or (claim_alignment_status is not None and claim_alignment_status != "aligned")
             or linking_unavailable
             or conflicts_unavailable
             or conflicts_count
@@ -130,10 +142,11 @@ class RealityConfidenceSignalAggregator:
             )
         )
 
-    def aggregate(self, evidence_quality, linking, freshness, conflicts, *, entity=None, independent_source_text_status=None):
+    def aggregate(self, evidence_quality, linking, freshness, conflicts, *, entity=None, independent_source_text_status=None, claim_alignment_status=None):
         return self.aggregate_result(
             evidence_quality, linking, freshness, conflicts, entity=entity,
             independent_source_text_status=independent_source_text_status,
+            claim_alignment_status=claim_alignment_status,
         ).to_dict()
 
 

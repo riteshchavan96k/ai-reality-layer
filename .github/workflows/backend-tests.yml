@@ -67,3 +67,6 @@ jobs:
 
       - name: Run Step 225 source structural quote boundary replay
         run: python -m backend.app.evaluation.structural_quote_benchmark
+
+      - name: Run Step 227 conservative atomic claim alignment policy replay
+        run: python -m backend.app.evaluation.claim_alignment_benchmark

@@ -84,6 +84,18 @@ class EvidenceRealityStateRequest(BaseModel):
     )
     freshness_max_age_seconds: float | int | None = None
     require_independent_source_text_match: StrictBool = False
+    require_claim_alignment: StrictBool = False
+    claim_text: str | None = Field(default=None, max_length=500)
+
+    @field_validator("claim_text")
+    @classmethod
+    def validate_claim_text(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        clean = value.strip()
+        if not clean:
+            raise ValueError("claim_text must not be blank")
+        return clean
 
     @field_validator("task")
     @classmethod
@@ -116,6 +128,13 @@ class EvidenceRealityStateRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_request_consistency(self) -> "EvidenceRealityStateRequest":
+        if self.require_claim_alignment:
+            if not self.require_independent_source_text_match:
+                raise ValueError("claim alignment requires strict independent source text matching")
+            if self.claim_text is None:
+                raise ValueError("claim alignment requires claim_text")
+        elif self.claim_text is not None:
+            raise ValueError("claim_text requires require_claim_alignment=true")
         uris = [document.uri for document in self.documents]
         if len(set(uris)) != len(uris):
             raise ValueError("document uris must be unique")
