@@ -32,4 +32,13 @@ This is **HTML quotation-scope integrity, not general semantic entailment, publi
 
 ## Status
 
-Implementation under verification. No completed status asserted before exact final-main GitHub CI.
+**Engineering implementation merged and independently green on exact main SHA `49eeb62e0029cdac9413487d8b460fc7683df3e0`.** Feature [PR #237](https://github.com/riteshchavan96k/ai-reality-layer/pull/237) merged after green exact-head CI; then all four **new main push** runs were independently verified through GitHub workflow/job records and logs:
+
+- [Full Python 3.13 CI 38170141792](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38170141792): **2,414 tests passed**, compile and all Steps 217–230 historical/synthetic replays. Step 230: ten developer-written original-HTML policy examples, **3/3 nonquoted accepted, 0/7 quoted/duplicate incorrectly aligned**.
+- [Real Python.org original source 38170141809](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38170141809): success.
+- [Real Python.org+IANA two-publisher 38170141801](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38170141801): success with original six scenarios, 3/3 authentic structurally supported and 0/3 forged structurally supported.
+- [Real original-source Python.org claim 38170141812](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38170141812): success; fixed source heading still aligns with affirmative, refuses direct negation, and now records the backend HTML quotation-origin clearance status.
+
+The original-source reader's text output and all existing network and HTML visibility safeguards remain intact. Step 230's digest scope is only HTML `blockquote`/`q`, and success is **not** an independent publisher-signature, universal unquoted-assertion proof, semantic truth or field-accuracy estimate.
+
+**Final-docs-sync acceptance still pending:** this documentation-only PR must pass all four workflows on the exact PR head, then all four on the newly merged final `main` SHA. The last GitHub PR conversation comment can preserve final verification without creating another SHA.
