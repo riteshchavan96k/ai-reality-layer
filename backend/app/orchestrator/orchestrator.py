@@ -103,6 +103,11 @@ def build_reality_state_from_evidence(
         text_assurance = services.independent_source_text_assurance.check(bundle)
         evidence["independent_source_text_assurance"] = text_assurance
 
+    claim_alignment = None
+    if require_claim_alignment:
+        claim_alignment = evaluate_claim_alignment(claim_text, bundle, text_assurance)
+        evidence["claim_alignment"] = claim_alignment
+
     raw_quality_result = services.evidence_quality_validator.validate_result(
         evidence
     )
