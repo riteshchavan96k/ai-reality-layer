@@ -1,3 +1,11 @@
+# Current Status — Step 227 (in progress)
+
+## Step 227 — Bounded Atomic Claim Alignment and Contradiction Guard
+
+**Status:** Implementation under review; **NOT COMPLETE**. Starts from independently verified Step 226 exact merged-main SHA `759c2db7c24789e950da48bd5226573ad69b8c66`. This milestone makes the specific checked claim explicit in an opt-in strict evidence request and conservatively compares that claim with backend-observed per-source excerpts. No arbitrary language entailment, production factual truth, publisher authorship, browser rendering or statistical population error rate is claimed.
+
+**Product justification:** Steps 221–226 established secure source-text observation and small genuine-HTTPS tests, but an unrelated or contradictory *user claim* could still inherit the previously named structural `supported` state because the request task was not evaluated as a separate proposition. See [docs/STEP_227.md](docs/STEP_227.md) for boundaries and acceptance criteria. The Step 226 2-source/six-scenario live evidence is not a semantic factual evaluation.
+
 # Current Status — Step 226
 
 ## Step 226 — Multi-Publisher Real HTTPS Evidence Evaluation
