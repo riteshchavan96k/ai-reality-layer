@@ -198,3 +198,32 @@ def test_unknown_claim_and_bad_input_never_infer_semantics():
     assert _parse_atomic("The public release was exciting!") is None
     assert _parse_atomic("Python 3.13.0 might be stable.") is None
     assert _parse_atomic("x" * (MAX_ATOMIC_CLAIM_CHARS + 1)) is None
+
+
+def test_original_publisher_assertion_has_one_bounded_semantic_paraphrase():
+    excerpt = "This is the stable release of Python 3.13.0"
+    state = make_state(
+        "Python 3.13.0 is a stable release.",
+        excerpt,
+    )
+    assert state["status"] == "supported"
+    assert state["evidence"]["claim_alignment"]["status"] == "aligned"
+    assert state["evidence"]["claim_alignment"]["semantic_support_verified"] is False
+
+    negative = make_state(
+        "Python 3.13.0 is not a stable release.",
+        excerpt,
+    )
+    assert negative["status"] == "uncertain"
+    assert negative["evidence"]["claim_alignment"]["status"] == "contradicted"
+
+
+@pytest.mark.parametrize("fabricated", (
+    "It is rumored this is the stable release of Python 3.13.0",
+    "This is the stable release of Python 3.12.0",
+    "This is the stable release of Python 3.13.0, reportedly",
+))
+def test_only_exact_bounded_original_declaration_maps_to_claim(fabricated):
+    assert _parse_atomic(fabricated) != _parse_atomic(
+        "Python 3.13.0 is a stable release."
+    )
