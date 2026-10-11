@@ -42,6 +42,7 @@ def reader_for(mapping):
             "content": content,
             "capture_sha256": sha256(content.encode()).hexdigest(),
             "capture_observed_at": UTC_NOW.isoformat().replace("+00:00", "Z"),
+            "observed_quote_unit_sha256": [],
         }
     return read
 

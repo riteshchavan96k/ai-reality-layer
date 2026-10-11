@@ -140,6 +140,7 @@ def evaluate_claim_alignment(
             and attestation.get("status") == "exact_text_observed"
             and attestation.get("assertion_context_status") == "unique_standalone_unit"
             and attestation.get("source_counterstatement_status") == "no_bounded_counterstatement_observed"
+            and attestation.get("source_quote_context_status") == "no_matching_html_quote_unit"
             and isinstance(attestation.get("capture_sha256"), str)
             and bool(re.fullmatch(r"[0-9a-f]{64}", attestation["capture_sha256"]))
             and isinstance(attestation.get("capture_observed_at"), str)

@@ -113,6 +113,7 @@ class _VisibleHtmlText(HTMLParser):
         "td", "tfoot", "th", "thead", "tr", "ul",
     })
     _BLOCK_BREAK_VOID = frozenset({"br", "hr"})
+    _QUOTE_TAGS = frozenset({"blockquote", "q"})
     _MAX_NESTING = 256
 
     def __init__(self) -> None:
@@ -120,6 +121,7 @@ class _VisibleHtmlText(HTMLParser):
         self._stack: list[tuple[str, bool]] = []
         self._suppressed = 0
         self.parts: list[str] = []
+        self._quoted_parts: list[str] = []
 
     @staticmethod
     def _has_hiding_attributes(
@@ -162,6 +164,30 @@ class _VisibleHtmlText(HTMLParser):
                     return True
         return False
 
+    def _within_quote(self) -> bool:
+        return any(
+            tag in self._QUOTE_TAGS for tag, _ in self._stack
+        )
+
+    def _quote_boundary(self) -> None:
+        if self._quoted_parts and self._quoted_parts[-1] != "\n":
+            self._quoted_parts.append("\n")
+
+    def quote_unit_digests(self) -> tuple[str, ...]:
+        """Opaque hashes of complete visible HTML quotation text units.
+
+        Preserve quotation context for strict claim mode without putting raw
+        quoted source text into the public API or persisted audit.
+        """
+        normalized = (
+            " ".join(unit.split())
+            for unit in "".join(self._quoted_parts).split("\n")
+        )
+        return tuple(sorted({
+            sha256(unit.encode("utf-8")).hexdigest()
+            for unit in normalized if unit
+        }))
+
     def handle_starttag(
         self, tag: str, attrs: list[tuple[str, str | None]]
     ) -> None:
@@ -174,6 +200,8 @@ class _VisibleHtmlText(HTMLParser):
         suppressed = tag in self._HIDDEN or self._has_hiding_attributes(
             tag, attrs
         )
+        if tag in self._QUOTE_TAGS and self._suppressed == 0:
+            self._quote_boundary()
         # Do not silently stitch visible words from opposite sides of an
         # excluded subtree into a seemingly publisher-observed statement.
         if (suppressed or tag in self._BLOCK) and self._suppressed == 0:
@@ -192,6 +220,8 @@ class _VisibleHtmlText(HTMLParser):
                 self._stack = self._stack[:index]
                 old_suppression = self._suppressed
                 self._suppressed -= sum(flag for _, flag in removed)
+                if any(tag in self._QUOTE_TAGS for tag, _ in removed):
+                    self._quote_boundary()
                 if self._suppressed == 0 and (
                     old_suppression > 0
                     or any(open_tag in self._BLOCK for open_tag, _ in removed)
@@ -202,10 +232,14 @@ class _VisibleHtmlText(HTMLParser):
     def _boundary(self) -> None:
         if self.parts and self.parts[-1] != "\n":
             self.parts.append("\n")
+        if self._within_quote() and self._suppressed == 0:
+            self._quote_boundary()
 
     def handle_data(self, data: str) -> None:
         if self._suppressed == 0:
             self.parts.append(data)
+            if self._within_quote():
+                self._quoted_parts.append(data)
 
     def text(self) -> str:
         # Preserve excluded-subtree boundaries as newlines. Generic global
@@ -218,7 +252,9 @@ class _VisibleHtmlText(HTMLParser):
         )
 
 
-def _decode_observed_content(raw: bytes, content_type: str) -> str:
+def _decode_observed_content(
+    raw: bytes, content_type: str, *, quote_digest_collector: list[str] | None = None
+) -> str:
     tokens = [value.strip().lower() for value in content_type.split(";")]
     mime = tokens[0]
     if mime not in {"text/html", "text/plain"}:
@@ -233,6 +269,8 @@ def _decode_observed_content(raw: bytes, content_type: str) -> str:
         parser = _VisibleHtmlText()
         parser.feed(decoded)
         content = parser.text()
+        if quote_digest_collector is not None:
+            quote_digest_collector.extend(parser.quote_unit_digests())
     else:
         content = decoded
     if not content.strip() or len(content) > MAX_INDEPENDENT_SOURCE_TEXT_CHARS:
@@ -373,10 +411,15 @@ class AllowlistedHttpsSourceReader:
             _bounded_gzip_decode(raw, limit=self._max_bytes)
             if encoding == "gzip" else raw
         )
-        rendered = _decode_observed_content(decoded_bytes, content_type)
+        quote_digests: list[str] = []
+        rendered = _decode_observed_content(
+            decoded_bytes, content_type,
+            quote_digest_collector=quote_digests,
+        )
         return {
             "uri": uri,
             "content": rendered,
+            "observed_quote_unit_sha256": quote_digests,
             "capture_sha256": sha256(raw).hexdigest(),
             "capture_observed_at": observed.astimezone(timezone.utc)
             .isoformat().replace("+00:00", "Z"),

@@ -39,6 +39,7 @@ def provider(body):
             "content": body,
             "capture_sha256": sha256(body.encode("utf-8")).hexdigest(),
             "capture_observed_at": NOW.isoformat().replace("+00:00", "Z"),
+            "observed_quote_unit_sha256": [],
         }
     return read
 

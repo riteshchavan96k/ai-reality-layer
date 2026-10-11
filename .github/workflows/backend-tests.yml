@@ -76,3 +76,6 @@ jobs:
 
       - name: Run Step 229 original-source explicit counterstatement policy replay
         run: python -m backend.app.evaluation.source_counterstatement_benchmark
+
+      - name: Run Step 230 synthetic HTML quotation-origin guard policy replay
+        run: python -m backend.app.evaluation.html_quote_origin_benchmark

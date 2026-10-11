@@ -109,6 +109,7 @@ class IndependentSourceTextAssurance:
             if require_unique_standalone_unit:
                 outcome["assertion_context_status"] = "unverified"
                 outcome["source_counterstatement_status"] = "unverified"
+                outcome["source_quote_context_status"] = "unverified"
             if not _safe_observer_source_uri(doc.uri):
                 outcome["reason"] = "unsafe_source_uri_for_observer"
             elif self._reader is not None:
@@ -133,6 +134,26 @@ class IndependentSourceTextAssurance:
                             )
                         ):
                             outcome["reason"] = "excerpt_not_unique_standalone_source_unit"
+                        elif (
+                            require_unique_standalone_unit
+                            and (
+                                not isinstance(observed.get("observed_quote_unit_sha256"), (list, tuple))
+                                or len(observed["observed_quote_unit_sha256"]) > MAX_INDEPENDENT_SOURCE_TEXT_CHARS
+                                or any(
+                                    not isinstance(digest, str)
+                                    or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+                                    for digest in observed["observed_quote_unit_sha256"]
+                                )
+                            )
+                        ):
+                            outcome["reason"] = "independent_reader_quote_context_unavailable"
+                        elif (
+                            require_unique_standalone_unit
+                            and sha256(doc.content.strip().encode("utf-8")).hexdigest()
+                            in observed["observed_quote_unit_sha256"]
+                        ):
+                            outcome["reason"] = "original_source_quoted_html_unit"
+                            outcome["source_quote_context_status"] = "quoted_source_unit"
                         elif (
                             require_unique_standalone_unit
                             and has_bounded_source_counterstatement(
@@ -175,6 +196,7 @@ class IndependentSourceTextAssurance:
                                     if require_unique_standalone_unit:
                                         outcome["assertion_context_status"] = "unique_standalone_unit"
                                         outcome["source_counterstatement_status"] = "no_bounded_counterstatement_observed"
+                                        outcome["source_quote_context_status"] = "no_matching_html_quote_unit"
                                     # Raw byte SHA comes from the server-owned
                                     # reader, not the submitted body/URL.
                                     outcome["capture_sha256"] = raw_digest

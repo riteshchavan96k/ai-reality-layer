@@ -42,6 +42,7 @@ def run() -> dict:
                 "content": observed,
                 "capture_sha256": sha256(observed.encode("utf-8")).hexdigest(),
                 "capture_observed_at": "2026-10-11T00:00:00Z",
+                "observed_quote_unit_sha256": [],
             }
         ).check(bundle, require_unique_standalone_unit=True)
         decision = evaluate_claim_alignment(CLAIM, bundle, receipt)
