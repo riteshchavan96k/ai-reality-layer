@@ -41,4 +41,13 @@ Mandatory acceptance: review exact feature diff; pass **all backend tests and al
 
 ## Verified status
 
-Implementation and hosted CI verification pending. Keep this section current with exact run evidence.
+**Implementation is merged and independently verified on exact `main` SHA `fca91e4525e4f50624f95a0df137e281ce189c85`.** Feature [PR #235](https://github.com/riteshchavan96k/ai-reality-layer/pull/235) merged. GitHub Actions records and backend job logs were checked on that exact implementation SHA:
+
+- [Full Python 3.13 CI 38167957918](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38167957918): compilation and **2,398 tests passed** (`2398 passed in 4.71s`), all historical benchmarks and Step 229 synthetic replay.
+- [Original Python.org live HTTPS 38167957899](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38167957899): successful.
+- [Python.org + IANA dual-publisher real HTTPS 38167957907](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38167957907): successful.
+- [Step 227 genuine Python.org claim HTTPS 38167957903](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38167957903): successful, original-source context guard and positive/negative claim check retained.
+
+The Step 229 fixed synthetic corpus contains **14 cases: six unrelated/positive aligned, six directly opposing whole-source units refused by Step 229, and two duplicate/embedded opposite units already refused by Step 228**. No false alignments among eight expected refusals. These are handwritten examples, not independently annotated population evaluation. Bounded syntax cannot prove a source contains no disagreement or factual falsehood.
+
+This documentation-only final acceptance synchronization must independently pass the same four workflows on its exact feature SHA, merge, and again pass four post-merge workflows on its own final `main` SHA before awarding complete status.
