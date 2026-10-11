@@ -15,6 +15,7 @@ from urllib.parse import urlsplit
 from typing import Any
 
 from backend.app.reality.submitted_evidence import SubmittedEvidenceBundle
+from backend.app.reality.source_counterstatement_guard import has_bounded_source_counterstatement
 
 
 MAX_INDEPENDENT_SOURCE_TEXT_CHARS = 200_000
@@ -107,6 +108,7 @@ class IndependentSourceTextAssurance:
             }
             if require_unique_standalone_unit:
                 outcome["assertion_context_status"] = "unverified"
+                outcome["source_counterstatement_status"] = "unverified"
             if not _safe_observer_source_uri(doc.uri):
                 outcome["reason"] = "unsafe_source_uri_for_observer"
             elif self._reader is not None:
@@ -131,6 +133,14 @@ class IndependentSourceTextAssurance:
                             )
                         ):
                             outcome["reason"] = "excerpt_not_unique_standalone_source_unit"
+                        elif (
+                            require_unique_standalone_unit
+                            and has_bounded_source_counterstatement(
+                                body, doc.content
+                            )
+                        ):
+                            outcome["reason"] = "independent_source_explicit_counterstatement"
+                            outcome["source_counterstatement_status"] = "counterstatement_observed"
                         else:
                             # Step 221: capture metadata is optional for
                             # previous operator readers, but if supplied it
@@ -164,6 +174,7 @@ class IndependentSourceTextAssurance:
                                     outcome["reason"] = None
                                     if require_unique_standalone_unit:
                                         outcome["assertion_context_status"] = "unique_standalone_unit"
+                                        outcome["source_counterstatement_status"] = "no_bounded_counterstatement_observed"
                                     # Raw byte SHA comes from the server-owned
                                     # reader, not the submitted body/URL.
                                     outcome["capture_sha256"] = raw_digest
