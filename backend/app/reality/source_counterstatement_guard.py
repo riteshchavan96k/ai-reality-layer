@@ -8,22 +8,12 @@ is consulted; the upstream independent reader owns the observed text.
 
 from __future__ import annotations
 
-import re
-
 from backend.app.reality.claim_assertion_alignment import (
     _parse_atomic,
     _relationship,
 )
 
 MAX_OBSERVED_SOURCE_CHARS = 200_000
-
-# These are *complete-unit* explicit rejection idioms. They do not implement
-# general scoped negation, quoted-speech inference or page interpretation.
-_EXPLICIT_DENIAL = re.compile(
-    r"(?:It is false that|It is untrue that)\s+(?P<statement>.+)",
-    flags=re.IGNORECASE,
-)
-
 
 def has_bounded_source_counterstatement(
     observed_text: str, source_excerpt: str
@@ -54,12 +44,6 @@ def has_bounded_source_counterstatement(
         other = _parse_atomic(unit)
         if _relationship(source_assertion, other) == "contradicted":
             return True
-
-        match = _EXPLICIT_DENIAL.fullmatch(unit)
-        if match is not None:
-            denial_target = _parse_atomic(match.group("statement"))
-            if _relationship(source_assertion, denial_target) == "aligned":
-                return True
 
     return False
 
