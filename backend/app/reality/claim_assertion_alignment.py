@@ -138,6 +138,7 @@ def evaluate_claim_alignment(
         eligible = (
             source_assurance.get("status") == "exact_text_observed"
             and attestation.get("status") == "exact_text_observed"
+            and attestation.get("assertion_context_status") == "unique_standalone_unit"
             and isinstance(attestation.get("capture_sha256"), str)
             and bool(re.fullmatch(r"[0-9a-f]{64}", attestation["capture_sha256"]))
             and isinstance(attestation.get("capture_observed_at"), str)
