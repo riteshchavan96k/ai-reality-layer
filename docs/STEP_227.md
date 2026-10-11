@@ -55,3 +55,15 @@ Feature-head `0510545e461827410bb9574527c34aa2520746fe` passed all three hosted 
 - [Two-publisher genuine HTTPS run 38165100121](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38165100121) successful, preserving 3/3 authentic accepted and 0/3 forged accepted among the original six fixed scenarios.
 
 **Feature tests verified for an earlier head; the new Step 227 live HTTPS workflow and independently merged-main exact-SHA CI remain mandatory completion gates.** No claim that the new atomic alignment policy has been field-validated on real-world human-annotated claim/evidence pairs.
+
+
+## Exact independently merged-main implementation acceptance
+
+The Step 227 implementation [PR #231](https://github.com/riteshchavan96k/ai-reality-layer/pull/231) merged on GitHub at `63cd88111f70ba75ea142cdf3a70603ba9f54f30`. All **four** hosted workflows were independently inspected by exact `head_sha`, job outcomes and logs:
+
+1. [Backend full suite 38165539027](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38165539027): **2,343 passed**, Python 3.13 compilation, historical benchmark replays and Step 227 16-case synthetic policy replay (1 fixed aligned case, 15 adversarial/unrelated cases not aligned). This is NOT a representative factual accuracy sample.
+2. [Original Python.org HTTPS 38165539025](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38165539025): success on the original real-source smoke.
+3. [Two-publisher genuine HTTPS 38165539032](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38165539032): success, the original Step 226 six fixed publisher cases still yield 3/3 authentic structurally supported and 0/3 forged supported.
+4. [New Step 227 original-source atomic-claim HTTPS 38165539036](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38165539036): success, actual Python.org page TLS capture plus FastAPI strict submission of one aligned fixed stable-release proposition and direct-negation refusal. Fixed predeclared excerpt, no response-echo oracle, no arbitrary URL, digest-only audit.
+
+**Step 227 scoped engineering implementation is complete on this exact independently verified merged-main SHA.** A subsequent documentation-only final synchronization commit must separately pass all four exact-SHA GitHub Actions workflows before the new `main` HEAD is called green. No live release date paraphrase generalization or independent factual truth has been established, and the rest of the ecosystem remains without a general claim-level inference model.
