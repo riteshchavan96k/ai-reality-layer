@@ -1,9 +1,11 @@
 # ai-reality-layer
 AI Reality Layer — infrastructure for giving autonomous AI systems continuously verified information about the world before they reason, decide, or act.
 
-## Authenticated single-tenant pilot candidate (Step 231)
+## Authenticated restricted single-tenant pilot engineering (Step 231)
 
-The original-source FastAPI backend has a **development-only default mode**. Never deploy that default mode to a public interface. The Step 231 pilot adds a server-owned bearer authorization boundary and a reproducible non-root Docker image. It still requires real TLS ingress, rate limits, request-body limits, hosting, secrets management, and independently verified external deployment before this milestone is complete. See [docs/STEP_231.md](docs/STEP_231.md) for the mandatory checks and local Docker commands.
+The original-source FastAPI backend has a **development-only default mode**. Never expose default development mode on a public interface. The explicitly configured Step 231 pilot adds a server-owned bearer authorization boundary, strict configured exact original-source URL allowlist, a 4 MiB application request limit and a reproducible non-root Docker image. The **engineering** milestone requires successful reviewed final-PR and exact merged-`main` CI, including real loopback container HTTP and genuine Python.org DNS/TLS/HTTPS original-source validation. This is not a deployed service.
+
+**External HTTPS hosting and independent outside-client testing remain a mandatory separate release gate, [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242)**. TLS ingress, external identity/secret rotation, rate limits, operational controls and source-accuracy evaluation are not certified by the Docker smoke test. The 2026-10-13 scope decision explicitly separated the engineering milestone from real external hosting to prioritize core AI Reality Layer functionality; do not claim public deployment or production readiness until that issue's controls pass. See [docs/STEP_231.md](docs/STEP_231.md) for the revised acceptance criteria and safe local runtime.
 
 ## Development validation
 
