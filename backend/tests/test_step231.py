@@ -174,3 +174,42 @@ def test_default_development_contract_unchanged(monkeypatch):
 def test_valid_config_preflight(pilot, capsys):
     assert main() == 0
     assert "valid" in capsys.readouterr().out
+
+
+def test_oversized_authenticated_request_refused_before_evidence_processing(pilot, monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        AllowlistedHttpsSourceReader, "__call__",
+        lambda self, uri: calls.append(uri),
+    )
+    # This is an actual body byte check; do not rely on Content-Length alone.
+    payload = b"x" * (4 * 1024 * 1024 + 1)
+    response = pilot.post(
+        "/api/v1/reality-state/evidence",
+        headers={**bearer(), "Content-Type": "application/json"},
+        content=payload,
+    )
+    assert response.status_code == 413
+    assert response.json() == {"detail": "Request body too large"}
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers.get("x-request-id")
+    assert calls == []
+
+
+def test_oversized_unauthenticated_request_never_reaches_body_parser(pilot):
+    response = pilot.post(
+        "/api/v1/reality-state/evidence",
+        content=b"x" * (4 * 1024 * 1024 + 1),
+    )
+    # Auth takes precedence: no token means no body validation/processing.
+    assert response.status_code == 401
+
+
+def test_pilot_rejects_json_object_allowlist_disguised_as_url_keys():
+    with pytest.raises(ValueError):
+        pilot_runtime_configuration({
+            "ARL_RUNTIME_MODE": "pilot",
+            "ARL_PILOT_BEARER_TOKEN": SECRET,
+            "ARL_INDEPENDENT_SOURCE_ALLOWED_URLS": json.dumps({URL: "not-a-list"}),
+        })
