@@ -1,4 +1,4 @@
-# Step 231 — Authenticated Deployable Original-Source Pilot (engineering milestone, review pending)
+# Step 231 — Authenticated Deployable Original-Source Pilot (engineering milestone complete)
 
 ## Formal acceptance-scope revision (2026-10-13)
 
@@ -125,14 +125,24 @@ establishes production deployment security.
 - Consider source readability, user-facing selection of official URLs,
   explanation quality and operator feedback after the narrow pilot works.
 
-## Engineering acceptance status
+## Final engineering acceptance (revised scope): ✅ COMPLETE
 
-**Pending the final scoped Step 231 engineering merge and exact merged-`main` CI** at the time this change is proposed. The implementation, its historical replays and actual restricted-container original HTTPS canary must all be green on the final PR head, and again on the exact merged main SHA. The checkmark applies only to the explicitly revised **authenticated deployable engineering integration**, not the externally hosted pilot.
+Step 231 **engineering implementation** [PR #241](https://github.com/riteshchavan96k/ai-reality-layer/pull/241) merged after five green feature-head workflows. It added the restricted bearer-authenticated pilot runtime, exact backend-configured original-publisher HTTPS URL allowlist, streamed app request limit, non-root Docker image and real local container HTTP + genuine Python.org DNS/TLS/HTTPS observation. It maintained Steps 217–230 historical suites and original-source canaries.
 
-### Strictly separate external deployment / release status
+Its first exact-main canary run **failed**, despite passing PR CI: an oversized HTTP upload triggered a client `BrokenPipeError` after the server closed early upon rejecting the declared length. That was **not hidden or treated as successful acceptance**. Focused follow-up [PR #243](https://github.com/riteshchavan96k/ai-reality-layer/pull/243) made the real-socket CI check deterministic by sending an authenticated over-limit **Content-Length header only**, verifying the resulting early **413**. Separate backend tests transmit an actual >4 MiB request body to check the **streamed-byte** ceiling. No security policy was weakened.
 
-**Not deployed; external release gate OPEN: [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242).** Do not imply HTTPS ingress, rate limits, secret manager, egress control, observability, customer usage, or independent external endpoint testing has been verified. Defer costs/hosting until an authorized meaningful pilot is ready; keep the gate enforceable before any public or customer-facing launch. No new Step 232 milestone is defined by this document.
+**Independent exact implementation-main acceptance:** the final engineering `main` SHA `9e21809cc69fdac1ca998f11b58b1cdf862ed3d0` has **five distinct successful new push-run jobs** and matching audited `head_sha`:
 
-### Historical evidence before final merge
+1. [Backend Python 3.13 38301554831](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38301554831): **2,440 Python tests passed**, compile, historical policy benchmarks (Step 230 HTML quote-origin: 3 legitimate aligned, 0/7 quotation/duplicate false-aligned).
+2. [Genuine Python.org HTTPS original source 38301554779](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38301554779): success.
+3. [Genuine Python.org+IANA two-publisher HTTPS 38301554805](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38301554805): success.
+4. [Genuine bounded Python.org source claim 38301554933](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38301554933): success.
+5. [Actual Docker HTTP + Python.org TLS 38301554927](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38301554927): success, missing/wrong token `401`, declared oversized request `413`, bounded affirmative `supported`, negation `uncertain`, **`deployed_publicly=false`**.
 
-[Original verified Step 231 candidate PR #241](https://github.com/riteshchavan96k/ai-reality-layer/pull/241) passed five hosted feature-head workflows on `fdfbed50efcc6dcad46ea3854fc876d4910388ce` with 2,440 passing backend tests and an actual loopback Docker API making two real original Python.org HTTPS capture/claim decisions. Actual socket canary reported missing/wrong bearer **401**, authenticated over-limit payload **413**, fixed affirmative `supported`, direct negation `uncertain`. Those are **PR-head results**; when the acceptance documentation is updated the new exact head must pass again before merging, then all five on final main. They cannot prove external deployment or representative factual accuracy.
+See the [exact-main audit and failure disclosure](https://github.com/riteshchavan96k/ai-reality-layer/pull/243#issuecomment-6131687027) and [Step 231 engineering scorecard](STEP_231_ENGINEERING_SCORECARD.md). This closes the **explicitly revised, nonpublic deployable engineering** milestone; final documentation-only changes must themselves pass all five on their exact final main SHA before the current branch is considered green.
+
+## Mandatory separate external hosted HTTPS release gate — NOT DONE
+
+[Issue #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242) is the **open, non-optional** pilot/customer release blocker. No hosting service, domain, ingress TLS controls, external remote authenticated calls, operator-side rate limiting, egress enforcement, secret manager/rotation, monitoring/alerting, real-user pilot or independent varied human-labeled factual evaluation has been established. GitHub's ephemeral internal HTTP CI container is a reproducible engineering test, not an externally deployed service. **Do not close #242 or make production-readiness claims because Step 231 engineering completed.**
+
+The next numbered roadmap step is not defined by this status note. It must be independently identified from the repository and genuine AI Reality Layer product gaps, without restarting the project or fabricating an existing plan.
