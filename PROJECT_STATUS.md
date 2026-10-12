@@ -1,3 +1,7 @@
+# Step 231 — Authenticated original-source pilot (candidate implementation, NOT COMPLETE)
+
+The actual verified predecessor is Step 230 final main `3a9889a9c0ac7ebe39597f7f71b8bd57b4991d21`, merged via PR #238 on October 11, 2026. Its four exact-SHA hosted workflows are green and the full Python 3.13 job reported **2,414 passed**. Step 231 addresses the unprotected API/deployment gap with a pilot-only bearer access gate, fail-closed container, and new actual HTTP + original Python.org HTTPS CI smoke. This feature work is under review and **is not an external deployed HTTPS service**. No Step 231 completion checkmark is authorized without feature/main CI and a separately authenticated, protected, externally hosted deployment. See [docs/STEP_231.md](docs/STEP_231.md).
+
 # Current Status — Step 230 (implementation merged; documentation sync pending)
 
 ## Step 230 — HTML Quotation-Origin Integrity for Strict Source Claim Alignment
