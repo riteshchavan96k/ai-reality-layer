@@ -104,11 +104,25 @@ jobs:
           assert denied_headers.get("www-authenticate") == "Bearer"
           assert denied_headers.get("x-request-id")
           assert post(payload, "incorrect-token")[0] == 401
-          # Actual Docker HTTP socket, not TestClient: authenticated payload
-          # above 4 MiB must be rejected before JSON validation or source GET.
-          too_big, too_big_headers, too_big_body = post(
-              {"task": "x" * (4 * 1024 * 1024), "documents": []}, secret
-          )
+          # Verify the real container's early Content-Length rejection through
+          # an actual HTTP socket. Send *headers only*: if the server refuses a
+          # declared >4 MiB upload at the boundary, uploading the body can
+          # legitimately trigger a BrokenPipeError before the client reads 413.
+          # The actual streamed-byte limit is tested in backend/tests/test_step231.py.
+          from http.client import HTTPConnection
+          connection = HTTPConnection("127.0.0.1", 18080, timeout=10)
+          try:
+              connection.putrequest("POST", "/api/v1/reality-state/evidence")
+              connection.putheader("Content-Type", "application/json")
+              connection.putheader("Authorization", "Bearer " + secret)
+              connection.putheader("Content-Length", str(4 * 1024 * 1024 + 1))
+              connection.endheaders()
+              too_big_response = connection.getresponse()
+              too_big = too_big_response.status
+              too_big_headers = {k.lower(): v for k, v in too_big_response.getheaders()}
+              too_big_body = json.loads(too_big_response.read())
+          finally:
+              connection.close()
           assert too_big == 413 and too_big_body == {"detail": "Request body too large"}
           assert too_big_headers.get("cache-control") == "no-store"
 
@@ -134,7 +148,7 @@ jobs:
               "source": "real_allowlisted_Python.org_HTTPS",
               "missing_token": denied,
               "wrong_token": 401,
-              "oversized_authenticated_body": too_big,
+              "declared_oversized_authenticated_body": too_big,
               "affirmative_status": body["status"],
               "negation_status": neg_body["status"],
               "publisher_authenticated": False,
