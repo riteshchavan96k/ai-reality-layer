@@ -45,9 +45,10 @@ jobs:
           set -euo pipefail
           TOKEN="$(python -c 'import secrets; print(secrets.token_urlsafe(40))')"
           echo "::add-mask::$TOKEN"
+          export ARL_PILOT_BEARER_TOKEN="$TOKEN"
           docker run -d --name arl-step231 --read-only --tmpfs /tmp:rw,noexec,nosuid,size=8m \
             -p 127.0.0.1:18080:8080 \
-            -e ARL_PILOT_BEARER_TOKEN="$TOKEN" \
+            -e ARL_PILOT_BEARER_TOKEN \
             -e ARL_INDEPENDENT_SOURCE_ALLOWED_URLS='["https://www.python.org/downloads/release/python-3130/"]' \
             arl-pilot:ci >/dev/null
           trap 'docker rm -f arl-step231 >/dev/null 2>&1 || true' EXIT
