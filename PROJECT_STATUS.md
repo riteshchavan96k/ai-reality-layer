@@ -1,3 +1,11 @@
+# Step 231 — Authenticated deployable original-source pilot (revised engineering scope, review pending)
+
+**Scope decision, 2026-10-13:** After the latest independently verified Step 230 final-main acceptance (`ec35543095e21c65e85fa2b062d33cbc564642c3`, [PR #240](https://github.com/riteshchavan96k/ai-reality-layer/pull/240)), the project owner explicitly agreed to finish Step 231's **restricted deployable engineering milestone** first and defer an externally hosted authenticated HTTPS service until a meaningful pilot is ready. This revises the old Step 231 external-hosting acceptance; it **does not** mark external deployment performed, change Step 230's verified status or skip a security requirement.
+
+**Status: ENGINEERING ACCEPTANCE PENDING FINAL MERGED-MAIN VERIFICATION.** Candidate [PR #241](https://github.com/riteshchavan96k/ai-reality-layer/pull/241) carries fail-closed pilot bearer authentication, exact JSON-array operator URL allowlist, streaming 4 MiB request limit, a non-root startup-preflight Docker runtime and a real localhost HTTP + original Python.org TLS smoke. The previous candidate feature head passed 2,440 backend tests and five workflows, but this formal acceptance-scope amendment must pass those workflows again on its latest head **and on the exact merged main SHA** before receiving a Step 231 engineering checkmark. See [docs/STEP_231.md](docs/STEP_231.md).
+
+**Mandatory external deployment and operational security release gate remains OPEN:** [issue #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242). HTTPS ingress, external independent end-to-end validation, server-side egress controls, secrets management, rate limits, privacy-safe monitoring and genuine customer-usable performance are unverified. No public-production or universal factual truth claims. Do not invent Step 232 until the narrow Step 231 engineering closure has actually succeeded.
+
 # Current Status — Step 230 (COMPLETE: exact final merged-main CI verified)
 
 ## Step 230 — HTML Quotation-Origin Integrity for Strict Source Claim Alignment

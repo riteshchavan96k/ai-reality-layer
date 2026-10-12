@@ -1,0 +1,13 @@
+.git
+.github
+*.env
+.env*
+**/__pycache__
+**/*.pyc
+backend/tests
+docs
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite*

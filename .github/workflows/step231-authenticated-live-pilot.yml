@@ -1,0 +1,144 @@
+name: Step 231 authenticated container and original-source live HTTP
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step231-authenticated-http-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pilot:
+    name: Single-tenant bearer gate with real container HTTP and Python.org HTTPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact repository revision
+        uses: actions/checkout@v7
+
+      - name: Set up host Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Build non-root pilot image
+        run: docker build --tag arl-pilot:ci .
+
+      - name: Verify container refuses to start without an operator token
+        run: |
+          set -euo pipefail
+          if docker run --rm -e ARL_INDEPENDENT_SOURCE_ALLOWED_URLS='["https://www.python.org/downloads/release/python-3130/"]' arl-pilot:ci; then
+            echo "SECURITY FAILURE: unauthenticated pilot started"
+            exit 1
+          fi
+
+      - name: Live authenticated HTTP and original Python.org HTTPS canary
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOKEN="$(python -c 'import secrets; print(secrets.token_urlsafe(40))')"
+          echo "::add-mask::$TOKEN"
+          export ARL_PILOT_BEARER_TOKEN="$TOKEN"
+          docker run -d --name arl-step231 --read-only --tmpfs /tmp:rw,noexec,nosuid,size=8m \
+            -p 127.0.0.1:18080:8080 \
+            -e ARL_PILOT_BEARER_TOKEN \
+            -e ARL_INDEPENDENT_SOURCE_ALLOWED_URLS='["https://www.python.org/downloads/release/python-3130/"]' \
+            arl-pilot:ci >/dev/null
+          trap 'result=$?; if [ "$result" -ne 0 ]; then docker logs --tail 80 arl-step231 2>&1 || true; fi; docker rm -f arl-step231 >/dev/null 2>&1 || true' EXIT
+          export ARL_PILOT_BEARER_TOKEN="$TOKEN"
+          python - <<'PY'
+          import json
+          import os
+          import time
+          from urllib.error import HTTPError, URLError
+          from urllib.request import Request, urlopen
+
+          base = "http://127.0.0.1:18080"
+          secret = os.environ["ARL_PILOT_BEARER_TOKEN"]
+          url = "https://www.python.org/downloads/release/python-3130/"
+          for attempt in range(40):
+              try:
+                  with urlopen(base + "/health", timeout=2) as response:
+                      assert response.status == 200
+                      assert json.load(response)["status"] == "healthy"
+                      break
+              except OSError:
+                  if attempt == 39:
+                      raise AssertionError("container never became healthy")
+                  time.sleep(0.5)
+
+          def post(payload, auth=None):
+              headers = {"Content-Type": "application/json"}
+              if auth is not None:
+                  headers["Authorization"] = "Bearer " + auth
+              request = Request(
+                  base + "/api/v1/reality-state/evidence",
+                  method="POST",
+                  headers=headers,
+                  data=json.dumps(payload).encode("utf-8"),
+              )
+              try:
+                  with urlopen(request, timeout=20) as response:
+                      return response.status, {key.lower(): value for key, value in response.headers.items()}, json.load(response)
+              except HTTPError as error:
+                  return error.code, {key.lower(): value for key, value in error.headers.items()}, json.loads(error.read())
+
+          payload = {
+              "task": "Does the original publisher call Python 3.13.0 stable?",
+              "entity": "Python 3.13.0",
+              "documents": [{"uri": url, "content": "This is the stable release of Python 3.13.0"}],
+              "freshness_max_age_seconds": 3600,
+              "require_independent_source_text_match": True,
+              "require_claim_alignment": True,
+              "claim_text": "Python 3.13.0 is a stable release.",
+          }
+          denied, denied_headers, denial = post(payload)
+          assert denied == 401 and denial == {"detail": "Unauthorized"}
+          assert denied_headers.get("www-authenticate") == "Bearer"
+          assert denied_headers.get("x-request-id")
+          assert post(payload, "incorrect-token")[0] == 401
+          # Actual Docker HTTP socket, not TestClient: authenticated payload
+          # above 4 MiB must be rejected before JSON validation or source GET.
+          too_big, too_big_headers, too_big_body = post(
+              {"task": "x" * (4 * 1024 * 1024), "documents": []}, secret
+          )
+          assert too_big == 413 and too_big_body == {"detail": "Request body too large"}
+          assert too_big_headers.get("cache-control") == "no-store"
+
+          status, headers, body = post(payload, secret)
+          assert status == 200, "authenticated strict API HTTP failure"
+          assert body.get("status") == "supported", "real source not accepted"
+          assert body.get("evidence", {}).get("claim_alignment", {}).get("status") == "aligned"
+          audit = body["evidence"]["independent_source_text_assurance"]["sources"][0]
+          assert audit.get("source_ref") == url
+          assert audit.get("source_quote_context_status") == "no_matching_html_quote_unit"
+          assert len(audit.get("capture_sha256", "")) == 64
+          assert audit.get("capture_observed_at", "").endswith("Z")
+          assert headers.get("cache-control") == "no-store"
+
+          payload["claim_text"] = "Python 3.13.0 is not a stable release."
+          negative, _, neg_body = post(payload, secret)
+          assert negative == 200
+          assert neg_body.get("status") == "uncertain"
+          assert neg_body.get("evidence", {}).get("claim_alignment", {}).get("status") == "contradicted"
+
+          print(json.dumps({
+              "container_http": "actual_socket",
+              "source": "real_allowlisted_Python.org_HTTPS",
+              "missing_token": denied,
+              "wrong_token": 401,
+              "oversized_authenticated_body": too_big,
+              "affirmative_status": body["status"],
+              "negation_status": neg_body["status"],
+              "publisher_authenticated": False,
+              "semantic_truth_verified": False,
+              "deployed_publicly": False,
+          }, sort_keys=True))
+          PY
