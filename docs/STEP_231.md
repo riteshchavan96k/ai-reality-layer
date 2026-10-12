@@ -2,9 +2,13 @@
 
 ## Why this follows verified Step 230
 
-The exact Step 230 closing merge on main is 3a9889a9c0ac7ebe39597f7f71b8bd57b4991d21
-(PR #238). Four hosted jobs succeeded on that precise main commit; the Python
-3.13 job logged **2,414 tests passed**. The pipeline already has a working,
+Step 230 was first independently closed at main `3a9889a9c0ac7ebe39597f7f71b8bd57b4991d21`
+(PR #238), and its remaining scorecard/status reconciliation merged via
+[PR #240](https://github.com/riteshchavan96k/ai-reality-layer/pull/240) at
+`ec35543095e21c65e85fa2b062d33cbc564642c3`.
+The four original workflows passed on the **latter exact final main SHA**, with
+**2,414 Python tests passing**. This branch must not overwrite the updated
+Step 230 source of truth. The pipeline already has a working,
 allowlisted, SSRF-conscious original-publisher HTTPS reader and opt-in bounded
 claim alignment, but the actual FastAPI POST endpoints had **no caller
 authentication** and the repository had **no deployable runtime image**.
@@ -33,6 +37,7 @@ original-source HTTPS, not yet an internet-facing production launch.
 - Invalid pilot configuration: **503** with no secret details; the container
   preflight exits nonzero instead of launching. A configured token without
   explicitly selecting pilot mode is also rejected (not silently ignored).
+- Pilot application middleware also caps **actual inbound HTTP body bytes at 4 MiB** after authorization (HTTP **413** for excess), including uploads without reliable Content-Length. This is defense-in-depth and **does not replace** ingress request size limits or rate controls. The operator URL allowlist must be a JSON **array**, never an object or string.
 - The existing X-Request-ID correlation header still accompanies denials.
   The credential is never copied into the Reality State or recorded by the
   new middleware. The container turns off Uvicorn access logging.
@@ -88,7 +93,7 @@ then sends real localhost HTTP requests:
    genuine original-source workflows remain green on exact PR head.
 
 Backend/tests/test_step231.py checks request-level authorization, malformed
-and duplicate headers, configuration refusal, unchanged dev-mode contract and
+and duplicate headers, oversized authenticated and unauthenticated payloads, malformed JSON allowlist shape, configuration refusal, unchanged dev-mode contract and
 existing strict Reality State integration with a **fake network**. The CI
 container smoke is a **separate genuine network check**; neither alone
 establishes production deployment security.
