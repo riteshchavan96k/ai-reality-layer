@@ -1,4 +1,12 @@
-# Step 231 — Authenticated Deployable Original-Source Pilot (in progress)
+# Step 231 — Authenticated Deployable Original-Source Pilot (engineering milestone, review pending)
+
+## Formal acceptance-scope revision (2026-10-13)
+
+The original Step 231 draft specified **actual externally reachable hosted HTTPS deployment** as a Step 231 completion condition. The project owner has since explicitly agreed to the recommended split: first finish and independently verify the **deployable, locally exercised engineering integration**, while preserving external HTTPS hosting and operational checks as a **mandatory separate release gate**. This is a documented milestone revision, **not** a claim that external deployment happened and not an arbitrary Step 232 definition.
+
+- **Step 231 engineering acceptance:** reviewed and merged restricted pilot mode with fail-closed caller authentication and source allowlist; non-root deployable container and proper preflight; bounded request bytes; tests for absent/wrong/duplicate credentials and oversize; actual Docker localhost HTTP with real original-publisher DNS/TLS/HTTPS affirmative and negated bounded claims; existing Steps 217–230 regressions; **all five hosted workflows successful on exact final merged `main` SHA**, with GitHub job/log evidence. Do not mark complete until this specific final-main gate is met.
+- **Deployment remains mandatory for an actual external pilot or product release**, tracked in [release blocker #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242). A GitHub-hosted ephemeral loopback-only container is neither a public deployment nor representative production security.
+- **No roadmap reset:** Step 230's exact-final-main completion remains untouched. This milestone does not authorize production traffic or any claim of arbitrary semantic/factual truth. Continue future roadmap steps only after engineering acceptance; do not label the externally hosted pilot "complete" while #242 is open.
 
 ## Why this follows verified Step 230
 
@@ -117,11 +125,14 @@ establishes production deployment security.
 - Consider source readability, user-facing selection of official URLs,
   explanation quality and operator feedback after the narrow pilot works.
 
-## Acceptance status
+## Engineering acceptance status
 
-**NOT COMPLETE.** The initial code/CI workflow is a candidate implementation.
-A Step 231 completion checkmark requires a reviewed merged PR, all mandated
-tests and hosted workflows on the exact merged main SHA, **and a genuine
-externally reachable authenticated HTTPS pilot with the deployment and
-security controls above verified**. Do not mark the milestone complete based
-on synthetic tests or GitHub's ephemeral localhost Docker job alone.
+**Pending the final scoped Step 231 engineering merge and exact merged-`main` CI** at the time this change is proposed. The implementation, its historical replays and actual restricted-container original HTTPS canary must all be green on the final PR head, and again on the exact merged main SHA. The checkmark applies only to the explicitly revised **authenticated deployable engineering integration**, not the externally hosted pilot.
+
+### Strictly separate external deployment / release status
+
+**Not deployed; external release gate OPEN: [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242).** Do not imply HTTPS ingress, rate limits, secret manager, egress control, observability, customer usage, or independent external endpoint testing has been verified. Defer costs/hosting until an authorized meaningful pilot is ready; keep the gate enforceable before any public or customer-facing launch. No new Step 232 milestone is defined by this document.
+
+### Historical evidence before final merge
+
+[Original verified Step 231 candidate PR #241](https://github.com/riteshchavan96k/ai-reality-layer/pull/241) passed five hosted feature-head workflows on `fdfbed50efcc6dcad46ea3854fc876d4910388ce` with 2,440 passing backend tests and an actual loopback Docker API making two real original Python.org HTTPS capture/claim decisions. Actual socket canary reported missing/wrong bearer **401**, authenticated over-limit payload **413**, fixed affirmative `supported`, direct negation `uncertain`. Those are **PR-head results**; when the acceptance documentation is updated the new exact head must pass again before merging, then all five on final main. They cannot prove external deployment or representative factual accuracy.
