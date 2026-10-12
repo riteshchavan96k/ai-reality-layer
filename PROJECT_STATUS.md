@@ -1,3 +1,7 @@
+# Step 231 — Authenticated original-source pilot (candidate, NOT COMPLETE)
+
+The latest independently verified previous checkpoint is Step 230 final documentation merge [PR #240](https://github.com/riteshchavan96k/ai-reality-layer/pull/240), main SHA `ec35543095e21c65e85fa2b062d33cbc564642c3` with four genuine-source/claim workflows green and **2,414 backend tests passed**. Step 231 adds fail-closed pilot-only bearer authentication, a bounded JSON-array exact URL allowlist, application-level 4 MiB request body safety limit, a non-root Docker image and real container HTTP + original Python.org DNS/TLS smoke. Its live hosted deployment acceptance gate is **still unfulfilled**. Do not award a checkmark for CI-only Docker tests. See [docs/STEP_231.md](docs/STEP_231.md) and draft [PR #239](https://github.com/riteshchavan96k/ai-reality-layer/pull/239).
+
 # Current Status — Step 230 (COMPLETE: exact final merged-main CI verified)
 
 ## Step 230 — HTML Quotation-Origin Integrity for Strict Source Claim Alignment
