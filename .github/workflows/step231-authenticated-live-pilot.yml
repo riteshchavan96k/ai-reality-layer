@@ -104,6 +104,13 @@ jobs:
           assert denied_headers.get("www-authenticate") == "Bearer"
           assert denied_headers.get("x-request-id")
           assert post(payload, "incorrect-token")[0] == 401
+          # Actual Docker HTTP socket, not TestClient: authenticated payload
+          # above 4 MiB must be rejected before JSON validation or source GET.
+          too_big, too_big_headers, too_big_body = post(
+              {"task": "x" * (4 * 1024 * 1024), "documents": []}, secret
+          )
+          assert too_big == 413 and too_big_body == {"detail": "Request body too large"}
+          assert too_big_headers.get("cache-control") == "no-store"
 
           status, headers, body = post(payload, secret)
           assert status == 200, "authenticated strict API HTTP failure"
@@ -127,6 +134,7 @@ jobs:
               "source": "real_allowlisted_Python.org_HTTPS",
               "missing_token": denied,
               "wrong_token": 401,
+              "oversized_authenticated_body": too_big,
               "affirmative_status": body["status"],
               "negation_status": neg_body["status"],
               "publisher_authenticated": False,
