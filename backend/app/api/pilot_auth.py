@@ -22,6 +22,9 @@ from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttps
 _MIN_SECRET_BYTES = 32
 _MAX_SECRET_BYTES = 256
 _MAX_AUTHORIZATION_BYTES = 512
+# Existing evidence input may include up to 20 * 50,000 Unicode characters.
+# Bound raw JSON request bytes (not characters), preserving that valid input ceiling.
+_MAX_PILOT_BODY_BYTES = 4 * 1024 * 1024
 
 
 def pilot_runtime_configuration(
@@ -58,6 +61,8 @@ def pilot_runtime_configuration(
     raw_urls = env.get("ARL_INDEPENDENT_SOURCE_ALLOWED_URLS", "")
     try:
         allowed_urls = json.loads(raw_urls)
+        if not isinstance(allowed_urls, list):
+            raise ValueError("pilot allowlist must be a JSON array")
         # Validate exact URLs with the already shipping SSRF-conscious reader.
         # No DNS query or network request happens during configuration.
         AllowlistedHttpsSourceReader(allowed_urls)
@@ -99,7 +104,7 @@ class PilotAccessMiddleware(BaseHTTPMiddleware):
                 headers={"Cache-Control": "no-store"},
             )
 
-        if not enabled or request.url.path == "/health":
+        if not enabled or (request.url.path == "/health" and request.method == "GET"):
             return await call_next(request)
 
         if token is None or not _authorized(request.scope, token):
@@ -111,6 +116,38 @@ class PilotAccessMiddleware(BaseHTTPMiddleware):
                     "Cache-Control": "no-store",
                 },
             )
+        # Reject oversized payloads even when the future ingress accidentally
+        # omits its own body limit. Count actual streamed bytes; Content-Length
+        # cannot be trusted as the sole bound (chunked uploads may omit it).
+        def reject_too_large():
+            return JSONResponse(
+                {"detail": "Request body too large"},
+                status_code=413,
+                headers={
+                    "Cache-Control": "no-store",
+                    "X-Content-Type-Options": "nosniff",
+                },
+            )
+
+        lengths = [
+            value for name, value in request.scope.get("headers", [])
+            if name.lower() == b"content-length"
+        ]
+        if len(lengths) > 1:
+            return reject_too_large()
+        if lengths:
+            raw_length = lengths[0]
+            if not raw_length.isdecimal() or int(raw_length) > _MAX_PILOT_BODY_BYTES:
+                return reject_too_large()
+
+        body = bytearray()
+        async for chunk in request.stream():
+            if len(body) + len(chunk) > _MAX_PILOT_BODY_BYTES:
+                return reject_too_large()
+            body.extend(chunk)
+        # Starlette's cached Request passes the original body downstream to
+        # FastAPI, so validation and existing endpoints see unchanged bytes.
+        request._body = bytes(body)
         response = await call_next(request)
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
