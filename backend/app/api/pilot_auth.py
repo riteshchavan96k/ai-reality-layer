@@ -137,7 +137,7 @@ class PilotAccessMiddleware(BaseHTTPMiddleware):
             return reject_too_large()
         if lengths:
             raw_length = lengths[0]
-            if not raw_length.isdecimal() or int(raw_length) > _MAX_PILOT_BODY_BYTES:
+            if not raw_length.isdigit() or int(raw_length) > _MAX_PILOT_BODY_BYTES:
                 return reject_too_large()
 
         body = bytearray()
