@@ -86,9 +86,9 @@ jobs:
               )
               try:
                   with urlopen(request, timeout=20) as response:
-                      return response.status, dict(response.headers), json.load(response)
+                      return response.status, {key.lower(): value for key, value in response.headers.items()}, json.load(response)
               except HTTPError as error:
-                  return error.code, dict(error.headers), json.loads(error.read())
+                  return error.code, {key.lower(): value for key, value in error.headers.items()}, json.loads(error.read())
 
           payload = {
               "task": "Does the original publisher call Python 3.13.0 stable?",
@@ -101,8 +101,8 @@ jobs:
           }
           denied, denied_headers, denial = post(payload)
           assert denied == 401 and denial == {"detail": "Unauthorized"}
-          assert denied_headers.get("WWW-Authenticate") == "Bearer"
-          assert denied_headers.get("X-Request-ID")
+          assert denied_headers.get("www-authenticate") == "Bearer"
+          assert denied_headers.get("x-request-id")
           assert post(payload, "incorrect-token")[0] == 401
 
           status, headers, body = post(payload, secret)
@@ -114,7 +114,7 @@ jobs:
           assert audit.get("source_quote_context_status") == "no_matching_html_quote_unit"
           assert len(audit.get("capture_sha256", "")) == 64
           assert audit.get("capture_observed_at", "").endswith("Z")
-          assert headers.get("Cache-Control") == "no-store"
+          assert headers.get("cache-control") == "no-store"
 
           payload["claim_text"] = "Python 3.13.0 is not a stable release."
           negative, _, neg_body = post(payload, secret)
