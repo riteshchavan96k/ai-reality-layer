@@ -9,6 +9,7 @@ from backend.app.api.errors import (
     validation_exception_handler,
 )
 from backend.app.api.evidence_reality_state import EvidenceRealityStateRequest
+from backend.app.api.pilot_auth import PilotAccessMiddleware
 from backend.app.api.health import (
     API_VERSION,
     HealthResponse,
@@ -36,6 +37,8 @@ app = FastAPI(
     description="Production-oriented API surface for AI Reality Layer orchestration.",
 )
 
+app.add_middleware(PilotAccessMiddleware)
+# Request ID runs outermost, including on denied authentication responses.
 app.add_middleware(RequestIdMiddleware)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
