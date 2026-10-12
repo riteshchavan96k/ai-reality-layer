@@ -51,7 +51,7 @@ jobs:
             -e ARL_PILOT_BEARER_TOKEN \
             -e ARL_INDEPENDENT_SOURCE_ALLOWED_URLS='["https://www.python.org/downloads/release/python-3130/"]' \
             arl-pilot:ci >/dev/null
-          trap 'docker rm -f arl-step231 >/dev/null 2>&1 || true' EXIT
+          trap 'result=$?; if [ "$result" -ne 0 ]; then docker logs --tail 80 arl-step231 2>&1 || true; fi; docker rm -f arl-step231 >/dev/null 2>&1 || true' EXIT
           export ARL_PILOT_BEARER_TOKEN="$TOKEN"
           python - <<'PY'
           import json
@@ -69,7 +69,7 @@ jobs:
                       assert response.status == 200
                       assert json.load(response)["status"] == "healthy"
                       break
-              except (URLError, TimeoutError):
+              except OSError:
                   if attempt == 39:
                       raise AssertionError("container never became healthy")
                   time.sleep(0.5)
