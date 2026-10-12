@@ -1,6 +1,10 @@
 # ai-reality-layer
 AI Reality Layer — infrastructure for giving autonomous AI systems continuously verified information about the world before they reason, decide, or act.
 
+## Authenticated single-tenant pilot candidate (Step 231)
+
+The original-source FastAPI backend has a **development-only default mode**. Never deploy that default mode to a public interface. The Step 231 pilot adds a server-owned bearer authorization boundary and a reproducible non-root Docker image. It still requires real TLS ingress, rate limits, request-body limits, hosting, secrets management, and independently verified external deployment before this milestone is complete. See [docs/STEP_231.md](docs/STEP_231.md) for the mandatory checks and local Docker commands.
+
 ## Development validation
 
 Install the production and test dependencies through the development requirements file, then run the complete backend regression suite from the repository root:
