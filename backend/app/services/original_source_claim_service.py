@@ -49,6 +49,23 @@ def _verified_source_evidence(
     alignment = evidence.get("claim_alignment")
     if not isinstance(assurance, dict) or not isinstance(alignment, dict):
         return None
+    freshness = state.get("freshness")
+    conflicts = state.get("conflicts")
+    verification = state.get("verification")
+    confidence = state.get("confidence_signals")
+    if (
+        not isinstance(freshness, dict)
+        or freshness.get("status") != "usable"
+        or freshness.get("stale_count") != 0
+        or freshness.get("unknown_count") != 0
+        or not isinstance(conflicts, dict)
+        or conflicts.get("conflict_count") != 0
+        or not isinstance(verification, dict)
+        or verification.get("status") != "completed"
+        or not isinstance(confidence, dict)
+        or confidence.get("status") != state["status"]
+    ):
+        return None
     rows = assurance.get("sources")
     decisions = alignment.get("source_decisions")
     if (
