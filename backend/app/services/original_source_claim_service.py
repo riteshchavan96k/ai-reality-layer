@@ -14,6 +14,7 @@ from backend.app.api.original_source_claim import (
     OriginalSourceClaimRequest,
     OriginalSourceClaimResponse,
 )
+from backend.app.api.claim_request_binding import claim_request_binding_sha256
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.orchestrator.orchestrator import build_reality_state_from_evidence
 from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttpsSourceReader
@@ -28,11 +29,14 @@ def verify_original_source_claim(
     request: OriginalSourceClaimRequest,
 ) -> OriginalSourceClaimResponse:
     """Never accept a claim as proof, re-read a selected source, or guess excerpts."""
+    binding = claim_request_binding_sha256(request)
+
     def abstain(reason: str, *, unavailable: bool = False, source: str | None = None):
         return OriginalSourceClaimResponse(
             status="unavailable" if unavailable else "insufficient",
             reason=reason,
             source_ref=source,
+            request_binding_sha256=binding,
         )
 
     claim = _parse_atomic(request.claim_text)
@@ -120,6 +124,7 @@ def verify_original_source_claim(
         status=state["status"],
         reason="bounded_reality_state_evaluated",
         source_ref=request.source_uri,
+        request_binding_sha256=binding,
         reality_state=state,
     )
 
