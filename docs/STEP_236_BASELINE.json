@@ -1,0 +1,16 @@
+{
+  "candidate_count": 20,
+  "dataset_id": "step236-semantic-candidate-pairs-v1",
+  "dataset_sha256": "5987acb4fb6d33b98c079c545370d9f3dfd195bcefd7da3179f0c8b184e132fa",
+  "evaluation_kind": "developer-authored_text_parser_baseline_not_field_accuracy",
+  "factual_truth_verified": false,
+  "independent_human_labels_verified": false,
+  "population_accuracy_established": false,
+  "prediction_counts": {
+    "abstain": 14,
+    "bounded_alignment": 3,
+    "bounded_contradiction": 3
+  },
+  "semantic_nli_model_executed": false,
+  "source_capture_verified": false
+}
