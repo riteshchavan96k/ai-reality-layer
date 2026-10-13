@@ -1,6 +1,18 @@
 # ai-reality-layer
 AI Reality Layer — infrastructure for giving autonomous AI systems continuously verified information about the world before they reason, decide, or act.
 
+## Step 237: Actual pretrained neural NLI in isolated shadow mode
+
+A first **real Transformer** entailment/contradiction/neutral model can now run via optional ONNX Runtime CPU inference on the frozen Step236 candidate corpus. Its real model predictions are recorded **alongside** the deterministic parser baseline. The operator must explicitly opt in to one pinned Hugging Face model download; no NLI model is added to the normal API or Docker image and no prediction may authorize source support.
+
+```bash
+# Only to deliberately run the optional ML experiment, not needed for normal backend work:
+python -m pip install -r backend/requirements-nli-shadow.txt
+python -m backend.app.evaluation.step237_nli_shadow --live --summary-only
+```
+
+The reviewed pretrained weights (`cross-encoder/nli-MiniLM2-L6-H768`, Apache-2.0) are downloaded from a fixed model revision and checked against a public ONNX SHA-256. Only the 20 frozen **developer-authored, not independently reviewed** cases are scored: these are **not factual-truth labels**. Neural softmax scores are uncalibrated and can be wrong. No source-content observation or production Reality State decision changes in Step237. See [Step 237 scope](docs/STEP_237.md).
+
 ## Step 236: Frozen semantic verification baseline and blind reviewer handoff
 
 This benchmark makes our **actual deterministic parser limitation measurable** before introducing a genuine neural NLI model. It uses twenty short **developer-authored, not independently human-labeled** candidate pairs, including deliberately forged excerpts associated with genuine source URLs and eight explicitly fictional semantic scenarios.
