@@ -133,6 +133,7 @@ def evaluate_claim_alignment(
                 by_uri[row["source_ref"]] = row
 
     items = []
+    reasons = []
     for document in bundle.documents:
         attestation = by_uri.get(document.uri, {})
         eligible = (
@@ -146,11 +147,47 @@ def evaluate_claim_alignment(
             and isinstance(attestation.get("capture_observed_at"), str)
             and attestation["capture_observed_at"].endswith("Z")
         )
-        relationship = (
-            _relationship(parsed, _parse_atomic(document.content))
-            if eligible else "insufficient"
-        )
+        if not eligible:
+            relationship = "insufficient"
+            # Never echo arbitrary reader errors, source text or credentials.
+            # All possible reason codes below are fixed, trusted enum values.
+            if (
+                attestation.get("reason") == "original_source_quoted_html_unit"
+                or attestation.get("source_quote_context_status") == "quoted_source_unit"
+            ):
+                code = "source_quoted_unit"
+            elif attestation.get("reason") == "independent_source_explicit_counterstatement":
+                code = "source_counterstatement_observed"
+            elif (
+                attestation.get("status") != "exact_text_observed"
+                or source_assurance.get("status") != "exact_text_observed"
+            ):
+                code = "independent_source_unverified"
+            elif (
+                attestation.get("assertion_context_status") != "unique_standalone_unit"
+                or attestation.get("source_counterstatement_status") != "no_bounded_counterstatement_observed"
+                or attestation.get("source_quote_context_status") != "no_matching_html_quote_unit"
+            ):
+                code = "source_assertion_context_unverified"
+            else:
+                code = "source_capture_receipt_invalid"
+        elif parsed is None:
+            relationship = "insufficient"
+            code = "claim_grammar_unsupported"
+        else:
+            source_parsed = _parse_atomic(document.content)
+            if source_parsed is None:
+                relationship = "insufficient"
+                code = "source_grammar_unsupported"
+            else:
+                relationship = _relationship(parsed, source_parsed)
+                code = {
+                    "aligned": "bounded_assertion_aligned",
+                    "contradicted": "bounded_assertion_contradicted",
+                    "insufficient": "atomic_relationship_undetermined",
+                }[relationship]
         items.append({"source_ref": document.uri, "relationship": relationship})
+        reasons.append({"source_ref": document.uri, "code": code})
     outcomes = [x["relationship"] for x in items]
     if outcomes and all(x == "aligned" for x in outcomes):
         status = "aligned"
@@ -165,6 +202,7 @@ def evaluate_claim_alignment(
         "method": "bounded_atomic_assertion_comparison",
         "source_count": len(items),
         "source_decisions": items,
+        "decision_reasons": reasons,
         "semantic_support_verified": False,
         "factual_truth_verified": False,
     }
