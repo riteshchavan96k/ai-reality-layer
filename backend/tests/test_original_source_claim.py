@@ -71,6 +71,7 @@ def test_claim_only_endpoint_returns_bounded_supported_state_with_one_real_pipel
     value = response.json()
     assert value["status"] == "supported"
     assert value["reason"] == "bounded_reality_state_evaluated"
+    assert len(value["request_binding_sha256"]) == 64
     assert value["source_ref"] == URL
     state = value["reality_state"]
     assert state["status"] == "supported"
@@ -134,12 +135,11 @@ def test_unapproved_source_not_fetched(pilot, monkeypatch):
     calls = reader(monkeypatch)
     result = post(pilot, payload(uri="https://www.python.org/another-safe-looking-url"))
     assert result.status_code == 200
-    assert result.json() == {
-        "status": "unavailable",
-        "reason": "source_not_operator_allowed",
-        "source_ref": None,
-        "reality_state": None,
-    }
+    value = result.json()
+    assert value["status"] == "unavailable"
+    assert value["reason"] == "source_not_operator_allowed"
+    assert value["source_ref"] is None and value["reality_state"] is None
+    assert len(value["request_binding_sha256"]) == 64
     assert calls == []
 
 
