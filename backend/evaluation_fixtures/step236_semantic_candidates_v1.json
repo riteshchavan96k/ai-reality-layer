@@ -1,0 +1,170 @@
+{
+  "dataset_id": "step236-semantic-candidate-pairs-v1",
+  "schema_version": "1.0",
+  "label_provenance": "developer_authored_unreviewed_no_ground_truth",
+  "evidence_publisher_capture_verified": false,
+  "independent_human_labels_verified": false,
+  "representative_population": false,
+  "cases": [
+    {
+      "id": "s232-python-direct-supported",
+      "entity": "Python 3.13.0",
+      "claim": "Python 3.13.0 is a stable release.",
+      "evidence_excerpt": "This is the stable release of Python 3.13.0",
+      "source_ref": "https://www.python.org/downloads/release/python-3130/",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-python-supported-but-outside-grammar",
+      "entity": "Python 3.13.0",
+      "claim": "Python 3.13.0 was released on October 7, 2024.",
+      "evidence_excerpt": "Release date: Oct. 7, 2024",
+      "source_ref": "https://www.python.org/downloads/release/python-3130/",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-python-direct-negation",
+      "entity": "Python 3.13.0",
+      "claim": "Python 3.13.0 is not a stable release.",
+      "evidence_excerpt": "This is the stable release of Python 3.13.0",
+      "source_ref": "https://www.python.org/downloads/release/python-3130/",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-python-unrelated-entity",
+      "entity": "Python 3.13.0",
+      "claim": "Python 3.12.0 is a stable release.",
+      "evidence_excerpt": "This is the stable release of Python 3.13.0",
+      "source_ref": "https://www.python.org/downloads/release/python-3130/",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-python-different-property",
+      "entity": "Python 3.13.0",
+      "claim": "Python 3.13.0 is an unstable release.",
+      "evidence_excerpt": "This is the stable release of Python 3.13.0",
+      "source_ref": "https://www.python.org/downloads/release/python-3130/",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-python-hedged-claim",
+      "entity": "Python 3.13.0",
+      "claim": "Python 3.13.0 might be a stable release.",
+      "evidence_excerpt": "This is the stable release of Python 3.13.0",
+      "source_ref": "https://www.python.org/downloads/release/python-3130/",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-python-forged-release-date",
+      "entity": "Python 3.13.0",
+      "claim": "Python 3.13.0 was released on January 1, 1900.",
+      "evidence_excerpt": "Python 3.13.0 was released on January 1, 1900.",
+      "source_ref": "https://www.python.org/downloads/release/python-3130/",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-python-partial-unit",
+      "entity": "Python 3.13.0",
+      "claim": "Python 3.13.0 is a stable release.",
+      "evidence_excerpt": "stable release of Python 3.13.0",
+      "source_ref": "https://www.python.org/downloads/release/python-3130/",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-iana-genuine-but-semantically-unsupported",
+      "entity": "example.com",
+      "claim": "example.com is reserved for documentation.",
+      "evidence_excerpt": "a number of domains such as example.com and example.org",
+      "source_ref": "https://www.iana.org/domains/reserved",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-iana-forged-registration",
+      "entity": "example.com",
+      "claim": "example.com is available for registration.",
+      "evidence_excerpt": "example.com and example.org are available for registration or transfer.",
+      "source_ref": "https://www.iana.org/domains/reserved",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-iana-genuine-unrelated",
+      "entity": "example.com",
+      "claim": "Python 3.13.0 is a stable release.",
+      "evidence_excerpt": "a number of domains such as example.com and example.org",
+      "source_ref": "https://www.iana.org/domains/reserved",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "s232-iana-python-text-misattribution",
+      "entity": "example.com",
+      "claim": "Python 3.13.0 is a stable release.",
+      "evidence_excerpt": "This is the stable release of Python 3.13.0",
+      "source_ref": "https://www.iana.org/domains/reserved",
+      "evidence_origin": "developer_authored_pair_using_real_publisher_url_not_capture"
+    },
+    {
+      "id": "syn-service-paraphrase",
+      "entity": "Cedar Search",
+      "claim": "Cedar Search is unavailable.",
+      "evidence_excerpt": "Users cannot access Cedar Search right now.",
+      "source_ref": "https://fixtures.example.test/semantic-pair",
+      "evidence_origin": "synthetic_fictional_exercise"
+    },
+    {
+      "id": "syn-service-negation",
+      "entity": "Cedar Search",
+      "claim": "Cedar Search is operational.",
+      "evidence_excerpt": "Cedar Search is not operational.",
+      "source_ref": "https://fixtures.example.test/semantic-pair",
+      "evidence_origin": "synthetic_fictional_exercise"
+    },
+    {
+      "id": "syn-launch-paraphrase",
+      "entity": "Atlas One",
+      "claim": "Atlas One has launched.",
+      "evidence_excerpt": "The release of Atlas One is now available.",
+      "source_ref": "https://fixtures.example.test/semantic-pair",
+      "evidence_origin": "synthetic_fictional_exercise"
+    },
+    {
+      "id": "syn-date-different",
+      "entity": "Nimbus 2",
+      "claim": "Nimbus 2 was released on July 5, 2026.",
+      "evidence_excerpt": "Nimbus 2 was released on August 1, 2026.",
+      "source_ref": "https://fixtures.example.test/semantic-pair",
+      "evidence_origin": "synthetic_fictional_exercise"
+    },
+    {
+      "id": "syn-neutral-context",
+      "entity": "Orchid Cloud",
+      "claim": "Orchid Cloud is operational.",
+      "evidence_excerpt": "Orchid Cloud provides cloud storage services.",
+      "source_ref": "https://fixtures.example.test/semantic-pair",
+      "evidence_origin": "synthetic_fictional_exercise"
+    },
+    {
+      "id": "syn-future-conditional",
+      "entity": "Orchid Cloud",
+      "claim": "Orchid Cloud is available.",
+      "evidence_excerpt": "If everything goes to plan, Orchid Cloud may become available.",
+      "source_ref": "https://fixtures.example.test/semantic-pair",
+      "evidence_origin": "synthetic_fictional_exercise"
+    },
+    {
+      "id": "syn-historical-temporal",
+      "entity": "Atlas One",
+      "claim": "Atlas One is available now.",
+      "evidence_excerpt": "Atlas One was unavailable during maintenance last month.",
+      "source_ref": "https://fixtures.example.test/semantic-pair",
+      "evidence_origin": "synthetic_fictional_exercise"
+    },
+    {
+      "id": "syn-entity-confound",
+      "entity": "Cedar Search",
+      "claim": "Cedar Search is unavailable.",
+      "evidence_excerpt": "Cedar Maps is unavailable.",
+      "source_ref": "https://fixtures.example.test/semantic-pair",
+      "evidence_origin": "synthetic_fictional_exercise"
+    }
+  ]
+}
