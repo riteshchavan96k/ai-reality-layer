@@ -24,4 +24,17 @@ No claims of calibrated accuracy, automated source discovery, semantic productio
 
 ## State
 
-**IN PROGRESS** until genuinely observed original-source neural inference and all 12 final-main CI workflows are independently verified. Step238 ✅ applies only to the scoped *real-source grounded NLI research integration*. Step234 external hosted release #242 stays open.
+**✅ Scoped Step238 engineering accepted** after observing all 12 final-main implementation checks on exact commit `e18fa8b8257a7bed8ac1504fa5d0653d4ce5aa3e`. This checks real independent original-source **retrieval and bounded neural inference**, not factual accuracy, publisher authorship certification, production neural authority, or external hosting. Step234 hosted release #242 stays open.
+
+## Actual captured evidence and independently verified implementation
+
+- [PR #258](https://github.com/riteshchavan96k/ai-reality-layer/pull/258) merged to `main` `e18fa8b8257a7bed8ac1504fa5d0653d4ce5aa3e`. All **12 independent `push` workflows** for exact SHA succeeded.
+- [Backend CI run 38420040370](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38420040370), job 115374639910: **2,652 Python tests passed in 8.10 seconds**.
+- [Step238 real Python.org HTTPS + pinned ONNX NLI run 38420040211](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38420040211), job 115374639367: **33 adversarial tests passed**, then genuine source TLS read once and actual neural inference executed on one full unquoted source unit using three fixed developer claims. Evidence receipt hash `2beef4c6cf479583974e1ef3826887ffc299cf3cd525ed44360f680ae30973db`, observed at `2026-10-13T15:13:01.436532Z`, selected complete visible source unit SHA256 `217a705a6bf7eba3d5e94832c5b61b90daf9a749c62e87c2c18fa434610142cf`. The digest is a **single-run historical receipt** over raw response bytes, not a fixed check against future changes to a public page. No publisher body or original text is printed in the audit.
+- Model source: pinned `cross-encoder/nli-MiniLM2-L6-H768`, revision `b95119c`, quantized ONNX weights SHA256 `44391a5241a62e0083c1a8899a71e69a092b95aea5ba89e14062925468eceac7`. **Direct claim:** model `entailment`, parser `aligned`; **negated claim:** model `contradiction`, parser `contradicted`; **paraphrase:** model `neutral`, parser `insufficient`. No independent human ground truth or field reliability estimate follows from three cases.
+- All ten prior historical production/original-source CI workflows preserved green on the exact implementation SHA: backend, real publisher source, strict claim-only path, Docker/pilot authentication, Step232, Step233, Step235, Step236 and Step237 model paths. Separate documentation-only PR CI must also pass on its own final merged-main SHA.
+
+### What this milestone proves and does not prove
+
+Proves **real network source observation feeding genuine neural inference** in a conservative research-only implementation. It does NOT prove that a source statement is universally true, that an LLM is ready to authorize AI agent actions, that neural outputs are better than deterministic rules on independent semantics, or that the API has been publicly deployed. The next valuable milestone must increase **independent held-out semantic evaluation with genuinely obtained review provenance**, or broaden safe source evidence/evaluation without allowing unauthorized semantic promotion.
+
