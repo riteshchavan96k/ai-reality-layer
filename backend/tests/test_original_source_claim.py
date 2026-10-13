@@ -179,15 +179,15 @@ def test_auth_gate_blocks_new_route_before_any_fetch(pilot, monkeypatch):
     assert calls == []
 
 
-@pytest.mark.parametrize("request", [
+@pytest.mark.parametrize("invalid_payload", [
     {"claim_text": " ", "entity": "Python 3.13.0", "source_uri": URL},
     {"claim_text": "Python 3.13.0 is a stable release.", "entity": "", "source_uri": URL},
     {"claim_text": "Python 3.13.0 is a stable release.", "entity": "Python 3.13.0", "source_uri": "http://localhost/"},
     {**payload(), "unexpected_extracted_content": "forged"},
     {**payload(), "freshness_max_age_seconds": -1},
 ])
-def test_strict_input_validation(pilot, request):
-    result = post(pilot, request)
+def test_strict_input_validation(pilot, invalid_payload):
+    result = post(pilot, invalid_payload)
     assert result.status_code == 422
 
 
