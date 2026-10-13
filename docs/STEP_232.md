@@ -1,4 +1,4 @@
-# Step 232 — Versioned Original-Source Claim-Safety Evaluation (candidate)
+# Step 232 — Versioned Original-Source Claim-Safety Evaluation (✅ scoped engineering complete)
 
 ## Evidence-based milestone identification
 
@@ -39,4 +39,19 @@ export ARL_INDEPENDENT_SOURCE_ALLOWED_URLS='["https://www.python.org/downloads/r
 python -m backend.app.evaluation.step232_source_claim_safety --live
 ```
 
-The live smoke executes in development mode **inside trusted CI on loopback**, not as a publicly reachable unauthenticated API. The public-facing auth and HTTPS ingress deployment issue #242 stays open. Latest completion status must be reconciled only after actual exact-merged-main six-workflow verification.
+The live smoke executes in development mode **inside trusted CI on loopback**, not as a publicly reachable unauthenticated API. The public-facing auth and HTTPS ingress deployment issue #242 stays open. The verified implementation-main outcomes and measured limitations are preserved in [Step 232 Scorecard](STEP_232_SCORECARD.md).
+
+## Exact merged-main acceptance status — scoped engineering ✅
+
+[Implementation PR #245](https://github.com/riteshchavan96k/ai-reality-layer/pull/245) merged to `main` `06307e533ea44e5d0ac76a93c0641b6f584a1001`. All **six** new `push` jobs on that exact SHA completed successfully:
+
+- [Backend 38362081385](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38362081385): 2,457 Python 3.13 tests pass, historical evaluation replays unchanged.
+- [Step 232 real Python.org + IANA claim-safety challenge 38362081256](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38362081256): 12/12 expected finite-policy outcomes; 1 of 2 predeclared positive claims supported, 1 conservatively abstained, 0 of 10 developer-labeled nonpositive cases supported.
+- [Real authenticated Docker HTTP 38362081358](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38362081358): success.
+- [Real Python.org HTTPS 38362081352](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38362081352): success.
+- [Real two-publisher HTTPS 38362081287](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38362081287): success.
+- [Real bounded claim HTTPS 38362081244](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38362081244): success.
+
+The initial feature-head full backend job failed because a new test mistook a **scenario ID containing the word `excerpt`** for a leaked publisher excerpt. The report deliberately contains scenario IDs but no raw source excerpts. The test was corrected; 2,457 tests and all six workflows passed on the final feature head and final implementation main. See [scorecard](STEP_232_SCORECARD.md). This documents a real engineering outcome, **not independent human-labeled field accuracy**. External-hosted release blocker #242 remains open.
+
+This closing documentation change must itself pass all six workflows on its final merged main SHA to keep the current branch verified.
