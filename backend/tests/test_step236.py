@@ -13,6 +13,7 @@ import pytest
 from backend.app.evaluation.step236_semantic_baseline import (
     CASE_IDS,
     DATASET_ID,
+    FROZEN_DATASET_SHA256,
     SemanticEvaluationError,
     baseline_prediction,
     baseline_report,
@@ -80,7 +81,7 @@ def test_actual_atomic_parser_baseline_exposes_limit_and_source_spoof_risk():
     assert report["independent_human_labels_verified"] is False
     assert report["population_accuracy_established"] is False
     assert report["semantic_nli_model_executed"] is False
-    assert len(report["dataset_sha256"]) == 64
+    assert report["dataset_sha256"] == FROZEN_DATASET_SHA256
 
 
 def test_blind_packet_excludes_predictions_prior_gold_and_secret_metadata():
@@ -235,10 +236,12 @@ def test_review_manifest_sha_changes_with_evidence_change_and_prevents_replay(tm
     mutated["cases"][0]["evidence_excerpt"] = "Another developer-authored statement."
     path = tmp_path / "updated.json"
     path.write_text(json.dumps(mutated), encoding="utf-8")
-    revised = load_candidates(path)
-    assert baseline_report(revised)["dataset_sha256"] != baseline_report(corpus)["dataset_sha256"]
+    # The reviewed-case corpus cannot silently drift under the same dataset ID.
     with pytest.raises(SemanticEvaluationError):
-        conditional_review_comparison(revised, review)
+        load_candidates(path)
+    # A stale reviewer manifest cannot be silently treated as applicable to
+    # a revised candidate collection: a new version and separate reviews are required.
+    assert review["dataset_sha256"] == FROZEN_DATASET_SHA256
 
 
 def test_bad_corpus_json_and_large_file_refused(tmp_path):
