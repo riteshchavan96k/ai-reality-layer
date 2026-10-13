@@ -18,7 +18,7 @@ import sys
 from typing import Any
 
 from backend.app.evaluation.step236_semantic_baseline import (
-    baseline_report, load_candidates,
+    baseline_report, load_candidates, FROZEN_DATASET_SHA256,
 )
 
 MODEL_REPO = "cross-encoder/nli-MiniLM2-L6-H768"
@@ -190,8 +190,19 @@ def load_reviewed_model(*, cache_dir: Path, live: bool) -> ONNXNLIShadow:
 
 
 def evaluate_shadow(model: Any, manifest: dict) -> dict[str, Any]:
+    # Do not trust a caller-provided in-memory dictionary merely because its
+    # baseline function can generate valid-looking outputs from it.
+    _require(
+        type(manifest) is dict
+        and manifest.get("independent_human_labels_verified") is False
+        and manifest.get("evidence_publisher_capture_verified") is False
+        and manifest.get("representative_population") is False
+        and manifest.get("label_provenance") == "developer_authored_unreviewed_no_ground_truth",
+        "invalid_shadow_candidate_set",
+    )
     baseline = baseline_report(manifest)
     _require(baseline["candidate_count"] == 20
+             and baseline["dataset_sha256"] == FROZEN_DATASET_SHA256
              and baseline["independent_human_labels_verified"] is False,
              "invalid_shadow_candidate_set")
     old = {x["case_id"]: x["prediction"] for x in baseline["results"]}
