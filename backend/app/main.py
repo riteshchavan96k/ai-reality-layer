@@ -9,6 +9,11 @@ from backend.app.api.errors import (
     validation_exception_handler,
 )
 from backend.app.api.evidence_reality_state import EvidenceRealityStateRequest
+from backend.app.api.original_source_claim import (
+    OriginalSourceClaimRequest,
+    OriginalSourceClaimResponse,
+)
+from backend.app.services.original_source_claim_service import verify_original_source_claim
 from backend.app.api.pilot_auth import PilotAccessMiddleware
 from backend.app.api.health import (
     API_VERSION,
@@ -101,6 +106,17 @@ def solve(request: SolveRequest):
     return process_task(request.task, human_approved=request.human_approved)
 
 
+
+
+@app.post(
+    "/api/v1/reality-state/claim",
+    response_model=OriginalSourceClaimResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
+def reality_state_from_original_source_claim(request: OriginalSourceClaimRequest):
+    """Verify one claim from a server-observed, operator-allowlisted source."""
+    return verify_original_source_claim(request)
 
 
 @app.post(

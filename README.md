@@ -1,6 +1,28 @@
 # ai-reality-layer
 AI Reality Layer — infrastructure for giving autonomous AI systems continuously verified information about the world before they reason, decide, or act.
 
+## Core original-source claim-only verification (bounded MVP)
+
+An AI client can now submit one explicit claim and an operator-approved original HTTPS source **without providing a potentially forged source excerpt**:
+
+```http
+POST /api/v1/reality-state/claim
+Authorization: Bearer <operator-managed-pilot-token>
+Content-Type: application/json
+
+{
+  "entity": "Python 3.13.0",
+  "claim_text": "Python 3.13.0 is a stable release.",
+  "source_uri": "https://www.python.org/downloads/release/python-3130/",
+  "freshness_max_age_seconds": 3600
+}
+```
+
+The operator must configure the exact original-source URL in `ARL_INDEPENDENT_SOURCE_ALLOWED_URLS`. The backend independently retrieves the source over strictly validated HTTPS, selects **one unambiguous complete atomic source assertion**, and reuses the *same observation* for the existing strict independent text-match, source quotation/counterstatement, freshness and claim-alignment Reality State pipeline. If the statement is missing, duplicated, conflicting, quoted or outside the supported grammar, it **abstains rather than manufacturing support**. The JSON response contains a bounded `status` and `reason`, with `reality_state` when a unique candidate is evaluated.
+
+This is **not unrestricted web search, a semantic fact checker, publisher authentication or independently verified factual truth**. The claimant still names a candidate exact operator-allowlisted source; the system does not discover an official publisher on its own. The fixed Python.org real-original-source CI canary verifies a bounded positive and its safely refused negation; it does not establish population accuracy or external hosting. See [core implementation and limitations](docs/CORE_ORIGINAL_SOURCE_CLAIM.md). External HTTPS deployment remains **deferred and explicitly blocked for real users** by [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242).
+
+
 ## Authenticated restricted single-tenant pilot engineering (Step 231)
 
 The original-source FastAPI backend has a **development-only default mode**. Never expose default development mode on a public interface. The explicitly configured Step 231 pilot adds a server-owned bearer authorization boundary, strict configured exact original-source URL allowlist, a 4 MiB application request limit and a reproducible non-root Docker image. The explicitly revised **Step 231 engineering milestone is complete**: [PR #241](https://github.com/riteshchavan96k/ai-reality-layer/pull/241) plus [CI stability fix #243](https://github.com/riteshchavan96k/ai-reality-layer/pull/243), with **2,440 backend tests and five successful workflows on exact merged implementation `main` `9e21809cc69fdac1ca998f11b58b1cdf862ed3d0`**. Those checks include real loopback Docker HTTP and genuine Python.org DNS/TLS/HTTPS original-source observation. This is a verified deployable implementation, **not an externally hosted service**. See [engineering scorecard](docs/STEP_231_ENGINEERING_SCORECARD.md).
