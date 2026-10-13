@@ -56,3 +56,7 @@ The hostname above is an illustrative placeholder, **not a real deployed endpoin
 - The standalone verifier does not validate the operator's cloud resources, domain ownership, secret hygiene, direct HTTP port closure, ingress rate limits, independent observer location or latency/availability. Those require documented independent operational verification.
 - No hosted ML/LLM, general contextual inference or human-labeled population quality evaluation was added here.
 - **Status: Step 234 pending external deployment; Step 233 remains the last completed milestone.**
+
+## Development priority decision (2026-10-13)
+
+The project owner agreed that **full Step 234 external hosting/deployment acceptance is deferred**, so core AI Reality Layer functionality can progress before the first restricted pilot. This is a scheduling decision **not a reduction of the deployment acceptance criteria** and **not a completion checkmark**. [Issue #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242) remains an explicit release blocker for real external users; the current completed numbered checkpoint remains Step 233. New nonpublic core product features may be developed and tested independently while that gate is pending. See [the next core claim-only source verification slice](CORE_ORIGINAL_SOURCE_CLAIM.md).
