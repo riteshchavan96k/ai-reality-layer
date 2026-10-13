@@ -70,10 +70,12 @@ def test_actual_atomic_parser_baseline_exposes_limit_and_source_spoof_risk():
     assert prediction("syn-date-different") == "bounded_contradiction"
     # Text-only relation can align a developer-forged excerpt: not truth.
     assert prediction("s232-python-forged-release-date") == "bounded_alignment"
+    # An excerpt falsely attributed to IANA also aligns textually; no source proof.
+    assert prediction("s232-iana-python-text-misattribution") == "bounded_alignment"
     report = baseline_report(manifest)
     assert report["candidate_count"] == 20
     assert report["prediction_counts"] == {
-        "abstain": 15, "bounded_alignment": 2, "bounded_contradiction": 3
+        "abstain": 14, "bounded_alignment": 3, "bounded_contradiction": 3
     }
     assert report["independent_human_labels_verified"] is False
     assert report["population_accuracy_established"] is False
@@ -164,7 +166,7 @@ def test_user_submitted_consensus_is_conditional_not_verified_external_review():
     assert result["independent_human_labels_verified"] is False
     assert result["reviewer_identity_authentication"] == "not_independently_verified"
     assert result["population_accuracy_established"] is False
-    assert result["conditional_counts"]["possible_false_support"] == 2
+    assert result["conditional_counts"]["possible_false_support"] == 3
     assert result["conditional_counts"]["bounded_alignment_on_submitted_entailment"] == 0
     assert result["conditional_counts"]["submitted_entailment_count"] == 0
     assert result["conditional_counts"]["reviewed_case_count"] == 20
@@ -181,8 +183,8 @@ def test_conditional_counts_detect_false_support_and_partial_coverage():
     scored = conditional_review_comparison(corpus, review)["conditional_counts"]
     assert scored["bounded_alignment_on_submitted_entailment"] == 1
     assert scored["submitted_entailment_count"] == 1
-    assert scored["possible_false_support"] == 1
-    assert scored["abstained"] == 15
+    assert scored["possible_false_support"] == 2
+    assert scored["abstained"] == 14
 
 
 @pytest.mark.parametrize("edit", [
