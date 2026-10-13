@@ -1,0 +1,49 @@
+name: Step 232 real-source claim safety evaluation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step232-real-source-evaluation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  live-policy:
+    name: Twelve fixed claim decisions from real Python.org and IANA TLS
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      ARL_RUNTIME_MODE: development
+      ARL_INDEPENDENT_SOURCE_ALLOWED_URLS: '["https://www.python.org/downloads/release/python-3130/","https://www.iana.org/domains/reserved"]'
+    steps:
+      - name: Checkout exact tested revision
+        uses: actions/checkout@v7
+      - name: Install Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+      - name: Install development requirements
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Evaluate predeclared claims against independent real HTTPS source reads
+        run: python -m backend.app.evaluation.step232_source_claim_safety --live --output "$RUNNER_TEMP/step232-policy-audit.json"
+      - name: Upload digest-only audit, without publisher text or credentials
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: step232-source-claim-policy-audit
+          path: ${{ runner.temp }}/step232-policy-audit.json
+          if-no-files-found: error
+          retention-days: 30
