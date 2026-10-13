@@ -1,0 +1,44 @@
+name: Step 238 actual original-source TLS to neural NLI shadow
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step238-real-source-shadow-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  actual-original-source-neural-shadow:
+    name: Exactly one real Python.org HTTPS capture and pinned ONNX NLI
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      TOKENIZERS_PARALLELISM: "false"
+    steps:
+      - name: Checkout exact tested code commit
+        uses: actions/checkout@v7
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+            backend/requirements-nli-shadow.txt
+      - name: Install optional quantized CPU NLI dependencies
+        run: python -m pip install -r backend/requirements-nli-shadow.txt
+      - name: Verify single original-source capture and adversarial defenses
+        run: python -m pytest -q backend/tests/test_step238.py
+      - name: Read actual pinned TLS Python.org once and execute real NLI model
+        run: python -m backend.app.evaluation.step238_live_source_nli --live
