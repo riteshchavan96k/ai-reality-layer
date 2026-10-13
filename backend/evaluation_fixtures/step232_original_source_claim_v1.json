@@ -1,0 +1,128 @@
+{
+  "dataset_id": "step232-fixed-original-source-claim-policy-v1",
+  "schema_version": "1.0",
+  "label_provenance": "developer-authored-before-new_live_capture_not_independent_human_review",
+  "representative_population": false,
+  "sources": [
+    {
+      "id": "python313",
+      "url": "https://www.python.org/downloads/release/python-3130/",
+      "anchor": "This is the stable release of Python 3.13.0"
+    },
+    {
+      "id": "ianareserved",
+      "url": "https://www.iana.org/domains/reserved",
+      "anchor": "a number of domains such as example.com and example.org"
+    }
+  ],
+  "cases": [
+    {
+      "id": "python-direct-supported",
+      "source_id": "python313",
+      "excerpt": "This is the stable release of Python 3.13.0",
+      "claim": "Python 3.13.0 is a stable release.",
+      "reference_relation": "supports_claim",
+      "expected_decision": "supported",
+      "expected_alignment": "aligned"
+    },
+    {
+      "id": "python-supported-but-outside-grammar",
+      "source_id": "python313",
+      "excerpt": "Release date: Oct. 7, 2024",
+      "claim": "Python 3.13.0 was released on October 7, 2024.",
+      "reference_relation": "supports_claim",
+      "expected_decision": "abstain",
+      "expected_alignment": "insufficient"
+    },
+    {
+      "id": "python-direct-negation",
+      "source_id": "python313",
+      "excerpt": "This is the stable release of Python 3.13.0",
+      "claim": "Python 3.13.0 is not a stable release.",
+      "reference_relation": "contradicts_claim",
+      "expected_decision": "abstain",
+      "expected_alignment": "contradicted"
+    },
+    {
+      "id": "python-unrelated-entity",
+      "source_id": "python313",
+      "excerpt": "This is the stable release of Python 3.13.0",
+      "claim": "Python 3.12.0 is a stable release.",
+      "reference_relation": "unrelated_claim",
+      "expected_decision": "abstain",
+      "expected_alignment": "insufficient"
+    },
+    {
+      "id": "python-different-property",
+      "source_id": "python313",
+      "excerpt": "This is the stable release of Python 3.13.0",
+      "claim": "Python 3.13.0 is an unstable release.",
+      "reference_relation": "unrelated_claim",
+      "expected_decision": "abstain",
+      "expected_alignment": "insufficient"
+    },
+    {
+      "id": "python-hedged-claim",
+      "source_id": "python313",
+      "excerpt": "This is the stable release of Python 3.13.0",
+      "claim": "Python 3.13.0 might be a stable release.",
+      "reference_relation": "ambiguous_or_hedged",
+      "expected_decision": "abstain",
+      "expected_alignment": "insufficient"
+    },
+    {
+      "id": "python-forged-release-date",
+      "source_id": "python313",
+      "excerpt": "Python 3.13.0 was released on January 1, 1900.",
+      "claim": "Python 3.13.0 was released on January 1, 1900.",
+      "reference_relation": "forged_evidence",
+      "expected_decision": "abstain",
+      "expected_alignment": "insufficient"
+    },
+    {
+      "id": "python-partial-unit",
+      "source_id": "python313",
+      "excerpt": "stable release of Python 3.13.0",
+      "claim": "Python 3.13.0 is a stable release.",
+      "reference_relation": "incomplete_excerpt",
+      "expected_decision": "abstain",
+      "expected_alignment": "insufficient"
+    },
+    {
+      "id": "iana-genuine-but-semantically-unsupported",
+      "source_id": "ianareserved",
+      "excerpt": "a number of domains such as example.com and example.org",
+      "claim": "example.com is reserved for documentation.",
+      "reference_relation": "needs_semantic_context",
+      "expected_decision": "abstain",
+      "expected_alignment": "insufficient"
+    },
+    {
+      "id": "iana-forged-registration",
+      "source_id": "ianareserved",
+      "excerpt": "example.com and example.org are available for registration or transfer.",
+      "claim": "example.com is available for registration.",
+      "reference_relation": "forged_evidence",
+      "expected_decision": "abstain",
+      "expected_alignment": "insufficient"
+    },
+    {
+      "id": "iana-genuine-unrelated",
+      "source_id": "ianareserved",
+      "excerpt": "a number of domains such as example.com and example.org",
+      "claim": "Python 3.13.0 is a stable release.",
+      "reference_relation": "unrelated_claim",
+      "expected_decision": "abstain",
+      "expected_alignment": "insufficient"
+    },
+    {
+      "id": "iana-python-text-misattribution",
+      "source_id": "ianareserved",
+      "excerpt": "This is the stable release of Python 3.13.0",
+      "claim": "Python 3.13.0 is a stable release.",
+      "reference_relation": "forged_evidence",
+      "expected_decision": "abstain",
+      "expected_alignment": "insufficient"
+    }
+  ]
+}
