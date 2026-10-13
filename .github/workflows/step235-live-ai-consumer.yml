@@ -1,0 +1,39 @@
+name: Step 235 real original-source AI client decision gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step235-live-ai-consumer-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-source-ai-consumer:
+    name: Original Python.org TLS to authenticated FastAPI and bounded AI client policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v7
+      - name: Install Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+      - name: Install development requirements
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Verify actual source evidence and AI client support/refusal/abstentions
+        run: python -m backend.app.evaluation.step235_live_ai_consumer --live
