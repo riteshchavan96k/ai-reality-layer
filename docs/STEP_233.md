@@ -1,4 +1,4 @@
-# Step 233 — Safe, Machine-Readable Claim Decision Reasons (candidate)
+# Step 233 — Safe, Machine-Readable Claim Decision Reasons (✅ scoped engineering complete)
 
 ## Verified predecessor and gap
 
@@ -46,4 +46,8 @@ Step 232's corpus remains **developer-authored** and its real sources are only P
 
 ## Completion status
 
-**Pending exact final-main acceptance**, including seven independently verified workflow runs, exact SHA, test count and genuine original-source classification; do not mark complete from PR checks alone.
+**Step 233 ✅ COMPLETE in the explicitly bounded engineering scope**, independently verified through implementation [PR #247](https://github.com/riteshchavan96k/ai-reality-layer/pull/247), merged into `main` SHA `51b27cb90e813c77c916f2223cc7e5b1fdf418f1`.
+
+All **seven** separate hosted `push` workflows completed successfully on that exact merged main SHA. [Python3.13 backend run 38364578347](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38364578347) passed **2,467 tests**; the [new live original-source explanation run 38364578427](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38364578427) passed **12/12 fixed predeclared reason-code outcomes**, including one known safe `source_grammar_unsupported` positive abstention and zero of ten nonpositive cases falsely supported. Five historical genuine-source/HTTP workflows also passed, including the Step 232 12-case policy regression. See [Step 233 scorecard](STEP_233_SCORECARD.md) for exact runs and honesty limitations.
+
+This was **not** an externally deployed user service or general semantic factual correctness evaluation, and was not a trained LLM/ML implementation. A new documentation-only merge must independently pass all seven workflows on its own final main SHA before the *latest* branch is called green. Keep [external deployment gate #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242) OPEN.
