@@ -171,6 +171,24 @@ def judge_case(case: dict[str, Any], response: dict[str, Any]) -> dict[str, Any]
     should_support = case["expected_decision"] == "supported"
     if (state == "supported") != should_support:
         raise Step232GateError("false_support_or_missing_supported_case")
+    # Step 233: expose a bounded server-selected code, never source text or
+    # exception content; verify the source identity independently of labels.
+    reason_rows = alignment.get("decision_reasons")
+    if (
+        not isinstance(reason_rows, list)
+        or len(reason_rows) != 1
+        or not isinstance(reason_rows[0], dict)
+        or reason_rows[0].get("source_ref") != SOURCES[case["source_id"]]
+        or reason_rows[0].get("code") not in {
+            "source_quoted_unit", "source_counterstatement_observed",
+            "independent_source_unverified",
+            "source_assertion_context_unverified",
+            "source_capture_receipt_invalid", "claim_grammar_unsupported",
+            "source_grammar_unsupported", "bounded_assertion_aligned",
+            "bounded_assertion_contradicted", "atomic_relationship_undetermined",
+        }
+    ):
+        raise Step232GateError("invalid_bounded_claim_decision_reason")
     # Do not serialize user/publisher text, token, raw HTML or network errors.
     return {
         "id": case["id"],
@@ -179,6 +197,7 @@ def judge_case(case: dict[str, Any], response: dict[str, Any]) -> dict[str, Any]
         "expected_decision": case["expected_decision"],
         "state": state,
         "alignment": alignment_status,
+        "reason_code": reason_rows[0]["code"],
     }
 
 

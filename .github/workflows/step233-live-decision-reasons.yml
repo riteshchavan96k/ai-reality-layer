@@ -1,0 +1,50 @@
+name: Step 233 live original-source decision reasons
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step233-decision-reasons-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-source-reasons:
+    name: Real Python.org and IANA reason classifications through FastAPI
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      ARL_RUNTIME_MODE: development
+      # Fixed reviewed URLs; never accept remote/user-controlled URL overrides.
+      ARL_INDEPENDENT_SOURCE_ALLOWED_URLS: '["https://www.python.org/downloads/release/python-3130/","https://www.iana.org/domains/reserved"]'
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v7
+      - name: Install Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+      - name: Install backend development requirements
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Verify all twelve reason codes against real original-source TLS and API
+        run: python -m backend.app.evaluation.step233_source_reason_live_smoke --live --output "$RUNNER_TEMP/step233-reason-audit.json"
+      - name: Retain limited original-source classification evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: step233-reason-audit
+          path: ${{ runner.temp }}/step233-reason-audit.json
+          if-no-files-found: error
+          retention-days: 30
