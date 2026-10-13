@@ -24,6 +24,14 @@ A strictly observed source and a successful bounded source claim gate still lack
 - The runner never upgrades original-source production support decisions, bypasses user-approved source allowlists, or authorizes external AI actions.
 - A green test suite validates benchmark tooling only. It does not close Step 234 deployment release gate or establish NLI performance.
 
+## Verified implementation and original engineering scorecard (2026-10-13)
+
+- [Implementation PR #254](https://github.com/riteshchavan96k/ai-reality-layer/pull/254) merged into actual `main` implementation SHA `1dfc7042f1b08821614f098b4d395b507179d99b`.
+- Last exact feature-PR head `e984beaef1c26ab1d6e093b79e31ec86151cf89c`: all **ten** workflows successful. [Backend run 38412026212](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38412026212) logged **2,585 passing tests**; [new Step236 evaluation run 38412026452](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38412026452) logged **35 passing new tests** and an exact reproducible 20-case scorecard.
+- Fixed candidate corpus SHA-256: `5987acb4fb6d33b98c079c545370d9f3dfd195bcefd7da3179f0c8b184e132fa`. Baseline text-only results: **3 bounded alignments, 3 bounded contradictions, 14 abstentions**. **Two alignments involve intentionally forged or misattributed candidate excerpts**. This is research tool evidence that textual overlap cannot authenticate a publisher, **not an observed failure of the full production original-HTTPS source assurance gate**.
+- The dataset, [machine-readable replay baseline](STEP_236_BASELINE.json) and [independent blind review protocol](STEP_236_REVIEW_PROTOCOL.md) distinguish *developer-authored candidates* from unavailable independently audited human labels. No generic accuracy percentage, real model, real reviewer, or source-capture evidence is invented.
+- **Exact merged-main push acceptance pending at time of this record.** No Step 236 completion claim until all ten workflows pass on the exact final main SHA, including the status-sync doc commit. A future PR audit comment should record the final exact-main proof without producing another unverified code revision.
+
 ## Completion criterion
 
 Freeze corpus and blind packet generation; produce baseline on all twenty with real deterministic parser, prove robust fail-closed review/metrics tests; confirm all new + historical tests and workflow gates green on the exact merged-main SHA. **Step 236 engineering completion may be marked ✅ only for this scoped foundation.** **Independently completed human review and factual accuracy must remain pending until real independent review is provided, audited, and measured.**
