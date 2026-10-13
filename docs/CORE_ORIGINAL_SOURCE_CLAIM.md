@@ -37,7 +37,7 @@ The request has **no caller-supplied excerpt**, attestation, observation time or
 - A page may be true and relevant but fall outside current grammar; abstention is correct. Conflicting/duplicated assertions are rejected, even if this reduces positive coverage.
 - Independently fetched HTTPS is not publisher authorship proof or factual truth. `semantic_support_verified` and `factual_truth_verified` remain false.
 - HTML text extraction is conservative, not a complete browser CSS/JS engine; some pages will abstain.
-- The new integration tests use mock upstream reader observations. Historical original Python.org and IANA live TLS workflows remain the genuine network checks; **they do not yet call this new claim-only route**. A dedicated live original-source claim-only canary is the next acceptance improvement.
+- Offline integration tests mock upstream reader observations. A **new independent GitHub Actions workflow**, `.github/workflows/core-claim-only-live.yml`, executes the new authenticated claim-only route against the real Python.org original publisher over verified HTTPS. It requires one genuine bounded positive and safe refusal of its negation and reports only redacted policy flags. Passing PR and exact merged-main run evidence must be verified before declaring this live product slice accepted; it is **not externally hosted**.
 - External staging, human-labeled factual accuracy and general-purpose claim verification remain **not done**. [Step 234 and #242](STEP_234.md) are deferred external deployment acceptance, NOT completed.
 - Avoid sharing source evidence outside permitted uses and publishing raw source pages or credentials.
 
