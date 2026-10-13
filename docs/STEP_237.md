@@ -26,4 +26,18 @@ Our semantic verification system has a rigorous deterministic/observed-source ba
 
 ## State
 
-**In progress until merged-main CI verification.** Scoped Step 237 checkmark applies only to verified *real neural NLI shadow research integration*, not independently proven accuracy or production AI authority.
+## Verified Step 237 implementation acceptance (2026-10-13)
+
+The new [Step237 real neural NLI implementation PR #256](https://github.com/riteshchavan96k/ai-reality-layer/pull/256) merged to exact `main` SHA **`d48b7945a78ed4c7b7aef52f1b7617a5fc5164d0`**. All **eleven** independent GitHub-hosted `push` workflows completed successfully, checked against the same exact main commit:
+
+- [Backend 38416933299](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933299): actual CI logs **2,619 tests passed in 8.26s**.
+- [Step237 genuine neural inference 38416933361](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933361): actual CI logs **69 Step236+237 tests passed**, pinned Hugging Face model successfully acquired and SHA-256 checked, ONNX CPU neural inference actually executed for **20/20** frozen Step236 pairs. Neural model classifications: **11 entailment, 5 contradiction, 4 neutral**; existing deterministic baseline on same cases: **3 bounded textual alignments, 3 bounded textual contradictions, 14 abstentions**. The ONNX quantized weights SHA-256 was **`44391a5241a62e0083c1a8899a71e69a092b95aea5ba89e14062925468eceac7`**, revision `b95119c`.
+- Preserved independently green historical push workflows: [Step231 authenticated Docker 38416933463](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933463), [original claim 38416933309](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933309), [Step222 38416933364](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933364), [Step226 38416933246](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933246), [Step227 38416933336](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933336), [Step232 38416933396](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933396), [Step233 38416933318](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933318), [Step235 38416933623](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933623), [Step236 38416933258](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38416933258).
+
+**This establishes genuine model execution and safely isolated shadow comparison, NOT independently measured accuracy**. None of the developer-authored 20 paired excerpts carries authenticated original-source truth; no real human-reviewed semantic gold is present. A greater number of model entailments is not a model quality victory. Production strict source decisions, claim API, and downstream AI-client authorization are unchanged. This engineering milestone is complete within scope, while the next scientific validation (real independent labels, diverse original-source captures and holdout evaluation) remains pending. External deployment gate #242 stays open.
+
+## Final acceptance
+
+**✅ Step 237 scoped neural NLI shadow engineering complete** based on independently checked exact-main implementation evidence, with documentation-only follow-up requiring its own GitHub CI recheck.
+
+
