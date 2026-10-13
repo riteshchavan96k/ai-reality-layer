@@ -23,6 +23,9 @@ from backend.app.reality.claim_assertion_alignment import _parse_atomic, _relati
 
 DATASET = Path(__file__).resolve().parents[2] / "evaluation_fixtures" / "step236_semantic_candidates_v1.json"
 DATASET_ID = "step236-semantic-candidate-pairs-v1"
+# Independently reproduced by the new GitHub-hosted Step 236 CLI workflow.
+# Any change to the candidate evidence requires an explicit dataset v2.
+FROZEN_DATASET_SHA256 = "5987acb4fb6d33b98c079c545370d9f3dfd195bcefd7da3179f0c8b184e132fa"
 SCHEMA_VERSION = "1.0"
 CASE_IDS = frozenset({
     "s232-python-direct-supported", "s232-python-supported-but-outside-grammar",
@@ -120,7 +123,8 @@ def load_candidates(path: Path = DATASET) -> dict[str, Any]:
             )
         ref = case["source_ref"]
         origin = case["evidence_origin"]
-        _require(type(ref) is str and ref in SOURCE_REFS and origin in DECLARED_ORIGINS,
+        _require(type(ref) is str and ref in SOURCE_REFS and type(origin) is str
+                 and origin in DECLARED_ORIGINS,
                  "unreviewed_or_invalid_source_provenance")
         _require(
             (case_id.startswith("s232-")
@@ -132,6 +136,8 @@ def load_candidates(path: Path = DATASET) -> dict[str, Any]:
             "misleading_candidate_origin",
         )
     _require(ids == CASE_IDS, "case_ids_changed")
+    _require(_canonical_digest(raw) == FROZEN_DATASET_SHA256,
+             "frozen_dataset_digest_mismatch_requires_new_version")
     return raw
 
 
