@@ -33,6 +33,11 @@ def _realistic_response(case, *, state=None, alignment=None, audit_ok=True):
                 "status": decision,
                 "source_count": 1,
                 "source_decisions": [{"source_ref": SOURCES[case["source_id"]], "relationship": decision}],
+                "decision_reasons": [{"source_ref": SOURCES[case["source_id"]], "code": {
+                    "aligned": "bounded_assertion_aligned",
+                    "contradicted": "bounded_assertion_contradicted",
+                    "insufficient": "source_grammar_unsupported",
+                }[decision]}],
                 "factual_truth_verified": False,
                 "semantic_support_verified": False,
             },
