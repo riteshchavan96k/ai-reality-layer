@@ -75,11 +75,16 @@ def _validated_pair(premise: str, hypothesis: str) -> None:
 def _normalized_logits(logits: Any) -> tuple[str, dict[str, float]]:
     """Validate real scores rather than claiming uncalibrated logits are truth."""
     try:
-        import numpy as np
-        values = np.asarray(logits, dtype=np.float64)
-        _require(values.shape == (1, 3), "invalid_model_output_shape")
-        _require(bool(np.isfinite(values).all()), "non_finite_model_scores")
-        scores = values[0].tolist()
+        # Numpy ONNX arrays and plain Python matrices share this interface;
+        # unit tests deliberately do not install optional heavy ML packages.
+        rows = list(logits)
+        _require(len(rows) == 1, "invalid_model_output_shape")
+        values = list(rows[0])
+        _require(len(values) == 3 and all(
+            type(x) in (int, float) or hasattr(x, "item") for x in values
+        ), "invalid_model_output_shape")
+        scores = [float(x) for x in values]
+        _require(all(math.isfinite(x) for x in scores), "non_finite_model_scores")
         max_value = max(scores)
         exp = [math.exp(x - max_value) for x in scores]
         total = sum(exp)
