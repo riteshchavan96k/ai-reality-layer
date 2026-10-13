@@ -1,0 +1,7 @@
+# Optional dependencies exclusively for Step237 one-shot genuine CPU NLI shadow evaluation.
+# NOT installed in production Docker or mandatory backend dev suite.
+-r requirements-dev.txt
+numpy==2.3.4
+onnxruntime==1.23.2
+tokenizers==0.22.2
+huggingface_hub==1.1.6

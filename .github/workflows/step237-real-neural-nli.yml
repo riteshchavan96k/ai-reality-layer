@@ -1,0 +1,44 @@
+name: Step 237 genuine ONNX neural NLI shadow experiment
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step237-nli-shadow-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-neural-shadow-inference:
+    name: Real 82MB pinned ONNX NLI inference on 20 frozen developer pairs
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      TOKENIZERS_PARALLELISM: "false"
+    steps:
+      - name: Check out exactly tested SHA
+        uses: actions/checkout@v7
+      - name: Setup CPU-only Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+            backend/requirements-nli-shadow.txt
+      - name: Install optional ONNX and Hugging Face tokenizer dependencies
+        run: python -m pip install -r backend/requirements-nli-shadow.txt
+      - name: Run deterministic and adversarial no-promotion unit tests
+        run: python -m pytest -q backend/tests/test_step236.py backend/tests/test_step237.py
+      - name: Execute actual checksum-pinned pretrained neural network (shadow ONLY)
+        run: python -m backend.app.evaluation.step237_nli_shadow --live --summary-only
