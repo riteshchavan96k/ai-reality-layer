@@ -1,0 +1,39 @@
+name: Core claim-only genuine original-source HTTPS canary
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-claim-only-live-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  claim-only-original-source:
+    name: Real Python.org single-capture claim to Reality State via authenticated FastAPI
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v7
+      - name: Install Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+      - name: Install backend development requirements
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Verify genuine original-source claim-only API positive and refusal
+        run: python -m backend.app.evaluation.claim_only_live_smoke --live
