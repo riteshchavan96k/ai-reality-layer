@@ -7,6 +7,7 @@ associated with genuine publisher URL candidates.
 
 from copy import deepcopy
 import json
+from pathlib import Path
 
 import pytest
 
@@ -252,3 +253,12 @@ def test_bad_corpus_json_and_large_file_refused(tmp_path):
     broken.write_bytes(b"x" * (128 * 1024 + 1))
     with pytest.raises(SemanticEvaluationError):
         load_candidates(broken)
+
+
+def test_published_hosted_ci_scorecard_exactly_matches_replayed_current_parser():
+    """Preserve the original observed baseline; never relabel to flatter a model."""
+    path = Path(__file__).resolve().parents[2] / "docs" / "STEP_236_BASELINE.json"
+    recorded = json.loads(path.read_text(encoding="utf-8"))
+    replay = baseline_report(load_candidates())
+    replay.pop("results")
+    assert recorded == replay
