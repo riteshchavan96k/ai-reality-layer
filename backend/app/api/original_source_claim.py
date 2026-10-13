@@ -67,6 +67,7 @@ class OriginalSourceClaimResponse(BaseModel):
         "bounded_reality_state_evaluated",
     ]
     source_ref: str | None = None
+    request_binding_sha256: str
     reality_state: RealityStateResponse | None = None
 
 
