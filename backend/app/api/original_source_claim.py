@@ -54,6 +54,17 @@ class OriginalSourceClaimRequest(BaseModel):
         return value
 
 
+class OriginalSourceEvidence(BaseModel):
+    """Exact server-observed standalone unit, not publisher-signed truth."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    text: str = Field(min_length=1, max_length=500)
+    text_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_capture_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_capture_observed_at: str = Field(min_length=1, max_length=64)
+
+
 class OriginalSourceClaimResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -69,6 +80,9 @@ class OriginalSourceClaimResponse(BaseModel):
     source_ref: str | None = None
     request_binding_sha256: str
     reality_state: RealityStateResponse | None = None
+    source_evidence: OriginalSourceEvidence | None = None
 
 
-__all__ = ["OriginalSourceClaimRequest", "OriginalSourceClaimResponse"]
+__all__ = [
+    "OriginalSourceClaimRequest", "OriginalSourceClaimResponse", "OriginalSourceEvidence"
+]

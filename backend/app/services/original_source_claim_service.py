@@ -13,6 +13,7 @@ import re
 from backend.app.api.original_source_claim import (
     OriginalSourceClaimRequest,
     OriginalSourceClaimResponse,
+    OriginalSourceEvidence,
 )
 from backend.app.api.claim_request_binding import claim_request_binding_sha256
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
@@ -23,6 +24,92 @@ from backend.app.reality.independent_source_text_assurance import (
     MAX_INDEPENDENT_SOURCE_TEXT_CHARS,
     IndependentSourceTextAssurance,
 )
+
+
+
+def _verified_source_evidence(
+    state: dict,
+    *,
+    selected_unit: str,
+    source_uri: str,
+    source_capture_sha256: str,
+    source_capture_observed_at: str,
+) -> OriginalSourceEvidence | None:
+    """Only emit text when the *same capture* passed every existing source gate.
+
+    Never echo a candidate if an assurance/quote/counterstatement check has
+    refused it. This field is evidence of observed text, not factual truth.
+    """
+    if not isinstance(state, dict) or state.get("status") not in {"supported", "uncertain"}:
+        return None
+    evidence = state.get("evidence")
+    if not isinstance(evidence, dict):
+        return None
+    assurance = evidence.get("independent_source_text_assurance")
+    alignment = evidence.get("claim_alignment")
+    if not isinstance(assurance, dict) or not isinstance(alignment, dict):
+        return None
+    freshness = state.get("freshness")
+    conflicts = state.get("conflicts")
+    verification = state.get("verification")
+    confidence = state.get("confidence_signals")
+    if (
+        not isinstance(freshness, dict)
+        or freshness.get("status") != "usable"
+        or freshness.get("stale_count") != 0
+        or freshness.get("unknown_count") != 0
+        or not isinstance(conflicts, dict)
+        or conflicts.get("conflict_count") != 0
+        or not isinstance(verification, dict)
+        or verification.get("status") != "completed"
+        or not isinstance(confidence, dict)
+        or confidence.get("status") != state["status"]
+    ):
+        return None
+    rows = assurance.get("sources")
+    decisions = alignment.get("source_decisions")
+    if (
+        assurance.get("status") != "exact_text_observed"
+        or assurance.get("source_count") != 1
+        or assurance.get("matched_source_count") != 1
+        or assurance.get("publisher_authenticated") is not False
+        or assurance.get("semantic_support_verified") is not False
+        or alignment.get("method") != "bounded_atomic_assertion_comparison"
+        or alignment.get("status") not in {"aligned", "contradicted"}
+        or alignment.get("semantic_support_verified") is not False
+        or alignment.get("factual_truth_verified") is not False
+        or not isinstance(rows, list) or len(rows) != 1
+        or not isinstance(decisions, list) or len(decisions) != 1
+    ):
+        return None
+    source_row, decision_row = rows[0], decisions[0]
+    if not isinstance(source_row, dict) or not isinstance(decision_row, dict):
+        return None
+    if (
+        source_row.get("source_ref") != source_uri
+        or source_row.get("status") != "exact_text_observed"
+        or source_row.get("assertion_context_status") != "unique_standalone_unit"
+        or source_row.get("source_counterstatement_status")
+        != "no_bounded_counterstatement_observed"
+        or source_row.get("source_quote_context_status") != "no_matching_html_quote_unit"
+        or source_row.get("reason") is not None
+        or source_row.get("capture_sha256") != source_capture_sha256
+        or source_row.get("capture_observed_at") != source_capture_observed_at
+        or decision_row.get("source_ref") != source_uri
+        or decision_row.get("relationship") != (
+            "aligned" if alignment["status"] == "aligned" else "contradicted"
+        )
+        or (alignment["status"] == "aligned" and state["status"] != "supported")
+        or not isinstance(selected_unit, str)
+        or not 0 < len(selected_unit) <= 500
+    ):
+        return None
+    return OriginalSourceEvidence(
+        text=selected_unit,
+        text_sha256=sha256(selected_unit.encode("utf-8")).hexdigest(),
+        source_capture_sha256=source_capture_sha256,
+        source_capture_observed_at=source_capture_observed_at,
+    )
 
 
 def verify_original_source_claim(
@@ -126,6 +213,13 @@ def verify_original_source_claim(
         source_ref=request.source_uri,
         request_binding_sha256=binding,
         reality_state=state,
+        source_evidence=_verified_source_evidence(
+            state,
+            selected_unit=candidates[0],
+            source_uri=request.source_uri,
+            source_capture_sha256=capture,
+            source_capture_observed_at=captured_at,
+        ),
     )
 
 
