@@ -1,3 +1,7 @@
+# Step 232 — Original-Source Claim-Safety Evaluation (candidate, NOT COMPLETE)
+
+The latest independently completed milestone remains **Step 231** (scoped authenticated deployable engineering; exact `main` `d2acf37f526a60bdfb4731947beb17f082379ccb`, all five workflows green, 2,440 backend tests). **Step 232 is a new, evidence-gap-derived scope, not a previously documented historical roadmap step.** The candidate adds a versioned, predeclared **12-case/two-official-publisher** live-HTTPS challenge corpus, a strict false-support/abstention scorecard, immutable manifest checks and dedicated CI. It must **not** receive a completion checkmark without merge and **all six** exact-main workflows independently verified. Labels are **developer-authored, not blinded independently human-reviewed**, and this benchmark is neither factual population accuracy nor a real LLM/ML integration. Mandatory external hosted HTTPS deployment [release gate #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242) remains OPEN. See [docs/STEP_232.md](docs/STEP_232.md).
+
 # Current Status — Step 231 (✅ scoped engineering milestone complete; external deployment deferred)
 
 ## Step 231 — Authenticated, Deployable Original-Source Pilot Engineering
