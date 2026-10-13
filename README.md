@@ -1,6 +1,33 @@
 # ai-reality-layer
 AI Reality Layer — infrastructure for giving autonomous AI systems continuously verified information about the world before they reason, decide, or act.
 
+## Step 235: Safe AI application consumer for bounded Reality States
+
+An application can now call the authenticated claim-only endpoint through an **explicit API transport** and receive a small fail-closed decision instead of trusting a free-form `status` string.
+
+```python
+from fastapi.testclient import TestClient  # local integration example, not external hosting
+from backend.app.main import app
+from backend.app.api.original_source_claim import OriginalSourceClaimRequest
+from backend.app.integrations.ai_claim_gate import check_claim_with_api
+
+request = OriginalSourceClaimRequest(
+    entity="Python 3.13.0",
+    claim_text="Python 3.13.0 is a stable release.",
+    source_uri="https://www.python.org/downloads/release/python-3130/",
+)
+with TestClient(app) as client:
+    decision = check_claim_with_api(client, pilot_token_from_operator_secret_manager, request)
+    if decision.may_use_as_bounded_evidence:
+        # Pass only this bounded evidence indicator to the calling AI system.
+        pass
+    else:
+        # The AI system must abstain or seek human review, not invent certainty.
+        pass
+```
+
+This example assumes the **operator already configured** pilot mode, approved original-source URL, and a valid token. The `pilot_token_from_operator_secret_manager` identifier is a user-provided variable, not a built-in value. No external deployment is necessary to test the local integration. The adapter never chooses a network destination: the calling application owns its authenticated API transport, TLS verification and secrets. Its decisions are `bounded_supported`, `bounded_contradicted`, and `abstain`; only the first permits using a **narrowly source-aligned evidence indication**, not factual truth or unrestricted agent action. The SHA-256 request binding prevents accidental wrong-request reuse **only when the API transport itself is trusted**; it is not cryptographic publisher authentication. See [Step 235's scope and acceptance limits](docs/STEP_235.md).
+
 ## Core original-source claim-only verification (bounded MVP)
 
 An AI client can now submit one explicit claim and an operator-approved original HTTPS source **without providing a potentially forged source excerpt**:
