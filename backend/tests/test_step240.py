@@ -310,3 +310,29 @@ def test_legacy_source_response_does_not_grant_neural_support(api):
     result = check_claim_with_semantic_veto(Client(payload), TOKEN, request(), model=model)
     assert result.decision == "abstain"
     assert model.calls == []
+
+
+@pytest.mark.parametrize("tamper", [
+    lambda st: st["freshness"].update({"status": "stale"}),
+    lambda st: st["freshness"].update({"stale_count": 1}),
+    lambda st: st["freshness"].update({"unknown_count": 1}),
+    lambda st: st["conflicts"].update({"conflict_count": 1}),
+    lambda st: st["verification"].update({"status": "unavailable"}),
+    lambda st: st["confidence_signals"].update({"status": "uncertain"}),
+    lambda st: st["evidence"]["independent_source_text_assurance"]["sources"][0].update(
+        {"source_quote_context_status": "quoted"}),
+    lambda st: st["evidence"]["independent_source_text_assurance"]["sources"][0].update(
+        {"capture_sha256": "0" * 64}),
+])
+def test_server_never_hands_out_excerpt_on_stale_conflicting_or_quoted_state(
+    api, tamper
+):
+    from backend.app.services.original_source_claim_service import _verified_source_evidence
+    original = server_response(api)
+    state = deepcopy(original["reality_state"])
+    tamper(state)
+    assert _verified_source_evidence(
+        state, selected_unit=TEXT, source_uri=SOURCE,
+        source_capture_sha256=original["source_evidence"]["source_capture_sha256"],
+        source_capture_observed_at=original["source_evidence"]["source_capture_observed_at"],
+    ) is None
