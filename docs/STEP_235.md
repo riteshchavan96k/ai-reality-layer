@@ -27,4 +27,14 @@ This client is a conservative downstream *policy consumer*, not a source of inde
 
 ## Checkpoint
 
-**IN PROGRESS** until the final merged-main exact-SHA suite and new real-source consumer canary independently pass. Step 234 release gate #242 stays open.
+**✅ Scoped Step 235 engineering COMPLETED**, accepted on exact implementation `main` `4c5d69f59bfcdb475176e52936a03441cb618797` after verifying the genuine final-main run results. This is the bounded *AI client consumer* milestone, not a complete AI Reality Layer product, general factual certainty, or external release. Step 234's external release gate #242 stays open and deferred until the owner elects deployment after core project development.
+
+## Independent implementation acceptance (2026-10-13)
+
+- [Implementation PR #252](https://github.com/riteshchavan96k/ai-reality-layer/pull/252), merged main `4c5d69f59bfcdb475176e52936a03441cb618797`.
+- [Backend `push` run 38395392168](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38395392168): verified Python 3.13 job logs, **2,550 passed**, including 35 new Step235 real FastAPI, malformed/replayed field and transport tests.
+- [New actual Python.org source -> FastAPI -> AI client `push` run 38395392366](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38395392366): directly inspected real-source audit: `bounded_positive_consumed=true`, `bounded_negation_refused=true`, `off_allowlist_abstained=true`, `invalid_auth_abstained=true`; general semantic and publisher-authorship truth both `false`.
+- Seven preserved, independent exact-merged-main successful `push` canaries: [original claim-only 38395392206](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38395392206), [Step233 38395392244](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38395392244), [Step232 38395392188](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38395392188), [Step231 38395392180](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38395392180), [Step227 38395392224](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38395392224), [Step226 38395392261](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38395392261), [Step222 38395392370](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38395392370).
+- All **nine** independent implementation `main` workflows matched the exact main SHA and completed successfully. A later documentation-sync PR triggers new independent exact-main verification; that may be recorded separately without altering implementation acceptance.
+
+No remotely hosted API, unrestricted language reasoning, external user reliability study, or broad factual accuracy is proven by this milestone.
