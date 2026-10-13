@@ -1,6 +1,18 @@
 # ai-reality-layer
 AI Reality Layer — infrastructure for giving autonomous AI systems continuously verified information about the world before they reason, decide, or act.
 
+## Step 238: Real original-source HTTPS -> genuine neural NLI (shadow only)
+
+The first **live original-publisher** neural experiment now takes its NLI *premise* from **one** actual TLS-validated and operator-allowlisted Python.org capture, rather than developer-supplied text. It validates the capture receipt and UTC freshness, selects exactly one matching complete unquoted source unit and compares three fixed developer-written claims with the **real pinned** Step237 ONNX Transformer. No source text is printed to the audit, and the model cannot authorize Reality State support.
+
+```bash
+# Explicitly opt in to model download and one public HTTPS source observation:
+python -m pip install -r backend/requirements-nli-shadow.txt
+python -m backend.app.evaluation.step238_live_source_nli --live
+```
+
+Not a general source-discovery or model-verification API. Claims are developer-authored, lack independent human gold, and should not be scored as field factual accuracy. Failure to retrieve a fresh unique source unit abstains; there is no fallback to a forged or user-supplied excerpt. No public deployment. [Step238 scope and limitations](docs/STEP_238.md).
+
 ## Step 237: Actual pretrained neural NLI in isolated shadow mode
 
 A first **real Transformer** entailment/contradiction/neutral model can now run via optional ONNX Runtime CPU inference on the frozen Step236 candidate corpus. Its real model predictions are recorded **alongside** the deterministic parser baseline. The operator must explicitly opt in to one pinned Hugging Face model download; no NLI model is added to the normal API or Docker image and no prediction may authorize source support.
