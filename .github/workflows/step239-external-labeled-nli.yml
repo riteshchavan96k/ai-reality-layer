@@ -1,0 +1,45 @@
+name: Step 239 genuine externally human-annotated NLI quality audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step239-external-nli-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  actual-stanford-human-annotated-neural-nli:
+    name: Pinned SNLI external human labels, actual ONNX NLI, exact false-entailment counts
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      TOKENIZERS_PARALLELISM: "false"
+    steps:
+      - name: Checkout exact tested GitHub SHA
+        uses: actions/checkout@v7
+      - name: Setup CPU-only Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+            backend/requirements-nli-shadow.txt
+            backend/requirements-nli-quality.txt
+      - name: Install optional standalone ML evaluation dependencies
+        run: python -m pip install -r backend/requirements-nli-quality.txt
+      - name: Reject corrupted annotations and model outputs using adversarial tests
+        run: python -m pytest -q backend/tests/test_step239.py
+      - name: Execute actual pretrained neural NLI on external Stanford crowdsourced validation labels
+        run: python -m backend.app.evaluation.step239_external_nli_quality --live
