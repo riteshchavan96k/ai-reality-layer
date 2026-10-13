@@ -1,6 +1,19 @@
 # ai-reality-layer
 AI Reality Layer — infrastructure for giving autonomous AI systems continuously verified information about the world before they reason, decide, or act.
 
+## Step 236: Frozen semantic verification baseline and blind reviewer handoff
+
+This benchmark makes our **actual deterministic parser limitation measurable** before introducing a genuine neural NLI model. It uses twenty short **developer-authored, not independently human-labeled** candidate pairs, including deliberately forged excerpts associated with genuine source URLs and eight explicitly fictional semantic scenarios.
+
+```bash
+python -m backend.app.evaluation.step236_semantic_baseline --summary-only
+python -m backend.app.evaluation.step236_semantic_baseline --summary-only --blind-packet /tmp/arl-blind-review.json
+# ONLY after two real external reviewers submit complete labels:
+python -m backend.app.evaluation.step236_semantic_baseline --summary-only --review-file /path/to/reviewer-labels.json
+```
+
+The blind packet **does not include** baseline predictions, earlier developer labels or a truth key. Conditional scoring refuses incomplete/disputed reviewer pairs; it always reports reviewer identity and independence as **not externally authenticated**. It never claims population factual accuracy, real publisher certification, or a tested NLI model. Real independent reviews, diverse authorized source capture and future Transformer evaluation are separate needed actions. [Scope and limitations](docs/STEP_236.md).
+
 ## Step 235: Safe AI application consumer for bounded Reality States
 
 An application can now call the authenticated claim-only endpoint through an **explicit API transport** and receive a small fail-closed decision instead of trusting a free-form `status` string.
