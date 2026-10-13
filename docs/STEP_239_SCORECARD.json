@@ -1,0 +1,77 @@
+{
+  "milestone": "step239_external_human_annotated_nli_quality",
+  "provenance": "github_hosted_real_model_and_existing_externally_crowdsourced_SNLI_annotations",
+  "audit_type": "fixed_first40_eligible_each_human_class_not_representative_not_world_truth",
+  "dataset": {
+    "repository": "stanfordnlp/snli",
+    "revision": "cdb5c3d",
+    "file": "plain_text/validation-00000-of-00001.parquet",
+    "sha256": "00f5ed8deaed007fef3022f0215b287efbab815b1bb31ac3f3ff4f4129d41ffe",
+    "license": "CC-BY-SA-4.0",
+    "validation_split_rows": 10000,
+    "human_annotation_origin": "external_crowdsourcing_not_independently_reaudited"
+  },
+  "model": {
+    "repository": "cross-encoder/nli-MiniLM2-L6-H768",
+    "revision": "b95119c",
+    "quantized_onnx_sha256": "44391a5241a62e0083c1a8899a71e69a092b95aea5ba89e14062925468eceac7",
+    "actual_neural_inference": true,
+    "training_includes_SNLI_family": true
+  },
+  "sample": {
+    "case_count": 120,
+    "per_label": 40,
+    "method": "first_40_eligible_per_label_not_random",
+    "reference_labels": {
+      "entailment": 40,
+      "neutral": 40,
+      "contradiction": 40
+    },
+    "correct": 115,
+    "accuracy_on_this_only": 0.958333,
+    "wrong": 5,
+    "false_entailment_on_human_non_entailment": {
+      "count": 3,
+      "denominator": 80,
+      "rate": 0.0375,
+      "from_neutral": 3,
+      "from_contradiction": 0
+    },
+    "confusion_matrix_gold_rows_prediction_columns": {
+      "entailment": {
+        "entailment": 40,
+        "neutral": 0,
+        "contradiction": 0
+      },
+      "neutral": {
+        "entailment": 3,
+        "neutral": 36,
+        "contradiction": 1
+      },
+      "contradiction": {
+        "entailment": 0,
+        "neutral": 1,
+        "contradiction": 39
+      }
+    }
+  },
+  "limits": {
+    "external_human_labels_reaudited": false,
+    "independent_domain_holdout": false,
+    "representative_population": false,
+    "calibrated_truth_probability": false,
+    "factual_accuracy_established": false,
+    "publisher_authorship_authenticated": false,
+    "neural_accepted_in_production": false,
+    "externally_deployed": false
+  },
+  "evidence": {
+    "implementation_pr": 260,
+    "first_exact_main_sha": "11e69f089876c60e241d7f903af1ade53844c428",
+    "exact_main_backend_run_id": 38426808744,
+    "exact_main_neural_run_id": 38426808731,
+    "backend_tests_passed": 2693,
+    "step239_tests_passed": 41,
+    "exact_main_ci_green": 13
+  }
+}
