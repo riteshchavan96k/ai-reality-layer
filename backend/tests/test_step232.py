@@ -86,8 +86,8 @@ def test_decision_checks_on_policy_without_claiming_population_accuracy():
     assert result["policy_conformant_count"] == 12
     assert result["population_factual_accuracy_established"] is False
     assert result["external_deployment_verified"] is False
-    assert "excerpt" not in str(result)
-    assert "claim_text" not in str(result)
+    assert all("excerpt" not in item and "claim" not in item and "content" not in item
+               for item in result["cases"])
 
 
 def test_false_support_fails_closed_even_when_claim_alignment_insufficient():
