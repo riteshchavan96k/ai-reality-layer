@@ -20,6 +20,7 @@ from backend.app.api.two_origin_answer import TwoOriginAnswerRequest
 from backend.app.api.pilot_auth import pilot_runtime_configuration
 from backend.app.integrations.cited_answer_client import check_cited_answer_with_api
 from backend.app.integrations.two_origin_answer_client import check_two_origin_answer_with_api
+from backend.app.integrations.source_recheck import recheck_cited_answer_with_api
 from backend.app.main import app
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttpsSourceReader
@@ -53,6 +54,10 @@ def _parse(argv: list[str] | None):
     parser.add_argument(
         "--live", action="store_true",
         help="Explicit consent to perform original-source HTTPS reads.",
+    )
+    parser.add_argument(
+        "--recheck", action="store_true",
+        help="Explicitly capture one approved source twice and compare bounded snapshots.",
     )
     parser.add_argument(
         "--include-untrusted-quotes", action="store_true",
@@ -133,6 +138,40 @@ def _render_result(result, *, include_quotes: bool, paired: bool) -> dict:
     return response
 
 
+def _render_recheck(result, *, include_quotes: bool) -> dict:
+    # Both observations must be validated; never reveal one partial receipt.
+    output = {
+        "scope": "two_observations_of_one_original_source",
+        "recheck_status": result.status,
+        "answer_text": result.answer_text,
+        "request_binding_sha256": result.request_binding_sha256,
+        "previous_decision": result.previous_decision,
+        "current_decision": result.current_decision,
+        "may_use_as_bounded_evidence": result.may_use_current_as_bounded_evidence,
+        "observations": [],
+        "historical_receipt_authenticated": False,
+        "factual_truth_verified": False,
+        "publisher_authorship_verified": False,
+        "independently_owned_publishers_verified": False,
+        "general_question_answering": False,
+        "automatic_monitoring_enabled": False,
+    }
+    if result.status == "abstain" or result.previous is None or result.current is None:
+        return output
+    for role, citation in (("previous", result.previous), ("current", result.current)):
+        item = {
+            "role": role,
+            "source_uri": citation.source_uri,
+            "source_quote_sha256": citation.source_quote_sha256,
+            "source_capture_sha256": citation.source_capture_sha256,
+            "source_capture_observed_at": citation.source_capture_observed_at,
+        }
+        if include_quotes:
+            item["untrusted_original_source_quote"] = citation.original_source_quote
+        output["observations"].append(item)
+    return output
+
+
 def run(argv: list[str] | None = None) -> tuple[int, dict | None]:
     """Return safe machine-readable report without ever printing a secret.
 
@@ -144,8 +183,22 @@ def run(argv: list[str] | None = None) -> tuple[int, dict | None]:
         if not args.live:
             return EXIT_REFUSED, None
         request = _build_request(args)
+        if args.recheck and not isinstance(request, OriginalSourceClaimRequest):
+            raise _Refused("recheck supports exactly one approved source")
         token = _prepare_operator(request)
         with TestClient(app) as http:
+            if args.recheck:
+                previous = check_cited_answer_with_api(http, token, request)
+                rechecked = recheck_cited_answer_with_api(
+                    http, token, request, previous,
+                )
+                report = _render_recheck(
+                    rechecked, include_quotes=args.include_untrusted_quotes,
+                )
+                return (
+                    EXIT_ABSTAIN if rechecked.status == "abstain" else EXIT_BOUNDED,
+                    report,
+                )
             if isinstance(request, TwoOriginAnswerRequest):
                 result = check_two_origin_answer_with_api(http, token, request)
                 paired = True
