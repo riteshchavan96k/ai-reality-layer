@@ -16,6 +16,8 @@ from backend.app.api.original_source_claim import (
 from backend.app.services.original_source_claim_service import verify_original_source_claim
 from backend.app.api.original_source_answer import BoundedOriginalSourceAnswerResponse
 from backend.app.services.original_source_answer_service import answer_original_source_claim
+from backend.app.api.two_origin_answer import TwoOriginAnswerRequest, TwoOriginAnswerResponse
+from backend.app.services.two_origin_answer_service import answer_two_distinct_https_origins
 from backend.app.api.pilot_auth import PilotAccessMiddleware
 from backend.app.api.health import (
     API_VERSION,
@@ -108,6 +110,17 @@ def solve(request: SolveRequest):
     return process_task(request.task, human_approved=request.human_approved)
 
 
+
+
+@app.post(
+    "/api/v1/reality-state/answer/compare",
+    response_model=TwoOriginAnswerResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
+def two_origin_bounded_answer(request: TwoOriginAnswerRequest):
+    """Return separately cited, bounded observations of the same claim from two HTTPS hosts."""
+    return answer_two_distinct_https_origins(request)
 
 
 @app.post(
