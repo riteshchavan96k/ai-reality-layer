@@ -1,4 +1,30 @@
 # ai-reality-layer
+## Step 246: Opt-in original-source temporal recheck (single approved HTTPS page)
+
+A local operator can now explicitly compare **two separate original-source
+HTTPS observations** of the *same narrow claim* on the *same one
+operator-allowlisted URL* without writing Python. Uses existing authenticated
+local pilot, Step241 original-source answer and Step242 application consumer
+with new `backend.app.integrations.source_recheck` consistency checks.
+Only complete rechecks expose both capture hashes/quote hashes and UTC
+observation metadata. The result can be unchanged raw source capture, changed
+raw capture with unchanged bounded statement, changed bounded statement,
+or strict no-receipt abstention. The SDK also lets a trusted application
+retain a previously validated in-memory answer and re-check it later.
+There is **NO signed historical attestation, event store, scheduler, automatic
+monitoring, objective-truth guarantee or new publicly exposed service**.
+
+```sh
+python -m backend.app.cli --live --recheck \
+  --claim "Python 3.13.0 is a stable release." \
+  --entity "Python 3.13.0" \
+  --source "https://www.python.org/downloads/release/python-3130/"
+```
+
+As in Step245, configure operator pilot bearer and exact source URL
+allowlist securely, and never put credentials in argv. Untrusted original
+source quote bodies are omitted unless explicitly opted into; any UI must
+escape them. See [Step246 technical contract](docs/STEP_246.md).
 ## Step 245: Real local operator claim check with original-source citations
 
 An AI developer can now perform an **actual bounded claim check** without
