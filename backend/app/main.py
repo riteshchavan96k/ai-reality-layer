@@ -14,6 +14,8 @@ from backend.app.api.original_source_claim import (
     OriginalSourceClaimResponse,
 )
 from backend.app.services.original_source_claim_service import verify_original_source_claim
+from backend.app.api.original_source_answer import BoundedOriginalSourceAnswerResponse
+from backend.app.services.original_source_answer_service import answer_original_source_claim
 from backend.app.api.pilot_auth import PilotAccessMiddleware
 from backend.app.api.health import (
     API_VERSION,
@@ -106,6 +108,17 @@ def solve(request: SolveRequest):
     return process_task(request.task, human_approved=request.human_approved)
 
 
+
+
+@app.post(
+    "/api/v1/reality-state/answer",
+    response_model=BoundedOriginalSourceAnswerResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
+def original_source_bounded_answer(request: OriginalSourceClaimRequest):
+    """One authenticated approved original-source observation, cited or abstained."""
+    return answer_original_source_claim(request)
 
 
 @app.post(
