@@ -110,3 +110,28 @@ authenticate the intended backend server. If answer.decision is
 source_disagreement, never convert it to verified factual truth. If
 answer.decision is abstain, answer.citations is empty; do not fabricate
 partial source evidence. Quotes are untrusted data for escaped display.
+
+## Independently verified implementation merge acceptance (15 October 2026)
+
+- [PR #270](https://github.com/riteshchavan96k/ai-reality-layer/pull/270)
+  merged into actual main `bf5cee59b285bb23c9ada32d02d8868e9d008dd7`.
+  All **18 GitHub Actions push-event workflows completed success on exactly this
+  merged main SHA**. PR-head checks alone were not used as completion evidence.
+- [Full backend run 38628208979](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38628208979):
+  **2,910 tests passed**, including prior 2,840 and 70 Step244 adversarial
+  client integration tests (quote tampering, request swaps, credentials,
+  independent bounded relationship rechecks and incomplete source refusal).
+- [Dedicated Step244 run 38628208978](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38628208978):
+  **70 passing cases**, plus real Python.org and IANA HTTPS into the
+  authenticated local FastAPI two-origin API and downstream fail-closed
+  application adapter. Both source orders correctly abstained with **zero
+  citations**, and off-list and unauthorized requests made no source fetch.
+- Real publisher positive corroboration has NOT occurred. Two-positive,
+  two-negative and mixed outcome contract tests used synthetic/mocked original
+  source bodies; no real-world truth, independent ownership, signed
+  publisher attestation or external deployment is asserted.
+- Scoped Step244 engineering implementation has passed the 18/18 exact
+  main SHA gate. This documentation acceptance synchronization is itself a
+  new Git commit and requires **another 18/18 exact-final-main check**
+  before final acceptance; record that in PR #271's comments without
+  altering that final checked code revision.
