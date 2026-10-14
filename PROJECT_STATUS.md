@@ -1,3 +1,7 @@
+# Step 243 implementation in verification — two distinct-host bounded source-answer comparison (NOT YET ✅)
+
+Predecessor Step242 independently accepted on main 303610b98d18c220cde6c10a15853a16d6690fc9 (16/16 Actions push workflows, 2,814 Python tests). Step243 introduces an opt-in authenticated two-HTTPS-host same-claim comparison API, explicit source disagreement and two separately pinned citations only when both sources verify. Read [the scoped Step243 implementation](docs/STEP_243.md). Acceptance requires all 17 final-main workflows and full backend tests; this candidate must NOT be called complete before checking them. Two hostnames are not proof of independent publisher ownership or truth. Step234 external hosting remains deferred; release issue #242 is open.
+
 # Current Step 242 ✅ — authenticated fail-closed source-cited answer application client
 
 **Last independently verified scoped engineering milestone: Step 242 ✅.** The predecessor Step 241 was verified on exact final `main` `980de748b8cf396b26d3b1cee230214b819f56ce` with 15/15 successful workflows and 2,775 tests. No pre-existing Step 242 specification existed. Scope followed the remaining **application-consumption gap**: Step 241 exposed a citation endpoint, but AI applications lacked a verified, fail-closed client for its responses.
