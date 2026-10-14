@@ -1,0 +1,33 @@
+name: Step 246 real-source temporal bounded recheck
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-source-recheck:
+    name: Two actual authenticated Python.org HTTPS observations
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout exact Git commit
+        uses: actions/checkout@v7
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install current backend dev requirements
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Exercise source capture and temporal change adversarial cases
+        run: python -m pytest -q backend/tests/test_step246.py
+      - name: Perform two genuine HTTPS source captures via safe local CLI
+        run: python -m backend.app.evaluation.step246_live_source_recheck --live
