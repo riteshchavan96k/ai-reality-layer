@@ -24,3 +24,35 @@ No multi-publisher corroboration, human-relabelled source domain accuracy, unsup
 ## Required acceptance evidence
 
 The service and test code are provisional until reviewed. Verify: complete backend regression count from actual GitHub log; dedicated Step 242 tests; the live genuine publisher canary; and every *push*-event workflow success with `head_sha` matching exact merged main. A successful PR head alone is **not** final-main acceptance. Do **not** mark Step 242 complete until these checks have passed. Record follow-up audit in PR without introducing an unverified post-acceptance commit.
+
+## Independently verified implementation acceptance (15 October 2026)
+
+- [PR #266](https://github.com/riteshchavan96k/ai-reality-layer/pull/266) merged into the actual `main` commit `a9613e44bb0c81f5de0b0f0dbfd931a54b6d3a00`. **All 16 GitHub Actions `push` workflows completed successfully on this exact same SHA**.
+- [Backend tests 38618906325](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38618906325): independently retrieved job logs show **2,814 tests passing**, including existing 2,775 regressions plus 39 Step 242 tests.
+- [Step242 genuine original-source CI 38618906395](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38618906395): independently retrieved logs show **39 passing adversarial tests**, plus successful **real Python.org original HTTPS → authenticated local FastAPI → downstream client** checks. One bounded source-positive citation was delivered, one source contradiction was not promoted to support, and unsupported/unapproved/unauthorized requests withheld citations.
+- No customer-facing deployment, publisher signing, real-world factual truth, independently reviewed accuracy, or general semantic claim verification occurred. Step 234 external release issue #242 remains open.
+- **Step 242 scoped engineering integration accepted ✅ on this verified implementation SHA.** An acceptance documentation synchronization PR must itself pass **all 16** workflows on its final exact merged-main SHA before being called fully finalized. Record the final SHA audit there without creating another unverified documentation commit.
+
+### Using the client inside an authorized application
+
+The application must supply a trusted HTTP client that accepts relative paths, and a securely stored bearer token. With a locally configured pilot `TestClient` (the operator must separately set pilot authentication and the exact source URL allowlist):
+
+```python
+from fastapi.testclient import TestClient
+from backend.app.main import app
+from backend.app.api.original_source_claim import OriginalSourceClaimRequest
+from backend.app.integrations.cited_answer_client import check_cited_answer_with_api
+
+claim = OriginalSourceClaimRequest(
+    claim_text="Python 3.13.0 is a stable release.",
+    entity="Python 3.13.0",
+    source_uri="https://www.python.org/downloads/release/python-3130/",
+    freshness_max_age_seconds=3600,
+)
+with TestClient(app) as http:
+    result = check_cited_answer_with_api(http, pilot_token_from_secure_configuration, claim)
+# Only use result.citation when present. It is UNTRUSTED publisher data,
+# not a true/false statement or safe HTML, and must be escaped for display.
+```
+
+The example variable `pilot_token_from_secure_configuration` must be supplied by the embedding application. The code never discovers credentials, automatically authorizes a new source, or connects to public hosting.
