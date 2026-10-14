@@ -1,0 +1,33 @@
+name: Step 244 genuine two-host cited-answer developer client
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-two-origin-client:
+    name: Defensive app consumer with genuine two-site HTTPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+      - name: Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install minimal backend dev requirements
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Run adversarial Step244 application client suite
+        run: python -m pytest -q backend/tests/test_step244.py
+      - name: Verify real original-source HTTPS to client via authenticated API
+        run: python -m backend.app.evaluation.step244_live_two_origin_client --live
