@@ -113,3 +113,28 @@ all pass, and **every 20 GitHub Actions push workflow succeeds on the
 exact FINAL main SHA**. Any acceptance-documentation merge creates another
 main SHA requiring fresh 20/20 CI. Record final acceptance via PR audit
 comment without a later unverified commit.
+
+## Independently verified implementation acceptance (15 October 2026)
+
+- [Feature PR #274](https://github.com/riteshchavan96k/ai-reality-layer/pull/274)
+  merged to actual main `671ce50b6458638c09324ca45bd4165087df3f09`.
+  Independently checked **all 20 GitHub Actions push workflows** successful
+  on exactly that implementation-main commit.
+- [Full backend run 38633807433](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38633807433),
+  job `116091777429`: inspected original job log showed
+  **2,971 passed in 9.59s** (2,936 predecessor + 35 new Step246).
+- [Focused source-recheck CI 38633807365](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38633807365),
+  job `116091775681`: log showed **35 tests passed in 1.06s**;
+  real fixed Python.org HTTPS captured **twice** from authenticated
+  local operator CLI; bounded classification completed and no-opt-in /
+  offlist source rejected without egress. No source bodies, private keys,
+  complete HTTP responses, raw token or capture digests logged.
+- The adversarial tests use MOCKED source bodies for historical/changed
+  content classification. The genuine real-source canary observed
+  TWO near-contemporaneous publisher fetches with the same bounded
+  statement. No durable signed historical record, proven factual change
+  in the real source, automatic agent monitoring, or production deployment.
+- This documentation acceptance merge changes the `main` SHA again.
+  **Step246 only closes after independently verifying all 20 Actions push
+  workflows on the final docs-merged main SHA**, then recording the final
+  SHA in the PR audit comment without an extra git commit.
