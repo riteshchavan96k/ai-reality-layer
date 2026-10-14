@@ -1,0 +1,41 @@
+name: Step 242 real original-source cited-answer application client
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step242-cited-client-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-source-cited-client:
+    name: Authenticated original-source HTTPS to defensive application consumer
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout exact source revision
+        uses: actions/checkout@v7
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+      - name: Install backend testing dependencies (no optional ML)
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Run adversarial application cited-answer consumer suite
+        run: python -m pytest -q backend/tests/test_step242.py
+      - name: Verify genuine original-source HTTPS to downstream application client
+        run: python -m backend.app.evaluation.step242_live_cited_client --live
