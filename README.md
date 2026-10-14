@@ -1,4 +1,28 @@
 # ai-reality-layer
+## Step 244: Defensive application consumer for two original-source citations
+
+An AI application can call `check_two_origin_answer_with_api(client, token, request)`
+from `backend.app.integrations.two_origin_answer_client`. It makes **one**
+authenticated Step243 compare API request; verifies pair request identity
+including both URL ordering, static bounded outcome, false epistemic fields,
+each original quotation/hash/capture timestamp and the conservative
+claim-to-quote grammar relationships; and exposes an **immutable two-citation
+tuple** only if the entire pair verifies. Tampered or partial results abstain
+without either quote, URL, or capture receipt. A verified source disagreement
+**cannot authorize an AI to assert support**. The API transport must be
+trusted and authenticated; a SHA256 is not a publisher signature, and two
+different hostnames do not establish independent ownership or real-world truth.
+
+```bash
+python -m pytest -q backend/tests/test_step244.py
+python -m backend.app.evaluation.step244_live_two_origin_client --live
+```
+
+The opt-in live canary tests real Python.org/IANA HTTPS and **correctly
+abstains** for the unrelated second site. Positive and disagreement tests
+use MOCKED source text, not real independent confirmation. No public hosting.
+[Step244 scope and acceptance](docs/STEP_244.md).
+
 ## Step 243: Two separately observed HTTPS hosts, one bounded claim
 
 The authenticated `POST /api/v1/reality-state/answer/compare` can now
