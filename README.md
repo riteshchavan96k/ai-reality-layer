@@ -1,4 +1,28 @@
 # ai-reality-layer
+## Step 243: Two separately observed HTTPS hosts, one bounded claim
+
+The authenticated `POST /api/v1/reality-state/answer/compare` can now
+compare one explicit narrow claim against **exactly two operator-allowlisted
+HTTPS URLs on different hosts**. Each original-source observation and citation
+must pass the same source assurance and tamper/freshness checks as the existing
+single-source Step241/242 answer route. Two alignments produce two individually
+bound citations; two contradictions produce a bounded contradiction; mixed
+source statements surface `source_disagreement` **without** a support upgrade.
+If either source fails, the pair abstains and exposes **no partial citations**.
+It cannot discover new URLs, assert factual truth or prove independent
+publishers. The test suite uses simulated positive and disagreement source
+content; actual Python.org + IANA HTTPS canary proves failure-safe abstention,
+not real publisher corroboration.
+
+```bash
+python -m pytest -q backend/tests/test_step243.py
+python -m backend.app.evaluation.step243_live_two_origin --live
+```
+
+The second command deliberately accesses fixed real HTTPS sites, and must be
+opted into explicitly. See [Step243 technical scope](docs/STEP_243.md).
+External hosting remains deferred.
+
 AI Reality Layer — infrastructure for giving autonomous AI systems continuously verified information about the world before they reason, decide, or act.
 
 ## Step 241: First bounded original-source answer with exact citation

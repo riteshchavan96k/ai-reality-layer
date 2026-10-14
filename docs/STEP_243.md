@@ -82,3 +82,26 @@ valid operator-managed pilot bearer token:
 This deliberately irrelevant second source must cause abstention, not
 fabricated agreement. A real two-alignment response requires independently
 eligible pages at two operator-allowed distinct HTTPS hostnames.
+
+## Independently verified implementation acceptance (15 October 2026)
+
+- PR #268 merged into actual main `5b1897a7b5eeb02142adce90315beacc435c5722`.
+  Independently retrieved all 17 successful push-event Actions runs on exactly
+  that main SHA. No workflows were skipped or considered successful merely
+  because a pull request check passed.
+- Full backend Actions run 38626402394, job 116066544839:
+  real inspected log shows 2,840 Python tests passed in 8.73s, including
+  all 2,814 predecessor regressions and 26 new two-origin adversarial tests.
+- Dedicated two-site Actions run 38626402461, job 116066545400:
+  real inspected log shows 26 Step243 tests passed in 0.55s plus genuine
+  Python.org and IANA separate HTTPS observations through local authenticated
+  FastAPI. Missing corroboration abstained and concealed both citations;
+  bad bearer and forbidden origin did not fetch sources.
+- Only tests with explicitly injected (synthetic, mocked) original-source
+  bodies exercised two-positive, two-negative and conflict outcomes. There
+  has been **NO real publisher agreement field corroboration**, external
+  publisher-independence audit, verified factual truth or hosted deployment.
+- Scoped Step243 functionality and regression engineering **accepted on the
+  verified implementation SHA**. The final acceptance-documentation PR makes
+  a newer main SHA and therefore requires its own 17/17 exact-SHA Actions
+  audit; record that final check on the PR thread without an extra commit.
