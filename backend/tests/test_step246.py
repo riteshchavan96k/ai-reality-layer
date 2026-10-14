@@ -151,7 +151,12 @@ def test_real_bounded_statement_changes_direction(provider):
 
 
 def test_bounded_statement_changes_opposite_direction(provider):
-    provider["captures"][0] = snapshot(NEGATIVE)
+    # Retain the already-created baseline capture time. Creating a NEW first
+    # capture after the fixture's second one would reverse chronology.
+    baseline_time = datetime.fromisoformat(
+        provider["captures"][0]["capture_observed_at"].replace("Z", "+00:00")
+    )
+    provider["captures"][0] = snapshot(NEGATIVE, time=baseline_time)
     with TestClient(app) as client:
         previous = check_cited_answer_with_api(client, TOKEN, req())
         result = recheck_cited_answer_with_api(client, TOKEN, req(), previous)
@@ -353,6 +358,12 @@ def test_recheck_unverified_grammar_does_not_promote_snapshot(provider):
     )
     with TestClient(app) as client:
         prior = check_cited_answer_with_api(client, TOKEN, invalid_request)
+        # An otherwise grammatical-but-unsupported claim may take ONE
+        # original-source read before its first evaluation abstains.
+        baseline_reads = provider["calls"]
         r = recheck_cited_answer_with_api(client, TOKEN, invalid_request, prior)
+    assert prior.decision == "abstain"
     assert_abstain(r)
-    assert provider["calls"] == 0
+    # Recheck MUST NOT fetch again after the first result lacks a citation.
+    assert baseline_reads == 1
+    assert provider["calls"] == baseline_reads
