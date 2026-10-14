@@ -1,0 +1,41 @@
+name: Step 241 real original-source cited answer API
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step241-cited-answer-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-source-cited-answer:
+    name: Real Python.org HTTPS one-source authenticated bounded cited answer
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout exact source revision
+        uses: actions/checkout@v7
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+      - name: Install normal backend testing dependencies (no optional ML)
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Run authenticated citation and malicious input regression
+        run: python -m pytest -q backend/tests/test_step241.py
+      - name: Verify real source HTTPS to bounded cited API and denials
+        run: python -m backend.app.evaluation.step241_live_cited_answer --live

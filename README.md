@@ -1,6 +1,21 @@
 # ai-reality-layer
 AI Reality Layer — infrastructure for giving autonomous AI systems continuously verified information about the world before they reason, decide, or act.
 
+## Step 241: First bounded original-source answer with exact citation
+
+Authenticated clients can use `POST /api/v1/reality-state/answer` with **the exact same validated claim/source/entity/freshness request** as the claim API. This is the first *directly usable, source-cited AI application answer*: a fixed, transparent statement describing only the **bounded relationship between the claim and one server-observed original-source statement**, plus the exact excerpt, approved publisher URL, excerpt SHA-256, original HTTP capture SHA-256 and UTC observation time as data-only citation fields.
+
+The new endpoint calls the current independently source-assured claim pipeline **exactly once**. It emits a citation only when that result passes the entire previous Step235 request-bound source guard, matches the same capture/quote digest, and is `bounded_supported` or `bounded_contradicted`. On unsupported grammar, quotation, conflict, stale/unapproved/unavailable evidence or invalid authentication, it returns **an explicit abstention without a citation or quote** (or rejects unauthorized access). No LLM can invent answer details: the answer template is fixed and never interpolates untrusted source content. The quote field is untrusted source data and **must be HTML-escaped by any rendering UI**. Neither source-text agreement nor source-cited answer means independently certified factual truth.
+
+```bash
+# normal Python backend, no ML dependencies
+python -m pytest -q backend/tests/test_step241.py
+# explicit genuine Python.org HTTPS authenticated integration test
+python -m backend.app.evaluation.step241_live_cited_answer --live
+```
+
+Step240 developer NLI veto integration stays separate and unchanged; no model can promote source evidence and no public hosting is done. [Step241 technical scope](docs/STEP_241.md).
+
 ## Step 240: Bound original-source excerpt handoff and optional fail-closed NLI veto
 
 A real AI client can now obtain the **exact bounded original-source statement actually selected by the authenticated claim-only API**, plus text SHA-256 and the **same** server capture SHA-256/UTC time, only after all strict independent-source/quotation/counterstatement gates pass. The already trusted Step235 client gate remains unchanged. Optional Python client `check_claim_with_semantic_veto(client, token, request, model=reviewed_model)` does **one authenticated request** and compares the verified source statement as neural *premise* against the requested claim as *hypothesis*.
