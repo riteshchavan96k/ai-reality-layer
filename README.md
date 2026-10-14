@@ -1,4 +1,32 @@
 # ai-reality-layer
+## Step 245: Real local operator claim check with original-source citations
+
+An AI developer can now perform an **actual bounded claim check** without
+writing new Python integration code. The opt-in `python -m backend.app.cli`
+uses the already authenticated and validated single-source or two-source
+clients inside the existing local pilot; it does not expose a public server
+or silently fetch arbitrary URLs. Specify a claim, entity and one or two
+exact operator-approved HTTPS `--source` URLs and **explicit `--live`**.
+The bearer token is read only from `ARL_PILOT_BEARER_TOKEN`; pilot mode and
+`ARL_INDEPENDENT_SOURCE_ALLOWED_URLS` must already be set by the operator.
+Never put credentials in command-line arguments or source code.
+
+```sh
+python -m backend.app.cli --live \
+  --claim "Python 3.13.0 is a stable release." \
+  --entity "Python 3.13.0" \
+  --source "https://www.python.org/downloads/release/python-3130/"
+```
+
+Output is **machine-readable bounded source observation**, including a quote
+hash/source URL/timestamp only after verification. Raw source quotes are
+excluded by default; `--include-untrusted-quotes` is an explicit choice,
+and quote text must be escaped before user-interface rendering.
+The operator CLI uses existing fixed response templates and cannot assert
+factual truth, publisher-authenticated authorship, or general semantic QA.
+A second unrelated IANA source correctly produces abstention, not
+fabricated corroboration. See [Step245 usage, safety and tests](docs/STEP_245.md).
+
 ## Step 244: Defensive application consumer for two original-source citations
 
 An AI application can call `check_two_origin_answer_with_api(client, token, request)`
