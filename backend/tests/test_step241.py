@@ -261,8 +261,9 @@ def test_request_validation_on_unsafe_extra_fields_does_not_fetch(api):
 
 
 def test_openapi_exposes_typed_citation_contract_and_request_id(api):
-    client, _, _ = api
-    schema = client.get("/openapi.json").json()
+    # Authentication intentionally protects /openapi.json in pilot mode.
+    # Inspect the app-generated schema without circumventing that gate.
+    schema = app.openapi()
     answer = schema["paths"][PATH]["post"]
     assert "200" in answer["responses"]
     assert "422" in answer["responses"]
