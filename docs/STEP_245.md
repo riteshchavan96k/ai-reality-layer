@@ -135,3 +135,30 @@ regressions and the new CLI adversarial + genuine HTTPS tests pass, and
 after implementation verification, it changes main and requires another
 19/19 exact-SHA full verification. Record final accepted SHA in the PR
 thread without creating a later unverified commit.
+
+## Independently verified implementation acceptance (15 October 2026)
+
+- [PR #272](https://github.com/riteshchavan96k/ai-reality-layer/pull/272)
+  merged into `main` SHA `5220ef5da7cdf4637acffb3a0c9e7206094bd936`,
+  with all 19 GitHub Actions `push` workflows independently checked as
+  `completed/success` on exactly that SHA (not PR-only checks).
+- Full regression [run 38629937439](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38629937439),
+  job `116078674045`, inspected job log: **2,936 passing tests
+  in 10.23 seconds**, including 26 new Step245 tests.
+- Operator CLI [run 38629937757](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/38629937757),
+  job `116078674671`, inspected job log: **26 passed in 0.64s**;
+  genuine Python.org source capture -> authenticated local FastAPI ->
+  bounded observed source citation in operator CLI. Same runner also made
+  genuine Python.org + IANA HTTPS two-host observations which **abstained
+  without partial source evidence**, and verified no `--live` and
+  off-allowlist fail before source egress, without credentials/raw text logged.
+- Single-source live citation is a verified original-source text observation,
+  not publisher-signed authorship or objective truth. Dual-positive and mixed
+  local API tests use deliberately mocked source bodies. No broad semantic
+  factual accuracy, independent publisher ownership, public deployment or
+  customer field evaluation has been performed.
+- **Step245 implementation scoped engineering is accepted ✅ on this
+  independently checked implementation SHA.** Final acceptance docs merge
+  creates another SHA and must pass all 19 push CI workflows on the exact
+  final main revision before closing Step245. Record that final SHA and
+  its job logs on acceptance PR without further code/README edits.
