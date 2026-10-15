@@ -282,7 +282,7 @@ def test_valid_mac_does_not_mean_independently_authenticated_history(environment
     code, first = save()
     assert code == EXIT_BOUNDED
     path, key = operator_history_configuration()
-    request = OriginalSourceClaimRequest(claim_text=CLAIM, entity="Python 3.13.0", source_uri=SOURCE)
+    request = OriginalSourceClaimRequest(claim_text=CLAIM, entity="Python 3.13.0", source_uri=SOURCE, freshness_max_age_seconds=3600.0)
     stored = load_verified_answer(path, key, first["saved_record_id"], request)
     assert stored.factual_truth_verified is False
     assert stored.publisher_authorship_verified is False
