@@ -1,3 +1,29 @@
+# Step 247 — durable cross-session original-source observation history (implementation under verification)
+
+**Verified predecessor**: Step246 was fully accepted on exact final main
+`db67b59258781be277aab7819e05c47465bb8c12` after 20/20 successful
+push workflows and 2,971 passing backend tests. The definitive Step246 audit
+is [PR #275](https://github.com/riteshchavan96k/ai-reality-layer/pull/275).
+
+**Step247 implementation PR [#276](https://github.com/riteshchavan96k/ai-reality-layer/pull/276)**:
+operator-keyed, bounded local SQLite observation history; explicit CLI
+`--save-observation` and later `--recheck-record` on the same exact
+operator-approved HTTPS claim, preserving Step246 fail-closed comparison. The
+historical baseline is stored locally and revalidated before a fresh source
+request. No unsupported fact promotion or background monitoring. Preliminary
+PR-head GitHub CI observed **30 new dedicated tests**, **3,001 full backend
+tests**, a genuine Python.org HTTPS two-process capture/reopen/recheck and all
+**21 PR workflows passing**. **Final merged-main acceptance remains pending**:
+verify all 21 `push` workflows on the exact final main commit; only then
+record completion in PR audit (without another unverified commit).
+
+HMAC verifies operator-held record integrity, **not** historical timestamp
+authority, publisher authorship, rollback protection or factual truth.
+Untrusted source quotes remain local and hidden by default. [Step247
+specification](docs/STEP_247.md). External Step234 hosting and [release
+gate #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242)
+remain deferred and OPEN.
+
 # Current Step 246 ✅ — opt-in original-source recapture and bounded temporal change classification
 
 **Latest scoped engineering milestone: Step246 ✅ (implementation verified; final documentation-SHA verification pending).** Independently verified predecessor Step245 actual main `2e3061627329cbd3f0b73f9ed018ac42ec93c7ed` with 19/19 successful Actions push workflows and 2,936 backend passing tests. No existing Step246 scope was found before implementation. The real product gap was the absence of a usable way to compare a previously verified source observation against a fresh independently captured observation of the SAME bounded claim.
