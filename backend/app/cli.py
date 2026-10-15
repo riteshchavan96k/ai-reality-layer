@@ -21,6 +21,10 @@ from backend.app.api.pilot_auth import pilot_runtime_configuration
 from backend.app.integrations.cited_answer_client import check_cited_answer_with_api
 from backend.app.integrations.two_origin_answer_client import check_two_origin_answer_with_api
 from backend.app.integrations.source_recheck import recheck_cited_answer_with_api
+from backend.app.integrations.source_history import (
+    InvalidHistory, operator_history_configuration,
+    save_verified_answer, load_verified_answer,
+)
 from backend.app.main import app
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttpsSourceReader
@@ -55,9 +59,18 @@ def _parse(argv: list[str] | None):
         "--live", action="store_true",
         help="Explicit consent to perform original-source HTTPS reads.",
     )
-    parser.add_argument(
+    history_modes = parser.add_mutually_exclusive_group()
+    history_modes.add_argument(
         "--recheck", action="store_true",
-        help="Explicitly capture one approved source twice and compare bounded snapshots.",
+        help="Capture the same approved source twice in this single invocation.",
+    )
+    history_modes.add_argument(
+        "--save-observation", action="store_true",
+        help="Save one validated observation to a private, keyed local history.",
+    )
+    history_modes.add_argument(
+        "--recheck-record", metavar="RECORD_ID",
+        help="Recheck one MAC-verified observation saved in an earlier invocation.",
     )
     parser.add_argument(
         "--include-untrusted-quotes", action="store_true",
@@ -183,10 +196,45 @@ def run(argv: list[str] | None = None) -> tuple[int, dict | None]:
         if not args.live:
             return EXIT_REFUSED, None
         request = _build_request(args)
-        if args.recheck and not isinstance(request, OriginalSourceClaimRequest):
-            raise _Refused("recheck supports exactly one approved source")
+        if (
+            args.recheck or args.save_observation or args.recheck_record is not None
+        ) and not isinstance(request, OriginalSourceClaimRequest):
+            raise _Refused("source history supports exactly one approved source")
         token = _prepare_operator(request)
+        history = None
+        if args.save_observation or args.recheck_record is not None:
+            # Check local permissions/key before a fresh publisher request.
+            try:
+                history = operator_history_configuration()
+            except InvalidHistory:
+                return EXIT_REFUSED, None
         with TestClient(app) as http:
+            if args.recheck_record is not None:
+                try:
+                    earlier = load_verified_answer(*history, args.recheck_record, request)
+                except InvalidHistory:
+                    return EXIT_ABSTAIN, None
+                comparison = recheck_cited_answer_with_api(
+                    http, token, request, earlier,
+                )
+                return (
+                    EXIT_ABSTAIN if comparison.status == "abstain" else EXIT_BOUNDED,
+                    _render_recheck(comparison, include_quotes=args.include_untrusted_quotes),
+                )
+            if args.save_observation:
+                observed = check_cited_answer_with_api(http, token, request)
+                report = _render_result(
+                    observed, include_quotes=args.include_untrusted_quotes, paired=False,
+                )
+                if observed.decision == "abstain":
+                    return EXIT_ABSTAIN, report
+                try:
+                    record_id = save_verified_answer(*history, request, observed)
+                except InvalidHistory:
+                    return EXIT_ABSTAIN, None
+                report["saved_record_id"] = record_id
+                report["historical_receipt_authenticated"] = False
+                return EXIT_BOUNDED, report
             if args.recheck:
                 previous = check_cited_answer_with_api(http, token, request)
                 rechecked = recheck_cited_answer_with_api(
