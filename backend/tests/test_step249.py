@@ -286,9 +286,8 @@ def test_developer_client_rejects_untrusted_api_payload(environment, monkeypatch
     elif defect == "wrong_root":
         broken["root_record_id"] = "f"*32
     elif defect == "missing_row":
+        # Declared three-entry timeline cannot silently omit an observation.
         observations.pop()
-        timeline["total_observations"] = 2
-        timeline["latest_record_id"] = observations[-1]["record_id"]
     elif defect == "wrong_count":
         timeline["total_observations"] = 41
     elif defect == "false_linkage":
