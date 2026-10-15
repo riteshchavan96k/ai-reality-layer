@@ -25,6 +25,9 @@ from backend.app.integrations.source_history import (
     InvalidHistory, operator_history_configuration,
     save_verified_answer, load_verified_answer,
 )
+from backend.app.integrations.source_timeline import (
+    latest_timeline_answer, append_verified_recheck, inspect_timeline,
+)
 from backend.app.main import app
 from backend.app.orchestrator.dependencies import OrchestrationDependencies
 from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttpsSourceReader
@@ -71,6 +74,14 @@ def _parse(argv: list[str] | None):
     history_modes.add_argument(
         "--recheck-record", metavar="RECORD_ID",
         help="Recheck one MAC-verified observation saved in an earlier invocation.",
+    )
+    history_modes.add_argument(
+        "--timeline-append", metavar="ROOT_RECORD_ID",
+        help="Explicitly recheck the latest record of a validated timeline and append it atomically.",
+    )
+    history_modes.add_argument(
+        "--timeline-show", metavar="ROOT_RECORD_ID",
+        help="Read a local, bounded, MAC-verified timeline; does not perform HTTPS requests.",
     )
     parser.add_argument(
         "--include-untrusted-quotes", action="store_true",
@@ -193,22 +204,59 @@ def run(argv: list[str] | None = None) -> tuple[int, dict | None]:
     """
     try:
         args = _parse(argv)
-        if not args.live:
+        if not args.live and args.timeline_show is None:
             return EXIT_REFUSED, None
         request = _build_request(args)
         if (
             args.recheck or args.save_observation or args.recheck_record is not None
+            or args.timeline_append is not None or args.timeline_show is not None
         ) and not isinstance(request, OriginalSourceClaimRequest):
             raise _Refused("source history supports exactly one approved source")
         token = _prepare_operator(request)
         history = None
-        if args.save_observation or args.recheck_record is not None:
+        if (
+            args.save_observation or args.recheck_record is not None
+            or args.timeline_append is not None or args.timeline_show is not None
+        ):
             # Check local permissions/key before a fresh publisher request.
             try:
                 history = operator_history_configuration()
             except InvalidHistory:
                 return EXIT_REFUSED, None
+        if args.timeline_show is not None:
+            try:
+                return EXIT_BOUNDED, inspect_timeline(*history, args.timeline_show, request)
+            except InvalidHistory:
+                return EXIT_ABSTAIN, None
+        # Verify the *complete* existing chain before authorizing fresh HTTPS.
+        timeline_preflight = None
+        if args.timeline_append is not None:
+            try:
+                timeline_preflight = latest_timeline_answer(
+                    *history, args.timeline_append, request,
+                )
+            except InvalidHistory:
+                return EXIT_ABSTAIN, None
         with TestClient(app) as http:
+            if args.timeline_append is not None:
+                expected_latest, latest = timeline_preflight
+                comparison = recheck_cited_answer_with_api(http, token, request, latest)
+                if comparison.status == "abstain":
+                    return EXIT_ABSTAIN, _render_recheck(comparison, include_quotes=False)
+                try:
+                    new_id, length = append_verified_recheck(
+                        *history, args.timeline_append, request,
+                        expected_latest, comparison,
+                    )
+                except InvalidHistory:
+                    return EXIT_ABSTAIN, None
+                report = _render_recheck(
+                    comparison, include_quotes=args.include_untrusted_quotes,
+                )
+                report["timeline_root_id"] = args.timeline_append
+                report["appended_record_id"] = new_id
+                report["timeline_observation_count"] = length
+                return EXIT_BOUNDED, report
             if args.recheck_record is not None:
                 try:
                     earlier = load_verified_answer(*history, args.recheck_record, request)

@@ -1,3 +1,25 @@
+## Step 248: Longitudinal Reality State evidence timeline
+
+The original-source observation history now supports an operator-controlled
+**sequence** of bounded source checks over time. After Step247
+`--live --save-observation` returns a `saved_record_id`, use that ID as the
+timeline root for subsequent explicit `--live --timeline-append ROOT_ID`
+operations with the **same claim, entity, original HTTPS source and freshness
+window**. Each successful comparison saves the latest verified source reading
+atomically with an integrity-checked link; a future append compares against
+the current final entry, not the original baseline. A new
+`--timeline-show ROOT_ID` command validates the complete history and returns
+bounded hashes, source timestamps and per-step classification **without HTTPS**
+or raw source quotations. It does not require `--live` but retains existing
+operator pilot, source allowlist and private-store authorization.
+
+The timeline is limited to 64 observations, with at most 1,000 observations
+across the private database. HMAC protects operator-held records and links;
+neither historical authenticity nor rollback resistance nor publisher
+authorship can be inferred. Unavailable evidence does not create a new
+history entry. There is **no automatic polling** or external deployment.
+See [Step 248 scope and safety gates](docs/STEP_248.md).
+
 ## Step 247: Durable local original-source evidence history across operator sessions
 
 AI Reality Layer now offers opt-in **persistent, keyed original-source observations**.
