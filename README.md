@@ -1,3 +1,31 @@
+## Step 251: Privileged API-only source history creation and atomic append
+
+Applications may explicitly **create** and **append** original-source
+evidence timelines without a local operator CLI. The two paths
+`POST /api/v1/reality-state/timeline/create` and
+`POST /api/v1/reality-state/timeline/append` require **both** the existing
+pilot bearer and a separate high-entropy write credential in
+`X-ARL-Timeline-Write-Token`, with server-side
+`ARL_TIMELINE_WRITE_API_ENABLED=1`. A normal reader credential can still
+inspect the timeline via Step249 but **cannot** write. New source captures
+use the existing exact-approved HTTPS original-source verification pipeline,
+and records/links are atomic in the private SQLite store.
+
+Clients supply a unique random 128-bit `operation_id` for each intended
+mutation; safe identical retries return the same already-verified record ID
+without another source read. The same ID cannot be reused for another claim,
+root, expected head or operation kind. Append requires an exact
+`expected_latest_record_id`, and a concurrent changed head refuses rather
+than overwriting history. The keyed retry ledger is bounded, signed under
+a separate HMAC domain and committed with the corresponding evidence record.
+
+AI application client
+`write_timeline_with_api(client,bearer,writer,claim,operation_id,root=...,expected=...)`
+validates redacted receipts and never promotes historical claims to current
+truth. Steps249 and 250 remain read-only. No scheduled monitoring, general
+source search, independently authenticated publisher history or actual
+external deployment. See [Step251 operational and security scope](docs/STEP_251.md).
+
 ## Step 250: On-demand live original-source reconciliation against historical Reality State
 
 AI Reality Layer now exposes `POST /api/v1/reality-state/timeline/recheck`

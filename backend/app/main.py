@@ -20,6 +20,12 @@ from backend.app.api.two_origin_answer import TwoOriginAnswerRequest, TwoOriginA
 from backend.app.services.two_origin_answer_service import answer_two_distinct_https_origins
 from backend.app.api.temporal_timeline import TemporalTimelineRequest, TemporalTimelineResponse
 from backend.app.api.temporal_recheck import TemporalRecheckRequest, TemporalRecheckResponse
+from backend.app.api.temporal_timeline_write import (
+    TimelineCreateRequest, TimelineAppendRequest, TimelineWriteResponse,
+)
+from backend.app.services.temporal_timeline_write_service import (
+    create_historical_timeline, append_historical_timeline,
+)
 from backend.app.services.temporal_recheck_service import reconcile_historical_reality_state
 from backend.app.services.temporal_timeline_service import historical_timeline_readonly
 from backend.app.api.pilot_auth import PilotAccessMiddleware
@@ -125,6 +131,28 @@ def solve(request: SolveRequest):
 def two_origin_bounded_answer(request: TwoOriginAnswerRequest):
     """Return separately cited, bounded observations of the same claim from two HTTPS hosts."""
     return answer_two_distinct_https_origins(request)
+
+
+@app.post(
+    "/api/v1/reality-state/timeline/create",
+    response_model=TimelineWriteResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
+def create_original_source_timeline(request: TimelineCreateRequest):
+    """Privileged, explicit capture and atomic historical baseline creation."""
+    return create_historical_timeline(request)
+
+
+@app.post(
+    "/api/v1/reality-state/timeline/append",
+    response_model=TimelineWriteResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
+def append_original_source_timeline(request: TimelineAppendRequest):
+    """Privileged, explicit current-source capture and atomic history append."""
+    return append_historical_timeline(request)
 
 
 @app.post(

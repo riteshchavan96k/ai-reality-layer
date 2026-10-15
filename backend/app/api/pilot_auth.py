@@ -26,6 +26,49 @@ _MAX_AUTHORIZATION_BYTES = 512
 # Bound raw JSON request bytes (not characters), preserving that valid input ceiling.
 _MAX_PILOT_BODY_BYTES = 4 * 1024 * 1024
 
+_TIMELINE_WRITE_PATHS = frozenset({
+    "/api/v1/reality-state/timeline/create",
+    "/api/v1/reality-state/timeline/append",
+})
+_WRITE_HEADER = b"x-arl-timeline-write-token"
+
+
+def timeline_writer_configuration(
+    environment: Mapping[str, str] | None = None,
+) -> bytes | None:
+    """Separately provisioned, explicitly enabled write authority; never a reader token."""
+    env = os.environ if environment is None else environment
+    if env.get("ARL_TIMELINE_WRITE_API_ENABLED") != "1":
+        return None
+    enabled, reader = pilot_runtime_configuration(env)
+    secret = env.get("ARL_TIMELINE_WRITE_TOKEN")
+    if not enabled or reader is None or type(secret) is not str:
+        raise ValueError("invalid restricted timeline writer configuration")
+    try:
+        encoded = secret.encode("ascii")
+    except UnicodeError as exc:
+        raise ValueError("invalid restricted timeline writer configuration") from exc
+    if (
+        not _MIN_SECRET_BYTES <= len(encoded) <= _MAX_SECRET_BYTES
+        or any(c < 33 or c > 126 for c in encoded)
+        or hmac.compare_digest(sha256(encoded).digest(), sha256(reader).digest())
+    ):
+        raise ValueError("invalid restricted timeline writer configuration")
+    return encoded
+
+
+def _timeline_write_authorized(scope: dict, secret: bytes) -> bool:
+    credentials = [
+        val for name, val in scope.get("headers", [])
+        if name.lower() == _WRITE_HEADER
+    ]
+    if len(credentials) != 1 or len(credentials[0]) > _MAX_AUTHORIZATION_BYTES:
+        return False
+    return hmac.compare_digest(
+        sha256(credentials[0]).digest(), sha256(secret).digest()
+    )
+
+
 
 def pilot_runtime_configuration(
     environment: Mapping[str, str] | None = None,
@@ -116,6 +159,19 @@ class PilotAccessMiddleware(BaseHTTPMiddleware):
                     "Cache-Control": "no-store",
                 },
             )
+        if request.url.path in _TIMELINE_WRITE_PATHS:
+            try:
+                writer = timeline_writer_configuration()
+            except ValueError:
+                return JSONResponse(
+                    {"detail": "Service unavailable"}, status_code=503,
+                    headers={"Cache-Control": "no-store"},
+                )
+            if writer is None or not _timeline_write_authorized(request.scope, writer):
+                return JSONResponse(
+                    {"detail": "Forbidden"}, status_code=403,
+                    headers={"Cache-Control": "no-store"},
+                )
         # Reject oversized payloads even when the future ingress accidentally
         # omits its own body limit. Count actual streamed bytes; Content-Length
         # cannot be trusted as the sole bound (chunked uploads may omit it).
