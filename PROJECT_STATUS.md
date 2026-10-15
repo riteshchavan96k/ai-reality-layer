@@ -1,3 +1,11 @@
+# Step 249 — authenticated historical Reality State API and defensive application client (acceptance pending)
+
+**Verified predecessor Step248 ✅:** merged [PR #277](https://github.com/riteshchavan96k/ai-reality-layer/pull/277), immutable final main `729fb1b43972faed68c3b541822d3a731a2e55b4`; independently checked 21/21 completed successful push Actions, full backend **3,022 passed**, and real Python.org three-observation timeline with separate authenticated processes. No existing Step249 documentation/scope was found.
+
+**Scoped feature:** opt-in/pilot-only read-only `POST /api/v1/reality-state/timeline`; exact-source/claim history binding and MAC/chronology validation; `sqlite3 mode=ro` with no writes or source reads; strict client `check_temporal_timeline_with_api` exposes historical metadata only. Extended existing source history workflow to run adversarial authentication, manipulation and developer client tests plus a real HTTPS-created timeline consumed by the API.
+
+**PENDING FINAL ACCEPTANCE:** feature PR merge, then independent full regression and **21/21 successful exact-final-main push GitHub Actions workflows**; record final acceptance on merged PR without another unverified commit. Step234 separate external HTTPS pilot release blocker [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242) stays OPEN/deferred. Historical records remain operator-HMACed, NOT publisher-authenticated or real-world-truth-certified. [Full Step249 scope](docs/STEP_249.md).
+
 # Step 248 — longitudinal Reality State source evidence timeline (acceptance pending)
 
 **Verified predecessor**: Step247 ✅ merged via [PR #276](https://github.com/riteshchavan96k/ai-reality-layer/pull/276), accepted at exact main
