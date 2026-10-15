@@ -121,17 +121,16 @@ def _mac(key: bytes, record_id: str, payload: bytes) -> str:
                     sha256).hexdigest()
 
 
-def save_verified_answer(
-    path: str, key: bytes, request: OriginalSourceClaimRequest, 
-    answer: ClientCitedAnswer,
-) -> str:
-    """Persist only one currently validated original-source observation."""
-    if (not isinstance(request, OriginalSourceClaimRequest) or type(key) is not bytes or len(key) != 32):
+def _verified_payload(
+    request: OriginalSourceClaimRequest, answer: ClientCitedAnswer,
+) -> bytes:
+    """Canonical Step247 v1 record representation, validated before persistence."""
+    if not isinstance(request, OriginalSourceClaimRequest):
         raise InvalidHistory("invalid history request")
     if _validated_observation(answer, request, datetime.now(timezone.utc)) is None:
         raise InvalidHistory("cannot store an unverified source observation")
-    c = answer.citation
-    payload = {
+    citation = answer.citation
+    return _canonical({
         "version": 1,
         "request": request.model_dump(mode="json"),
         "decision": answer.decision,
@@ -140,28 +139,47 @@ def save_verified_answer(
         "request_binding_sha256": answer.request_binding_sha256,
         "may_use_as_bounded_evidence": answer.may_use_as_bounded_evidence,
         "citation": {
-            "source_uri": c.source_uri,
-            "original_source_quote": c.original_source_quote,
-            "source_quote_sha256": c.source_quote_sha256,
-            "source_capture_sha256": c.source_capture_sha256,
-            "source_capture_observed_at": c.source_capture_observed_at,
+            "source_uri": citation.source_uri,
+            "original_source_quote": citation.original_source_quote,
+            "source_quote_sha256": citation.source_quote_sha256,
+            "source_capture_sha256": citation.source_capture_sha256,
+            "source_capture_observed_at": citation.source_capture_observed_at,
         },
         "saved_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-    }
-    encoded = _canonical(payload)
+    })
+
+
+def _insert_verified(
+    connection: sqlite3.Connection, key: bytes,
+    request: OriginalSourceClaimRequest, answer: ClientCitedAnswer,
+) -> str:
+    """Insert one source observation within the *caller's* SQLite transaction."""
+    if type(key) is not bytes or len(key) != 32:
+        raise InvalidHistory("invalid history key")
+    encoded = _verified_payload(request, answer)
+    number = connection.execute(
+        "SELECT count(*) FROM original_source_observations"
+    ).fetchone()[0]
+    if number >= MAX_RECORDS:
+        raise InvalidHistory("history capacity reached")
     record_id = secrets.token_hex(16)
+    connection.execute(
+        "INSERT INTO original_source_observations(record_id,payload,mac) VALUES (?,?,?)",
+        (record_id, encoded.decode("ascii"), _mac(key, record_id, encoded)),
+    )
+    return record_id
+
+
+def save_verified_answer(
+    path: str, key: bytes, request: OriginalSourceClaimRequest,
+    answer: ClientCitedAnswer,
+) -> str:
+    """Persist only one currently validated original-source observation."""
+    if type(key) is not bytes or len(key) != 32:
+        raise InvalidHistory("invalid history key")
     with closing(_db(path)) as connection, connection:
         connection.execute("BEGIN IMMEDIATE")
-        number = connection.execute(
-            "SELECT count(*) FROM original_source_observations"
-        ).fetchone()[0]
-        if number >= MAX_RECORDS:
-            raise InvalidHistory("history capacity reached")
-        connection.execute(
-            "INSERT INTO original_source_observations(record_id,payload,mac) VALUES (?,?,?)",
-            (record_id, encoded.decode("ascii"), _mac(key, record_id, encoded)),
-        )
-    return record_id
+        return _insert_verified(connection, key, request, answer)
 
 
 def load_verified_answer(
