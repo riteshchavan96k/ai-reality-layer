@@ -34,8 +34,8 @@ class InvalidHistory(ValueError):
     """Reject invalid or untrusted history without exposing stored content."""
 
 
-def operator_history_configuration() -> tuple[str, bytes]:
-    """Read explicit local operator settings; reject weak or missing secrets."""
+def _operator_settings() -> tuple[str, bytes]:
+    """Validate operator configuration without opening or creating any file."""
     path = os.environ.get("ARL_OBSERVATION_STORE_PATH", "")
     key_text = os.environ.get("ARL_OBSERVATION_HMAC_KEY_HEX", "")
     if (
@@ -47,6 +47,20 @@ def operator_history_configuration() -> tuple[str, bytes]:
     key = bytes.fromhex(key_text)
     if not any(key):
         raise InvalidHistory("invalid local history configuration")
+    return path, key
+
+
+def operator_readonly_history_configuration() -> tuple[str, bytes]:
+    """No side effects: a missing DB is unavailable, never auto-created."""
+    path, key = _operator_settings()
+    _check_private(os.path.dirname(path), directory=True)
+    _check_private(path, directory=False)
+    return path, key
+
+
+def operator_history_configuration() -> tuple[str, bytes]:
+    """Writable local CLI configuration, retaining Step247 behavior."""
+    path, key = _operator_settings()
     try:
         with closing(_db(path)):
             pass
@@ -255,5 +269,6 @@ def load_verified_answer(
 
 __all__ = [
     "InvalidHistory", "operator_history_configuration",
+    "operator_readonly_history_configuration",
     "save_verified_answer", "load_verified_answer",
 ]

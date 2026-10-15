@@ -18,6 +18,8 @@ from backend.app.api.original_source_answer import BoundedOriginalSourceAnswerRe
 from backend.app.services.original_source_answer_service import answer_original_source_claim
 from backend.app.api.two_origin_answer import TwoOriginAnswerRequest, TwoOriginAnswerResponse
 from backend.app.services.two_origin_answer_service import answer_two_distinct_https_origins
+from backend.app.api.temporal_timeline import TemporalTimelineRequest, TemporalTimelineResponse
+from backend.app.services.temporal_timeline_service import historical_timeline_readonly
 from backend.app.api.pilot_auth import PilotAccessMiddleware
 from backend.app.api.health import (
     API_VERSION,
@@ -121,6 +123,17 @@ def solve(request: SolveRequest):
 def two_origin_bounded_answer(request: TwoOriginAnswerRequest):
     """Return separately cited, bounded observations of the same claim from two HTTPS hosts."""
     return answer_two_distinct_https_origins(request)
+
+
+@app.post(
+    "/api/v1/reality-state/timeline",
+    response_model=TemporalTimelineResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
+def original_source_historical_timeline(request: TemporalTimelineRequest):
+    """Pilot-only, opt-in historical evidence read with no HTTPS or DB writes."""
+    return historical_timeline_readonly(request)
 
 
 @app.post(

@@ -12,9 +12,11 @@ from datetime import datetime, timezone
 from hashlib import sha256
 import hmac
 import json
+import os
 import re
 import secrets
 import sqlite3
+from urllib.parse import quote
 
 from backend.app.api.original_source_claim import OriginalSourceClaimRequest
 from backend.app.integrations.cited_answer_client import (
@@ -22,6 +24,7 @@ from backend.app.integrations.cited_answer_client import (
 )
 from backend.app.integrations.source_history import (
     InvalidHistory, MAX_RECORDS, _db, _insert_verified, load_verified_answer,
+    _check_private,
 )
 from backend.app.integrations.source_recheck import SourceRecheck, _validated_observation
 
@@ -89,15 +92,27 @@ def _status(previous: ClientCitedAnswer, current: ClientCitedAnswer) -> str:
 
 def _load_chain(
     db: sqlite3.Connection, path: str, key: bytes, root: str,
-    request: OriginalSourceClaimRequest,
+    request: OriginalSourceClaimRequest, *, readonly: bool = False,
 ) -> tuple[list[tuple[str, str, ClientCitedAnswer]], bool]:
     """Fail closed over the *whole* linked history, not merely the last row."""
-    _schema(db)
-    edges = db.execute(
-        "SELECT sequence,record_id,previous_id,change_status,edge_mac "
-        "FROM source_timeline_edges WHERE root_id=? ORDER BY sequence",
-        (root,),
-    ).fetchall()
+    if readonly:
+        exists = db.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='source_timeline_edges'"
+        ).fetchone()
+        edges = (
+            db.execute(
+                "SELECT sequence,record_id,previous_id,change_status,edge_mac "
+                "FROM source_timeline_edges WHERE root_id=? ORDER BY sequence",
+                (root,),
+            ).fetchall() if exists else []
+        )
+    else:
+        _schema(db)
+        edges = db.execute(
+            "SELECT sequence,record_id,previous_id,change_status,edge_mac "
+            "FROM source_timeline_edges WHERE root_id=? ORDER BY sequence",
+            (root,),
+        ).fetchall()
     if len(edges) > MAX_TIMELINE_OBSERVATIONS:
         raise InvalidHistory("timeline capacity exceeded")
     if not edges:
@@ -130,9 +145,19 @@ def _load_chain(
 
 def _read_chain(
     path: str, key: bytes, root: str, request: OriginalSourceClaimRequest,
+    *, readonly: bool = False,
 ) -> tuple[list[tuple[str, str, ClientCitedAnswer]], bool]:
     _validate_input(root, key, request)
     try:
+        if readonly:
+            _check_private(os.path.dirname(path), directory=True)
+            _check_private(path, directory=False)
+            # SQLite URI mode=ro guarantees no file creation or database writes.
+            # Quote URI metacharacters to prevent operator path from changing mode.
+            uri = "file:" + quote(path, safe="/") + "?mode=ro"
+            with closing(sqlite3.connect(uri, uri=True, timeout=5)) as db:
+                db.execute("PRAGMA query_only=ON")
+                return _load_chain(db, path, key, root, request, readonly=True)
         with closing(_db(path)) as db:
             return _load_chain(db, path, key, root, request)
     except (sqlite3.Error, ValueError, TypeError, OverflowError,
@@ -152,9 +177,10 @@ def latest_timeline_answer(
 
 def inspect_timeline(
     path: str, key: bytes, root: str, request: OriginalSourceClaimRequest,
+    *, readonly: bool = False,
 ) -> dict:
-    """Read-only, bounded summary; quotes are never exposed."""
-    chain, linked = _read_chain(path, key, root, request)
+    """Bounded summary; API callers should set readonly=True to guarantee no writes."""
+    chain, linked = _read_chain(path, key, root, request, readonly=readonly)
     return {
         "scope": "operator_held_original_source_timeline",
         "root_record_id": root,
