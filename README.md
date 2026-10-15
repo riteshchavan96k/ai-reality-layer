@@ -1,3 +1,30 @@
+## Step 249: Read-only authenticated historical Reality State API for applications
+
+A new `POST /api/v1/reality-state/timeline` endpoint exposes **validated
+historical source-observation metadata** to authorized AI applications without
+fetching publishers or modifying SQLite. The server must explicitly set
+`ARL_TEMPORAL_HISTORY_API_ENABLED=1`, alongside `ARL_RUNTIME_MODE=pilot`,
+the existing pilot bearer token, exact HTTPS source URL allowlist, and the
+private local Step247/248 history store and operator HMAC key. When not opted
+in, historical access abstains; incorrect bearer authorization remains denied.
+
+Input contains one `root_record_id` (the Step247 baseline record ID) and the
+exact canonical `OriginalSourceClaimRequest`. Output is a maximum 64-entry
+bounded history with decisions, UTC timestamps, capture hashes and validated
+change classifications but **no raw source quotations or HMAC secrets**.
+The store is checked using SQLite `mode=ro` and source URLs are never
+dereferenced by this route. Invalid/tampered/unavailable history abstains.
+
+Application code can call
+`check_temporal_timeline_with_api(client,token,request,root_record_id)`
+using an authorized trusted-transport client. The strict result parser
+rejects structurally altered responses, false-like epistemic flags, mismatched
+claims, misleading chronology and contradictory hash-based change labels.
+**Even a valid historical source reading is not current evidence** and cannot
+establish publisher ownership, independent historical timestamps or factual
+truth. No external hosting or background monitoring is introduced.
+[Step249 scope, usage and acceptance](docs/STEP_249.md).
+
 ## Step 248: Longitudinal Reality State evidence timeline
 
 The original-source observation history now supports an operator-controlled
