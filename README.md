@@ -1,3 +1,49 @@
+## Step 247: Durable local original-source evidence history across operator sessions
+
+AI Reality Layer now offers opt-in **persistent, keyed original-source observations**.
+One command records a verified single-source observation; a **later, separate
+CLI process** can reopen that operator-MACed baseline and make exactly one fresh
+authenticated HTTPS observation of the *same narrow claim and approved URL*.
+No background monitoring, arbitrary web search, publisher-signed chronology,
+factual truth guarantee or externally hosted deployment is implied.
+
+Before using the commands below, securely provision a directory accessible only
+to the operator (0700), and supply a **persistent 32-byte random secret encoded
+as 64 hexadecimal characters** from an operator-managed secret store. Never
+copy a secret into terminal commands, Git history, issue bodies or logs.
+`ARL_OBSERVATION_STORE_PATH` must be an absolute, normalized `.sqlite3`
+path directly inside that private directory, with no symlinks. File permissions
+are checked at every access. The operator must already configure the existing
+`ARL_RUNTIME_MODE=pilot`, `ARL_PILOT_BEARER_TOKEN` and exact
+`ARL_INDEPENDENT_SOURCE_ALLOWED_URLS` allowlist.
+
+```sh
+# Configure ARL_OBSERVATION_STORE_PATH and ARL_OBSERVATION_HMAC_KEY_HEX
+# securely in the operator environment before executing either command.
+python -m backend.app.cli --live --save-observation \
+  --claim "Python 3.13.0 is a stable release." \
+  --entity "Python 3.13.0" \
+  --source "https://www.python.org/downloads/release/python-3130/"
+# Retain only the safe, random saved_record_id from that JSON.
+python -m backend.app.cli --live --recheck-record <saved_record_id> \
+  --claim "Python 3.13.0 is a stable release." \
+  --entity "Python 3.13.0" \
+  --source "https://www.python.org/downloads/release/python-3130/"
+```
+
+The claim, entity, URL **and exact freshness window** must match the saved
+request. A changed key invalidates prior records; preserve it in secret
+management if later rechecks are needed. Source quotes are stored as **untrusted
+local data**, not printed by default; secure backups, retention and safe disposal
+are the operator's responsibility. At most 1,000 records are accepted;
+no automatic pruning/rollback-resistant ledger is claimed. HMAC only provides
+operator-controlled integrity, not reliable capture chronology, operator
+non-repudiation or publisher signatures. A stale baseline is valid **only for
+comparison**, never current evidence.
+
+See [Step 247 scope, security and reproducibility](docs/STEP_247.md).
+The separate Step234 external hosting release gate remains pending.
+
 # ai-reality-layer
 ## Step 246: Opt-in original-source temporal recheck (single approved HTTPS page)
 
