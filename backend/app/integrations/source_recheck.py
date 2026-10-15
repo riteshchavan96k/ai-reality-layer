@@ -125,23 +125,20 @@ def _validated_observation(
         return None
 
 
-def recheck_cited_answer_with_api(
-    client: Any,
-    token: str,
+def reconcile_observations(
     request: OriginalSourceClaimRequest,
     previous: ClientCitedAnswer,
+    current: ClientCitedAnswer,
     *,
     now: datetime | None = None,
 ) -> SourceRecheck:
-    """At most ONE new authenticated request; no source egress for bad baseline.
+    """Pure bounded comparison of two validated observations; NO source I/O.
 
-    Previous observation can be older than the freshness limit because it
-    is only a comparison baseline, NEVER trusted as currently fresh.
-    The present observation MUST independently satisfy normal freshness.
-    A no-change digest is an observation, not guaranteed publisher truth.
+    Used by the original Step246 client and Step250's direct in-process source
+    pipeline so the original-source reader is never invoked twice.
     """
     if not isinstance(request, OriginalSourceClaimRequest):
-        raise TypeError("a validated OriginalSourceClaimRequest is required")
+        raise TypeError("a validated original-source request is required")
     try:
         current_time = datetime.now(timezone.utc) if now is None else now
         if current_time.tzinfo is None:
@@ -149,7 +146,6 @@ def recheck_cited_answer_with_api(
         baseline = _validated_observation(previous, request, current_time)
         if baseline is None:
             return _abstain(request)
-        current = check_cited_answer_with_api(client, token, request)
         refreshed = _validated_observation(current, request, current_time)
         if refreshed is None:
             return _abstain(request)
@@ -194,4 +190,30 @@ def recheck_cited_answer_with_api(
         return _abstain(request)
 
 
-__all__ = ["SourceRecheck", "recheck_cited_answer_with_api", "RECHECK_ABSTAINED"]
+def recheck_cited_answer_with_api(
+    client: Any,
+    token: str,
+    request: OriginalSourceClaimRequest,
+    previous: ClientCitedAnswer,
+    *,
+    now: datetime | None = None,
+) -> SourceRecheck:
+    """Existing Step246 API: validate baseline then perform one authorized POST."""
+    if not isinstance(request, OriginalSourceClaimRequest):
+        raise TypeError("a validated original-source request is required")
+    try:
+        current_time = datetime.now(timezone.utc) if now is None else now
+        if current_time.tzinfo is None or _validated_observation(
+            previous, request, current_time
+        ) is None:
+            return _abstain(request)
+        current = check_cited_answer_with_api(client, token, request)
+        return reconcile_observations(request, previous, current, now=current_time)
+    except (ValueError, OverflowError, TypeError, AttributeError):
+        return _abstain(request)
+
+
+__all__ = [
+    "SourceRecheck", "reconcile_observations",
+    "recheck_cited_answer_with_api", "RECHECK_ABSTAINED",
+]
