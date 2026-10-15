@@ -363,8 +363,9 @@ def test_concurrent_stale_writer_rejected_inside_transaction(owner,monkeypatch):
     import backend.app.services.temporal_timeline_write_service as service
     original=service._capture
     def change_during_fetch(req):
+        # Do not recursively intercept the second writer's own source read.
+        monkeypatch.setattr(service,"_capture",original)
         fresh=original(req)
-        # Another operator completes an append before first can commit.
         concurrent=append(root,root,op=C).json()
         assert concurrent["outcome"]=="appended"
         return fresh
