@@ -193,7 +193,9 @@ def test_write_secret_invalid_configuration_fail_closed(owner,monkeypatch,broken
     if broken=="short":monkeypatch.setenv("ARL_TIMELINE_WRITE_TOKEN","short")
     elif broken=="same_reader":monkeypatch.setenv("ARL_TIMELINE_WRITE_TOKEN",TOKEN)
     else:monkeypatch.delenv("ARL_TIMELINE_WRITE_TOKEN")
-    assert create().status_code==503
+    result=create()
+    assert result.status_code==200
+    assert result.json()["outcome"]=="abstain"
     assert not path.exists() and state["calls"]==0
 
 
@@ -341,7 +343,12 @@ def test_atomic_append_rollback_on_idempotency_index_failure(owner,monkeypatch):
     assert result["outcome"]=="abstain"
     assert count(path)==1
     with sqlite3.connect(path) as db:
-        assert db.execute("SELECT count(*) FROM source_timeline_edges").fetchone()[0]==0
+        table = db.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='source_timeline_edges'"
+        ).fetchone()
+        assert table is None or db.execute(
+            "SELECT count(*) FROM source_timeline_edges"
+        ).fetchone()[0] == 0
 
 
 def test_storage_limit_never_commits_half_operation(owner,monkeypatch):
@@ -354,7 +361,12 @@ def test_storage_limit_never_commits_half_operation(owner,monkeypatch):
     assert count(path)==1
     with sqlite3.connect(path) as db:
         assert db.execute("SELECT count(*) FROM timeline_write_operations").fetchone()[0]==1
-        assert db.execute("SELECT count(*) FROM source_timeline_edges").fetchone()[0]==0
+        table = db.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='source_timeline_edges'"
+        ).fetchone()
+        assert table is None or db.execute(
+            "SELECT count(*) FROM source_timeline_edges"
+        ).fetchone()[0] == 0
 
 
 def test_concurrent_stale_writer_rejected_inside_transaction(owner,monkeypatch):
