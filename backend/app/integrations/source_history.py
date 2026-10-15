@@ -6,7 +6,8 @@ the operator-HMAC trust boundary. Database bytes and source quotes are untrusted
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from contextlib import closing
 from hashlib import sha256
 import hmac
 import json
@@ -46,6 +47,11 @@ def operator_history_configuration() -> tuple[str, bytes]:
     key = bytes.fromhex(key_text)
     if not any(key):
         raise InvalidHistory("invalid local history configuration")
+    try:
+        with closing(_db(path)):
+            pass
+    except (OSError, sqlite3.Error) as exc:
+        raise InvalidHistory("history store unavailable") from exc
     return path, key
 
 
@@ -120,7 +126,7 @@ def save_verified_answer(
     answer: ClientCitedAnswer,
 ) -> str:
     """Persist only one currently validated original-source observation."""
-    if not isinstance(request, OriginalSourceClaimRequest) or len(key) != 32:
+    if (not isinstance(request, OriginalSourceClaimRequest) or type(key) is not bytes or len(key) != 32):
         raise InvalidHistory("invalid history request")
     if _validated_observation(answer, request, datetime.now(timezone.utc)) is None:
         raise InvalidHistory("cannot store an unverified source observation")
@@ -144,7 +150,7 @@ def save_verified_answer(
     }
     encoded = _canonical(payload)
     record_id = secrets.token_hex(16)
-    with _db(path) as connection:
+    with closing(_db(path)) as connection, connection:
         connection.execute("BEGIN IMMEDIATE")
         number = connection.execute(
             "SELECT count(*) FROM original_source_observations"
@@ -193,7 +199,7 @@ def load_verified_answer(
         if type(raw["saved_at"]) is not str or not raw["saved_at"].endswith("Z"):
             raise InvalidHistory("invalid save time")
         saved_at = datetime.fromisoformat(raw["saved_at"].replace("Z", "+00:00"))
-        if saved_at > datetime.now(timezone.utc) + __import__("datetime").timedelta(seconds=30):
+        if saved_at > datetime.now(timezone.utc) + timedelta(seconds=30):
             raise InvalidHistory("invalid save time")
         citation = raw["citation"]
         if not isinstance(citation, dict) or set(citation) != {
@@ -214,7 +220,7 @@ def load_verified_answer(
         observed_at = datetime.fromisoformat(
             answer.citation.source_capture_observed_at.replace("Z", "+00:00")
         )
-        if saved_at < observed_at - __import__("datetime").timedelta(seconds=30):
+        if saved_at < observed_at - timedelta(seconds=30):
             raise InvalidHistory("save time precedes source capture")
         return answer
     except (sqlite3.Error, OSError, UnicodeError, ValueError, TypeError,
