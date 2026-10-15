@@ -1,3 +1,32 @@
+# Step 248 — longitudinal Reality State source evidence timeline (acceptance pending)
+
+**Verified predecessor**: Step247 ✅ merged via [PR #276](https://github.com/riteshchavan96k/ai-reality-layer/pull/276), accepted at exact main
+`5bd54d4f481e28662a5d122d61fb268749373097`: 21/21 successful
+exact-main `push` Actions workflows, 3,001 full backend passed, 30 Step247
+adversarial tests and genuine two-process Python.org HTTPS observation history.
+No preexisting Step248 roadmap file found.
+
+**Scoped Step248 feature**: explicit `--timeline-append ROOT_ID` persistently
+rechecks against the latest operator-MAC-validated observation and commits both
+a fresh source receipt and linked change event atomically; `--timeline-show
+ROOT_ID` inspects a bounded fully validated history without network egress.
+Every stored observation and link is revalidated before use; an optimistic
+stale-history check inside a serialized SQLite transaction rejects concurrent
+stale appenders. The original Step247 CLI interface is preserved. Real-source
+smoke and adversarial tests are part of existing history CI workflow.
+
+**ACCEPTANCE NOT YET COMPLETE** until feature PR merged and the exact final
+`main` SHA independently passes the complete backend test suite plus all
+21 required `push` GitHub Actions workflows. Recheck actual logs; do not
+substitute PR-head success. Record the final audited SHA on the merged PR
+without further source changes.
+
+Boundaries: operator-only local HMAC is not a trusted historical publisher
+attestation or anti-rollback ledger; source evidence does not prove objective
+real-world truth. No automatic monitoring or externally hosted HTTPS pilot.
+Separate deployment [issue #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242)
+remains OPEN/deferred. [Step248 scope](docs/STEP_248.md).
+
 # Step 247 — durable cross-session original-source observation history (implementation under verification)
 
 **Verified predecessor**: Step246 was fully accepted on exact final main
