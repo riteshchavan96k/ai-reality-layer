@@ -1,4 +1,4 @@
-name: Step 247–248 durable cross-session source history and timeline
+name: Step 247–249 authenticated source history, timeline and API
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   persisted-source-history:
-    name: Real Python.org HTTPS across independent authenticated history and timeline CLI processes
+    name: Real Python.org HTTPS across authenticated history, timeline and API consumers
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -27,9 +27,11 @@ jobs:
           python-version: "3.13"
       - name: Install current backend dev requirements
         run: python -m pip install -r backend/requirements-dev.txt
-      - name: Run Step 247 and Step 248 adversarial source-history tests
-        run: python -m pytest -q backend/tests/test_step247.py backend/tests/test_step248.py
+      - name: Run Step 247-249 adversarial history and client tests
+        run: python -m pytest -q backend/tests/test_step247.py backend/tests/test_step248.py backend/tests/test_step249.py
       - name: Check Step 247 real HTTPS source capture and recheck
         run: python -m backend.app.evaluation.step247_live_history --live
       - name: Check Step 248 three real HTTPS captures and offline timeline
         run: python -m backend.app.evaluation.step248_live_timeline --live
+      - name: Run Step 249 real HTTPS capture and authenticated read-only historical API
+        run: python -m backend.app.evaluation.step249_live_timeline_api --live
