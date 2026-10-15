@@ -1,3 +1,20 @@
+# Step 251 — privileged source-history creation and append API (final acceptance pending)
+
+Verified prior milestone **Step250 ✅**: main `4ff63821fcc53637006f5e50acc68a05eeae2ff8`, merged [PR #279](https://github.com/riteshchavan96k/ai-reality-layer/pull/279), full **3,106 backend tests**, **21/21 exact-main successful push workflows**, real Python.org three-past + one-live reconciliation CI. No prior `docs/STEP_251.md` existed.
+
+Step251 scope: distinct write bearer + explicit server flag, original-source
+single-fetch API creation, authenticated exact-head atomic append, durable
+keyed idempotency across retries, defensive app client and real source CI.
+Existing Step249 reads and Step250 read-only reconciliations are unchanged.
+Full details: [docs/STEP_251.md](docs/STEP_251.md).
+
+**Do not claim Step251 complete until** all PR checks green, merged PR, full
+backend and genuine original-source logs inspected, and **21/21 exact final
+`main` push workflows** independently verified. Record an acceptance comment
+on the merged PR without new unverified source changes. External deployed
+HTTPS pilot issue [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242)
+remains OPEN/deferred, no general publisher truth or tamper-proof history.
+
 # Step 250 — On-demand authenticated live/history Reality State reconciliation (acceptance pending)
 
 **Verified predecessor Step249 ✅:** implementation merged [PR #278](https://github.com/riteshchavan96k/ai-reality-layer/pull/278), exact final `main` `1078fa4c553a13f15b8757633c355476a8e6360d` with **21/21 successful push workflows**, **3,064 full backend tests passed**, focused 93 and genuine Python.org three-process authenticated API historical read. No preexisting Step250 spec found.
