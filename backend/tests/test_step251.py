@@ -194,8 +194,7 @@ def test_write_secret_invalid_configuration_fail_closed(owner,monkeypatch,broken
     elif broken=="same_reader":monkeypatch.setenv("ARL_TIMELINE_WRITE_TOKEN",TOKEN)
     else:monkeypatch.delenv("ARL_TIMELINE_WRITE_TOKEN")
     result=create()
-    assert result.status_code==200
-    assert result.json()["outcome"]=="abstain"
+    assert result.status_code==503
     assert not path.exists() and state["calls"]==0
 
 
@@ -203,7 +202,9 @@ def test_development_mode_does_not_enable_writer(owner,monkeypatch):
     state,path=owner
     monkeypatch.setenv("ARL_RUNTIME_MODE","development")
     monkeypatch.delenv("ARL_PILOT_BEARER_TOKEN")
-    assert create().status_code==503
+    response=create()
+    assert response.status_code==200
+    assert response.json()["outcome"]=="abstain"
     assert not path.exists() and state["calls"]==0
 
 
