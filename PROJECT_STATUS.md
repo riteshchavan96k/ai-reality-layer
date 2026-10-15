@@ -1,3 +1,22 @@
+# Step 250 — On-demand authenticated live/history Reality State reconciliation (acceptance pending)
+
+**Verified predecessor Step249 ✅:** implementation merged [PR #278](https://github.com/riteshchavan96k/ai-reality-layer/pull/278), exact final `main` `1078fa4c553a13f15b8757633c355476a8e6360d` with **21/21 successful push workflows**, **3,064 full backend tests passed**, focused 93 and genuine Python.org three-process authenticated API historical read. No preexisting Step250 spec found.
+
+**Step250 scope/implementation in progress:** Explicit authenticated, opt-in
+`/api/v1/reality-state/timeline/recheck` verifies an entire operator-keyed
+history read-only, obtains exactly one new approved original-source statement
+through the existing server pipeline (no nested HTTP), uses shared Step246
+bounded comparison, revalidates latest timeline identity to detect concurrent
+updates, and returns redacted, fail-closed historical/current source-metadata
+comparison for a defensive AI application client. No source evidence is
+published on failures. No history write, new monitoring or external deployment.
+[Step250 spec](docs/STEP_250.md).
+
+**Do not mark accepted** until PR feature and tests pass, merge, exact final
+main passes full backend regression and every applicable **21/21 push actions**,
+and final acceptance audit recorded on the merged PR without a subsequent
+untested main commit. Step234 externally deployed HTTPS pilot [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242) remains OPEN/deferred.
+
 # Step 249 — authenticated historical Reality State API and defensive application client (acceptance pending)
 
 **Verified predecessor Step248 ✅:** merged [PR #277](https://github.com/riteshchavan96k/ai-reality-layer/pull/277), immutable final main `729fb1b43972faed68c3b541822d3a731a2e55b4`; independently checked 21/21 completed successful push Actions, full backend **3,022 passed**, and real Python.org three-observation timeline with separate authenticated processes. No existing Step249 documentation/scope was found.

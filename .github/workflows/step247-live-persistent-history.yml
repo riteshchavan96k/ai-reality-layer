@@ -1,4 +1,4 @@
-name: Step 247–249 authenticated source history, timeline and API
+name: Step 247–250 authenticated historical and live source reconciliation
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   persisted-source-history:
-    name: Real Python.org HTTPS across authenticated history, timeline and API consumers
+    name: Real Python.org HTTPS across authenticated history, timeline and live reconciliation
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -27,11 +27,13 @@ jobs:
           python-version: "3.13"
       - name: Install current backend dev requirements
         run: python -m pip install -r backend/requirements-dev.txt
-      - name: Run Step 247-249 adversarial history and client tests
-        run: python -m pytest -q backend/tests/test_step247.py backend/tests/test_step248.py backend/tests/test_step249.py
+      - name: Run Steps 247-250 adversarial history, temporal API and reconciliation tests
+        run: python -m pytest -q backend/tests/test_step247.py backend/tests/test_step248.py backend/tests/test_step249.py backend/tests/test_step250.py
       - name: Check Step 247 real HTTPS source capture and recheck
         run: python -m backend.app.evaluation.step247_live_history --live
       - name: Check Step 248 three real HTTPS captures and offline timeline
         run: python -m backend.app.evaluation.step248_live_timeline --live
       - name: Run Step 249 real HTTPS capture and authenticated read-only historical API
         run: python -m backend.app.evaluation.step249_live_timeline_api --live
+      - name: Check Step 250 real live-to-history reconciliation in authenticated API
+        run: python -m backend.app.evaluation.step250_live_reconciliation --live

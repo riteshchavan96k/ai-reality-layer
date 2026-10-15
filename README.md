@@ -1,3 +1,27 @@
+## Step 250: On-demand live original-source reconciliation against historical Reality State
+
+AI Reality Layer now exposes `POST /api/v1/reality-state/timeline/recheck`
+for one operator-approved claim/timeline and exactly **one** fresh HTTPS
+original-source observation. Pilot bearer authorization, exact source URL
+allowlist and **`ARL_TEMPORAL_RECHECK_API_ENABLED=1`** are required. Historical
+timeline validation runs in private SQLite read-only mode **before** the
+network request; the existing source-cited answer pipeline is called in-process
+once (no nested self-HTTP); the shared Step246 comparison classifies the
+change. The entire history is checked again afterward to reject a concurrent
+append or corruption. No history write occurs.
+
+The response includes the baseline root/latest ID, old/new timestamped capture
+and quote SHA-256 hashes, bounded source decisions and conservative change
+classification, or a **no-partial-receipt abstention**. Publisher quotes,
+secrets and database paths are omitted. Applications can use
+`check_temporal_reconciliation_with_api(client,token,request,root_id)` with
+a trusted transport and strict fail-closed response validation. Historical
+evidence never becomes current evidence; a fresh aligned source statement is
+only **bounded source evidence**, not objective factual truth. No scheduler,
+autonomous agent, new model, deployment or official historical attestation is
+claimed. External deployment gate #242 remains separate.
+[Scope and operator example](docs/STEP_250.md).
+
 ## Step 249: Read-only authenticated historical Reality State API for applications
 
 A new `POST /api/v1/reality-state/timeline` endpoint exposes **validated
