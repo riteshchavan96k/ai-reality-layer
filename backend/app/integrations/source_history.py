@@ -184,6 +184,7 @@ def save_verified_answer(
 
 def load_verified_answer(
     path: str, key: bytes, record_id: str, request: OriginalSourceClaimRequest,
+    *, connection: sqlite3.Connection | None = None,
 ) -> ClientCitedAnswer:
     """Verify an operator-MACed baseline prior to ANY fresh source request."""
     if (
@@ -193,7 +194,13 @@ def load_verified_answer(
     ):
         raise InvalidHistory("invalid history request")
     try:
-        with _db(path) as connection:
+        if connection is None:
+            with closing(_db(path)) as database:
+                row = database.execute(
+                    "SELECT payload,mac FROM original_source_observations WHERE record_id=?",
+                    (record_id,),
+                ).fetchone()
+        else:
             row = connection.execute(
                 "SELECT payload,mac FROM original_source_observations WHERE record_id=?",
                 (record_id,),
