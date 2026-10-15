@@ -171,7 +171,7 @@ def latest_timeline_answer(
 ) -> tuple[str, ClientCitedAnswer]:
     """Preflight complete integrity and identity before any publisher egress."""
     chain, _ = _read_chain(path, key, root, request, readonly=readonly)
-    if len(chain) >= MAX_TIMELINE_OBSERVATIONS:
+    if not readonly and len(chain) >= MAX_TIMELINE_OBSERVATIONS:
         raise InvalidHistory("timeline capacity reached")
     return chain[-1][0], chain[-1][2]
 
