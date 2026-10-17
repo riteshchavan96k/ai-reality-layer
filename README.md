@@ -1,3 +1,41 @@
+## Step 253 — First source-derived answer to an open factual question
+
+A developer may now ask **"When was Python 3.13.0 released?"** without
+supplying the date in the question. In a restricted pilot the new authenticated
+`POST /api/v1/reality-state/extract/release-date` checks one exact
+operator-approved official Python release URL through the protected HTTPS reader
+and reports a bounded, observed `Release date: ...` field with quote,
+capture SHA-256 and observation time. The matched Python version/page heading,
+unique field, page URL, HTML-quotation exclusion and freshness are all
+verified **without any LLM**.
+
+An optional local/developer AI client calls `check_release_date_with_model`
+with a trusted HTTPS-validated client transport, valid pilot bearer, typed
+`ReleaseDateSourceRequest` and independently pinned `FLANT5ClaimProposer`.
+Its **real FLAN-T5 CPU model** receives the question and only the observed
+date field. The returned date must independently match the source calendar
+date; otherwise the client abstains with no answer/citation. The backend itself
+does not load this model or open a public inference endpoint.
+
+Reproduce the explicit real-model and real-publisher integration:
+
+```shell
+# Use the pinned optional packages from the Step253 GitHub workflow.
+python -m pytest -q backend/tests/test_step253.py
+python -m backend.app.evaluation.step253_live_release_date --live
+```
+
+The live canary uses local, random pilot credentials, a one-URL source
+allowlist and FastAPI's in-process TestClient; it makes a **real** external
+Python.org TLS request, not an externally deployed API. It tests one narrow
+date-field format, not generic factual QA, publisher authorship or factual
+truth. The deterministic validator already knows how to parse this one
+source field; using the LLM here establishes an evidence-conditioned
+integration, not an accuracy gain over deterministic parsing. See
+[Step253 technical and security scope](docs/STEP_253.md). External
+release gate [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242)
+remains open.
+
 ## Step 251: Privileged API-only source history creation and atomic append
 
 Applications may explicitly **create** and **append** original-source
