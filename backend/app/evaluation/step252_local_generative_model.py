@@ -46,6 +46,48 @@ class FLANT5ClaimProposer:
         self._model = model
         self._tokenizer = tokenizer
 
+    def extract_date(self, question: str, evidence_excerpt: str) -> str:
+        """Opt-in real CPU inference over bounded original-source date evidence.
+
+        Model text is strictly untrusted: downstream code must compare it to
+        the original server-observed date field before releasing an answer.
+        """
+        if (
+            type(question) is not str or not 0 < len(question) <= 200
+            or type(evidence_excerpt) is not str
+            or not 0 < len(evidence_excerpt) <= 80
+            or question != question.strip()
+            or any(c in question + evidence_excerpt for c in "\r\n\x00")
+        ):
+            raise GenerativeModelUnavailable("invalid_source_question")
+        prompt = (
+            "Answer the question using only the evidence. "
+            "Output the date only, not a sentence.\n"
+            "Question: " + question + "\n"
+            "Evidence: " + evidence_excerpt + "\nAnswer:"
+        )
+        try:
+            import torch
+            encoded = self._tokenizer(
+                prompt, return_tensors="pt", max_length=128,
+                truncation=True, padding=False,
+            )
+            with torch.inference_mode():
+                output = self._model.generate(
+                    **encoded, max_new_tokens=32, do_sample=False, num_beams=1,
+                )
+            result = self._tokenizer.decode(
+                output[0], skip_special_tokens=True,
+                clean_up_tokenization_spaces=False,
+            )
+            if type(result) is not str or len(result) > 80:
+                raise GenerativeModelUnavailable("invalid_generated_date")
+            return result.strip()
+        except GenerativeModelUnavailable:
+            raise
+        except Exception:
+            raise GenerativeModelUnavailable("date_inference_failed") from None
+
     def propose(self, question: str) -> str:
         if (
             type(question) is not str or not 0 < len(question) <= 300
