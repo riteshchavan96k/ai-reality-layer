@@ -1,3 +1,9 @@
+# Step 252 — real generative candidate with independently verified original-source evidence (acceptance pending)
+
+Verified prior Step251 ✅ at exact main `21b8fa0bf793d5f98d65e560f45c1694f158227b`, merged PR #280 with 21/21 exact-main successful push workflows, 3,157 passing backend tests and genuine source-history API lifecycle. No prior Step252 scope existed. New scoped engineering introduces an optional real pinned FLAN-T5 CPU model for narrowly gated yes/no question claim proposals; existing Step242 authenticated original-source cited answer remains the only evidence authority. Real model and real HTTPS CI acceptance must be inspected. External hosted Step234 issue #242 remains open/deferred.
+
+**Do not claim Step252 complete** until PR head workflows, full regression, genuine verified model + source logs, PR merge and independently successful 22/22 exact-final-main push workflows, then final audit on merged PR without another source change. See [docs/STEP_252.md](docs/STEP_252.md).
+
 # Step 251 — privileged source-history creation and append API (final acceptance pending)
 
 Verified prior milestone **Step250 ✅**: main `4ff63821fcc53637006f5e50acc68a05eeae2ff8`, merged [PR #279](https://github.com/riteshchavan96k/ai-reality-layer/pull/279), full **3,106 backend tests**, **21/21 exact-main successful push workflows**, real Python.org three-past + one-live reconciliation CI. No prior `docs/STEP_251.md` existed.
