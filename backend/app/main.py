@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from backend.app.api.release_date import ReleaseDateSourceRequest, ReleaseDateSourceResponse
+from backend.app.services.release_date_source_service import observe_release_date
 from fastapi.exceptions import RequestValidationError
 from backend.app.api.error_contract import (
     InternalErrorResponse,
@@ -175,6 +177,17 @@ def on_demand_live_history_reconciliation(request: TemporalRecheckRequest):
 def original_source_historical_timeline(request: TemporalTimelineRequest):
     """Pilot-only, opt-in historical evidence read with no HTTPS or DB writes."""
     return historical_timeline_readonly(request)
+
+
+@app.post(
+    "/api/v1/reality-state/extract/release-date",
+    response_model=ReleaseDateSourceResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
+def source_observed_release_date(request: ReleaseDateSourceRequest):
+    """Authenticate once and retrieve one constrained source date, not model truth."""
+    return observe_release_date(request)
 
 
 @app.post(
