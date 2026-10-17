@@ -1,3 +1,50 @@
+## Step 254 — Measured evidence-conditioned answer coverage (two historical facts, three real Python.org releases)
+
+AI Reality Layer now supports a second narrowly scoped factual question:
+**"What type of release was Python 3.13.0?"** The new authenticated
+`POST /api/v1/reality-state/extract/release-status` performs exactly one
+operator-approved original Python.org HTTPS read and independently selects
+the unique historical statement `This is the stable release of Python ...`.
+The selected source unit is bound to the exact page version, request digest,
+original-source quote hash, full-capture receipt and observation timestamp.
+Quoted, duplicated, contradictory, offsite, stale or malformed evidence
+abstains without citation. **Historical release type is not current
+security-support status.**
+
+An optional `check_release_status_with_model` developer client supplies
+the bounded observed statement to the previously pinned, genuinely executed
+FLAN-T5-small CPU model, then verifies generated release type **again
+independently** against the observed source text. A fluent LLM claim
+without matching original-source evidence never receives a citation.
+Existing Step253 release-date handling remains unchanged.
+
+The frozen [six official publisher case evaluation](backend/evaluation_fixtures/step254_real_official_answer_v1.json)
+covers Python 3.11.0, 3.12.0 and 3.13.0, each with a date and a historical
+release-type question. Actual first PR-head measurements: **deterministic
+baseline 6/6**, **FLAN-T5 correctly accepted 4/6**, **two model
+abstentions**, and **zero falsely supported answers within six cases**.
+All six cases used genuine original publisher HTTPS captures and actual
+pinned pretrained-model inference. Average recorded request+inference latency
+was ~184 ms with preloaded model (not a deployment SLA or including model
+load/cold start). Thus this model **did not increase coverage or accuracy**;
+the measured two-case shortfall is retained rather than hidden or optimized
+on these six test labels. Labels were manually reviewed against official
+sources, **not** independently reaudited or population-representative.
+
+Reproduce with optional explicitly pinned dependencies from the dedicated
+GitHub workflow:
+
+```shell
+python -m pytest -q backend/tests/test_step254.py
+python -m backend.app.evaluation.step254_live_model_value --live
+```
+
+No default model download, cloud GPU bill, broad domain QA, publisher-signed
+fact, autonomous monitoring, or public hosting is introduced. Continue to
+treat external HTTPS deployment as mandatory but separate
+[gate #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242).
+[Full Step254 scope and benchmark limits](docs/STEP_254.md).
+
 ## Step 253 — First source-derived answer to an open factual question
 
 A developer may now ask **"When was Python 3.13.0 released?"** without
