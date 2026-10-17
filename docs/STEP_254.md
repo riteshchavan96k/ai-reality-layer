@@ -28,3 +28,20 @@ Previous Step253 answered one release-date question using an independently captu
 - [ ] Record final acceptance in merged PR audit comment without a new unverified source change. Only then Step254 ✅.
 
 Separate externally deployed HTTPS release gate [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242) remains **open**, as agreed by owner; do not call the product externally deployed or customer ready.
+
+## First real PR-head experimental results — fixed six-case subset
+
+The first actual six-case genuine-source/genuine-LLM workflow reported:
+`deterministic_baseline_correct=6/6`,
+`model_supported_correct=4/6`,
+`model_abstained=2/6`,
+`model_false_supported=0/6`,
+`model_release_type_correct=1/3`,
+`net_model_coverage_gain_over_deterministic=-2`.
+Its observed mean *warm-model* HTTPS request + model inference latency was about 184 ms;
+this omits model download/load time and cannot be extrapolated to production traffic.
+**No evidence of neural-model superiority in this limited distribution** was observed;
+model outputs are not used to widen deterministic evidence permissions. This is a
+meaningful negative model-value result and informs selection of stronger models
+or better prompts only on future **held-out** data, not post-hoc optimizing this
+frozen evaluation set. No cloud GPU cost or authorization occurred.
