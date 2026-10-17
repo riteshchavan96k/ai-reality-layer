@@ -26,6 +26,16 @@ def select_release_type_unit(content: object, entity: str) -> str | None:
     headings=[n for n,s in enumerate(lines) if s==entity]
     if len(headings)!=1:
         return None
+    # An explicit direct counterstatement anywhere in the observed bounded
+    # document makes a positive type unsafe even if one good unit exists.
+    # This is a conservative lexical guard, NOT general NLI coverage.
+    negated=(
+        "this is not the stable release of "+entity.casefold(),
+        (entity+" is not a stable release.").casefold(),
+        (entity+" was not a stable release.").casefold(),
+    )
+    if any(line.casefold() in negated for line in lines):
+        return None
     matches=[(n,s,_RELEASE_CLAIM.fullmatch(s)) for n,s in enumerate(lines)
              if s.casefold().startswith("this is the ") and " release of " in s.casefold()]
     # Claim once on the page, not an assertion buried in unrelated paragraphs.
