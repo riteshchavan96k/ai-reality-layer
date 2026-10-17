@@ -137,6 +137,20 @@ def test_missing_duplicate_wrong_type_or_ambiguous_source_refuses(api,bad):
     assert result.citation is None and result.answer_type is None
     assert model.calls==[] and api[2]==[url("Python 3.13.0")]
 
+
+@pytest.mark.parametrize("counterstatement",[
+    "This is not the stable release of Python 3.13.0",
+    "Python 3.13.0 is not a stable release.",
+    "Python 3.13.0 was not a stable release.",
+])
+def test_explicit_original_source_counterstatement_blocks_cherrypicked_positive(api,counterstatement):
+    api[1]["body"]=source("Python 3.13.0","Oct. 7, 2024")+"\n"+counterstatement
+    model=Model()
+    result=check(api,model=model)
+    assert result.outcome=="abstain" and result.citation is None
+    assert result.answer_type is None and model.calls==[]
+    assert api[2]==[url("Python 3.13.0")]
+
 def test_quoted_source_status_cannot_become_evidence(api):
     api[1]["body"]=source(*[VERSIONS[2][0],VERSIONS[2][2]])
     quote="This is the stable release of Python 3.13.0"
