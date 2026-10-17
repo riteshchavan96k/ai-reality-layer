@@ -1,0 +1,38 @@
+name: Step 254 real-source coverage and neural model value
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-coverage:
+    name: Three official versions two facts each measured model versus baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v7
+      - name: Setup tested Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install backend and execute adversarial tests
+        run: |
+          python -m pip install -r backend/requirements-dev.txt
+          python -m pytest -q backend/tests/test_step254.py
+      - name: Install CPU PyTorch for opt-in real model
+        run: python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Install pinned model dependencies
+        run: python -m pip install transformers==4.52.4 huggingface-hub==0.32.4 safetensors==0.5.3 sentencepiece==0.2.0
+      - name: Independently measure six genuine HTTPS plus neural cases
+        run: python -m backend.app.evaluation.step254_live_model_value --live

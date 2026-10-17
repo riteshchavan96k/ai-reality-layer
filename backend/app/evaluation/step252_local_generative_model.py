@@ -46,6 +46,37 @@ class FLANT5ClaimProposer:
         self._model = model
         self._tokenizer = tokenizer
 
+    def extract_status(self, question: str, evidence_excerpt: str) -> str:
+        """Real bounded CPU generation; output is NOT source authorization."""
+        if (
+            type(question) is not str or not 0<len(question)<=200
+            or type(evidence_excerpt) is not str or not 0<len(evidence_excerpt)<=80
+            or question != question.strip()
+            or any(c in question+evidence_excerpt for c in "\r\n\x00")
+        ):
+            raise GenerativeModelUnavailable("invalid_release_type_prompt")
+        prompt=(
+            "What type of release does the evidence state? "
+            "Answer with one release type word only.\n"
+            "Question: "+question+"\nEvidence: "+evidence_excerpt+"\nAnswer:"
+        )
+        try:
+            import torch
+            encoded=self._tokenizer(prompt,return_tensors="pt",max_length=128,
+                                    truncation=True,padding=False)
+            with torch.inference_mode():
+                result=self._model.generate(**encoded,max_new_tokens=24,
+                                            do_sample=False,num_beams=1)
+            output=self._tokenizer.decode(result[0],skip_special_tokens=True,
+                                          clean_up_tokenization_spaces=False)
+            if type(output) is not str or len(output)>80:
+                raise GenerativeModelUnavailable("invalid_release_type_output")
+            return output.strip()
+        except GenerativeModelUnavailable:
+            raise
+        except Exception:
+            raise GenerativeModelUnavailable("release_type_inference_failed") from None
+
     def extract_date(self, question: str, evidence_excerpt: str) -> str:
         """Opt-in real CPU inference over bounded original-source date evidence.
 

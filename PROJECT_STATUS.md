@@ -1,3 +1,13 @@
+# Step 254 — More real-source answer types with an independently measured neural value baseline (final acceptance pending)
+
+Independently verified prior **Step253 ✅** at final `main` `f5eb9f8175779f30c2e4db5c6f62dd20a610695e`, merged PR #282, 3,227 backend passing tests, 23/23 exact-main successful workflows and audit comment. New Step254 scope selected to add another genuinely grounded factual question type and evaluate real-model value rather than add more scaffolding.
+
+At PR-head, 24/24 workflows have passed, including **3,273 total backend tests**, **46 Step254 focused tests** and an actual six-case Python.org HTTPS + pinned FLAN-T5 benchmark: deterministic parser **6/6 correct**, neural accepted **4/6**, **2 abstentions**, **0 falsely supported within this small set**. This model showed **negative incremental coverage** compared with deterministic policy. The new release-type API and defensive client are bounded to a unique historical `This is the stable release of Python X.Y.Z` statement for one exact operator-allowlisted URL. The existing Step253 date workflow remains unchanged. These results do not establish broad accuracy, publisher-authenticated truth or paid-GPU requirements.
+
+**Step254 final accepted status requires** review and PR merge, then independent 24/24 exact merged-main successful push Actions, full backend/model logs and final accepted-SHA PR audit comment without new unverified changes. This status paragraph is written pre-merge deliberately; final PR audit is authoritative. Mandatory externally hosted restricted HTTPS pilot issue [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242) remains OPEN/deferred; do not describe local Docker/CI as deployed.
+
+[Detailed milestone](docs/STEP_254.md).
+
 # Step 253 — evidence-conditioned release-date answer extraction (final acceptance pending)
 
 Verified preceding completed Step252 ✅ from [merged PR #281](https://github.com/riteshchavan96k/ai-reality-layer/pull/281) on exact main `7d675952c8d8c105d63479fa9a100d432e868976` with 3,187 backend tests and 22/22 successful final-main workflows. No earlier Step253 specification existed. Step253 adds a safe *actually unknown-answer* release-date developer flow: one authenticated server-approved original-source HTTPS capture, version-bound unique visible release-date field with freshness and hash receipt, opt-in real pinned FLAN-T5 conditioned on that source field and a defensive client that never lets a mismatched model answer become source-cited. This first domain-specific example is not generic QA, a calibrated factual accuracy guarantee, or externally hosted deployment.
