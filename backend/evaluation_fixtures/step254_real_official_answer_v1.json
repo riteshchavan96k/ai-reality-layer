@@ -1,0 +1,60 @@
+{
+  "schema_version": "arl-step254-source-coverage-v1",
+  "evaluation_design": "predeclared versioned official source release dates/types; publisher pages observed; labels independently recorded from primary pages before model evaluation; not representative or publisher-signed",
+  "case_count": 6,
+  "cases": [
+    {
+      "id": "py311-date",
+      "entity": "Python 3.11.0",
+      "source_uri": "https://www.python.org/downloads/release/python-3110/",
+      "question": "When was Python 3.11.0 released?",
+      "fact_kind": "release_date",
+      "expected_value": "2022-10-24"
+    },
+    {
+      "id": "py311-kind",
+      "entity": "Python 3.11.0",
+      "source_uri": "https://www.python.org/downloads/release/python-3110/",
+      "question": "What type of release was Python 3.11.0?",
+      "fact_kind": "release_type",
+      "expected_value": "stable"
+    },
+    {
+      "id": "py312-date",
+      "entity": "Python 3.12.0",
+      "source_uri": "https://www.python.org/downloads/release/python-3120/",
+      "question": "When was Python 3.12.0 released?",
+      "fact_kind": "release_date",
+      "expected_value": "2023-10-02"
+    },
+    {
+      "id": "py312-kind",
+      "entity": "Python 3.12.0",
+      "source_uri": "https://www.python.org/downloads/release/python-3120/",
+      "question": "What type of release was Python 3.12.0?",
+      "fact_kind": "release_type",
+      "expected_value": "stable"
+    },
+    {
+      "id": "py313-date",
+      "entity": "Python 3.13.0",
+      "source_uri": "https://www.python.org/downloads/release/python-3130/",
+      "question": "When was Python 3.13.0 released?",
+      "fact_kind": "release_date",
+      "expected_value": "2024-10-07"
+    },
+    {
+      "id": "py313-kind",
+      "entity": "Python 3.13.0",
+      "source_uri": "https://www.python.org/downloads/release/python-3130/",
+      "question": "What type of release was Python 3.13.0?",
+      "fact_kind": "release_type",
+      "expected_value": "stable"
+    }
+  ],
+  "limits": {
+    "general_world_accuracy": false,
+    "independent_publisher_authentication": false,
+    "customer_ready": false
+  }
+}
