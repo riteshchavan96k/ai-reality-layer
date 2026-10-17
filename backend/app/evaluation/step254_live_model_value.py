@@ -22,8 +22,12 @@ from backend.app.api.release_status import ReleaseStatusSourceRequest
 from backend.app.evaluation.step252_local_generative_model import (
     load_real_proposer,MODEL_REPO,MODEL_REVISION,MODEL_SHA256,
 )
-from backend.app.integrations.release_date_answer_client import check_release_date_with_model
-from backend.app.integrations.release_status_answer_client import check_release_status_with_model
+from backend.app.integrations.release_date_answer_client import (
+    check_release_date_with_model, _verified_receipt as valid_date_receipt,
+)
+from backend.app.integrations.release_status_answer_client import (
+    check_release_status_with_model, validate_status_receipt,
+)
 from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttpsSourceReader
 from backend.app.reality.release_date_policy import parse_release_date_label
 from backend.app.reality.release_status_policy import (
@@ -81,25 +85,38 @@ def run_live(cache_dir: Path) -> dict:
     status_generated_correct=0
     per_type=Counter()
     latency_ms=[]
+    class RecordingTransport:
+        """Record the ONE actual authenticated API response before LLM abstention."""
+        def __init__(self,real):
+            self.real=real
+            self.response=None
+        def post(self,*args,**kwargs):
+            result=self.real.post(*args,**kwargs)
+            self.response=result.json() if result.status_code==200 else None
+            return result
+
     with patch.dict(os.environ,config),patch.object(
         AllowlistedHttpsSourceReader,"__call__",read
     ):
         with TestClient(app) as client:
+            recorder=RecordingTransport(client)
             for row in cases:
+                recorder.response=None
                 first=perf_counter()
                 if row["fact_kind"]=="release_date":
                     req=ReleaseDateSourceRequest(
                         question=row["question"],entity=row["entity"],
                         source_uri=row["source_uri"]
                     )
-                    output=check_release_date_with_model(client,token,req,model)
-                    if output.citation is not None:
+                    output=check_release_date_with_model(recorder,token,req,model)
+                    direct=valid_date_receipt(recorder.response,req)
+                    if direct is None:
+                        accepted=None
+                    else:
                         source_date=parse_release_date_label(
-                            output.citation.original_source_quote
+                            direct[0].original_source_quote
                         )
                         accepted=source_date.isoformat() if source_date else None
-                    else:
-                        accepted=None
                     actual=output.answer_iso
                     used=output.model_executed
                     allowed=output.outcome=="bounded_source_date"
@@ -108,12 +125,13 @@ def run_live(cache_dir: Path) -> dict:
                         question=row["question"],entity=row["entity"],
                         source_uri=row["source_uri"]
                     )
-                    output=check_release_status_with_model(client,token,req,model)
-                    accepted=("stable" if output.citation is not None
+                    output=check_release_status_with_model(recorder,token,req,model)
+                    direct=validate_status_receipt(recorder.response,req)
+                    accepted=("stable" if direct is not None
                               and select_release_type_unit(
-                                  row["entity"]+"\n"+output.citation.original_source_quote,
+                                  row["entity"]+"\n"+direct.original_source_quote,
                                   row["entity"]
-                              )==output.citation.original_source_quote else None)
+                              )==direct.original_source_quote else None)
                     actual=output.answer_type
                     used=output.model_executed
                     allowed=output.outcome=="bounded_source_release_type"
