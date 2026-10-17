@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from backend.app.api.release_status import ReleaseStatusSourceRequest, ReleaseStatusSourceResponse
+from backend.app.services.release_status_source_service import observe_release_status
 from backend.app.api.release_date import ReleaseDateSourceRequest, ReleaseDateSourceResponse
 from backend.app.services.release_date_source_service import observe_release_date
 from fastapi.exceptions import RequestValidationError
@@ -177,6 +179,17 @@ def on_demand_live_history_reconciliation(request: TemporalRecheckRequest):
 def original_source_historical_timeline(request: TemporalTimelineRequest):
     """Pilot-only, opt-in historical evidence read with no HTTPS or DB writes."""
     return historical_timeline_readonly(request)
+
+
+@app.post(
+    "/api/v1/reality-state/extract/release-status",
+    response_model=ReleaseStatusSourceResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
+def source_observed_release_status(request: ReleaseStatusSourceRequest):
+    """Exactly one authorized original-source capture for bounded release type."""
+    return observe_release_status(request)
 
 
 @app.post(
