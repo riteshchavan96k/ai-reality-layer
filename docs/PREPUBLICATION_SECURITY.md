@@ -1,75 +1,69 @@
-# AI Reality Layer - Prepublication Security Gate
+# AI Reality Layer — publication security review
 
-STATUS: NOT CLEARED FOR PUBLICATION. This is a mandatory process,
-not proof of a clean codebase or guaranteed exclusive IP rights.
+## Current status (22 October 2026)
 
-## Verified scope at start
+The owner intentionally changed this repository to public. The proprietary
+LICENSE is already on main at 075780ace3f7e3888b21bf0ba1e6bde1de9369d8.
+This review does not change visibility, grant reuse rights, certify ownership,
+or declare the repository free of secrets. Step 255 PR #284 remains separate.
 
-Repository owner: riteshchavan96k (administrative access confirmed).
-Main prior accepted Step254: a99d8cfdb60324187b6142f97e001b082328f7a6.
-Draft Step255 PR #284 stays separate. Existing 24 workflows did not
-run for the Step255 PR because GitHub Actions private minutes/billing
-prevented runner allocation. Nothing here authorizes bypassing CI.
+The earlier statement that full Git history could not be scanned is superseded
+by the local review described below. Account billing was a suspected CI cause;
+it was not independently proven. All 24 project workflows on the above main
+commit now pass on attempt 2, including 3,276 backend tests. The separately
+managed dependency-graph run 39761938781 cannot be retried through the API
+(403: workflow run cannot be retried); it is not counted among those 24.
 
-The current main Git tree contains no filenames matching selected .env,
-private-key or local-database patterns. Selected current sensitive code,
-workflows and historic commit patches did not reveal a high-confidence
-literal key signature. THIS IS NOT A FULL HISTORY OR LOG AUDIT.
+## Engineering changes in PR #286
 
-This branch adds a root proprietary All Rights Reserved license, stronger
-.gitignore credential patterns, and a read-only history auditing script.
-Ignore rules do not erase any historic commits.
+- Ignore local credential files, environment variants, keys and databases.
+  Ignore private audit output paths too. Ignore rules never erase history.
+- Read-only scanner screens reachable blob, commit and tag objects without
+  printing matched values. It decodes BOM-marked UTF-16 before screening,
+  checks every committed tree for sensitive aliases, flags LFS/submodule
+  exclusions and refuses shallow clones or replacement refs.
+- Five synthetic regression tests cover deleted credentials, no false
+  publication clearance, UTF-16 and commit-message findings, identical-blob
+  sensitive aliases, and refusal of shallow history.
+- Full local backend regression: 3,281 passed (Python 3.12).
 
-## Required steps BEFORE converting private to public
+## Reproduction
 
-1. From a trusted authenticated developer workstation, create a complete
-   new Git mirror: git clone --mirror
-   https://github.com/riteshchavan96k/ai-reality-layer.git
-   ai-reality-layer-audit.git
+Use a trusted complete clone and fetch all advertised branches, tags and PR
+heads/merge refs. Never use an untrusted existing clone with replacement refs.
+For example, create a fresh mirror, then explicitly fetch PR refs:
 
-2. From a checkout containing this branch's scanner execute:
+```bash
+git clone --mirror https://github.com/riteshchavan96k/ai-reality-layer.git ai-reality-layer-audit.git
+git -C ai-reality-layer-audit.git fetch origin '+refs/pull/*/head:refs/pull/*/head' '+refs/pull/*/merge:refs/pull/*/merge'
+python scripts/prepublication_history_audit.py ai-reality-layer-audit.git > private-audit.json
+python -m pytest -q backend/tests/test_prepublication_history_audit.py
+```
 
-   python scripts/prepublication_history_audit.py
-   ai-reality-layer-audit.git > private-audit.json
+Exit 1 means findings need triage; exit 2 means inspection did not complete.
+Exit 0 is never publication clearance. Do not upload raw finding reports to a
+public PR. Independently scan historical content with a maintained separate
+detector, not just this project's patterns. The review uses detect-secrets
+1.5.0 outside backend dependencies; heuristic detection is not provider-side
+credential verification and zero matches cannot prove absence of secrets.
 
-   This scans reachable Git object blobs, includes deleted historical files,
-   prints finding categories, blob IDs and paths, but not actual secret
-   values. Keep the entire private report off public GitHub and out of PR
-   discussions. Scanner exit 0 never means publication was approved.
-   Also run a vetted maintained independent tool (e.g. TruffleHog) locally.
+## Required remaining review boundaries
 
-3. Separately audit all branch, tag and pull-request heads (some refs are
-   excluded from a normal mirror), GitHub Actions historical logs, caches,
-   artifacts, PR discussions, issue attachments and releases. Making the
-   repository public exposes its Actions history and logs. Inspect account
-   secret stores and collaborator permissions in authorized GitHub Settings.
+Account secret stores, collaborator roles, organization policies, inaccessible
+or expired logs/artifacts, caches, attachments, unadvertised/unreachable Git
+objects, third-party rights and confidential business material require their
+own review. A secret scanner and commit author names cannot settle those.
+Record actual coverage and exclusions; never replace missing evidence with a
+clean result. No compromised credential has been established by the completed
+targeted triage, and no credential rotation or history rewrite has occurred.
 
-4. On a VERIFIED leaked credential, REVOKE OR ROTATE AT ITS PROVIDER FIRST,
-   investigate any unauthorized access, and prevent continued use. If
-   history rewriting is still justified, coordinate a freeze, backup and
-   precise filters with the owner. Use a current git-filter-repo release
-   with --sensitive-data-removal on a disposable mirror, inspect the rewritten
-   refs and coordinate cleanup of old clones, forks and GitHub PR caches.
-   NEVER run blanket force pushes or rewrite history speculatively.
+If a real secret is confirmed, revoke/rotate at its provider first, investigate
+use, then coordinate any precise history cleanup with the owner. Do not force
+push or delete branches speculatively. Existing clones, forks and cached PR
+objects require separate treatment even after a rewrite.
 
-5. Audit all third-party licensing, model/dataset licenses, ownership
-   assignments, contractual duties, and potential confidential material.
-   Git commit authorship alone cannot certify ownership. The project is
-   NOT under an open-source license; a public GitHub repo can still be
-   forked through GitHub platform functionality.
-
-6. After remediations, rerun full-history scanners, confirm findings have
-   been resolved and have the owner review the full report, past logs and
-   ruleset settings. The owner may then authorize public visibility.
-   GitHub warns that push rulesets may be disabled on conversion.
-
-## Unresolved release blockers
-
-- Full remote history blob scan not performed through available linked tools.
-- Old Actions logs, PR refs and artifacts not fully cleared.
-- Account-wide credentials, roles and third-party IP not independently cleared.
-- No compromised secret verified; no keys rotated; no history rewritten.
-- Automated CI still unavailable until account billing/quota permits it.
-
-Stop here until those are addressed. Step255 should not be merged without
-independently successful PR and exact merged-main workflows.
+The original PR's comprehensive publication-clearance gate remains unmet until
+all required surfaces and owner-only controls have been reviewed. Keep that
+claim separate from successful engineering tests and restored CI. Do not mark
+Step 255 complete or merge it based on this security work. External deployment
+issue #242 remains open.

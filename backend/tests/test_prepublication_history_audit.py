@@ -59,3 +59,45 @@ def test_even_clean_scan_does_not_clear_publication():
         report=json.loads(r.stdout)
         assert report["finding_counts"]=={}
         assert report["publication_cleared"] is False
+
+
+def test_utf16_and_commit_message_secrets_are_detected_without_values():
+    with tempfile.TemporaryDirectory() as t:
+        root=Path(t)
+        mirror=_make_mirror(root,False)
+        source=root/'src'
+        token='ghp_'+'B'*36
+        (source/'encoded.txt').write_text(token,encoding='utf-16')
+        _cmd('git','add','encoded.txt',cwd=source)
+        _cmd('git','commit','-qm','synthetic '+token,cwd=source)
+        _cmd('git','fetch','-q',str(source),'+refs/heads/*:refs/heads/*',cwd=mirror)
+        r=subprocess.run([sys.executable,str(SCANNER),str(mirror)],capture_output=True,text=True)
+        report=json.loads(r.stdout)
+        assert r.returncode==1 and token not in r.stdout
+        assert report['finding_counts']['github_token']==2
+        assert report['commit_and_tag_objects_scanned']>=2
+
+
+def test_sensitive_alias_of_identical_blob_is_not_lost():
+    with tempfile.TemporaryDirectory() as t:
+        root=Path(t)
+        mirror=_make_mirror(root,False)
+        source=root/'src'
+        (source/'.env.production').write_text('hello\n',encoding='utf-8')
+        _cmd('git','add','.env.production',cwd=source)
+        _cmd('git','commit','-qm','same blob sensitive alias',cwd=source)
+        _cmd('git','fetch','-q',str(source),'+refs/heads/*:refs/heads/*',cwd=mirror)
+        r=subprocess.run([sys.executable,str(SCANNER),str(mirror)],capture_output=True,text=True)
+        assert r.returncode==1
+        assert json.loads(r.stdout)['finding_counts']['sensitive_filename_review']==1
+
+
+def test_shallow_history_is_refused():
+    with tempfile.TemporaryDirectory() as t:
+        root=Path(t)
+        _make_mirror(root,True)
+        shallow=root/'shallow.git'
+        _cmd('git','clone','--bare','--depth=1',(root/'src').as_uri(),str(shallow))
+        r=subprocess.run([sys.executable,str(SCANNER),str(shallow)],capture_output=True,text=True)
+        assert r.returncode==2
+        assert 'shallow' in r.stderr

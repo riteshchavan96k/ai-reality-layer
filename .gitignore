@@ -183,3 +183,7 @@ secrets.*.json
 *.db-journal
 *.dump
 *.sql.gz
+
+# Private security triage outputs may contain sensitive locations or findings
+.private-audit/
+private-audit*.json

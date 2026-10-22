@@ -54,6 +54,10 @@ def git(repo: Path, *args: str, input_bytes: bytes | None = None) -> bytes:
 
 def scan(repo: Path) -> dict:
     git(repo, "rev-parse", "--git-dir")
+    if git(repo, "rev-parse", "--is-shallow-repository").strip() == b"true":
+        raise ValueError("Full history is required; shallow repositories are refused")
+    if git(repo, "for-each-ref", "--format=%(refname)", "refs/replace").strip():
+        raise ValueError("Replacement refs obscure history; inspect an unmodified clone")
     refs = git(repo, "for-each-ref", "--format=%(refname)").decode(
         "utf-8", "replace").splitlines()
     objects = git(repo, "rev-list", "--objects", "--all").decode(
@@ -68,10 +72,13 @@ def scan(repo: Path) -> dict:
         input_bytes=("\n".join(paths) + "\n").encode("ascii"),
     )
     blobs: list[str] = []
+    metadata: list[str] = []
     for line in checks.decode("ascii", "replace").splitlines():
         parts = line.split()
         if len(parts) == 3 and parts[1] == "blob":
             blobs.append(parts[0])
+        elif len(parts) == 3 and parts[1] in ("commit", "tag"):
+            metadata.append(parts[0])
     counts = collections.Counter()
     samples: dict[str, list[dict]] = collections.defaultdict(list)
 
@@ -83,23 +90,42 @@ def scan(repo: Path) -> dict:
                 "git_object": oid[:12],
             })
 
+    # rev-list assigns only one representative path to a blob. Inspect every
+    # committed tree so identical content under a sensitive alias is not missed.
+    sensitive_entries = set()
+    special_entries = set()
+    roots = set(git(repo, "log", "--all", "--format=%T").splitlines())
+    for root in roots:
+        for entry in git(repo, "ls-tree", "-r", "-z", root.decode("ascii")).split(b"\x00"):
+            if not entry:
+                continue
+            info, raw_path = entry.split(b"\t", 1)
+            mode, kind, oid = info.decode("ascii").split()
+            path = raw_path.decode("utf-8", "replace")
+            if SENSITIVE_PATH.search(path):
+                sensitive_entries.add((oid, path))
+            if mode == "160000":
+                special_entries.add((oid, path))
+    for oid, path in sorted(sensitive_entries):
+        flag("sensitive_filename_review", oid, path)
+    for oid, path in sorted(special_entries):
+        flag("submodule_not_scanned", oid, path)
+
     proc = subprocess.Popen(
         ["git", "-C", str(repo), "cat-file", "--batch"],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     )
     assert proc.stdin is not None and proc.stdout is not None
     try:
-        for oid in blobs:
+        for oid in blobs + metadata:
             path = paths[oid]
-            if path and SENSITIVE_PATH.search(path):
-                flag("sensitive_filename_review", oid, path)
             if path and LICENSE_PATH.search(path):
                 flag("historical_license_or_notice_file_review", oid, path)
             proc.stdin.write((oid+"\n").encode("ascii"))
             proc.stdin.flush()
             head = proc.stdout.readline().decode(
                 "ascii", "replace").strip().split()
-            if len(head) != 3 or head[0] != oid or head[1] != "blob":
+            if len(head) != 3 or head[0] != oid or head[1] not in ("blob", "commit", "tag"):
                 raise RuntimeError("Unexpected git batch response")
             size = int(head[2])
             if size > MAX_BLOB_BYTES:
@@ -114,11 +140,18 @@ def scan(repo: Path) -> dict:
                 value = proc.stdout.read(size)
                 if len(value) != size:
                     raise RuntimeError("Unexpected blob EOF")
+                if value.startswith((b"\xff\xfe", b"\xfe\xff")):
+                    try:
+                        value = value.decode("utf-16").encode("utf-8")
+                    except UnicodeError:
+                        flag("undecodable_text_review", oid, path)
                 for label, regex in PATTERNS.items():
                     if regex.search(value):
                         flag(label, oid, path)
                 if b"\x00" in value:
                     flag("binary_blob_review", oid, path)
+                if value.startswith(b"version https://git-lfs.github.com/spec/v1"):
+                    flag("lfs_object_not_scanned", oid, path)
             if proc.stdout.read(1) != b"\n":
                 raise RuntimeError("Unexpected blob delimiter")
     finally:
@@ -132,6 +165,8 @@ def scan(repo: Path) -> dict:
         "refs_inspected": len(refs),
         "reachable_git_objects_identified": len(paths),
         "reachable_blobs_scanned_or_flagged": len(blobs),
+        "commit_and_tag_objects_scanned": len(metadata),
+        "unique_committed_trees_inspected": len(roots),
         "git_commits_recorded_across_all_refs": len(authors),
         "commit_author_display_names_only": dict(collections.Counter(authors)),
         "finding_counts": dict(counts),
