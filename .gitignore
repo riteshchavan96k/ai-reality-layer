@@ -181,5 +181,5 @@ secrets.*.json
 *.db-wal
 *.db-shm
 *.db-journal
-*.sql
+*.dump
 *.sql.gz
