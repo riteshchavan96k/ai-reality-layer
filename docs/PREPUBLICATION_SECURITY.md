@@ -67,3 +67,57 @@ all required surfaces and owner-only controls have been reviewed. Keep that
 claim separate from successful engineering tests and restored CI. Do not mark
 Step 255 complete or merge it based on this security work. External deployment
 issue #242 remains open.
+
+## Completed audit evidence — 22 October 2026
+
+Reviewed main: `075780ace3f7e3888b21bf0ba1e6bde1de9369d8`.
+Reviewed security implementation: `19a629083924f040216fc1d5063d14a30ce2e3fc`.
+
+- Advertised remote inventory: 399 branch heads and 263 PR head/merge refs.
+  Every advertised object was present in the full local checkout; no advertised
+  tags were returned. Local refs also include tracking refs and a local merge.
+- Initial history snapshot: 1,973 unique blobs and 2,376 commit/tag objects.
+  The independent detect-secrets 1.5.0 file-aware scan covered all 4,349
+  objects, decoding UTF-16 where necessary. Its 15 unique findings were
+  contextually reviewed: synthetic rejection/redaction-test credentials,
+  public model/dataset hashes and revisions, recorded commit IDs, and a
+  workflow block generating and masking a fresh ephemeral token. No live
+  provider credential was established by this triage.
+- After fetching the updated security commit, the enhanced project scanner
+  screened 1,977 blobs, 2,377 commit/tag objects and 1,978 distinct committed
+  trees across 665 local refs. Its six credential-URL findings were historical
+  test-fixture versions using example domains; two license blobs were the
+  deliberate proprietary notices. The former binary finding was UTF-16
+  requirements text, now decoded and screened. No sensitive-path, LFS,
+  submodule, undecodable-text or oversized-object finding was reported.
+- Actual current-main backend log: [run 39754071167, attempt 2](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/39754071167):
+  **3,276 passed in 13.80s**. All 24 project push workflows succeeded.
+- Security PR implementation backend log:
+  [run 39767948123](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/39767948123):
+  **3,281 passed in 14.96s**. All 24 PR workflows succeeded on the exact
+  implementation SHA above. Later documentation commits require their own CI.
+- Targeted live-key-pattern screening completed on 48 job logs: the 24
+  current-main reruns and the 24 accepted Step254 main runs. No matches to
+  the screened GitHub/OpenAI/private-key/AWS/Hugging Face patterns were found.
+  This is pattern screening, not a guarantee of absence of arbitrary secrets.
+- Downloaded and inspected all ten retained audit JSON artifacts produced by
+  Steps222/226/227/232/233 on those two checkpoints. They contained audit
+  metrics, public-source excerpts/receipts and hashes; no matches to the
+  project's credential patterns were found. No GitHub releases were listed.
+- API inspection returned no repository rulesets; main reported unprotected.
+  Account metadata alone does not establish safe collaborator or secret-store
+  configuration. Those administrative surfaces were not inspected.
+
+## Explicitly unfinished comprehensive gate
+
+The run inventory contained 2,234 historical workflows. A broader log sweep
+was interrupted before its final results were saved; only the 48 completed
+checks above are credited. Older logs, prior attempts, artifacts and caches,
+PR/issue discussions and attachments, unavailable/deleted objects, account
+secret stores and collaborator settings are **not fully cleared**. Neither
+scan verifies the contractual ownership chain or provider-side token validity.
+
+PR #286 must remain unmerged under its original comprehensive gate until
+remaining review evidence is supplied. Successful CI and synthetic-fixture
+triage do not silently waive that gate. No keys were rotated, no history was
+rewritten, no branches were deleted, and no visibility change was made here.
