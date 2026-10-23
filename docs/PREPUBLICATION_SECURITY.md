@@ -1,6 +1,6 @@
 # AI Reality Layer — publication security review
 
-## Current status (22 October 2026)
+## Current status (23 October 2026)
 
 The owner intentionally changed this repository to public. The proprietary
 LICENSE is already on main at 075780ace3f7e3888b21bf0ba1e6bde1de9369d8.
@@ -13,6 +13,12 @@ it was not independently proven. All 24 project workflows on the above main
 commit now pass on attempt 2, including 3,276 backend tests. The separately
 managed dependency-graph run 39761938781 cannot be retried through the API
 (403: workflow run cannot be retried); it is not counted among those 24.
+Its job log reports a file-fetcher error: invalid byte sequence in UTF-8.
+The backend requirements manifest was UTF-16; this PR converts it to UTF-8
+while preserving all 14 dependency specifications. Local strict UTF-8 parsing
+and dependency-line equivalence checks pass. The managed graph job on main
+is still failed; recovery must be verified by a fresh successful run after
+the correction reaches main.
 
 ## Engineering changes in PR #286
 
@@ -26,6 +32,8 @@ managed dependency-graph run 39761938781 cannot be retried through the API
   publication clearance, UTF-16 and commit-message findings, identical-blob
   sensitive aliases, and refusal of shallow history.
 - Full local backend regression: 3,281 passed (Python 3.12).
+- Convert backend/requirements.txt from UTF-16 to UTF-8 so Dependabot can
+  read the manifest. No dependency versions change.
 
 ## Reproduction
 
@@ -68,7 +76,7 @@ claim separate from successful engineering tests and restored CI. Do not mark
 Step 255 complete or merge it based on this security work. External deployment
 issue #242 remains open.
 
-## Completed audit evidence — 22 October 2026
+## Completed audit evidence — 22–23 October 2026
 
 Reviewed main: `075780ace3f7e3888b21bf0ba1e6bde1de9369d8`.
 Reviewed security implementation: `19a629083924f040216fc1d5063d14a30ce2e3fc`.
@@ -96,26 +104,41 @@ Reviewed security implementation: `19a629083924f040216fc1d5063d14a30ce2e3fc`.
   [run 39767948123](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/39767948123):
   **3,281 passed in 14.96s**. All 24 PR workflows succeeded on the exact
   implementation SHA above. Later documentation commits require their own CI.
-- Targeted live-key-pattern screening completed on 48 job logs: the 24
-  current-main reruns and the 24 accepted Step254 main runs. No matches to
-  the screened GitHub/OpenAI/private-key/AWS/Hugging Face patterns were found.
-  This is pattern screening, not a guarantee of absence of arbitrary secrets.
-- Downloaded and inspected all ten retained audit JSON artifacts produced by
-  Steps222/226/227/232/233 on those two checkpoints. They contained audit
-  metrics, public-source excerpts/receipts and hashes; no matches to the
-  project's credential patterns were found. No GitHub releases were listed.
+- The historical run inventory contained 2,282 runs. Every inventory ID was
+  reconciled against durable review records: 2,142 latest-attempt job logs
+  were screened, including two successful retrieval retries; 104 jobs had no
+  executed steps and 36 runs returned no jobs. No matches to the targeted
+  GitHub/OpenAI/private-key/AWS/Hugging Face/Slack patterns were found.
+  All 25 prior attempts were inspected separately: each had zero steps and
+  no assigned runner. Empty/unavailable job records are not screened logs.
+  Pattern screening cannot prove absence of arbitrary secrets.
+- Inventoried artifacts across all 2,282 runs: 691 retained archives, each
+  containing one readable JSON file. All 691 were downloaded and screened
+  with the same targeted patterns, with no matches, decode failures or
+  download failures. No expired artifacts were returned in this inventory;
+  already deleted artifacts are outside this evidence.
+- Screened all 286 issue/PR descriptions and 59 issue comments with the same
+  targeted patterns: no matches. No PR review comments were returned and no
+  GitHub attachment links were detected in those bodies. GitHub Discussions
+  are disabled; no releases were listed. External linked content and deleted
+  discussions/attachments are outside this coverage.
+- Reviewed current workflow configuration: all 24 workflows declare
+  `contents: read`; none contains a repository-secret expression or a
+  `pull_request_target`/`workflow_run` trigger. Sixteen use setup-python's
+  pip cache. This reviews configuration, not historical cache contents.
 - API inspection returned no repository rulesets; main reported unprotected.
   Account metadata alone does not establish safe collaborator or secret-store
   configuration. Those administrative surfaces were not inspected.
 
 ## Explicitly unfinished comprehensive gate
 
-The run inventory contained 2,234 historical workflows. A broader log sweep
-was interrupted before its final results were saved; only the 48 completed
-checks above are credited. Older logs, prior attempts, artifacts and caches,
-PR/issue discussions and attachments, unavailable/deleted objects, account
-secret stores and collaborator settings are **not fully cleared**. Neither
-scan verifies the contractual ownership chain or provider-side token validity.
+The completed historical log, artifact and discussion screening above supersedes
+previous interrupted-sweep notes. Caches, unavailable/deleted objects,
+external attachments, account secret stores and collaborator/security settings
+are **not fully cleared**. The administrative review requires authenticated
+repository settings access; the current browser is signed out and the GitHub
+connector excludes these administrative surfaces. Neither scan verifies the
+contractual ownership chain or provider-side token validity.
 
 PR #286 must remain unmerged under its original comprehensive gate until
 remaining review evidence is supplied. Successful CI and synthetic-fixture
