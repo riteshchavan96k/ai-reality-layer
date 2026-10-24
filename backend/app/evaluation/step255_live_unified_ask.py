@@ -24,7 +24,6 @@ from backend.app.integrations.evidence_first_ask_client import (
     ask_with_optional_model,
 )
 from backend.app.main import app
-import backend.app.services.evidence_first_ask_service as ask_service
 from backend.app.reality.allowlisted_https_source_reader import AllowlistedHttpsSourceReader
 from backend.app.evaluation.step254_live_model_value import load_manifest as load_previous
 
@@ -63,35 +62,10 @@ def run_live(cache_dir: Path) -> dict:
     token=secrets.token_urlsafe(48)
     allowed_urls=sorted({x["source_uri"] for x in cases})
     original=AllowlistedHttpsSourceReader.__call__
-    source_reasons=[]
-    def date_observe(req):
-        observed=orig_date(req)
-        source_reasons.append(observed.reason_code)
-        return observed
-    def status_observe(req):
-        observed=orig_status(req)
-        source_reasons.append(observed.reason_code)
-        return observed
-    orig_date=ask_service.observe_release_date
-    orig_status=ask_service.observe_release_status
     reads=[]
-    source_shapes=[]
     def count_read(self,uri):
         reads.append(uri)
-        captured=original(self,uri)
-        if uri.endswith("/python-3100/") and isinstance(captured,dict):
-            body=captured.get("content")
-            if type(body) is str:
-                lines=[x.strip() for x in body.split("\n") if x.strip()]
-                indices=lambda predicate: [i for i,x in enumerate(lines) if predicate(x)]
-                heads=indices(lambda x:x=="Python 3.10.0")
-                dates=indices(lambda x:x.casefold().startswith("release date:"))
-                types=indices(lambda x:x.casefold().startswith("this is the ") and " release of " in x.casefold())
-                warnings=indices(lambda x:"end-of-life" in x.casefold() or "no longer supported" in x.casefold())
-                source_shapes.append({"n_lines":len(lines),"heading_positions":heads,
-                    "release_date_positions":dates,"release_type_positions":types,
-                    "warning_positions":warnings})
-        return captured
+        return original(self,uri)
     config={
         "ARL_RUNTIME_MODE":"pilot",
         "ARL_PILOT_BEARER_TOKEN":token,
@@ -106,8 +80,6 @@ def run_live(cache_dir: Path) -> dict:
     case_receipts=[]
     with patch.dict(os.environ,config),patch.object(
         AllowlistedHttpsSourceReader,"__call__",count_read
-    ),patch.object(ask_service,"observe_release_date",date_observe),patch.object(
-        ask_service,"observe_release_status",status_observe
     ):
         with TestClient(app) as client:
             for x in cases:
@@ -141,8 +113,6 @@ def run_live(cache_dir: Path) -> dict:
                 # and reason only; never emit the body, quote, token, or URI.
                 case_receipts.append({
                     "id":x["id"],"outcome":result.outcome,
-                    "source_reason":source_reasons[-1] if source_reasons else None,
-                    "source_shape":source_shapes[-1] if x["entity"]=="Python 3.10.0" and source_shapes else None,
                     "reason":result.reason_code,
                     "matched":(result.outcome=="bounded_source_answer"
                                and result.answer_value==x["expected_value"]),
