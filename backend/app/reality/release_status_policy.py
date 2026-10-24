@@ -1,7 +1,9 @@
 """Step254: single official Python release-kind assertion, not current support status."""
 from __future__ import annotations
 import re
-from backend.app.reality.release_date_policy import expected_question
+from backend.app.reality.release_date_policy import (
+    expected_question, historical_eol_banner_near_heading,
+)
 
 _RELEASE_CLAIM = re.compile(r"This is the ([A-Za-z][A-Za-z -]{0,40}) release of (Python [0-9]+\.[0-9]+\.[0-9]+)\Z", re.I)
 
@@ -44,7 +46,13 @@ def select_release_type_unit(content: object, entity: str) -> str | None:
     position,text,match=matches[0]
     if match is None or match.group(1).casefold()!="stable" or match.group(2)!=entity:
         return None
-    if not (headings[0]<position<=headings[0]+5) or len(text)>80:
+    if (
+        not headings[0] < position or len(text) > 80
+        or (position > headings[0] + 5
+            and not historical_eol_banner_near_heading(
+                lines, headings[0], position, entity
+            ))
+    ):
         return None
     for other in lines[headings[0]+1:position]:
         if other.startswith("Python ") and re.fullmatch(r"Python \d+\.\d+\.\d+",other):

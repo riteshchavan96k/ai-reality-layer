@@ -268,6 +268,77 @@ def test_unified_route_and_previous_stable_endpoints_retained():
     assert "/api/v1/reality-state/timeline/create" in routes
     assert "/api/v1/reality-state/answer" in routes
 
+
+def _eol_banner_page(entity="Python 3.10.0", *, warning_entity=None,
+                     include_eol=True, include_unsupported=True, extra=None):
+    warning_entity = warning_entity or entity
+    parts = [
+        entity,
+        "Note: Python release archive",
+        ("Warning: " + warning_entity +
+         " reached end-of-life on 2026-10-01" if include_eol
+         else "Warning: no historical publisher warning"),
+        ("It is no longer supported and does not receive security updates"
+         if include_unsupported else "A generic informational banner"),
+        *(extra or ["Upgrade to a supported version"]),
+        "Note: this version has been superseded",
+        "Release date: Oct. 4, 2021",
+        "This is the stable release of " + entity,
+        "Other release details",
+    ]
+    return "\n".join(parts)
+
+
+@pytest.mark.parametrize("kind", ["release_date", "release_type"])
+def test_genuine_historical_eol_banner_keeps_release_facts(api, kind):
+    entity = "Python 3.10.0"
+    api[1]["body"] = _eol_banner_page(entity)
+    verified = call(api, request(entity, kind))
+    assert verified.outcome == "bounded_source_answer"
+    assert verified.reason_code == "independent_original_source_answer"
+    assert verified.answer_value == (
+        "2021-10-04" if kind == "release_date" else "stable"
+    )
+    assert verified.citation is not None
+    assert verified.citation.source_uri == url(entity)
+    assert verified.optional_model_assessment == "not_requested"
+    assert api[2] == [url(entity)]
+
+
+@pytest.mark.parametrize("kind", ["release_date", "release_type"])
+@pytest.mark.parametrize("variant", [
+    "no_specific_eol", "no_unsupported_status", "other_version_warning",
+    "oversized_banner", "contradictory_release", "duplicated_date",
+])
+def test_warning_never_bypasses_other_source_evidence_guards(api, kind, variant):
+    entity = "Python 3.10.0"
+    opts = {}
+    if variant == "no_specific_eol":
+        opts["include_eol"] = False
+    elif variant == "no_unsupported_status":
+        opts["include_unsupported"] = False
+    elif variant == "other_version_warning":
+        opts["warning_entity"] = "Python 3.11.0"
+    elif variant == "oversized_banner":
+        opts["extra"] = ["Unrelated information"] * 5
+    doc = _eol_banner_page(entity, **opts)
+    if variant == "contradictory_release":
+        doc += "\nThis is not the stable release of " + entity
+        # For release date, a contradictory status statement does not negate
+        # the independent historical date: test the status guard specifically.
+        if kind == "release_date":
+            doc += "\nRelease date: Oct. 5, 2021"
+    elif variant == "duplicated_date":
+        doc += "\nRelease date: Oct. 5, 2021"
+        if kind == "release_type":
+            doc += "\nThis is the beta release of " + entity
+    api[1]["body"] = doc
+    checked = call(api, request(entity, kind))
+    assert checked.outcome == "abstain"
+    assert checked.citation is None
+    assert api[2] == [url(entity)]
+
+
 def test_api_does_not_import_ml_model_or_use_network_before_authorization(api):
     # If default CPU neural inference were accidentally introduced, our
     # dependency-free source path would fail in the standard backend suite.
