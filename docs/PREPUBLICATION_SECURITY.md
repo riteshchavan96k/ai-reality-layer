@@ -1,6 +1,6 @@
 # AI Reality Layer — publication security review
 
-## Current status (23 October 2026)
+## Current status (reviewed through 24 October 2026)
 
 The owner intentionally changed this repository to public. The proprietary
 LICENSE is already on main at 075780ace3f7e3888b21bf0ba1e6bde1de9369d8.
@@ -130,15 +130,107 @@ Reviewed security implementation: `19a629083924f040216fc1d5063d14a30ce2e3fc`.
   Account metadata alone does not establish safe collaborator or secret-store
   configuration. Those administrative surfaces were not inspected.
 
+## Owner-reviewed repository settings — 24 October 2026
+
+The repository owner inspected authenticated GitHub settings and security pages
+and supplied screenshots within the project conversation on 24 October 2026.
+These observations are owner-provided UI evidence, **not** a public export of
+private account settings, a forensic scan, a contractual IP audit, or a proof
+that no unknown credential or exposure exists. Do not place screenshots,
+credential values or private cache contents into this public repository.
+
+### Access, automation and protections
+
+- Repository remains **public** and owned by `riteshchavan96k`; the connected
+  GitHub repository API reports the owner has `admin` permission.
+- The Collaborators page displayed **zero additional direct collaborators**.
+  No deploy keys, repository webhooks, self-hosted Actions runners or GitHub
+  deployment environments were listed. These pages alone do not prove the
+  absence of access from other account-level services or previously issued tokens.
+- The Actions configuration pages displayed **no repository/environment
+  secrets or variables**. Other secret stores, personal tokens, external
+  hosting configuration, historical deleted settings and credential providers
+  were not independently audited. No secret value was requested or disclosed.
+- The Installed GitHub Apps page showed **ChatGPT Codex Connector** as the only
+  listed app; the owner explicitly chose to retain it. Installation privileges
+  and any access outside this repo need separate review if scope expands.
+- GitHub Ruleset **25773872**, "Protect AI Reality Layer Main", was verified
+  directly through the repository API as `active`, targeting
+  `~DEFAULT_BRANCH` (currently `main`), with branch deletion restricted,
+  non-fast-forward / force updates blocked, and pull requests required.
+  The bypass list is empty. Required approving review count is **zero**;
+  **required status checks are not enforced by the ruleset**. This protects the
+  branch against specified direct modifications, **not** against intentionally
+  merging an untested or malicious PR. The connected branch API reports
+  `protected=true`. The prior 22–23 October "unprotected" observation
+  in the historical audit below was accurate *then*, and is superseded.
+- GitHub Actions owner screenshots show default workflow-token access scoped
+  to read repository contents/packages, and workflow-created/approved PRs
+  disabled. The policy still allows all reusable/third-party actions; requiring
+  full commit-SHA pinning is **off**. Existing workflow versions must first be
+  migrated and verified before tightening that control. Owner reported
+  changing external-fork contributor approval, and GitHub displayed
+  "settings saved"; the final selected radio option was not independently
+  reconfirmed. Retention setting displayed **90 days**.
+- The owner showed Dependency graph and Dependabot alerts **enabled**;
+  Dependabot security-update and grouped-update automation remained off.
+  The open/closed Dependabot vulnerability-alert screen showed **0 / 0**.
+  The previously failed managed dependency-graph run remains unresolved on
+  `main` until the UTF-8 requirements repair in this PR is merged and a
+  **fresh successful graph execution** is observed. Consequently, zero
+  Dependabot alerts is not equivalent to complete vulnerability coverage.
+- Owner displayed GitHub **Secret Protection enabled**, reported enabling
+  **push protection**, and the Secret scanning alert screen showed
+  **0 open / 0 closed**. Neither this UI nor the independent history heuristics
+  can prove that no provider credential exists; push protection does not
+  sanitize earlier commits. CodeQL was not configured in the reviewed UI.
+
+### Active caches and material outside reach
+
+- The signed-in Actions cache page listed **six existing caches**:
+  **three** scoped to `refs/pull/286/merge` and **three** to `main`.
+  Their displayed keys were `setup-python`/Python 3.13 pip-cache keys;
+  sizes were approximately 97 MB for the three PR cache entries, and
+  97 MB, 7.2 MB and 58 MB for the three `main` entries. These are **cache
+  listings only**: cached bytes have **not** been examined, authenticated or
+  declared clear. No cache was deleted or modified in this review.
+- Earlier historical workflow log/artifact scanning covered the inventories
+  itemized below, but deleted/expired artifacts, unadvertised/unreachable
+  objects, external attachments, forks and off-platform copies remain outside
+  the available evidence. Keep their exclusion explicit rather than equating
+  "not visible" with "safe".
+
+### Ownership declaration and acceptance boundary
+
+- The owner stated in the project conversation that the repository contains
+  **no employer, client or third-party material copied without the required
+  permission**, and that original materials are theirs subject to applicable
+  third-party licenses. This is a **self-declaration**, not an independent legal
+  opinion, contributor assignment audit, patent/trademark determination or
+  verified license chain for all dependencies, models and datasets.
+- No confirmed live credential exposure was established in the described
+  bounded scan or current UI alerts. That is *not* universal security
+  clearance. Uninspectable caches and deleted/off-platform records, account
+  and provider credential validity, historical access changes, and independent
+  IP/title checks are still **not fully cleared**.
+- **Gate decision as of this record: PR #286 remains DRAFT and unmerged.**
+  Passing feature-head CI is an engineering result, not an owner risk-acceptance
+  or a waiver of the PR's original comprehensive security gate. Before merge,
+  explicitly resolve or document owner acceptance of residual risk and review
+  the final diff; after merge, verify the exact new-main project workflows
+  and a fresh successful managed dependency-graph run. Do not claim full
+  historic publication clearance or Step255 acceptance on this basis.
+
 ## Explicitly unfinished comprehensive gate
 
 The completed historical log, artifact and discussion screening above supersedes
-previous interrupted-sweep notes. Caches, unavailable/deleted objects,
-external attachments, account secret stores and collaborator/security settings
-are **not fully cleared**. The administrative review requires authenticated
-repository settings access; the current browser is signed out and the GitHub
-connector excludes these administrative surfaces. Neither scan verifies the
-contractual ownership chain or provider-side token validity.
+previous interrupted-sweep notes. The owner reviewed several administrative pages on 24 October 2026 as
+recorded above, superseding the earlier signed-out-browser limitation for
+those *specific* screens. Cached bytes, unavailable/deleted objects, external
+attachments, broader account/provider secret stores, historical access
+configurations and independent third-party-rights documentation are **not
+fully cleared**. Neither scan proves the contractual ownership chain or
+provider-side token validity.
 
 PR #286 must remain unmerged under its original comprehensive gate until
 remaining review evidence is supplied. Successful CI and synthetic-fixture
