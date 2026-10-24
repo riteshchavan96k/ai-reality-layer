@@ -59,6 +59,25 @@ def parse_release_date_label(text: object) -> date | None:
     return parse_date(match.group(1)) if match else None
 
 
+
+def historical_eol_banner_near_heading(
+    lines: list[str], heading: int, evidence: int, entity: str
+) -> bool:
+    """Permit only a short, explicitly attributable publisher EOL warning.
+
+    The banner changes *current support status*, not the historical release
+    date/type. A generic intervening paragraph is never a bypass.
+    """
+    if not (heading < evidence <= heading + 8):
+        return False
+    between = [line.casefold() for line in lines[heading + 1:evidence]]
+    name = entity.casefold()
+    return (
+        any(name in line and "end-of-life" in line for line in between)
+        and any("no longer supported" in line for line in between)
+    )
+
+
 def select_date_unit(content: object, entity: str) -> tuple[str, date] | None:
     """Check visible source document structural proximity, not mere substring.
 
@@ -77,7 +96,11 @@ def select_date_unit(content: object, entity: str) -> tuple[str, date] | None:
     if len(headings) != 1 or len(dates) != 1:
         return None
     h, (position, unit, date_value) = headings[0], dates[0]
-    if date_value is None or not h < position <= h + 4 or len(unit) > 80:
+    if (
+        date_value is None or not h < position or len(unit) > 80
+        or (position > h + 4
+            and not historical_eol_banner_near_heading(lines, h, position, entity))
+    ):
         return None
     # If another Python-version heading intervenes, the date's owner is not
     # clear even if the requested heading occurs earlier.
@@ -88,5 +111,6 @@ def select_date_unit(content: object, entity: str) -> tuple[str, date] | None:
 
 
 __all__ = [
-    "expected_question", "parse_date", "parse_release_date_label", "select_date_unit",
+    "expected_question", "parse_date", "parse_release_date_label",
+    "select_date_unit", "historical_eol_banner_near_heading",
 ]

@@ -101,3 +101,23 @@ def test_shallow_history_is_refused():
         r=subprocess.run([sys.executable,str(SCANNER),str(shallow)],capture_output=True,text=True)
         assert r.returncode==2
         assert 'shallow' in r.stderr
+
+def test_local_sensitive_paths_are_ignored_without_touching_git_history():
+    ignored = [
+        ".env.production", "config/.env.production.local",
+        "services/api/.env", "secrets.json", "config/credentials.json",
+        "deploy/tls/private.pem", "data/tenant.sqlite3",
+        ".private-audit/report.json", "private-audit-2026.json",
+    ]
+    for relative in ignored:
+        check = subprocess.run(
+            ["git", "-C", str(ROOT), "check-ignore", "--no-index", "-q", "--", relative],
+            capture_output=True, text=True,
+        )
+        assert check.returncode == 0, f"Missing local sensitive-path ignore: {relative}"
+    for normal in ("README.md", "backend/requirements.txt", "docs/STEP_255.md"):
+        check = subprocess.run(
+            ["git", "-C", str(ROOT), "check-ignore", "--no-index", "-q", "--", normal],
+            capture_output=True, text=True,
+        )
+        assert check.returncode == 1, f"Unexpected ignore of tracked project file: {normal}"

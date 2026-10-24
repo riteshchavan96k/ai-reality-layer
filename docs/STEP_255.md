@@ -1,0 +1,46 @@
+# Step 255 — Unified Evidence-First Question Answering API with Optional Neural Enrichment
+
+## Verified prior milestone and purpose
+**Step254 ✅** was independently accepted on `main` SHA `a99d8cfdb60324187b6142f97e001b082328f7a6`, [merged PR #283](https://github.com/riteshchavan96k/ai-reality-layer/pull/283), 3,276 full backend tests, 24/24 exact-final-main successful push Actions, and [final acceptance audit](https://github.com/riteshchavan96k/ai-reality-layer/pull/283#issuecomment-6241075795). No preexisting Step255 specification was present. The six actual Step254 Python.org tasks were 6/6 correct with independently deterministic parsing but only 4/6 correctly accepted via mandatory FLAN-T5; 2 generated abstentions, zero false support **within six cases**. The strong next product action is to make directly verifiable answers available to developers **without paying an unhelpful model coverage tax**, preserving model research as opt-in diagnostic.
+
+## Functionality
+- One restricted authenticated local/host-ready `POST /api/v1/reality-state/ask` accepts `{question, entity, freshness_max_age_seconds}` and never accepts arbitrary URL, untrusted model answer, or publisher excerpt. Strict question/entity grammar recognizes only `When was Python X.Y.Z released?` and `What type of release was Python X.Y.Z?`; any unsupported or malformed request abstains **before network access**.
+- The backend independently derives the exact canonical `https://www.python.org/downloads/release/python-XYZ/` URL, then reuses the **existing secure** operator-exact-allowlisted HTTPS original-source readers (DNS/IP pinning and TLS identity, no redirect, bounded media, hidden quote filtering). Backend performs **one** capture per supported question and delegates to the independently reviewed Step253/254 unique-heading/date/type statement constraints, counterstatement guards, source capture/quote hashes and freshness. The server constructs the answer directly from a validated original-source excerpt without neural dependencies.
+- Typed `EvidenceFirstAskResponse` binds request SHA256, original subordinate source-request SHA256, entity, historical fact-kind, bounded ISO date or historical stable release-type answer, exact original-source citation text/sha256/capture sha256 and trusted UTC capture timestamp, plus explicit `observed_source_support`. This is **publisher text observed**, not independently proven world truth, publisher-signed provenance, current security support status or multi-source verification.
+- An additional opt-in `ask_with_optional_model` developer client validates source receipt, canonical URL, request hash, source subrequest hash, quote digest, observation time, original source statement/date and returned answer. Real pretrained model is never required; if developer supplies `extract_date` or `extract_status`, it may produce a **separate research-only diagnostic** of agreement/disagreement/unavailability. It cannot override, veto, alter, upgrade, cite or destroy an already source-supported answer. Model errors are sanitized. It does not trigger another source fetch within a request or upload full HTML/bearer to neural model.
+- Original authenticated source endpoints, source-history/timeline API and their historical tests remain available. This milestone doesn't imply general question-answering, arbitrary source search, semantic entity extraction, cloud GPU infrastructure, statistical factual accuracy or production deployment.
+- **Historical EOL-banner compatibility:** The official Python 3.10.0 page now includes an end-of-life/no-longer-supported banner between its unique release heading and older date/type fields. Conservative Step253/254 heading proximity checks continue to require a unique exact heading/field and fail-closed ambiguity checks. A strictly bounded maximum eight-line window is permitted **only when** the intervening original source text explicitly links the same requested entity to an EOL warning **and** states it is no longer supported. This warning does not imply the original stable release type or date changed, and never authorizes the API to answer today's security-support status. Regression tests reject generic insertions, other-version warnings, overly long banners, repeated dates or directly contradictory stable-release statements.
+
+## Predeclared independent held-out verification
+- Preserve the existing Step254 6 Python.org cases unchanged: release date and historical type on Python 3.11.0, 3.12.0, 3.13.0.
+- Add 4 separately reviewed, previously unseen official-source cases in `backend/evaluation_fixtures/step255_heldout_official_qa_v1.json` **before running** live CI: [Python 3.10.0](https://www.python.org/downloads/release/python-3100/) (Oct. 4, 2021 + stable) and [Python 3.15.0](https://www.python.org/downloads/release/python-3150/) (Oct. 9, 2026 + stable). These are manually checked official publisher values, not an independent external labeling company or statistical sample. They are only **held out of our prior six-case development evaluation**, not held out of all human examination.
+- Live benchmark `python -m backend.app.evaluation.step255_live_unified_ask --live` exercises **all ten** cases from authenticated FastAPI TestClient through real original publisher TLS. One exact source capture per request, no model calls in the ten-case direct route, no false supported values in accepted cases, negative authentication and unsupported intent with zero egress; separately one real immutable FLAN-T5 call for optional research diagnostics on a source-verified historical release type.
+- Measure direct-answer coverage, correct/false support in these fixed cases, abstention, model-independent source reads and warm-client response latency. Real model may agree or disagree without affecting authoritative source answer. Full backend regression plus genuine model/HTTPS workflow and existing 24 Actions must pass.
+- Honest ceilings: this deliberately remains **narrowly programmatic and single publisher**. It does not establish accuracy in arbitrary documents or independent publisher signatures. Zero observed false support in ten selected cases is NOT a universal claim.
+
+## Verified accepted baseline — merged 24 October 2026
+
+The acceptance gates below were independently completed on the reviewed
+PR-head and then on protected main SHA
+`5239de5f34dff3bd362f90b11189677235b3467c`. See the
+[final PR #284 audit](https://github.com/riteshchavan96k/ai-reality-layer/pull/284#issuecomment-6385634749).
+The [backend run](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/40104195869)
+shows **3,348 passed**, and the
+[official-source + real model run](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/40104195927)
+reports **10/10** validated narrow original-source answers and **4/4**
+new held-out questions, 0 false support within the fixed cases, with
+**25/25 successful final-main workflows**. True pretrained FLAN-T5
+executed as optional non-authoritative research diagnostics; its disagreement
+did not alter the source answer. Nothing here claims general QA or production
+deployment. The independent prepublication-history review PR #286
+continues as a distinct bounded-risk security gate.
+
+## Mandatory acceptance
+- [x] New API, developer client, security and adversarial offline tests pass.
+- [x] Ten-case genuine-source held-out coverage and real optional inference pass with verified original-source facts.
+- [x] All 25 PR-head workflows green, including entire backend regression and preexisting publisher/model/history workflows.
+- [x] Review source selection/citation/freshness/bearer/model authority; merge with expected SHA.
+- [x] Independently verify **25/25 successful `push` workflows** on exact final merged `main` SHA, full suite and real integration job logs.
+- [x] Record acceptance audit comment on PR without another unverified source code commit; only then Step255 ✅.
+
+External operational HTTPS staging pilot [release blocker #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242) remains **OPEN** and deferred by prior project decision. No customer-facing deployment claim.

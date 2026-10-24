@@ -1,4 +1,8 @@
 from fastapi import FastAPI
+from backend.app.api.evidence_first_ask import (
+    EvidenceFirstAskRequest, EvidenceFirstAskResponse,
+)
+from backend.app.services.evidence_first_ask_service import ask_evidence_first
 from backend.app.api.release_status import ReleaseStatusSourceRequest, ReleaseStatusSourceResponse
 from backend.app.services.release_status_source_service import observe_release_status
 from backend.app.api.release_date import ReleaseDateSourceRequest, ReleaseDateSourceResponse
@@ -179,6 +183,17 @@ def on_demand_live_history_reconciliation(request: TemporalRecheckRequest):
 def original_source_historical_timeline(request: TemporalTimelineRequest):
     """Pilot-only, opt-in historical evidence read with no HTTPS or DB writes."""
     return historical_timeline_readonly(request)
+
+
+@app.post(
+    "/api/v1/reality-state/ask",
+    response_model=EvidenceFirstAskResponse,
+    responses=_VALIDATION_AND_INTERNAL_ERROR_RESPONSES,
+    openapi_extra=_REQUEST_ID_OPENAPI_EXTRA,
+)
+def bounded_evidence_first_answer(request: EvidenceFirstAskRequest):
+    """One server-controlled official source, deterministic bound answer."""
+    return ask_evidence_first(request)
 
 
 @app.post(

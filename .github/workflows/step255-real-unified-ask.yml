@@ -1,0 +1,38 @@
+name: Step 255 real evidence-first unified QA and optional model
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unified-qa:
+    name: Real official publisher heldout + optional pinned model
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    steps:
+      - name: Checkout exact code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Python 3.11
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.11"
+      - name: Install backend and focused security regression
+        run: |
+          python -m pip install -r backend/requirements-dev.txt
+          python -m pytest -q backend/tests/test_step255.py
+      - name: Install reviewed CPU-only PyTorch
+        run: python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Install immutable real model inference dependencies
+        run: python -m pip install transformers==4.52.4 huggingface-hub==0.32.4 safetensors==0.5.3 sentencepiece==0.2.0
+      - name: Run ten official-source questions with one opt-in real model call
+        run: python -m backend.app.evaluation.step255_live_unified_ask --live

@@ -1,11 +1,69 @@
 # AI Reality Layer — publication security review
 
-## Current status (reviewed through 24 October 2026)
+## Reconciled post-Step255 security checkpoint — 24 October 2026
+
+**PR #286 remains DRAFT, NOT MERGED, and is NOT a declaration of complete
+historical publication clearance.** The repository is already public.
+This review records all retrievable evidence and known blind spots without
+pretending that deleted materials or external account secrets were examined.
+
+After the original 22–24 October security review, the following independent
+changes landed on protected `main`:
+
+- [PR #287](https://github.com/riteshchavan96k/ai-reality-layer/pull/287):
+  all preexisting GitHub Actions references pinned to immutable action commits,
+  then tested with 24/24 exact-main push workflows.
+- [PR #288](https://github.com/riteshchavan96k/ai-reality-layer/pull/288):
+  production `backend/requirements.txt` converted to strict UTF-8 with
+  **14/14 pinned dependencies preserved**. The separately managed
+  [dependency-graph run 40101625658](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/40101625658)
+  succeeded and submitted the `pypi::/backend` manifest.
+- [PR #284](https://github.com/riteshchavan96k/ai-reality-layer/pull/284):
+  original Step255 question API merged; authentic final-main official-source
+  benchmark 10/10 narrow cases and 25/25 workflows passed. This is **product
+  engineering**, not evidence that historic repository secrets are cleared.
+- [PR #289](https://github.com/riteshchavan96k/ai-reality-layer/pull/289):
+  the *non-destructive* `.gitignore` credentials/datasets protection and
+  read-only historical scanner/tests were independently extracted from this
+  audit PR and merged alongside milestone documentation updates. Exact final
+  protected main: `d349e6882989b523727fb794295d2e29d4570e64`, **25/25 push workflows passing**, with
+  [full backend run 40106187879](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/40106187879)
+  showing **3,354 passed**, including six scanner/ignore regressions.
+  [Step255 real-source run 40106187840](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/40106187840)
+  independently passed the bounded source/model evaluation.
+
+**Scope reconciliation:** this PR has now been based on the latest merged
+main, preserving its old history via a non-force merge. All scanner/test,
+ignore, UTF-8 and product changes described below are already integrated.
+The expected *effective* PR diff is **only this audit documentation file**.
+The chronological audit sections below describe when each observation was
+made; older "pending" statements are historical, not current engineering
+failure assertions. In particular, dependency-graph parser recovery and
+action-tag pinning (previous risk register items R4 and part of R5) have
+been technically resolved.
+
+**Still open or bounded:** R1 historical cache *bytes*, R2 inaccessible or
+deleted/off-platform artifacts, R3 external provider credential inventory,
+R5 **required CI-status-check enforcement (owner-admin configuration)**,
+R6 independent IP/license-chain review, and R7 separately deferred external
+HTTPS deployment. Successful CI, current alerts showing zero and a
+non-clearance scanner cannot prove those surfaces are clean. The owner's
+prior declaration about no unauthorized third-party/employer/client content
+remains a self-declaration, not a contractual legal audit.
+
+**Security decision: HOLD this audit PR as draft.** No blanket risk
+acceptance, credential rotation, cache deletion, history rewrite, deployment
+or branch-ruleset administration was performed through this reconciliation.
+The independent legal/security residual-risk acceptance decision belongs
+to the owner. The next product milestone (Step256) is **not** defined here.
+
+
+## Historical engineering status (22–24 October; current update above supersedes)
 
 The owner intentionally changed this repository to public. The proprietary
 LICENSE is already on main at 075780ace3f7e3888b21bf0ba1e6bde1de9369d8.
 This review does not change visibility, grant reuse rights, certify ownership,
-or declare the repository free of secrets. Step 255 PR #284 remains separate.
+or declare the repository free of secrets. Step 255 PR #284 was still separate at the time; its later acceptance is documented in the current checkpoint above.
 
 The earlier statement that full Git history could not be scanned is superseded
 by the local review described below. Account billing was a suspected CI cause;
@@ -254,8 +312,8 @@ complete historical exposure review.
 | R1 | Retained GitHub Actions caches | Six setup-python pip cache **entries** were visible to the signed-in owner (three PR merge-ref and three main); only metadata was inspected. Cache bytes and historical inaccessible cache entries were not checked. | **Open.** Obtain authorized inspection or make a reasoned, documented cache-retention/deletion decision, understanding deletion will not undo any historic exposure. Do not assert clean cache contents. |
 | R2 | Deleted, expired, unreachable or off-platform objects | Prior independent Git/object/log/artifact/issue screening covered the documented *retrievable* inventory. Deleted or inaccessible logs/artifacts, unreachable server-side objects, earlier clones/forks and external attachments are outside that evidence. | **Inherently bounded.** Record these as exclusions; recover specific identified material where possible and require explicit **owner residual-risk acceptance** for what cannot be recovered, not an assertion of zero exposure. |
 | R3 | Provider/account credential inventory | Current GitHub Actions repository/environment secret and variable pages displayed no entries and secret scanning displayed 0 open/closed alerts. External provider credentials, personal access tokens, historically removed values and integrations beyond displayed settings were not audited. | **Open.** Owner inventories actually used providers, tokens, deployment services and accounts privately; revoke/rotate **confirmed** compromised credentials first. Never publish credentials or unredacted inventories in public issues. |
-| R4 | Dependency vulnerability coverage and graph | The main managed dependency graph previously failed to parse UTF-16 backend/requirements.txt. PR #286 contains an UTF-8 conversion without changing dependency pins, with successful PR-head tests. Dependabot currently reports no open alerts but dependency coverage is not verified complete. | **Engineering repair ready; final-main gate pending.** After authorized merge, require a **fresh successful** managed graph run on the corrected main and review ensuing alerts. The old failed run is not a passed gate. |
-| R5 | CI supply-chain and merge governance | Current 24 project workflows use read-only job permissions; owner screenshot shows default read token. Actions policy allows all actions; existing actions/checkout@v7 and actions/setup-python@v7 are tag-referenced rather than immutable-SHA-pinned. Main ruleset is active but requires **zero review approvals and no status checks**. | **Known hardening debt.** Keep manual exact-head 24/24 checks mandatory for this PR. Schedule tested action-pin migration and appropriate required-status-check configuration in a separate scoped change; do not enable immutable SHA enforcement before migrating workflows. |
+| R4 | Dependency vulnerability coverage and graph | **Resolved technically** in PR #288: strict UTF-8 manifest with 14 unchanged pins, plus successful new managed graph run 40101625658 on corrected main. | **Engineering closed.** Owner-only Dependabot alerts inventory still requires review and is not proven empty. |
+| R5 | CI supply-chain and merge governance | Full SHA action pinning resolved in PR #287, current main 25/25 green. Main ruleset still mandates pull requests but **no required status-check contexts**; owner account controls remain outside this connector. | **Partially closed.** Keep manual exact-head/full-suite acceptance until owner configures stable required CI checks. |
 | R6 | Intellectual-property chain and notices | Owner declares no unpermitted employer, client or third-party materials; a proprietary license notice exists. No independent contributor assignment, all-model/dataset/dependency license review, trademark audit or external legal opinion was performed. | **Open bounded ownership risk.** Retain owner declaration as such; verify third-party dependencies and any contributions before any contractual exclusivity or customer promises. Do not treat the notice as proof of entire title. |
 | R7 | Deployed-system exposure | There are no configured GitHub deployment environments or self-hosted runners per owner UI. No actual externally hosted authenticated HTTPS pilot has been accepted. | **Explicitly deferred non-public product gate** in issue #242. It cannot be described as a deployed or customer-ready service and is not solved by PR #286. |
 
@@ -292,4 +350,4 @@ head and 24/24 feature-head workflows and backend logs, then verify applicable
 PR requirements. After merge: confirm the exact resulting main SHA and
 24/24 successful **push** workflows, inspect the full backend result, and
 obtain a separate fresh successful managed dependency-graph validation.
-Step255 PR #284 remains separate and unaccepted.
+At the original review time, Step255 PR #284 was unaccepted; the reconciled current checkpoint above records its subsequently verified successful merge.
