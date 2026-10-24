@@ -188,8 +188,15 @@ def main(argv=None) -> int:
     try:
         print(json.dumps(run_live(args.cache_dir),sort_keys=True))
         return 0
-    except Exception:
-        print("Step 255 real unified question benchmark failed")
+    except Exception as exc:
+        # Diagnostics are deliberately location-only: never log credentials,
+        # original publisher text, URLs, model outputs or exception messages.
+        import traceback
+        frames = traceback.extract_tb(exc.__traceback__)
+        tail = ",".join(
+            f"{Path(frame.filename).name}:{frame.lineno}" for frame in frames[-4:]
+        )
+        print(f"Step 255 real unified question benchmark failed: {type(exc).__name__} at {tail}")
         return 1
 
 if __name__=="__main__":
