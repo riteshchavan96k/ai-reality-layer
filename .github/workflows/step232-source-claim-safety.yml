@@ -26,9 +26,9 @@ jobs:
       ARL_INDEPENDENT_SOURCE_ALLOWED_URLS: '["https://www.python.org/downloads/release/python-3130/","https://www.iana.org/domains/reserved"]'
     steps:
       - name: Checkout exact tested revision
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Install Python 3.13
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.13"
           cache: pip
@@ -41,7 +41,7 @@ jobs:
         run: python -m backend.app.evaluation.step232_source_claim_safety --live --output "$RUNNER_TEMP/step232-policy-audit.json"
       - name: Upload digest-only audit, without publisher text or credentials
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: step232-source-claim-policy-audit
           path: ${{ runner.temp }}/step232-policy-audit.json
