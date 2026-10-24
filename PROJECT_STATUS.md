@@ -1,3 +1,37 @@
+# Accepted baseline — Step 255 ✅ (24 October 2026)
+
+This entry supersedes stale **pre-merge / pending** language in older
+historical sections below; those sections preserve their original sequence
+and are not current milestone status. Step 255 is fully accepted on protected
+`main` SHA `5239de5f34dff3bd362f90b11189677235b3467c`, merged via
+[PR #284](https://github.com/riteshchavan96k/ai-reality-layer/pull/284)
+with an [independent final acceptance audit](https://github.com/riteshchavan96k/ai-reality-layer/pull/284#issuecomment-6385634749).
+
+The final exact-merge-SHA **25/25 push workflows** passed, including
+[full backend 3,348 passing tests](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/40104195869)
+and the [real-source/model Step 255 evaluation](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/40104195927):
+10/10 narrow official Python.org historical date/type answers correct,
+4/4 new held-out examples correct, no unsupported/wrong-bearer network
+capture, one original HTTPS capture per direct question, optional real
+FLAN-T5 diagnostic unable to change a source-grounded answer.
+
+Security: PR #287 immutable action pinning and PR #288 strict UTF-8
+dependency-graph repair are merged, with independent final-main validation.
+This consolidation adds the bounded historical Git scanner, local credential
+ignore patterns and synthetic regression tests without merging the historic
+security review as blanket clearance. The public-repository history review
+[PR #286](https://github.com/riteshchavan96k/ai-reality-layer/pull/286)
+remains draft; neither cached bytes nor unavailable/off-platform objects,
+external provider credentials and contractual IP chains are completely cleared.
+The external deployed HTTPS pilot [issue #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242)
+remains an independent mandatory **release** gate and is **not yet done**.
+
+**Next product milestone:** Step 256 not defined or implemented.
+Define its scope from genuine functionality and evaluation after
+security/integration consolidation; do not restart or fabricate the roadmap.
+
+---
+
 # Step 254 — More real-source answer types with an independently measured neural value baseline (final acceptance pending)
 
 Independently verified prior **Step253 ✅** at final `main` `f5eb9f8175779f30c2e4db5c6f62dd20a610695e`, merged PR #282, 3,227 backend passing tests, 23/23 exact-main successful workflows and audit comment. New Step254 scope selected to add another genuinely grounded factual question type and evaluate real-model value rather than add more scaffolding.

@@ -1,3 +1,35 @@
+# AI Reality Layer
+
+## Current verified product checkpoint — Step 255 ✅ (24 October 2026)
+
+The accepted core product baseline is [Step 255](docs/STEP_255.md),
+merged through [PR #284](https://github.com/riteshchavan96k/ai-reality-layer/pull/284)
+at protected `main` commit `5239de5f34dff3bd362f90b11189677235b3467c`.
+The independent final-main verification recorded **25/25 successful push
+workflows**, **3,348 backend tests passed**, and a real Python.org HTTPS
+evaluation with **10/10 correct narrow historical release answers** (four
+new held-out examples). The optional pretrained model could disagree but
+could not alter the source-backed answer. This is not statistically
+generalizable factual accuracy or publisher-signed evidence.
+
+The authenticated `POST /api/v1/reality-state/ask` supports only tightly
+validated historical Python-version release-date and release-type questions;
+source URLs are server-derived and operator allowlisted. There is **no
+general-purpose web-question interface or hosted production service**.
+External HTTPS deployment remains explicitly unaccepted in
+[issue #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242).
+
+Repository copyright is [proprietary / All Rights Reserved](LICENSE),
+subject to actual rights and applicable third-party licenses. A separate
+[historical security review, PR #286](https://github.com/riteshchavan96k/ai-reality-layer/pull/286)
+remains draft: owner-admin visibility and historical caches/provider accounts
+are **not** categorically cleared. The reviewed scanner and credential ignores
+are integrated through a separate security-hardening PR with their own tests;
+see [security consolidation](docs/SECURITY_CONSOLIDATION_2026_10_24.md).
+No new Step 256 scope or customer-ready/deployment claim is implied.
+
+---
+
 ## Step 254 — Measured evidence-conditioned answer coverage (two historical facts, three real Python.org releases)
 
 AI Reality Layer now supports a second narrowly scoped factual question:
