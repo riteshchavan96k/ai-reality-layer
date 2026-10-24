@@ -77,6 +77,7 @@ def run_live(cache_dir: Path) -> dict:
     abstain=0
     warm_latency_ms=[]
     observed_without_model=0
+    case_receipts=[]
     with patch.dict(os.environ,config),patch.object(
         AllowlistedHttpsSourceReader,"__call__",count_read
     ):
@@ -108,7 +109,16 @@ def run_live(cache_dir: Path) -> dict:
                             heldout_correct+=1
                 else:
                     abstain+=1
+                # Safe structured diagnostics: predeclared ID, bounded status
+                # and reason only; never emit the body, quote, token, or URI.
+                case_receipts.append({
+                    "id":x["id"],"outcome":result.outcome,
+                    "reason":result.reason_code,
+                    "matched":(result.outcome=="bounded_source_answer"
+                               and result.answer_value==x["expected_value"]),
+                })
             if correct!=len(cases) or heldout_correct!=4 or false_support or abstain:
+                print("step255_official_case_outcomes="+json.dumps(case_receipts,sort_keys=True))
                 raise ValueError("real_heldout_source_answer_quality_failed")
 
             # Preflight unsupported query and wrong bearer: zero additional
