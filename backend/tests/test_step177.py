@@ -66,10 +66,36 @@ def test_backend_ci_workflow_uses_pinned_project_python_and_dev_dependencies():
 def test_backend_ci_workflow_uses_current_node24_action_majors():
     content = _read(WORKFLOW)
 
-    assert "actions/checkout@v7" in content
-    assert "actions/setup-python@v7" in content
-    assert "actions/checkout@v4" not in content
-    assert "actions/setup-python@v5" not in content
+    # Pin reviewed Node24-major action releases to immutable Git object IDs.
+    assert "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7" in content
+    assert "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7" in content
+    assert "actions/checkout@v7" not in content
+    assert "actions/setup-python@v7" not in content
+
+
+def test_all_github_workflows_use_reviewed_immutable_action_revisions():
+    # Any new action, or revised action version, requires explicit test review.
+    expected = {
+        "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "actions/setup-python": "6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
+        "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+    }
+    workflows = sorted((ROOT / ".github" / "workflows").glob("*.yml"))
+    assert len(workflows) >= 24
+    for workflow in workflows:
+        content = _read(workflow)
+        uses = [
+            line.strip().split("uses:", 1)[1].split("#", 1)[0].strip()
+            for line in content.splitlines()
+            if line.strip().startswith("uses:")
+            or line.strip().startswith("- uses:")
+        ]
+        assert len(uses) >= 2, workflow.name
+        for ref in uses:
+            assert "@" in ref, (workflow.name, ref)
+            action, revision = ref.rsplit("@", 1)
+            assert action in expected, (workflow.name, action)
+            assert revision == expected[action], (workflow.name, ref)
 
 
 def test_backend_ci_workflow_compiles_before_running_full_test_suite():
