@@ -1,0 +1,44 @@
+{
+  "schema_version": "arl-step255-heldout-official-qa-v1",
+  "purpose": "Predeclared independent new official-source cases selected before model/endpoint evaluation; not statistical generalization",
+  "review_basis": "Official Python.org release webpages inspected before CI run; publisher signatures not independently verified",
+  "cases": [
+    {
+      "id": "py310-date",
+      "entity": "Python 3.10.0",
+      "question": "When was Python 3.10.0 released?",
+      "fact_kind": "release_date",
+      "expected_value": "2021-10-04",
+      "source_uri": "https://www.python.org/downloads/release/python-3100/"
+    },
+    {
+      "id": "py310-type",
+      "entity": "Python 3.10.0",
+      "question": "What type of release was Python 3.10.0?",
+      "fact_kind": "release_type",
+      "expected_value": "stable",
+      "source_uri": "https://www.python.org/downloads/release/python-3100/"
+    },
+    {
+      "id": "py315-date",
+      "entity": "Python 3.15.0",
+      "question": "When was Python 3.15.0 released?",
+      "fact_kind": "release_date",
+      "expected_value": "2026-10-09",
+      "source_uri": "https://www.python.org/downloads/release/python-3150/"
+    },
+    {
+      "id": "py315-type",
+      "entity": "Python 3.15.0",
+      "question": "What type of release was Python 3.15.0?",
+      "fact_kind": "release_type",
+      "expected_value": "stable",
+      "source_uri": "https://www.python.org/downloads/release/python-3150/"
+    }
+  ],
+  "limits": {
+    "not_representative": true,
+    "general_factual_accuracy": false,
+    "publisher_authorship_signature": false
+  }
+}
