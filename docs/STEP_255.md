@@ -18,12 +18,29 @@
 - Measure direct-answer coverage, correct/false support in these fixed cases, abstention, model-independent source reads and warm-client response latency. Real model may agree or disagree without affecting authoritative source answer. Full backend regression plus genuine model/HTTPS workflow and existing 24 Actions must pass.
 - Honest ceilings: this deliberately remains **narrowly programmatic and single publisher**. It does not establish accuracy in arbitrary documents or independent publisher signatures. Zero observed false support in ten selected cases is NOT a universal claim.
 
+## Verified accepted baseline — merged 24 October 2026
+
+The acceptance gates below were independently completed on the reviewed
+PR-head and then on protected main SHA
+`5239de5f34dff3bd362f90b11189677235b3467c`. See the
+[final PR #284 audit](https://github.com/riteshchavan96k/ai-reality-layer/pull/284#issuecomment-6385634749).
+The [backend run](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/40104195869)
+shows **3,348 passed**, and the
+[official-source + real model run](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/40104195927)
+reports **10/10** validated narrow original-source answers and **4/4**
+new held-out questions, 0 false support within the fixed cases, with
+**25/25 successful final-main workflows**. True pretrained FLAN-T5
+executed as optional non-authoritative research diagnostics; its disagreement
+did not alter the source answer. Nothing here claims general QA or production
+deployment. The independent prepublication-history review PR #286
+continues as a distinct bounded-risk security gate.
+
 ## Mandatory acceptance
-- [ ] New API, developer client, security and adversarial offline tests pass.
-- [ ] Ten-case genuine-source held-out coverage and real optional inference pass with verified original-source facts.
-- [ ] All 25 PR-head workflows green, including entire backend regression and preexisting publisher/model/history workflows.
-- [ ] Review source selection/citation/freshness/bearer/model authority; merge with expected SHA.
-- [ ] Independently verify **25/25 successful `push` workflows** on exact final merged `main` SHA, full suite and real integration job logs.
-- [ ] Record acceptance audit comment on PR without another unverified source code commit; only then Step255 ✅.
+- [x] New API, developer client, security and adversarial offline tests pass.
+- [x] Ten-case genuine-source held-out coverage and real optional inference pass with verified original-source facts.
+- [x] All 25 PR-head workflows green, including entire backend regression and preexisting publisher/model/history workflows.
+- [x] Review source selection/citation/freshness/bearer/model authority; merge with expected SHA.
+- [x] Independently verify **25/25 successful `push` workflows** on exact final merged `main` SHA, full suite and real integration job logs.
+- [x] Record acceptance audit comment on PR without another unverified source code commit; only then Step255 ✅.
 
 External operational HTTPS staging pilot [release blocker #242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242) remains **OPEN** and deferred by prior project decision. No customer-facing deployment claim.
