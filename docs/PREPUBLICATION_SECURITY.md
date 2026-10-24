@@ -236,3 +236,60 @@ PR #286 must remain unmerged under its original comprehensive gate until
 remaining review evidence is supplied. Successful CI and synthetic-fixture
 triage do not silently waive that gate. No keys were rotated, no history was
 rewritten, no branches were deleted, and no visibility change was made here.
+
+## Residual-risk gate decision — 24 October 2026
+
+**Decision: HOLD PR #286 as draft; do not merge yet.**
+The security engineering and owner-visible controls have meaningfully improved,
+but the PR's original *comprehensive publication-clearance* condition has not
+been fulfilled. The repository is already public; this decision does not mean
+that the unverified historical material can be made private retroactively.
+"Zero current security alerts" and "all CI green" are different claims from
+complete historical exposure review.
+
+### Risk register
+
+| ID | Area | Evidence and uncertainty | Disposition / required next evidence |
+| --- | --- | --- | --- |
+| R1 | Retained GitHub Actions caches | Six setup-python pip cache **entries** were visible to the signed-in owner (three PR merge-ref and three main); only metadata was inspected. Cache bytes and historical inaccessible cache entries were not checked. | **Open.** Obtain authorized inspection or make a reasoned, documented cache-retention/deletion decision, understanding deletion will not undo any historic exposure. Do not assert clean cache contents. |
+| R2 | Deleted, expired, unreachable or off-platform objects | Prior independent Git/object/log/artifact/issue screening covered the documented *retrievable* inventory. Deleted or inaccessible logs/artifacts, unreachable server-side objects, earlier clones/forks and external attachments are outside that evidence. | **Inherently bounded.** Record these as exclusions; recover specific identified material where possible and require explicit **owner residual-risk acceptance** for what cannot be recovered, not an assertion of zero exposure. |
+| R3 | Provider/account credential inventory | Current GitHub Actions repository/environment secret and variable pages displayed no entries and secret scanning displayed 0 open/closed alerts. External provider credentials, personal access tokens, historically removed values and integrations beyond displayed settings were not audited. | **Open.** Owner inventories actually used providers, tokens, deployment services and accounts privately; revoke/rotate **confirmed** compromised credentials first. Never publish credentials or unredacted inventories in public issues. |
+| R4 | Dependency vulnerability coverage and graph | The main managed dependency graph previously failed to parse UTF-16 backend/requirements.txt. PR #286 contains an UTF-8 conversion without changing dependency pins, with successful PR-head tests. Dependabot currently reports no open alerts but dependency coverage is not verified complete. | **Engineering repair ready; final-main gate pending.** After authorized merge, require a **fresh successful** managed graph run on the corrected main and review ensuing alerts. The old failed run is not a passed gate. |
+| R5 | CI supply-chain and merge governance | Current 24 project workflows use read-only job permissions; owner screenshot shows default read token. Actions policy allows all actions; existing actions/checkout@v7 and actions/setup-python@v7 are tag-referenced rather than immutable-SHA-pinned. Main ruleset is active but requires **zero review approvals and no status checks**. | **Known hardening debt.** Keep manual exact-head 24/24 checks mandatory for this PR. Schedule tested action-pin migration and appropriate required-status-check configuration in a separate scoped change; do not enable immutable SHA enforcement before migrating workflows. |
+| R6 | Intellectual-property chain and notices | Owner declares no unpermitted employer, client or third-party materials; a proprietary license notice exists. No independent contributor assignment, all-model/dataset/dependency license review, trademark audit or external legal opinion was performed. | **Open bounded ownership risk.** Retain owner declaration as such; verify third-party dependencies and any contributions before any contractual exclusivity or customer promises. Do not treat the notice as proof of entire title. |
+| R7 | Deployed-system exposure | There are no configured GitHub deployment environments or self-hosted runners per owner UI. No actual externally hosted authenticated HTTPS pilot has been accepted. | **Explicitly deferred non-public product gate** in issue #242. It cannot be described as a deployed or customer-ready service and is not solved by PR #286. |
+
+### What is complete, versus what is not
+
+- **Reviewed and recorded:** advertised reachable Git history; targeted
+  historical Actions logs and retained artifacts; issue/comment inventory;
+  synthetic scanner regression tests; 24 existing CI workflows; current
+  owner-view administrative controls; the owner's original-material
+  declaration. Source-level findings were triaged as described above and
+  **no live provider credential was confirmed**.
+- **Not completed:** forensic examination of retained cache bytes; recovery
+  of inaccessible/deleted/off-platform objects; independent authentication
+  of external account/credential inventories; contractual IP chain; and
+  final-main dependency graph recovery. None is silently treated as clean.
+- **Do not perform destructive remediation without evidence:** no speculative
+  history rewrite, cache deletion, blanket credential rotation, loss of
+  licensed code or withdrawal of existing developer access.
+
+### Release decision and owner authorization boundary
+
+This record is an **assessment**, not a security certification. At the
+observed checkpoint, insufficient evidence exists for the *original*
+comprehensive publication-clearance assertion, so PR #286 must remain draft.
+The owner can independently choose a **limited, explicitly bounded engineering
+integration** in the future, but doing so requires a separate recorded
+acknowledgement of R1–R6 and the consequences of the already-public history;
+the generic instruction to continue project work does not constitute that
+specific risk acceptance. Such a decision would **not** make uninspected
+material "clean" and would not close external deployment issue #242.
+
+Before any authorized merge: review exact PR code/diff, recheck its current
+head and 24/24 feature-head workflows and backend logs, then verify applicable
+PR requirements. After merge: confirm the exact resulting main SHA and
+24/24 successful **push** workflows, inspect the full backend result, and
+obtain a separate fresh successful managed dependency-graph validation.
+Step255 PR #284 remains separate and unaccepted.
