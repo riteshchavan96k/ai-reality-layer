@@ -15,10 +15,7 @@ WORKFLOWS = Path(__file__).resolve().parents[2] / ".github" / "workflows"
 @pytest.mark.parametrize(
     "filename, required_job_name",
     [
-        # Deliberate wrong expectation in the *temporary verification PR only*.
-        # Used to prove that a failing full-suite check blocks merging.
-        # Correct to "Python 3.13 full suite" after observing the block.
-        ("backend-tests.yml", "Python 3.12 full suite"),
+        ("backend-tests.yml", "Python 3.13 full suite"),
         ("step255-real-unified-ask.yml",
          "Real official publisher heldout + optional pinned model"),
     ],
