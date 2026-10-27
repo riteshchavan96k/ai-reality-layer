@@ -1,4 +1,4 @@
 # Opt-in external human-labeled NLI benchmark; no production install.
 -r requirements-nli-shadow.txt
 # Read fixed, checksum-pinned Stanford SNLI validation Parquet without executing datasets code.
-pyarrow==21.0.0
+pyarrow==23.0.1
