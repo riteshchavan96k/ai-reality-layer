@@ -24,7 +24,7 @@ def test_development_requirements_layer_on_production_requirements():
     content = _read(DEV_REQUIREMENTS)
 
     assert "-r requirements.txt" in content
-    assert "pytest==9.0.2" in content
+    assert "pytest==9.0.3" in content
 
 
 def test_pytest_remains_out_of_production_requirements():
