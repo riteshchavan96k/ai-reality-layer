@@ -45,3 +45,38 @@ The historical audit [PR #286](https://github.com/riteshchavan96k/ai-reality-lay
 **Full owner security clearance:** **Not complete until** owner-only account/credential/cache/rights review and bounded risk decisions have actual evidence. It may not be inferred from merge. This document must not mark Launch Part 1.3 **fully complete** on the user's behalf.
 
 **Deployment:** Never call this an externally deployed or customer-ready product. Hosting remains subsequent launch work; Step 255 remains the accepted product milestone.
+
+
+## Current evidence checkpoint — 24 November 2026
+
+This checkpoint supersedes older chronological statements about whether the Dependabot and secret-scanning screenshots were verified. It **does not** convert owner-only or deployment gates into completed acceptance.
+
+### Verified current repository state
+
+- Accepted `main`: `0116a9dda1df961d25f60bef5bf9886f23e1afb9`.
+- GitHub API reports **31 check-run records** for this exact SHA; all are `completed / success`. The required protected-main contexts remain `Python 3.13 full suite` and `Real official publisher heldout + optional pinned model` under active ruleset #25773872, with no bypass actors.
+- [PR #295](https://github.com/riteshchavan96k/ai-reality-layer/pull/295) merged the four dependency fixes. Owner-provided authenticated Dependabot screenshot shows **0 open / 4 closed**, with the four alerts marked **Fixed**. Patched pins include `pytest==9.0.3` and `pyarrow==23.0.1` in their affected non-production manifests.
+- Owner-provided **unfiltered** Secret scanning screenshot shows **0 open / 0 closed**. Separate Advanced Security screenshot shows **Secret Protection enabled** and **Push protection On**.
+- The weekly production Python dependency advisory workflow ran successfully on **23 November 2026** (run [45195839522](https://github.com/riteshchavan96k/ai-reality-layer/actions/runs/45195839522)); the preceding weekly runs on 2, 9 and 16 November also succeeded. This checks the resolved production Python package closure against the configured PyPI advisory service. It is not a container OS scan, legal clearance, or guarantee against unknown vulnerabilities.
+- Production requirements remain strictly pinned and separate from development / optional ML benchmark dependencies. The dependency guard checks the Dockerfile installs only `backend/requirements.txt`.
+
+### Cache workflow review (configuration only)
+
+The reviewed backend CI uses `actions/setup-python` pip caching keyed to `backend/requirements.txt` and `backend/requirements-dev.txt`; the workflow declares `permissions: contents: read`. The production dependency audit uses `pip --no-cache-dir`. The inspected workflows do not use a direct `actions/cache` step.
+
+Historical owner screenshots from 24 October 2026 showed **six entries (three on `main`, three on PR #286 merge refs), all identified as Python pip caches**. This is a dated snapshot only; it does not establish the current count, actual bytes, keys, last-used metadata, or content safety. No cache was deleted.
+
+**Actual retained cache inventory and bytes remain unverified.** The connected GitHub integration cannot read the owner-only Actions cache listing; the owner must review Actions → Caches and record a private retention/invalidation decision. Prior documentation of a six-cache snapshot is historical, not a current count.
+
+### Remaining objective blockers
+
+1. **Owner cache review:** inspect current cache entries, branch/ref scopes, provenance and last-used metadata; retain or expire/invalidate with reason. If a credential is suspected in cache, revoke/rotate it at the issuing provider before relying on cache deletion.
+2. **Owner credential/access review:** inspect personal GitHub PATs, OAuth/installed Apps, deploy keys, collaborators, webhooks, repository/organization Actions secrets and variables, plus every external cloud/model/API provider and old development environment. Do not paste secrets or inventory details into chat or public issues. Record only a private redacted completion/remediation attestation.
+3. **Rights/provenance review:** review actual first-alpha service/runtime and any distributed material, contributions/employer/client ownership, source terms, optional model/dataset and SDK rights if used or distributed. Publisher metadata is not a legal rights determination.
+4. **Bounded historical exclusions:** owner records what could not be inspected (unreachable/deleted Git objects, expired logs/artifacts, off-platform clones/stores) and explicitly accepts or rejects the residual risk for the narrowly restricted alpha. Do not claim exhaustive clean history.
+5. **Container image hardening:** current Dockerfile uses mutable `python:3.13-slim`, runs as UID/GID 10001 and disables pip cache, but the base image is **not pinned by digest** and the built image/OS layer has **not had an independent vulnerability scan**. Resolve a reviewed digest, build the exact image, scan it, and remediate or document applicable findings before hosted pilot acceptance.
+6. **External pilot release gate:** Issue #242 remains open. TLS ingress, no direct public port 8080, managed bearer secret, ingress rate/body/concurrency/time controls, egress boundaries, monitoring, budget, rollback, and independent external HTTPS client probes must be verified on the actual host. Passing CI/local Docker does not complete this gate.
+
+### Current acceptance decision
+
+**Repository-side evidence review is substantially complete; Launch Part 1.3 overall security acceptance remains OPEN.** No owner-only credential, cache, rights or historical residual-risk decision is inferred from screenshots, tests or documentation. No external customer API is authorized by this checkpoint. Continue only with bounded, restricted-alpha preparation until the owner-only reviews and mandatory external pilot gate have evidence.
