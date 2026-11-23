@@ -1,5 +1,5 @@
 # Step 231: isolated pilot runtime. Not an internet-facing deployment by itself.
-FROM python:3.13-slim
+FROM python:3.13.18-slim-trixie@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -8,7 +8,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /srv
 COPY backend/requirements.txt /srv/backend/requirements.txt
-RUN python -m pip install --no-cache-dir -r /srv/backend/requirements.txt \
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip install --no-cache-dir -r /srv/backend/requirements.txt \
+    && python -m pip uninstall -y pip setuptools wheel urllib3 msgpack \
     && groupadd --system --gid 10001 arl \
     && useradd --system --uid 10001 --gid 10001 --no-create-home arl
 
