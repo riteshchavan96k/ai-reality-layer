@@ -213,3 +213,14 @@ def test_pilot_rejects_json_object_allowlist_disguised_as_url_keys():
             "ARL_PILOT_BEARER_TOKEN": SECRET,
             "ARL_INDEPENDENT_SOURCE_ALLOWED_URLS": json.dumps({URL: "not-a-list"}),
         })
+
+
+def test_pilot_dockerfile_updates_os_packages_and_removes_build_tools():
+    root = __import__("pathlib").Path(__file__).resolve().parents[2]
+    dockerfile = (root / "Dockerfile").read_text(encoding="utf-8")
+    assert "apt-get update" in dockerfile
+    assert "apt-get upgrade -y --no-install-recommends" in dockerfile
+    assert "python -m pip install --no-cache-dir -r /srv/backend/requirements.txt" in dockerfile
+    assert "python -m pip uninstall -y pip setuptools wheel urllib3 msgpack" in dockerfile
+    assert "PIP_NO_CACHE_DIR=1" in dockerfile
+    assert "USER 10001:10001" in dockerfile
