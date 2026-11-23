@@ -80,3 +80,30 @@ Historical owner screenshots from 24 October 2026 showed **six entries (three on
 ### Current acceptance decision
 
 **Repository-side evidence review is substantially complete; Launch Part 1.3 overall security acceptance remains OPEN.** No owner-only credential, cache, rights or historical residual-risk decision is inferred from screenshots, tests or documentation. No external customer API is authorized by this checkpoint. Continue only with bounded, restricted-alpha preparation until the owner-only reviews and mandatory external pilot gate have evidence.
+
+
+## Subsequent checkpoint — container scan PR #298 (24 November 2026)
+
+This later checkpoint supersedes the earlier statement that the Docker base was unpinned and no built-image scan existed.
+
+### Container build hardening merged
+
+[PR #298](https://github.com/riteshchavan96k/ai-reality-layer/pull/298) merged after **27/27 successful PR check runs** to `main` `0d9bc673e8a98c4a8b0020dc99c9496af5e3cba9`:
+
+- Pin the Docker Official Python 3.13 slim Trixie multi-platform index to `sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90`.
+- Apply `apt-get update` and `apt-get upgrade --no-install-recommends` in the image build.
+- Install the exact production requirements, then remove `pip`, `setuptools`, `wheel`, `urllib3`, and `msgpack` from the serving runtime; no package-manager cache is kept.
+- Retain non-root UID/GID 10001 and the existing authenticated pilot entrypoint.
+- Add weekly/PR/main/manual Trivy scan of the built image, pinned to immutable action commit `ed142fd0673e97e23eac54620cfb913e5ce36c25`, with read-only workflow permissions and caching disabled.
+
+### Actual Trivy inventory
+
+The report-only scan on the merged changes reported **222 OS-layer findings**: 53 HIGH, 74 MEDIUM, 79 LOW, 16 UNKNOWN and 0 CRITICAL. It reported **0 known vulnerabilities across the 14 production Python distributions**. High OS-layer findings are repeated across package entries; seven distinct HIGH CVE IDs were observed: `CVE-2026-76642`, `CVE-2026-54369`, `CVE-2025-69720`, `CVE-2026-119373`, `CVE-2026-107494`, `CVE-2026-16742`, and `CVE-2026-9538`. The report did not list fixed versions for these high findings; the Perl finding was marked `fix_deferred`. No suppression was added.
+
+**Interpretation:** the scan workflow is a successful inventory, not a clean-image certificate. Some affected libraries are runtime-relevant (SQLite/OpenSSL), so do not purge or dismiss them without compatibility/applicability review. The scanner is intentionally **report-only** at this baseline. A blocking severity policy and required-status-check rule remain to be configured after owner risk review.
+
+### Current merged-main validation
+
+The exact main commit above has its push workflows running; final-main status must be independently checked before the next security acceptance update. This checkpoint does not complete the owner-only credentials/cache/rights/historical-risk review and does not complete external deployment gate [#242](https://github.com/riteshchavan96k/ai-reality-layer/issues/242).
+
+**Overall Launch Part 1.3 remains OPEN.** No external alpha access or security-clearance claim is authorized by this scan.
