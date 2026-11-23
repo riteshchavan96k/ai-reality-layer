@@ -79,6 +79,7 @@ def test_all_github_workflows_use_reviewed_immutable_action_revisions():
         "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
         "actions/setup-python": "6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
         "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "aquasecurity/trivy-action": "ed142fd0673e97e23eac54620cfb913e5ce36c25",
     }
     workflows = sorted((ROOT / ".github" / "workflows").glob("*.yml"))
     assert len(workflows) >= 24
