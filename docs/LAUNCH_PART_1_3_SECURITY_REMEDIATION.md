@@ -64,6 +64,8 @@ This checkpoint supersedes older chronological statements about whether the Depe
 
 The reviewed backend CI uses `actions/setup-python` pip caching keyed to `backend/requirements.txt` and `backend/requirements-dev.txt`; the workflow declares `permissions: contents: read`. The production dependency audit uses `pip --no-cache-dir`. The inspected workflows do not use a direct `actions/cache` step.
 
+Historical owner screenshots from 24 October 2026 showed **six entries (three on `main`, three on PR #286 merge refs), all identified as Python pip caches**. This is a dated snapshot only; it does not establish the current count, actual bytes, keys, last-used metadata, or content safety. No cache was deleted.
+
 **Actual retained cache inventory and bytes remain unverified.** The connected GitHub integration cannot read the owner-only Actions cache listing; the owner must review Actions → Caches and record a private retention/invalidation decision. Prior documentation of a six-cache snapshot is historical, not a current count.
 
 ### Remaining objective blockers
