@@ -1,13 +1,61 @@
+# Keep the build context limited to files needed for the application image.
 .git
 .github
-*.env
-.env*
-**/__pycache__
-**/*.pyc
-backend/tests
 docs
+backend/tests
+
+# Python environments, caches and generated data
+.venv/
+venv/
+ENV/
+env/
+**/__pycache__/
+**/*.pyc
+.pytest_cache/
+.cache/
+.huggingface/
+model_cache/
+datasets/
+.arl_data/
+
+# Environment configuration and credential material
+.env
+.env*
+**/.env*
+*.env
+*.env.*
 *.pem
 *.key
 *.p12
 *.pfx
+*.jks
+*.keystore
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+.npmrc
+**/.npmrc
+credentials.json
+credentials.*.json
+credentials*.json
+secrets.json
+secrets.*.json
+secrets*.json
+*service-account*.json
+
+# Private audit artifacts must never enter the build context
+.private-audit/
+private-audit*.json
+private-audit*.txt
+
+# Local databases, dumps, and backup artifacts
+*.sqlite
+*.sqlite3
 *.sqlite*
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.dump
+*.sql.gz
